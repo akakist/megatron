@@ -1,0 +1,6 @@
+
+#vlc http://localhost:8088/dfs_dl?url=dfs%3a%2f%2ftusovka.tomsk.ru%3a2200%2ftorrents%2ftorrents.vtomske.ru%2fforum%2fdownload.php%2fid_585964%2f5243%2fDzhek.pokoritel.velikanov.2013.D.HDRip.IRONCLUB.avi
+#/usr/bin/vlc http://localhost:8088/dfs/io/stream?url=dfs%3a%2f%2ftusovka.tomsk.ru%3a2200%2ftorrents%2ftorrents.vtomske.ru%2fforum%2fdownload.php%2fid_585822%2f2480%2fConnie%20%28Play%20Me%29.mp4
+#vlc http://localhost:8088/pics/11.mp4
+#vlc http://localhost/22.avi
+vlc http://localhost:8088/dfsstream/dfs%3a%2f%2ftusovka.tomsk.ru%3a2200%2ftorrents%2ftorrents.vtomske.ru%2fforum%2fdownload.php%2fid_586656%2f2653%2fGostja.2013.D.HDRip.avi

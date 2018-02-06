@@ -1,0 +1,57 @@
+#ifndef ____SEVICE_ERRDTIMERR___H___
+#define ____SEVICE_ERRDTIMERR___H___
+#include "mutexable.h"
+#include "unknown.h"
+#include "SERVICE_id.h"
+#ifndef _MSC_VER
+#include <sys/time.h>
+#endif
+#include "IInstance.h"
+#include "listenerBuffered1Thread.h"
+#include "listenerSimple.h"
+#include "broadcaster.h"
+#include <ostream>
+
+#include "logging.h"
+
+#include "Events/System/Run/startService.h"
+#include "Events/System/Net/rpc/IncomingOnAcceptor.h"
+#include "Events/Tools/errorDispatcher/SendMessage.h"
+#include "Events/Tools/errorDispatcher/Subscribe.h"
+#include "Events/Tools/errorDispatcher/Unsubscribe.h"
+#include "Events/Tools/errorDispatcher/NotifySubscriber.h"
+namespace ErrorDispatcher
+{
+
+    class Service:
+        private UnknownBase,
+        private ListenerBuffered1Thread,
+        private Broadcaster,
+        public Logging
+    {
+        bool on_errorDispatcherSendMessage(const errorDispatcherEvent::SendMessage*);
+        bool on_errorDispatcherSubscribe(const errorDispatcherEvent::Subscribe*);
+        bool on_errorDispatcherUnsubscribeAll(const errorDispatcherEvent::Unsubscribe*);
+        bool on_startService(const systemEvent::startService*);
+        bool handleEvent(const REF_getter<Event::Base>& e);
+        bool on_IncomingOnAcceptor(const rpcEvent::IncomingOnAcceptor*);
+
+
+        Service(const SERVICE_id&, const std::string&  nm, IInstance *ifa);
+        ~Service();
+
+
+        std::set<route_t> m_subscribers;
+        std::map<int,std::string> m_cache;
+
+    public:
+        static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa)
+        {
+            return new Service(id,nm,ifa);
+        }
+
+    private:
+
+    };
+};
+#endif

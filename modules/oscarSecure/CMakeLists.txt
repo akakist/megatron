@@ -1,0 +1,12 @@
+cmake_minimum_required (VERSION 2.6)
+
+add_library(core-oscarSecure SHARED
+    oscarSecure.cpp
+    oscarSecureService.cpp
+    oscarSecureUser.cpp
+)
+
+target_link_libraries(core-oscarSecure megatron-core)
+
+install(TARGETS core-oscarSecure DESTINATION ${PLUGIN_TARGET_DIR})
+

@@ -1,0 +1,12 @@
+_CFLAGS_D0= -O0   -Wall -c -DLINUX -ggdb    -DDEBUG -D_DEBUG -DMUTEX_INSPECTOR_DBUG     -D_REENTRANT -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS   -D__STDC_FORMAT_MACROS
+
+_CFLAGS_D1=  -O0 -Wall-c -DLINUX  -ftemplate-depth-30 -ggdb  -DDEBUG -D_DEBUG -DMUTEX_INSPECTOR_DBUG      -D_REENTRANT  -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS  -D__STDC_FORMAT_MACROS
+
+_CFLAGS_R0= -O3 -Wall -c  -Wno-deprecated -DLINUX  -ftemplate-depth-30     -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS
+
+_CFLAGS_R1=  -O3 -Wall  -c  -Wno-deprecated  -DLINUX  -ftemplate-depth-30    -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS
+
+_LFLAGS_D0=-ggdb -lpthread      -Xlinker --export-dynamic    -lws2_32 -lgdi32 -luser32
+_LFLAGS_D1=-ggdb -lpthread      -Xlinker --export-dynamic    -lpthread   
+_LFLAGS_R0= -lpthread      -Xlinker --export-dynamic     -lws2_32 -lgdi32 -luser32  
+_LFLAGS_R1= -lpthread      -Xlinker --export-dynamic      

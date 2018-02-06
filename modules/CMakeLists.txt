@@ -1,0 +1,30 @@
+
+cmake_minimum_required (VERSION 2.6)
+project (dfsCoreModules)
+
+
+ADD_SUBDIRECTORY(errorDispatcher)
+ADD_SUBDIRECTORY(http)
+#ADD_SUBDIRECTORY(jsonLocalRefClient)
+#ADD_SUBDIRECTORY(jsonNoRefClient)
+#ADD_SUBDIRECTORY(jsonNoRefServer)
+#ADD_SUBDIRECTORY(jsonRefClient)
+#ADD_SUBDIRECTORY(jsonRefServer)
+#ADD_SUBDIRECTORY(logger)
+ADD_SUBDIRECTORY(mysql)
+ADD_SUBDIRECTORY(objectProxy)
+ADD_SUBDIRECTORY(oscar)
+ADD_SUBDIRECTORY(oscarSecure)
+ADD_SUBDIRECTORY(rpc)
+ADD_SUBDIRECTORY(socket)
+ADD_SUBDIRECTORY(ssl)
+ADD_SUBDIRECTORY(telnet)
+ADD_SUBDIRECTORY(timer)
+ADD_SUBDIRECTORY(webHandler)
+
+
+
+ADD_SUBDIRECTORY(dfsReferrer)
+ADD_SUBDIRECTORY(dfsCaps)
+
+ADD_SUBDIRECTORY(referrerClient)

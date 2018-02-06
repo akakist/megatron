@@ -1,0 +1,18 @@
+#ifndef ______SOCKET_fd___H
+#define ______SOCKET_fd___H
+#include "commonError.h"
+#ifdef DEBUG
+struct SOCKET_fd
+{
+    int container;
+    SOCKET_fd(int fd):container(fd) {}
+};
+inline int operator < (const SOCKET_fd& a, const SOCKET_fd &b)
+{
+    return CONTAINER(a)< CONTAINER(b);
+}
+#else
+typedef int SOCKET_fd;
+#endif
+
+#endif

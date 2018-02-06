@@ -1,0 +1,11 @@
+WARN=-Wno-deprecated-declarations -Wno-reorder
+
+
+_CFLAGS_D0= -pipe -g -O0  -Wall -c -DLINUX -ggdb -fPIC -DDEBUG -D_DEBUG -DMUTEX_INSPECTOR_DBUG     -D_REENTRANT -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -fPIC -D__STDC_FORMAT_MACROS $(WARN)
+_CFLAGS_R0= -pipe -O3 -Wall -c     -DLINUX       -fPIC   -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS  $(WARN)
+
+_LFLAGS_D0= -ggdb -lpthread  -shared  -ldl -lpthread 
+#-Xlinker --export-dynamic -Xlinker -zdefs 
+_LFLAGS_R0=-lpthread  -shared -ldl
+#-Xlinker --export-dynamic -Xlinker -zdefs 
+

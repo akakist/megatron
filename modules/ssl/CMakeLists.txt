@@ -1,0 +1,12 @@
+cmake_minimum_required (VERSION 2.6)
+
+add_library(core-ssl SHARED
+    ssl.cpp
+    ssl_reg.cpp
+    st_rsa_impl.cpp
+)
+
+target_link_libraries(core-ssl megatron-core crypto)
+
+install(TARGETS core-ssl DESTINATION ${PLUGIN_TARGET_DIR})
+
