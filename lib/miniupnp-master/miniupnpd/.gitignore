@@ -1,0 +1,11 @@
+*.o
+*.bak
+config.h
+ipfw/testipfwrdr
+miniupnpd
+miniupnpdctl
+testgetifaddr
+testgetifstats
+testupnpdescgen
+testupnppermissions
+testgetroute
