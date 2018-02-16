@@ -51,9 +51,11 @@ bool JsonHandler::on_NotifyReferrerUplinkIsDisconnected(const dfsReferrerEvent::
 }
 bool JsonHandler::on_ToplinkDeliverRSP(const dfsReferrerEvent::ToplinkDeliverRSP* e)
 {
+    XTRY;
     MUTEX_INSPECTOR;
     REF_getter<Event::Base> z=e->getEvent();
     passEvent(z);
+    XPASS;
     return true;
 }
 bool JsonHandler::on_TickAlarm(const timerEvent::TickAlarm*e)
@@ -63,6 +65,7 @@ bool JsonHandler::on_TickAlarm(const timerEvent::TickAlarm*e)
 
 bool JsonHandler::OH_handleObjectEvent(const REF_getter<Event::Base>& e)
 {
+    XTRY;
     MUTEX_INSPECTOR;
     try {
         if(handleEventInDerived(e))
@@ -111,6 +114,7 @@ bool JsonHandler::OH_handleObjectEvent(const REF_getter<Event::Base>& e)
         logErr2("exception ...");
         push_err("Unknown error","Unknown exception",c);
     }
+    XPASS;
     return false;
 }
 
@@ -122,7 +126,7 @@ bool JsonHandler::OH_handleObjectEvent(const REF_getter<Event::Base>& e)
 
 void JsonHandler::push_msg(const Json::Value &s,const std::string& binData, const JAVACOOKIE_id &javaCookie)
 {
-    
+
     M_LOCK(mx);
     Json::Value j;
     j["data"]=s;
@@ -138,7 +142,7 @@ void JsonHandler::push_msg(const Json::Value &s,const std::string& binData, cons
 }
 void JsonHandler::push_err(const std::string & action,const std::string& s, const JAVACOOKIE_id& javaCookie)
 {
-    
+
     M_LOCK(mx);
     Json::Value j;
     j["data"]=s;

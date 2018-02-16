@@ -5,7 +5,7 @@ add_library(core-oscar SHARED
     oscarService.cpp
 )
 
-target_link_libraries(core-oscar megatron-core)
+target_link_libraries(core-oscar megatron-core pthread)
 
 install(TARGETS core-oscar DESTINATION ${PLUGIN_TARGET_DIR})
 

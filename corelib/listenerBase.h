@@ -7,24 +7,29 @@
 typedef bool (*eventhandler) (const REF_getter<Event::Base> &, void*);
 
 /**
-* Базовый класс, который реализует свойства слушателя евентов
+* Base listener class
 */
 
 class ListenerBase
 {
 protected:
 public:
-    /// список хендлеров для работы ifacegen
+    /// deprecated, list of handler to work with ifacegeb
     std::vector<std::pair<eventhandler,void*> > handlers;
-    /// переопределяемый метод
+
+    /// declaration, implementation in inherited
     virtual void listenToEvent(const REF_getter<Event::Base>&)=0;
     virtual void listenToEvent(const std::deque<REF_getter<Event::Base> >&)=0;
-    /// имя класса
+
+    /// name of listener
     const std::string listenerName;
-    /// кастинг листенера, используется механизм Unknown
+
+    /// casting tool for Unknown
     static ListenerBase* cast(UnknownBase *c);
+
     ListenerBase(UnknownBase* i, const std::string& nm, const SERVICE_id& sid);
     virtual ~ListenerBase() {}
+
     const SERVICE_id serviceId;
 };
 

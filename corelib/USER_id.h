@@ -3,9 +3,14 @@
 #define _______________USER_id_H
 #include <string>
 #include <stdint.h>
+
+/// int wrapper for debug
+
 #ifdef DEBUG
 #include "commonError.h"
 #include "ioBuffer.h"
+
+
 struct USER_id
 {
     int64_t container;

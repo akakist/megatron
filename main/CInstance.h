@@ -5,7 +5,6 @@
 #include "listenerBase.h"
 #include "configObj.h"
 #include "configDB.h"
-//#include "CUtils.h"
 #include "threadNameCtl.h"
 #include "ISSL.h"
 #include "VERSION_id.h"
@@ -42,7 +41,7 @@ public:
 
     void forwardEvent(const SERVICE_id& svs,  const REF_getter<Event::Base>&e);
 
-    // send event - направление от клиента к серверу.
+    /// send event - direction from consumer to server
     void sendEvent(const SERVICE_id& svs,  const REF_getter<Event::Base>&e);
     void sendEvent(ListenerBase* svs,  const REF_getter<Event::Base>&e);
     void sendEvent(const msockaddr_in& addr, const SERVICE_id& svs,  const REF_getter<Event::Base>&e);
@@ -50,16 +49,11 @@ public:
 
 
 
-    // pass event - направление от сервера к клиенту
+    //// pass event - directon from server to consumer
     void passEvent(const REF_getter<Event::Base>&e);
 
     void initServices();
     void deinitServices();
-
-
-
-
-
 
     UnknownBase * getServiceOrCreate(const SERVICE_id& id);
     UnknownBase * getServiceNoCreate(const SERVICE_id& id);
@@ -70,33 +64,14 @@ public:
     }
 private:
 
-
     IConfigObj* config_z;
-
-
-
-
     IUtils *m_utils;
-
-
-
 
     struct __services: public Mutexable
     {
         std::map<SERVICE_id,UnknownBase* > container;
     };
     __services services;
-
-
-
-
-
-
-
-
-//    void initTimers();
-
-
 
     Mutex mx_globalCookie;
     GlobalCookie_id m_globalCookie;

@@ -2,13 +2,20 @@
 #define _________________sqlite3Wrapper__h
 #include "_QUERY.h"
 struct sqlite3;
+
+/// C++ simple wrapper for sqlite3
+
 class Sqlite3Wrapper
 {
 public:
     Sqlite3Wrapper(const std::string& name);
     virtual ~Sqlite3Wrapper();
+    bool inTransaction;
+    bool noErrors;
 
-
+    void beginTransaction();
+    void commitTransaction();
+    void rollbackTransaction();
     void execSimple(const QUERY &) const;
     void execSimple(const std::string &) const;
     REF_getter<QueryResult> exec(const QUERY &)const;

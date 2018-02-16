@@ -291,7 +291,6 @@ bool Service::handleEvent(const REF_getter<Event::Base>& ev)
 {
     MUTEX_INSPECTOR;
     S_LOG("handleEvent");
-
     auto& ID=ev->id;
     XTRY;
     if( systemEventEnum::startService==ID)
@@ -653,14 +652,14 @@ void Service::sendToplinkReqClient(const msockaddr_in& uplink,dfsReferrerEvent::
 {
     MUTEX_INSPECTOR;
     S_LOG("sendToplinkReq");
-    DBG(log(TRACE_log,"req %s",ee->dump().c_str()));
+    //DBG(log(TRACE_log,"req %s",ee->dump().c_str()));
     {
         if(ee->uuid.size()==0)
         {
 
         }
         ee->uuid.insert(iInstance->globalCookie());
-        DBG(log(TRACE_log,"send %s %s",uplink.dump().c_str(),ee->dump().c_str()));
+        //DBG(log(TRACE_log,"send %s %s",uplink.dump().c_str(),ee->dump().c_str()));
         sendEvent(uplink,ServiceEnum::DFSReferrer,ee);
     }
 
@@ -793,8 +792,10 @@ bool Service::on_Pong(const dfsReferrerEvent::Pong* e, const REF_getter<epoll_so
                 {
                     if(!isCaps(y.first->remote_name))
                     {
+//#ifdef KALLREMOVEAFTERDEBUG
                         if(y.second.inaddr()!=e->visible_name_of_pinger.inaddr())
                             throw CommonError("if(y.second!=e->visible_name_of_pinger) %s %s",y.second.dump().c_str(),e->visible_name_of_pinger.dump().c_str());
+//#endif
                         _stop_alarm(T_020_D31_wait_after_send_PT_CACHE_on_recvd_from_GetReferrers);
                         d4_uplink_mode(y.first,e->visible_name_of_pinger);
                         return true;
@@ -807,8 +808,10 @@ bool Service::on_Pong(const dfsReferrerEvent::Pong* e, const REF_getter<epoll_so
                 {
                     if(isCaps(y.first->remote_name))
                     {
+//#ifdef KALLREMOVEAFTERDEBUG
                         if(y.second.inaddr()!=e->visible_name_of_pinger.inaddr())
                             throw CommonError("if(y.second!=e->visible_name_of_pinger) %s %s",y.second.dump().c_str(),e->visible_name_of_pinger.dump().c_str());
+//#endif
                         _stop_alarm(T_020_D31_wait_after_send_PT_CACHE_on_recvd_from_GetReferrers);
                         d4_uplink_mode(y.first,e->visible_name_of_pinger);
                         return true;

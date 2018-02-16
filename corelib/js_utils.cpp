@@ -3,7 +3,7 @@
 #define line_width 140
 Json::Value SplitToStringArray(const std::string& buf)
 {
-    
+
     Json::Value ret;
     std::string s=buf;
     while(s.size())
@@ -17,7 +17,7 @@ Json::Value SplitToStringArray(const std::string& buf)
 }
 std::string JoinArrayToString(const Json::Value &v)
 {
-    
+
     std::string out;
     if(v.isArray())
     {

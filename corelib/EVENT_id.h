@@ -5,6 +5,8 @@
 #include <string>
 #include "commonError.h"
 #include "ioBuffer.h"
+
+/// EventID class. Possible be a number (old style) and string
 struct EVENT_id
 {
     enum
@@ -22,18 +24,23 @@ struct EVENT_id
     int getType() const {
         return type;
     }
+
+    /// get string name
     std::string getSid() const
     {
         if(type!=ID_STRING)
             throw CommonError("Event::getSid: if(type!=ID_STRING)");
         return s_id;
     }
+
+    /// get int name
     size_t getIid() const
     {
         if(type!=ID_INT)
             throw CommonError("Event::getSid: if(type!=ID_INT)");
         return i_id;
     }
+
 private:
     unsigned char type;
     size_t i_id;
@@ -60,6 +67,7 @@ public:
         }
     }
 };
+
 inline int operator<(const EVENT_id&a, const EVENT_id&b)
 {
     if(a.type!=b.type)
@@ -71,6 +79,7 @@ inline int operator<(const EVENT_id&a, const EVENT_id&b)
     throw CommonError("INVALID CASE %s %d",__FILE__,__LINE__);
 
 }
+
 inline int operator==(const EVENT_id&a, const EVENT_id&b)
 {
     if(a.type==b.type)
@@ -88,6 +97,7 @@ inline int operator==(const EVENT_id&a, const EVENT_id&b)
     }
     return false;
 }
+
 inline outBuffer& operator<< (outBuffer& b,const EVENT_id& s)
 {
     b<<s.type;
@@ -99,6 +109,7 @@ inline outBuffer& operator<< (outBuffer& b,const EVENT_id& s)
         throw CommonError("INVALID CASE %s %d",__FILE__,__LINE__);
     return b;
 }
+
 inline inBuffer& operator>> (inBuffer& b,  EVENT_id& s)
 {
 

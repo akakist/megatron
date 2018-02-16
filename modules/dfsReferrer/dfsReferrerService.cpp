@@ -308,6 +308,24 @@ bool  Service::on_Connected(const rpcEvent::Connected* )
     return true;
 }
 
+bool Service::on_ToplinkBroadcastByBackroute(const dfsReferrerEvent::ToplinkBroadcastByBackroute *e)
+{
+    if(e->route.size())
+    {
+        passEvent(e);
+    }
+    else
+    {
+        REF_getter<Event::Base> e_extr=e->getEvent();
+        sendEvent(e->destinationService,e_extr);
+        //passEvent(e_extr);
+        /// TODO smth
+        //log(ERROR_log,"ERR on_ToplinkDeliverRSP route size =0 %s",__FUNCTION__);
+    }
+    return true;
+    return true;
+}
+
 bool Service::on_ToplinkDeliverRSP(const dfsReferrerEvent::ToplinkDeliverRSP *e)
 {
     MUTEX_INSPECTOR;
@@ -399,12 +417,17 @@ bool  Service::on_IncomingOnConnector(const rpcEvent::IncomingOnConnector *evt)
     S_LOG("OnConnector "+evt->esi->remote_name.dump());
 
     auto& IDC=evt->e->id;
+    if( dfsReferrerEventEnum::ToplinkBroadcastByBackroute==IDC)
+        return on_ToplinkBroadcastByBackroute(static_cast<const dfsReferrerEvent::ToplinkBroadcastByBackroute* > (evt->e.operator ->()));
     if( dfsReferrerEventEnum::ToplinkDeliverRSP==IDC)
         return on_ToplinkDeliverRSP(static_cast<const dfsReferrerEvent::ToplinkDeliverRSP* > (evt->e.operator ->()));
     if( dfsReferrerEventEnum::Pong==IDC) /// connector
         return on_Pong(static_cast<const dfsReferrerEvent::Pong* > (evt->e.operator ->()),evt->esi);
     if( dfsReferrerEventEnum::UpdateConfigRSP==IDC)
         return on_UpdateConfigRSP(static_cast<const dfsReferrerEvent::UpdateConfigRSP* > (evt->e.operator ->()));
+
+    if( dfsReferrerEventEnum::NotifyDownlink==IDC)
+        return on_NotifyDownlink(static_cast<const dfsReferrerEvent::NotifyDownlink* > (evt->e.operator ->()));
 
     XTRY;
     MUTEX_INSPECTOR;
@@ -451,6 +474,8 @@ bool  Service::on_IncomingOnAcceptor(const rpcEvent::IncomingOnAcceptor*evt)
     if( dfsReferrerEventEnum::UpdateConfigRSP==IDA)
         return on_UpdateConfigRSP(static_cast<const dfsReferrerEvent::UpdateConfigRSP* > (evt->e.operator ->()));
 
+    if( dfsReferrerEventEnum::NotifyDownlink==IDA)
+        return on_NotifyDownlink(static_cast<const dfsReferrerEvent::NotifyDownlink* > (evt->e.operator ->()));
 
     log(ERROR_log,"unhandled event %s %s %d",evt->e->name,__FILE__,__LINE__);
     XPASS;
@@ -571,10 +596,18 @@ bool Service::handleEvent(const REF_getter<Event::Base>& ev)
     if( dfsReferrerEventEnum::ToplinkDeliverREQ==ID)       /// forwading
         return on_ToplinkDeliverREQ(static_cast<const dfsReferrerEvent::ToplinkDeliverREQ* > (ev.operator ->()),NULL);
 
+    if( dfsReferrerEventEnum::ToplinkBroadcastByBackroute==ID)
+        return on_ToplinkBroadcastByBackroute(static_cast<const dfsReferrerEvent::ToplinkBroadcastByBackroute* > (ev.operator ->()));
+
     if( dfsReferrerEventEnum::UpdateConfigRSP==ID)
         return on_UpdateConfigRSP(static_cast<const dfsReferrerEvent::UpdateConfigRSP* > (ev.operator ->()));
     if( dfsReferrerEventEnum::UpdateConfigREQ==ID)
         return on_UpdateConfigREQ(static_cast<const dfsReferrerEvent::UpdateConfigREQ* > (ev.operator ->()));
+
+    if( dfsReferrerEventEnum::NotifyDownlink==ID)
+        return on_NotifyDownlink(static_cast<const dfsReferrerEvent::NotifyDownlink* > (ev.operator ->()));
+
+
 
     log(ERROR_log,"unhandled event t t %s %s %d",ev->name,__FILE__,__LINE__);
     XPASS;
@@ -1137,6 +1170,7 @@ bool Service::on_Pong(const dfsReferrerEvent::Pong* e, const REF_getter<epoll_so
     {
     case PingType::PT_CACHED:
     {
+        //logErr2("case PingType::PT_CACHED:");
         if(stage==STAGE_D2_PING_NEIGHBOURS||stage==STAGE_D21_PING_CAPS)
         {
             bool ok_send=false;
@@ -1545,4 +1579,10 @@ bool Service::on_UpdateConfigRSP(const dfsReferrerEvent::UpdateConfigRSP*e)
     }
     return true;
 
+}
+
+bool Service::on_NotifyDownlink(const dfsReferrerEvent::NotifyDownlink*e)
+{
+    sendEvent(e->destinationService,e->getEvent());
+    return true;
 }

@@ -1,5 +1,8 @@
 #ifndef _________________JSONHANDLER_H___
 #define _________________JSONHANDLER_H___
+
+/// base class to construct JSON driven network client
+
 #include "objectHandler.h"
 #include "JAVACOOKIE_id.h"
 #include "AUTHCOOKIE_id.h"

@@ -7,6 +7,9 @@
 #include "commonError.h"
 #include "SERVICE_id.h"
 #include "IConfigObj.h"
+
+/// base class for interfaces with casting ability
+
 class UnknownBase
 {
 private:

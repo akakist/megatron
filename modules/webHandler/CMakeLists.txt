@@ -5,7 +5,7 @@ add_library(core-webHandler SHARED
     webHandlerService.cpp
 )
 
-target_link_libraries(core-webHandler megatron-core)
+target_link_libraries(core-webHandler megatron-core pthread)
 
 install(TARGETS core-webHandler DESTINATION ${PLUGIN_TARGET_DIR})
 

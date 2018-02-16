@@ -4,10 +4,12 @@
 #include <vector>
 #include <string>
 #include "REF.h"
+
+/// DB query result
 class QueryResult: public Refcountable
 {
 public:
-    QueryResult():numRows(0), numCols(0) {};
+    QueryResult():numRows(0), numCols(0) {}
     size_t numRows;
     size_t numCols;
     std::map<int, std::string> fields;

@@ -7,6 +7,6 @@ referrerClientService.cpp
 ../dfsReferrer/neighbours.cpp
 
 )
-target_link_libraries(ReferrerClient megatron-core sqlite3)
+target_link_libraries(ReferrerClient megatron-core sqlite3 pthread)
 install(TARGETS ReferrerClient DESTINATION ${PLUGIN_TARGET_DIR})
 

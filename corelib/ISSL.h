@@ -4,6 +4,9 @@
 #include "ifaces.h"
 #include <string>
 #include <sys/types.h>
+
+/// interfaces/wrapper to access OpenSSL
+
 class I_st_rsa_impl
 {
 public:

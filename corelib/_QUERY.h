@@ -9,10 +9,10 @@
 #include "Rational.h"
 
 #define MAX_PARAMS_IN_SQL		64
-
-/** Объект для составления SQL запроса
-* использование
-* QUERY q=(QUERY)"select * from a where q=? w=? r=?"<<q<<w<<r;
+/**
+ Object to create SQL request
+ usage:
+ QUERY q=(QUERY)"select * from a where q=? w=? r=?"<<q<<w<<r;
 */
 
 class QUERY

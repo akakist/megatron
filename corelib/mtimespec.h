@@ -15,6 +15,9 @@
 
 #define _nano_ 1000000000
 
+
+/// C++ wrapper for timespec
+
 struct mtimespec: public timespec
 {
     mtimespec(long sec,long nsec);

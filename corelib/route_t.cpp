@@ -94,13 +94,13 @@ std::string RemoteAddrRoute::dump() const
 
 inBuffer& operator >> (inBuffer&b,route_t & r)
 {
-    
+
     r.unpack(b);
     return b;
 }
 outBuffer& operator << (outBuffer& b, const route_t & r)
 {
-    
+
     r.pack(b);
     return b;
 }
@@ -108,19 +108,19 @@ outBuffer& operator << (outBuffer& b, const route_t & r)
 
 route_t::route_t(const SERVICE_id& id)
 {
-    
+
     m_container.push_front(new LocalServiceRoute(id));
 }
 route_t::route_t(ObjectHandlerPolled* id)
 {
-    
+
     std::string s((char*)&id,sizeof(id));
 
     m_container.push_front(new ObjectHandlerRoutePolled(s));
 }
 route_t::route_t(ObjectHandlerThreaded* id)
 {
-    
+
     std::string s((char*)&id,sizeof(id));
 
     m_container.push_front(new ObjectHandlerRouteThreaded(s));
@@ -128,14 +128,14 @@ route_t::route_t(ObjectHandlerThreaded* id)
 
 void route_t::push_front(const REF_getter<Route>& v)
 {
-    
+
     XTRY;
     m_container.push_front(v);
     XPASS;
 }
 REF_getter<Route> route_t::pop_front()
 {
-    
+
     XTRY;
     if(m_container.size()==0) throw CommonError("route_t::pop_front: m_container.size()==0 %s",_DMI().c_str());
 
@@ -150,7 +150,7 @@ size_t route_t::size()const
 }
 void route_t::pack(outBuffer&o) const
 {
-    
+
     XTRY;
     o<<m_container.size();
     for(size_t i=0; i<m_container.size(); i++)
@@ -161,7 +161,7 @@ void route_t::pack(outBuffer&o) const
 }
 void route_t::unpack(inBuffer&o)
 {
-    
+
     XTRY;
     size_t sz;
     {
@@ -239,7 +239,7 @@ void route_t::unpack(inBuffer&o)
 }
 int route_t::operator<(const route_t& a) const
 {
-    
+
     XTRY;
     if(a.m_container.size()!=m_container.size()) return a.m_container.size()<m_container.size();
     for(size_t i=0; i<m_container.size(); i++)
@@ -279,7 +279,7 @@ int route_t::operator<(const route_t& a) const
 
 bool route_t::operator==(const route_t& a) const
 {
-    
+
     XTRY;
     if(a.m_container.size()!=m_container.size()) return false;
     for(size_t i=0; i<m_container.size(); i++)

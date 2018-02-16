@@ -10,8 +10,8 @@
 #include <time.h>
 #endif
 
-/**  Базовый класс для класса, с которым возможно применение REF_getter (умного указателя, обеспечивающего автоматический подсчет ссылок)
-*/
+/// base class and template of smart pointer with refcount, which can catch pointer many times.
+///
 #define PRIVATEMUTEX
 template < class T > class REF_getter;
 class Refcountable
@@ -37,8 +37,7 @@ public:
     }
 };
 
-/**      Темплейт умного указателя, аналога shared_ptr в Boost
-*/
+///      Smart pointer template
 template < class T > class REF_getter
 {
 

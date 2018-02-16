@@ -5,6 +5,8 @@
 #include "mutexable.h"
 #include "json/json.h"
 #include "IInstance.h"
+
+/// Used for event processing in Listeners
 class EventDeque: public Refcountable
 {
     std::deque<REF_getter<Event::Base> > container;

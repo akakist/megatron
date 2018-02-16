@@ -5,8 +5,10 @@
 #include <stdint.h>
 #include "ioBuffer.h"
 #include "Real.h"
-//#if !defined __MOBILE__
 
+
+/// rational numbers, tried to solve serialization problem in form num/denum, but no performed
+///
 class Rational
 {
 public:

@@ -10,8 +10,10 @@
 #ifdef QT_CORE_LIB
 #include <QString>
 #include <QStandardPaths>
-
 #endif
+
+/// simple config store
+
 class ConfigDB_shared;
 class ConfigDB_private;
 class ConfigDB

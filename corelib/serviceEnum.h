@@ -1,5 +1,10 @@
 #ifndef _________SERVICE_ENUM___HH
 #define _________SERVICE_ENUM___HH
+
+/// numeric ids of low level services
+
+
+
 #define _xs_Socket                  1
 #define _xs_RPC                     2
 #define _xs_ObjectProxyPolled       3

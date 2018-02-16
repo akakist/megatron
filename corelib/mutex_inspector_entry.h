@@ -1,5 +1,8 @@
 #ifndef __________mutex_inspector_entry_h
 #define __________mutex_inspector_entry_h
+
+/// used in MutexInspector
+
 struct mutex_inspector_entry
 {
     struct iint

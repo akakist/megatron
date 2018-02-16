@@ -3,8 +3,10 @@
 #include "commonError.h"
 #include "ioBuffer.h"
 #include <sys/types.h>
-#ifdef DEBUG
 
+/// this is typed int for use in debug mode
+
+#ifdef DEBUG
 struct DB_id
 {
     int64_t container;

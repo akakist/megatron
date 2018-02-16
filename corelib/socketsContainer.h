@@ -9,6 +9,8 @@
 #include "SERVICE_id.h"
 class epoll_socket_info;
 
+/// container used in socket poll -  select/epoll/kqueue
+
 struct SocketsContainerBase: public Refcountable
 {
     const char *name;

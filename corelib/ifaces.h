@@ -2,7 +2,9 @@
 #define _________________ifaces___h
 namespace Ifaces
 {
-    enum
+/// this class is used to create simple interfaces, shared between services
+
+enum
     {
         AV=1,
         SSL=2

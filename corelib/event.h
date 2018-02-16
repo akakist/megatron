@@ -17,11 +17,10 @@ enum
     CHANNEL_70,
     CHANNEL_100
 };
+
+/// base class for events
 namespace Event
 {
-    /**
-    * Базовый класс евента
-    */
     class Base: public Refcountable
     {
     public:
@@ -35,15 +34,16 @@ namespace Event
         route_t route;
         Base(const EVENT_id&_id, const int _channel, const char* _name): id(_id),channel(_channel),name(_name) {}
         Base(const EVENT_id& _id, const int _channel, const char* _name,const route_t &_route):id(_id),channel(_channel),name(_name), route(_route) {}
-        /// упаковка евента в буфер, реализация переопределяется
+
+        /// pack/unpack to outBuffer/inBuffer, used for RPC
         virtual void pack(outBuffer& b)const =0;
-        /// распаковка евента из буфер, реализация переопределяется
         virtual void unpack(inBuffer& b)=0;
+
         std::string dump() const;
     };
-    /**
-    * Базовый класс евента в котором нет упаковщиков. Т.е. который не будет ходить по RPC
-    */
+
+
+    /// base class for local events (without RPC)
     class NoPacked:public Base
     {
     public:
@@ -58,8 +58,7 @@ namespace Event
 
 
 
-///примечание: статические конструкторы можно делать только для сериализуемых пакетов.
-
+/// Static constructor, needed only for serializebla events
 typedef Event::Base* (*event_static_constructor) (const route_t& r);
 
 

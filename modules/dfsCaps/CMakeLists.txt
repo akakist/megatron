@@ -5,6 +5,6 @@ dfsCaps.cpp
 dfsCapsService.cpp
 NetTreeRoute.cpp
 )
-target_link_libraries(dfs-caps megatron-core  sqlite3)
+target_link_libraries(dfs-caps megatron-core  sqlite3 pthread)
 install(TARGETS dfs-caps DESTINATION ${PLUGIN_TARGET_DIR})
 

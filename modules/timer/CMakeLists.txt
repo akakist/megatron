@@ -5,7 +5,7 @@ add_library(core-timer SHARED
     timerService.cpp
 )
 
-target_link_libraries(core-timer megatron-core)
+target_link_libraries(core-timer megatron-core pthread)
 
 install(TARGETS core-timer DESTINATION ${PLUGIN_TARGET_DIR})
 

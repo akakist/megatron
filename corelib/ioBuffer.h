@@ -13,7 +13,7 @@
 #include "refstring.h"
 
 /**
-* Класс байтового потока без битовых операций, но с темплейтами STL
+* Utility to serialize/deserialize data
 */
 class inBuffer
 {
@@ -32,26 +32,51 @@ public:
 
     inBuffer(const  REF_getter<refbuffer>&); // construct from string
 
+    /// full size buffer
     size_t size() const;
+
+    /// pointer to buffer
     const unsigned char *data();
+
+    /// remainder bytes count
     size_t remains() const;
+
+    /// inicate reminder size > 0
     bool beforeEnd() const;
 
 
 
 public:
+    /// get reminder to string
     std::string unpackRest();
+
+    /// get 'size' bytes into 's', throws if reminder < size
     void unpack(std::string& s, int64_t size);
-    void unpack_nothrow(std::string& s, size_t size, bool &success);
+
+    /// get 'size' bytes into 'buf', throws if reminder < size
     void unpack(uint8_t* buf, size_t sz);
 
+    /// get 'size' bytes into 's', nothrows, success indicate that buffer enough
+    void unpack_nothrow(std::string& s, size_t size, bool &success);
 
+
+
+    /// get 1 byte, throws
     unsigned char get_8();
+
+    /// get 1 byte, nothrows
     unsigned char get_8_nothrow(bool &success);
 
+    /// get packed number, throws
     uint64_t get_PN();
+
+    /// get packed number, nothrows
     uint64_t get_PN_nothrow(bool &success);
+
+    /// get packed number prefixed string (PN - string lenth), throws
     std::string get_PSTR();
+
+    /// get packed number prefixed string (PN - string lenth), nothrows
     std::string get_PSTR_nothrow(bool &success);
 
 #ifdef _WIN32
@@ -85,17 +110,31 @@ class outBuffer
 private:
     outBuffer(const outBuffer&);             // Not defined to prevent usage
     outBuffer& operator=(const outBuffer&);  // Not defined to prevent usage
-public:
+
     REF_getter<refbuffer> buffer;
     size_t bufsize;
     size_t cur_pos;
 
-    outBuffer();
-
-public:
+    void adjust(size_t n);
     void construct();
 
+    outBuffer& Pack$(const std::string& s );
+    outBuffer& put_PN$(const uint64_t &N);
+    outBuffer& put_8$(unsigned char c)
+    {
+        buffer->buffer[cur_pos++]=c;
+        return *this;
+    }
+
+public:
+
+
+    outBuffer();
     ~outBuffer();
+
+    void clear();
+
+    /// pack data
     outBuffer& pack(const std::string& s);
     outBuffer& pack(const char * s, size_t len);
     outBuffer& pack(const unsigned char * s, size_t len);
@@ -103,12 +142,19 @@ public:
     const unsigned char *data()const;
     unsigned char *const_data()const;
 
+    /// get buffer
     REF_getter<refbuffer> asString() const;
+
+    /// get buffer size
     size_t size() const;
-    void adjust(size_t n);
-    void clear();
+
+    /// put uchar
     outBuffer& put_8(unsigned char);
+
+    /// put packed number
     outBuffer& put_PN(const uint64_t);
+
+    /// put packed number prefixed string
     outBuffer& put_PSTR(const std::string &);
 
 
@@ -134,15 +180,6 @@ public:
     outBuffer& operator<<(const double&);
     outBuffer& operator<<(const float&);
 public:
-private:
-    outBuffer& put_8$(unsigned char c)
-    {
-        buffer->buffer[cur_pos++]=c;
-        return *this;
-    }
-    outBuffer& Pack$(const std::string& s );
-    outBuffer& put_PN$(const uint64_t &N);
-
 
 };
 

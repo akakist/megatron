@@ -18,12 +18,10 @@ struct e_poll
     {
     }
     int m_epollFd;
-    // conf
-    /// конфигурационный параметр
+
+    // conf vars
     int size;
-    /// конфигурационный параметр
     int timeout_millisec;
-    //!conf
 };
 #endif
 

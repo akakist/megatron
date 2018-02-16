@@ -12,15 +12,17 @@
 #include <string>
 #include "SOCKET_id.h"
 #include "CONTAINER.h"
-/**
-* C++ обертка для sockaddr_in
-*/
 #ifndef in_addr_t
 #define in_addr_t unsigned int
 #endif
 struct Url;
 class inBuffer;
 class outBuffer;
+
+/**
+* C++ wrapper for sockaddr_in
+*/
+
 class msockaddr_in:public sockaddr_in
 {
 

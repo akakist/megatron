@@ -13,19 +13,13 @@
 #include <unistd.h>
 #endif
 
+/// stacked FILE container, automatically closed on destructor
 class st_FILE
 {
-    /**
-    *       Стековый контейнер файла. Закрывается автоматически на области видимости.
-    *
-    */
+
 public:
-    /// handler
     FILE *f;
-    /** constructor
-    * \param pn путь к файлу
-    * \param mode режим открытия, используется нотация как в fopen
-    */
+
     st_FILE (const char* pn, const char* mode)
     {
         f = fopen(pn, mode);
@@ -35,6 +29,7 @@ public:
             throw CommonError("fopen failed with %s errno %d (%s) %s",pn,errno,strerror(errno),_DMI().c_str());
         }
     }
+
     st_FILE (const std::string& pn, const char* mode)
     {
         f = fopen(pn.c_str(), mode);
@@ -56,6 +51,8 @@ public:
 
     }
 };
+
+/// stacked FD container, automatically closed on destructor
 class st_FD
 {
 public:

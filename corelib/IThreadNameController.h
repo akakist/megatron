@@ -8,6 +8,8 @@
 #endif
 #include "compat_win32.h"
 
+/// interface tool to debug mutex deadlocks etc
+
 struct mutex_inspector_entry;
 class IThreadNameController
 {

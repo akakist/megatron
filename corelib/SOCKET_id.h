@@ -3,8 +3,11 @@
 #include "commonError.h"
 #include <stdio.h>
 #include "ioBuffer.h"
-#ifdef DEBUG
 
+
+///  wrapper for int for debug
+
+#ifdef DEBUG
 struct SOCKET_id
 {
     int64_t container;

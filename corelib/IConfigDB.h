@@ -5,8 +5,9 @@
 #include <msockaddr_in.h>
 #include "mtimespec.h"
 #include <sys/types.h>
-/** *       Интерфейс ядра для работы с конфигом in DB.
-*/
+
+///       Interface for simple configs
+
 
 class IConfigDB
 {

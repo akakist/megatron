@@ -3,6 +3,9 @@
 #include "commonError.h"
 #include "ioBuffer.h"
 #include <sys/types.h>
+
+/// int wrapper for debug
+
 #ifdef DEBUG
 
 struct VERSION_id

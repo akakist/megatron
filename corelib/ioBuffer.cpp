@@ -494,7 +494,7 @@ unsigned char *outBuffer::const_data()const
 
 outBuffer & operator<< (outBuffer& b,const REF_getter<refbuffer> &s)
 {
-    
+
     bool packed=false;
     if(s.valid())
     {
@@ -512,7 +512,7 @@ outBuffer & operator<< (outBuffer& b,const REF_getter<refbuffer> &s)
 }
 inBuffer & operator>> (inBuffer& b,  REF_getter<refbuffer> &s)
 {
-    
+
     size_t size=b.get_PN();
     s=new refbuffer;
     if(size)

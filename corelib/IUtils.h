@@ -24,7 +24,7 @@
 class epoll_socket_info;
 struct Utils_local;
 
-/**        Интерфейс разнообразных утилитных функций. Предназначен для избежания дублирования кода в модулях.
+/**        This is interface to access to  shared utils library between plugins
 */
 class IInstance;
 typedef UnknownBase* (*unknown_static_constructor) (const SERVICE_id& id, const std::string& name,IInstance* ifa);

@@ -1,6 +1,8 @@
 #ifndef ___________EVENTENUM____H
 #define ___________EVENTENUM____H
 
+/// enumeration of EventID in old style (numeric)
+
 #define _xe_startService                                1
 #define _xe_socketAddToListenTCP                        2
 #define _xe_socketAddToConnectTCP                       3

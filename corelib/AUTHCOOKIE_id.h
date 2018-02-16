@@ -5,6 +5,8 @@
 #include <sys/types.h>
 #ifdef DEBUG
 
+/// this is typed int for use in debug mode
+
 struct AUTHCOOKIE_id
 {
     std::string container;

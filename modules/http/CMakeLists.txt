@@ -8,6 +8,6 @@ httpService.cpp
 mime_types.cpp
 
 )
-target_link_libraries(core-http megatron-core)
+target_link_libraries(core-http megatron-core pthread)
 install(TARGETS core-http DESTINATION ${PLUGIN_TARGET_DIR})
 

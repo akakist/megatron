@@ -3,6 +3,8 @@
 #include "ioBuffer.h"
 #ifdef DEBUG
 
+/// string wrapper for debug
+///
 struct JAVACOOKIE_id
 {
     std::string container;

@@ -4,6 +4,8 @@
 #include "REF.h"
 #include <string>
 #include <inttypes.h>
+
+/// refbuffer - string replacement with recount
 struct refbuffer: public Refcountable
 {
     uint8_t * buffer;

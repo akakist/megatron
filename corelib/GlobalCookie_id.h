@@ -1,12 +1,15 @@
 #ifndef ______________GlobalCookie_id__HH
 #define ______________GlobalCookie_id__HH
 #ifdef DEBUG
+#include <string>
+#include "ioBuffer.h"
+
+
 /**  std::string wrapper to add GlobalCookie_id type control on compiler level.
  To differ it from another essences, having same type.
  Used in DEBUG mode only. In release version it equal to wrapping type.
 */
-#include <string>
-#include "ioBuffer.h"
+
 struct GlobalCookie_id
 {
     std::string container;

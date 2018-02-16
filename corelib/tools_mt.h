@@ -15,6 +15,8 @@
 #include "Events/Tools/errorDispatcher/SendMessage.h"
 #include "broadcaster.h"
 
+/// some tools used in DFS
+
 inline unsigned short getRpcExternalListenPortMain(IInstance* iInstance)
 {
 

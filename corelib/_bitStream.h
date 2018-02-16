@@ -11,9 +11,6 @@
 #include <sys/types.h>
 #include <stdint.h>
 
-/**
-* Класс, используемый в InBitStream/OutBitStream для работы с битовым остатком
-*/
 struct BitsPosition
 {
     size_t pos;
@@ -29,13 +26,11 @@ struct BitsPosition
         bitsRemainsInByte=8;
     }
 };
-/**
-*       Входной буфер с возможностью битового чтения/записи
-*       Примечание: байтовые операции возможны только если текущий остаток битов равен нулю.
-*/
+
+
 class inBitStream
 {
-public:
+    /// Note: byte operations possible if bits reminder = 0
 
 private:
     BitsPosition m_pos;
@@ -48,92 +43,92 @@ public:
     inBitStream(const  char *d, size_t size); // construct from an array
     inBitStream(const  std::string&); // construct from string
 
-    /// получить размер полного буфера без учета операций чтения
+    /// get full buffer size
     size_t size() const
     {
         return m_size;
     }
-    /// получить указатель на начало буфера без учета операций чтения
+    /// get data pointer without fluence of read operations
     const unsigned char *data() const
     {
         return m_data;
     }
-    ///получить размер остатка непрочитанных данных
+    /// get size of reminder
     size_t remains() const
     {
         return m_size - m_pos.pos;
     }
-    /// узнать есть ли еще данные, доступные для чтения
+    /// check data is available for reading
     bool beforeEnd() const ;
 
 
 public:
-    /// распаковать остаток буфера. Байтовая операция. Байтовая операция
+    /// unpack reminder. Byte operation!!
     std::string unpackRest();
 
-    /// распаковать size байт и поместить в s. Если буфера недостаточно, то генерируется исключение
-    /// \throw CommonError
+    /// unpack  'size' bytes and put into  s. Throws if reminder size less than requested
     void unpack(std::string& s, size_t size);
 
-    /// распаковать size bytes без генерации исключения. Байтовая операция
-    /// \params dst     куда записать рапакованные данные
-    /// \params size    размер данных
-    /// \params success флаг успеха операции
+    /// unpack  'size' bytes and put into  dst. 'success' indicate success of operation
     void unpack_nothrow(std::string& dst, size_t size, bool &success);
 
-    /// получить из буфера длину в формате TLV Wimax. Байтовая операция
+    /// byte op!
     unsigned int getTlvLength();
 
-    /// получить 1 байт. Байтовая операция
+    /// byte op!
     unsigned char get_8();
 
-    /// получить 1 бит. Битовая операция
+    /// bit op!
     int get_bit();
-    /// получить текущий остаток битов в затронутом байте
+
+    /// get reminder of ccurrent byte
     size_t paddingSize() const
     {
         return m_pos.bitsRemainsInByte;
     }
-    /// получить целое с заданным количеством битов
-    ///\param  bitcount  число бит
+    /// get int from next 'bitcount' bits
     int get_bits(int bitcount);
 
-    /// получить 1 байт без генерации исключения
+    /// get 1 byte without exception.
     unsigned char get_8_nothrow(bool &success);
 
-    /// получить 2 байта в форматe Little Endian
+    /// get 2 bytes in Little Endian, throws on end of  buffer
     unsigned short get_16LE();
-    /// получить 2 байта в форматe Little Endian без исключения
+
+    /// get 2 bytes in Little Endian, nothrows
     unsigned short get_16LE_nothrow(bool &success);
 
-    /// получить 2 байта в форматe Big Endian
+    /// get 2 bytes in Big Endian, throws on end of  buffer
     unsigned short get_16BE();
-    /// получить 2 байта в форматe Big Endian без исключения
+
+    /// get 2 bytes in Little Endian, nothrows
     unsigned short get_16BE_nothrow(bool &success);
 
-    /// получить 4 байта в форматe Little Endian
+    /// get 4 bytes in Little Endian, throws on end of  buffer
     unsigned int get_32LE();
 
-    /// получить 4 байта в форматe Little Endian без исключения
+    /// get 4 bytes in Little Endian, nothrows
     unsigned int get_32LE_nothrow(bool &success);
 
-    /// получить 4 байта в форматe Big Endian
+    /// get 4 bytes in Big Endian, throws on end of  buffer
     unsigned int get_32BE();
-    /// получить 4 байта в форматe Big Endian без исключения
+
+    /// get 4 bytes in Big Endian, nothrows
     unsigned int get_32BE_nothrow(bool &success);
 
-    /// получить упакованный int
+    /// get packed int, throws
     unsigned long get_PN();
 
-    /// получить упакованный int без исключения
+    /// get packed int, nothrows
     unsigned long get_PN_nothrow(bool &success);
 
-    // получить строку с префиксом длины в виде PN
+    /// get string, prefixed by len - packed number, throws
     std::string get_PSTR();
-    // получить строку с префиксом длины в виде PN без исключения
+
+    /// get string, prefixed by len - packed number, throws
     std::string get_PSTR_nothrow(bool &success);
 
-    /// оператор вывода из буфера
+    /// buffer IO operations
     inBitStream& operator>>(int64_t&);
     inBitStream& operator>>(uint64_t&);
     inBitStream& operator>>(int32_t&);
@@ -142,22 +137,17 @@ public:
     inBitStream& operator>>(uint16_t&);
     inBitStream& operator>>(int8_t&);
     inBitStream& operator>>(uint8_t&);
-    /// оператор вывода из буфера
     inBitStream& operator>>(std::string&);
-    /// оператор вывода из буфера
     inBitStream& operator>>(bool&);
 private:
-    /// закрытый оператор для предотвращения конверсии типов
+    /// close operator for double
     inBitStream& operator>>(double&);
 public:
 };
-/**
-*       Выходной буфер с возможностью битового чтения/записи
-*       Примечание: байтовые операции возможны только если текущий остаток битов равен нулю.
-*/
 
 class outBitStream
 {
+    /// Note: byte operations possible if bits reminder = 0
 private:
     outBitStream(const outBitStream&);             // Not defined to prevent usage
     outBitStream& operator=(const outBitStream&);  // Not defined to prevent usage
@@ -169,56 +159,55 @@ public:
     outBitStream();
     ~outBitStream();
 
-    /// упаковать строку
+    /// pack string
     outBitStream& pack(const std::string& s);
-    ///упаковать буфер
+
+    /// pack buffer
     outBitStream& pack(const char * s, size_t len);
-    /// упаковать конст буфер
+
+    /// pack buffer
     outBitStream& pack(const unsigned char * s, size_t len);
 
-    /// получить указатель на буфер конст
     const unsigned char *data()const
     {
         return buffer;
     }
-    /// получить указатель на буфер
+
     unsigned char *const_data()const
     {
         return buffer;
     }
-    /// получить текущий остаток битов в затронутом байте
+
+    /// get bits reminder in current byte
     size_t paddingSize() const
     {
         return m_pos.bitsRemainsInByte;
     }
-    /// получить результат как строку
+    /// get reminder as string, byte align required
     std::string asString() const;
-    /// получить размер результата
+
     size_t size() const;
+
     void adjust(size_t n);
     void clear();
-    /// записать число в формате Wimax TLV
     outBitStream& putTLVLength(unsigned long);
-    /// записать байт
     outBitStream& put_8(unsigned char);
-    ///записать биты из числа
     outBitStream& put_bits(unsigned int, int bitcout);
-    /// записать число длиной в N бит в кодировке Big/Little endian
+
+    /// put ops for little/big endian
     outBitStream& put_16LE(unsigned short);
-    /// записать число длиной в N бит в кодировке Big/Little endian
     outBitStream& put_16BE(unsigned short);
-    /// записать число длиной в N бит в кодировке Big/Little endian
     outBitStream& put_32LE(unsigned int);
-    /// записать число длиной в N бит в кодировке Big/Little endian
     outBitStream& put_32BE(unsigned int);
-    /// записать число в упакованном формате
+
+    /// put packed num
     outBitStream& put_PN(unsigned long);
-    /// записать число с префиксом длины в упакованном формате
+
+    /// put string, prefixed by packed num
     outBitStream& put_PSTR(const std::string &);
 
-    /// оператор ввода
+    /// put ops
     outBitStream& operator<<(const char*);
-
     outBitStream& operator<<(int64_t);
     outBitStream& operator<<(uint64_t);
     outBitStream& operator<<(int32_t);
@@ -227,15 +216,15 @@ public:
     outBitStream& operator<<(uint16_t);
     outBitStream& operator<<(int8_t);
     outBitStream& operator<<(uint8_t);
-    /// оператор ввода
     outBitStream& operator<<(const std::string&);
-    /// оператор ввода
     outBitStream& operator<<(const bool&);
 private:
-    /// закрытый оператор для предотвращения конверсии типов
+    /// close operator<< for double
     outBitStream& operator<<(const double&);
 public:
 private:
+
+    /// internal methods
     outBitStream& put_8$(uint8_t c);
     outBitStream& put_8$(int8_t c);
 

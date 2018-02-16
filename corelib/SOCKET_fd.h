@@ -1,6 +1,9 @@
 #ifndef ______SOCKET_fd___H
 #define ______SOCKET_fd___H
 #include "commonError.h"
+
+///  wrapper for int for debug
+
 #ifdef DEBUG
 struct SOCKET_fd
 {

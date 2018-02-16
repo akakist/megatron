@@ -3,6 +3,10 @@
 #define ST_MALLOC_H
 #include <stdio.h>
 #include "commonError.h"
+
+/// stacked malloc, automatically call free() on destructor
+
+
 struct st_malloc
 {
 private:
@@ -25,7 +29,7 @@ public:
     }
 
 };
-struct st_malloc_free
+/*struct st_malloc_free
 {
 private:
     st_malloc_free(const st_malloc_free&);             // Not defined
@@ -44,7 +48,7 @@ public:
         }
     }
 
-};
+};*/
 
 
 #endif

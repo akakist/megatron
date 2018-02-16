@@ -9,13 +9,14 @@ endif()
 
 if(LINUX)
     set(CMAKE_PREFIX_PATH $ENV{HOME}/Qt/5.9.1/gcc_64)
+    set(CMAKE_SHARED_LINKER_FLAGS "-Xlinker --export-dynamic -Xlinker -zdefs")
 else()
     set(CMAKE_PREFIX_PATH $ENV{HOME}/Qt/5.9.1/clang_64)
 endif()
 
 
 OPTION(MT_CORE_SERVICES_SINGLE_PLUGING "Build apps/core-plugins - all core plugins in one file" ON)
-include_directories(corelib local  lib/jsoncpp-0.5.0/include /usr/local/include .. .  ../dfs_lib/lib/zxing-cpp/src)
+include_directories(corelib local  lib/jsoncpp-0.5.0/include /usr/local/include .. .  )
 #add_definitions(-std=gnu++0x)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC -g")
 link_directories( /usr/local/lib)
@@ -26,7 +27,8 @@ ENDIF()
 SET(ENABLE_QT_GUI on)
 
 SET(CAPS_IP "testquant.com")
-SET(PORT 8800)
+#SET(CAPS_IP "127.0.0.1")
+SET(PORT 9900)
 SET(PROJECT_BASE_DIR ~/bin-${PORT})
 SET(PLUGIN_TARGET_DIR ${PROJECT_BASE_DIR}/plugin)
 SET(BIN_TARGET_DIR ${PROJECT_BASE_DIR}/bin)
@@ -49,6 +51,7 @@ add_definitions(-DWITH_IO  -DWITH_ZXING -DWITH_ZBAR)
 ADD_SUBDIRECTORY(corelib)
 ADD_SUBDIRECTORY(main)
 ADD_SUBDIRECTORY(apps)
+ADD_SUBDIRECTORY(test)
 
 IF(ENABLE_QT_GUI)
 ADD_SUBDIRECTORY(tools/updateConfig)
@@ -62,12 +65,5 @@ ENDIF()
 ############################
 
 
-#ADD_SUBDIRECTORY(${PROJECT_SOURCE_DIR}/../utils2)
 
-#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../utils2 ${CMAKE_CURRENT_BINARY_DIR}/utils2)
-#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../discount_system_c  ${CMAKE_CURRENT_BINARY_DIR}/discount_system_c)
-#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../madison  ${CMAKE_CURRENT_BINARY_DIR}/madison)
-#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../guard  ${CMAKE_CURRENT_BINARY_DIR}/guard)
-#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../blockchain  ${CMAKE_CURRENT_BINARY_DIR}/blockchain)
-#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../dfs_lib/lib/zxing-cpp/src  ${CMAKE_CURRENT_BINARY_DIR}/dfs_lib/lib/zxing-cpp/src)
 

@@ -9,7 +9,7 @@
 #include <windows.h>
 #endif
 /**
-* Класс блокировок. Обертка вокрут pthread_mutex
+* Locks. Wrapper on pthread_mutex
 */
 class Mutex
 {
@@ -42,7 +42,7 @@ public:
 };
 
 /**
-* Базовый класс для придания объекту свойства блокируемости (мутексуемости)
+* Base class, wich add to inherited mutexable ability
 */
 class Mutexable
 {
@@ -52,7 +52,7 @@ private:
     Mutex m_lock;
 };
 /**
-* Стековый класс, использующий Mutex
+* Stack mutex locker
 */
 class MutexLocker
 {
@@ -99,11 +99,13 @@ public:
     }
 };
 
+
+
 #define M_LOCK(a) MutexLocker aaa_dummy_stackparam_lock(a)
 #define M_LOCKC(a) MutexLockerC aaa_dummy_stackparam_lock(a)
 
 /**
-* Стековый класс, использующий Mutex
+* Mutex unlocker
 */
 class MutexUnlocker
 {
@@ -133,12 +135,9 @@ public:
 };
 #define M_UNLOCK(a) MutexUnlocker aaa_dummy_stackparam_unlock(a)
 
-/**
-* Класс блокировок. Обертка вокрут pthread_rwlock
-*/
 
 /**
-* Обертка вокруг pthread_cond*
+* Wrapper on pthread_cond*
 */
 class Condition
 {

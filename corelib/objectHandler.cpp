@@ -115,27 +115,6 @@ ObjectHandlerThreaded::~ObjectHandlerThreaded()
     XPASS;
 }
 
-bool ObjectHandler::handleIncomingOnConnector(const REF_getter<Event::Base>& e)
-{
-    XTRY;
-
-    if(e->id==rpcEventEnum::IncomingOnConnector)
-    {
-        rpcEvent::IncomingOnConnector* E=static_cast<rpcEvent::IncomingOnConnector*>(e.operator ->());
-        if(!OH_handleObjectEvent(E->e))
-        {
-            logErr2("handleIncomingOnConnector: unhandled event on connector %s in %s",E->dump().c_str(),this->name);
-        }
-    }
-    else
-    {
-        throw CommonError("if(CONTAINER(e->id)!=rpcEventEnum::IncomingOnConnector) %s %d",__FILE__,__LINE__);
-    }
-    XPASS;
-    return true;
-
-}
-
 void ObjectHandler::passEvent(const REF_getter<Event::Base>& e)
 {
     XTRY;

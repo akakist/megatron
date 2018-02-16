@@ -219,7 +219,7 @@ std::string st_rsa_impl::decrypt(const std::string & m, int (*func) (int, const 
 
     XTRY;
     if (!rsa_xxx) throw CommonError("!rsa_xxx");
-    if (m.size()%size()!=0)  throw CommonError("rsa: invalid buffer size"+_DMI());
+    if (m.size()%size()!=0)  throw CommonError("rsa: invalid buffer size buffer size %d, rsa size %d %s",m.size(),this->size(),_DMI().c_str());
 
     int rsize = size();
     char inBuf[size()],outBuf[size()];

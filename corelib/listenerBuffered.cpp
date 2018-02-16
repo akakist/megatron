@@ -213,11 +213,11 @@ void ListenerBuffered::listenToEvent(const std::deque<REF_getter<Event::Base> >&
 
 void ListenerBuffered::listenToEvent(const REF_getter<Event::Base>& e)
 {
-    
+
     XTRY;
     REF_getter<EventDeque> __ed(NULL);
     {
-        
+
         XTRY;
         M_LOCK(this);
         if(this->m_container.size())
@@ -228,12 +228,12 @@ void ListenerBuffered::listenToEvent(const REF_getter<Event::Base>& e)
     }
     if(!__ed.valid())
     {
-        
+
         XTRY;
         M_LOCK(this);
         if(this->m_vector.size()<this->m_maxThreads)
         {
-            
+
             __ed=new EventDeque(listenerName,instance);
             pthread_t __pt;
             if(pthread_create(&__pt,NULL,ListenerBuffered::worker,this))
@@ -247,7 +247,7 @@ void ListenerBuffered::listenToEvent(const REF_getter<Event::Base>& e)
         }
         else
         {
-            
+
             __ed=this->m_vector[rrand()%this->m_vector.size()].second;
         }
         XPASS;

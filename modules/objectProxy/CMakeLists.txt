@@ -5,7 +5,7 @@ add_library(core-objectProxy SHARED
     objectProxyService.cpp
 )
 
-target_link_libraries(core-objectProxy megatron-core)
+target_link_libraries(core-objectProxy megatron-core pthread)
 
 install(TARGETS core-objectProxy DESTINATION ${PLUGIN_TARGET_DIR})
 

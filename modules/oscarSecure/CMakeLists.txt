@@ -6,7 +6,7 @@ add_library(core-oscarSecure SHARED
     oscarSecureUser.cpp
 )
 
-target_link_libraries(core-oscarSecure megatron-core)
+target_link_libraries(core-oscarSecure megatron-core pthread)
 
 install(TARGETS core-oscarSecure DESTINATION ${PLUGIN_TARGET_DIR})
 

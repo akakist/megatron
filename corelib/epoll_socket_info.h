@@ -15,7 +15,7 @@
 #include <set>
 
 /**
-* Универсальная обертка для сокет селектора
+* Wrapper for socket selector
 */
 
 
@@ -39,7 +39,7 @@ public:
 };
 class epoll_socket_info;
 /**
-* Универсальная обертка для сокета
+* Socket wrapper
 */
 class epoll_socket_info:public Refcountable, public WebDumpable
 {
@@ -57,32 +57,43 @@ public:
         DISCONNECTED,
         DIACCEPTED,
     };
-    /// тип сокета   _ACCEPTED,  _CONNECTED,  _LISTENING,
+
+    /// socket type   _ACCEPTED,  _CONNECTED,  _LISTENING,
     const STREAMTYPE m_streamType;
-    /// уникальный ИД
+
+    /// unique ID
     SOCKET_id m_id;
+
 private:
     /// filedescriptor
     SOCKET_fd m_fd;
+
 public:
     SOCKET_fd get_fd()
     {
         return m_fd;
     }
+
     bool closed();
+
 private:
+
     bool m_closed;
+
 public:
 
-    /// маршрут для потребителя
+    /// routing
     const route_t m_route;
-    /// флаг, означаюший, что сокет следует Close после посылки всех данных
+
+    /// if true socket must be closed after flush data
     bool markedToDestroyOnSend;
 
     struct _socketsContainers: public Mutexable
     {
+
     private:
         std::map<SERVICE_id,REF_getter<SocketsContainerBase> > container;
+
     public:
         void add(const SERVICE_id& sid, const REF_getter<SocketsContainerBase> & S);
         REF_getter<SocketsContainerBase> getOrNull(const SERVICE_id& sid);
@@ -92,8 +103,10 @@ public:
     };
     _socketsContainers m_socketsContainers;
 
+    /// out buffer
     socketBuffersOut m_outBuffer;
-    /// входной буфер
+
+    /// in buffer
     struct _inBuffer: public Mutexable
     {
         std::string _mx_data;
@@ -103,35 +116,43 @@ public:
     };
     _inBuffer m_inBuffer;
 
-    /// флаг, показывающий, что сокет находится в стадии соединения.
+    /// socket in ::connect state
     bool inConnection;
 
-    /// удаленный адрес пира
+    /// remote peer name
     msockaddr_in remote_name;
 
-    /// локальный адрес пира
+    /// local peer name
     msockaddr_in local_name;
+
+    /// m_outBuffer max size
     const unsigned int maxOutBufferSize;
+
+    /// any text of socket for debugging
     const std::string socketDescription;
+
+    ///  used to check buffer available for processing
     bool (*bufferVerify)(const std::string& s);
 
 
     epoll_socket_info(const STREAMTYPE &_strtype,const SOCKET_id& _id,const SOCKET_fd& _fd, const route_t& _route,
                       const REF_getter<SocketsContainerBase> &__socks,
                       const int64_t& _maxOutBufferSize, const std::string& _socketDescription,         bool (*__bufferVerify)(const std::string&));
+
     virtual ~epoll_socket_info();
+
+    /// implementation of webDumpable (display in http)
     Json::Value wdump();
     std::string wname() {
         return "epoll_socket_info";
     }
-    //time_t lastIO;
 
-    /// записать данные
+    /// write buffer
     void write_(const char *s, const size_t &sz);
-    /// записать данные
     void write_(const std::string&s);
-    /// Close
+
     void close(const std::string & reason);
+
     Json::Value __jdump();
 };
 

@@ -6,15 +6,19 @@
 #include "IObjectProxy.h"
 #include "IInstance.h"
 /**
-* Базовый класс, добавляющий к объекту свойство маршрутизируемости
+* Base class, which allow any object to be consumer, i.e. receive response of service directly to virtual method
 */
 class ObjectHandler
 {
 public:
     const char* name;
+
+    /// send event to any service local or remote
     virtual void sendEvent(const std::string & dstHost, const SERVICE_id & dstService, const REF_getter<Event::Base>& e)=0;
     virtual void sendEvent(const msockaddr_in & dstHost, const SERVICE_id & dstService, const REF_getter<Event::Base>& e)=0;
     virtual void sendEvent(const SERVICE_id & dstService, const REF_getter<Event::Base>& e)=0;
+
+    /// reply/pass event according backrouting data
     void passEvent(const REF_getter<Event::Base>& e);
 
     enum Type
@@ -29,13 +33,16 @@ public:
     {
     }
 
+    /// inherited class receives events into this implemented method
     virtual bool OH_handleObjectEvent(const REF_getter<Event::Base>& e)=0;
-    bool handleIncomingOnConnector(const REF_getter<Event::Base>& e);
+
 protected:
     IInstance *iInstance;
 
 
 };
+
+/// ObjectHandler polled implementation
 class ObjectHandlerPolled: public ObjectHandler
 {
     IObjectProxyPolled *objectProxy;
@@ -47,10 +54,11 @@ public:
     void sendEvent(const std::set<msockaddr_in> & dstHost, const SERVICE_id & dstService, const REF_getter<Event::Base>& e);
 
     ObjectHandlerPolled(const char *name,IInstance* _if);
-    //ObjectHandlerPolled();
     ~ObjectHandlerPolled();
 
 };
+
+/// ObjectHandler threaded implementation
 class ObjectHandlerThreaded: public ObjectHandler
 {
     IObjectProxyThreaded *objectProxy;
@@ -62,7 +70,6 @@ public:
     void sendEvent(const std::set<msockaddr_in> & dstHost, const SERVICE_id & dstService, const REF_getter<Event::Base>& e);
 
     ObjectHandlerThreaded(const char *name,IInstance* _if);
-    //ObjectHandlerThreaded();
     ~ObjectHandlerThreaded();
 
 };

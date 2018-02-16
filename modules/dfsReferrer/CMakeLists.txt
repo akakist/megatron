@@ -10,6 +10,6 @@ uplinkconnectionstate.cpp
 uriReferals.cpp
 
 )
-target_link_libraries(dfs-referrer megatron-core sqlite3)
+target_link_libraries(dfs-referrer megatron-core sqlite3 pthread)
 install(TARGETS dfs-referrer DESTINATION ${PLUGIN_TARGET_DIR})
 

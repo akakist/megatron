@@ -10,20 +10,23 @@
 class ObjectHandlerPolled;
 class ObjectHandlerThreaded;
 
-/**        Интерфейс для работы с возможностями прохождения евентов между объектами, унаследованными от ObjectHandler
+/**
+ * This interface used to work with events from any C++ object, inherited from ObjectHandler.
+ * Ex: you can make any GUI window eventable. It can send event to remote service and receive back event using backroute
 */
 
 class IObjectProxyPolled
 {
+    /// this interface is used mainly in GUI objects with 1 GUI thread.
 public:
-    /// добавить хендлер
     virtual void addObjectHandler(ObjectHandlerPolled* h)=0;
-    /// удалить хендлер
     virtual void removeObjectHandler(ObjectHandlerPolled* h)=0;
 
-    /// послать евент на удаленный сервис по RPC
+    /// send event to remove service over RPC
     virtual void sendObjectRequest(const msockaddr_in & dstHost, const SERVICE_id & dstService, const REF_getter<Event::Base>& e)=0;
     virtual void sendObjectRequest(const SERVICE_id & dstService, const REF_getter<Event::Base>& e)=0;
+
+    /// used in polled event handling, ex. in gui class
     virtual void poll()=0;
 
     IObjectProxyPolled(UnknownBase* i)
@@ -36,13 +39,12 @@ public:
 };
 class IObjectProxyThreaded
 {
+    /// this interface is used in for threaded app
 public:
-    /// добавить хендлер
     virtual void addObjectHandler(ObjectHandlerThreaded* h)=0;
-    /// удалить хендлер
     virtual void removeObjectHandler(ObjectHandlerThreaded* h)=0;
 
-    /// послать евент на удаленный сервис по RPC
+    /// send event to remove service over RPC
     virtual void sendObjectRequest(const msockaddr_in & dstHost, const SERVICE_id & dstService, const REF_getter<Event::Base>& e)=0;
     virtual void sendObjectRequest(const SERVICE_id & dstService, const REF_getter<Event::Base>& e)=0;
 

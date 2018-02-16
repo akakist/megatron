@@ -6,7 +6,7 @@
 #include <string>
 #include "pconfig.h"
 /**
-* Общий класс исключения
+* Common exception
 */
 
 class CommonError: public std::exception
@@ -31,13 +31,14 @@ void logErr2(const char* fmt, ...);
 void logRemote(const char *fmt, ...);
 
 
-
+/// DBG - hide code in release mode
 #ifdef DEBUG
 #define DBG(a) a
 #else
 #define DBG(a)
 #endif
 
+/// XTRY, XPASS is two macros used to print stack while exception throwing
 #ifdef DEBUG
 #define XTRY try{
 #define XPASS } catch(...){logErr2("XPASS @%s %s %d",__func__,__FILE__,__LINE__);throw;}

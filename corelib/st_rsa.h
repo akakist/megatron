@@ -4,7 +4,7 @@
 #include "ISSL.h"
 typedef struct rsa_st RSA;
 
-
+/// wrapper for RSA tools in OpenSSL
 
 class st_rsa
 {
@@ -27,6 +27,7 @@ public:
     std::string getPublicKey();
 };
 
+/// wrapper for AES tools in OpenSSL
 
 class st_AES
 {

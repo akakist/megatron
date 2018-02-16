@@ -8,6 +8,13 @@
 #include "SOCKET_id.h"
 #include <deque>
 #include "broadcaster.h"
+
+
+/**
+    HTTP::Request, HTTP::Response is used in http service
+*/
+
+
 typedef int (*__url_read)(long _fd, unsigned char *bufferForOutput, int _bufSizeRequested);
 typedef int64_t (*__url_seek)(long _fd, int64_t pos, int whence);
 typedef int (*__url_close)(long _fd);

@@ -3,6 +3,9 @@
 #include <string>
 #include <stdint.h>
 #include "json/json.h"
+
+/// base class to make object webdumpable on http page
+
 class WebDumpable
 {
 private:

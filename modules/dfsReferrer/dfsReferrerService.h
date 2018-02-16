@@ -43,6 +43,8 @@
 #include "Events/DFS/Referrer/UpdateConfigREQ.h"
 #include "Events/DFS/Referrer/UpdateConfigRSP.h"
 #include "Events/DFS/Referrer/SubscribeNotifications.h"
+#include "Events/DFS/Referrer/ToplinkBroadcastByBackroute.h"
+#include "Events/DFS/Referrer/NotifyDownlink.h"
 
 #include "Events/DFS/Caps/RegisterMyRefferrer.h"
 #include "Events/DFS/Caps/GetRefferrers.h"
@@ -195,12 +197,15 @@ namespace dfsReferrer
 
         bool on_ToplinkDeliverREQ(const dfsReferrerEvent::ToplinkDeliverREQ *e, const rpcEvent::IncomingOnAcceptor* acc);
         bool on_ToplinkDeliverRSP(const dfsReferrerEvent::ToplinkDeliverRSP *e);
+        bool on_ToplinkBroadcastByBackroute(const dfsReferrerEvent::ToplinkBroadcastByBackroute *e);
 
         bool on_Pong(const dfsReferrerEvent::Pong* e,  const REF_getter<epoll_socket_info>& esi);
 
         bool on_acceptor_Elloh(const dfsReferrerEvent::Elloh* e, const REF_getter<epoll_socket_info>& esi);
         bool on_acceptor_Hello(const dfsReferrerEvent::Hello*, const REF_getter<epoll_socket_info>& esi);
         bool on_Ping(const dfsReferrerEvent::Ping* e, const REF_getter<epoll_socket_info>& esi);
+
+        bool on_NotifyDownlink(const dfsReferrerEvent::NotifyDownlink*e);
 
         void sendToplinkReq(const msockaddr_in &uplink, dfsReferrerEvent::ToplinkDeliverREQ *ee);
 

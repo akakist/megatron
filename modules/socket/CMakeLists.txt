@@ -6,7 +6,7 @@ add_library(core-socket SHARED
     socketsContainerForSocketIO.cpp
 )
 
-target_link_libraries(core-socket megatron-core)
+target_link_libraries(core-socket megatron-core pthread)
 
 install(TARGETS core-socket DESTINATION ${PLUGIN_TARGET_DIR})
 

@@ -6,7 +6,7 @@ add_library(core-ssl SHARED
     st_rsa_impl.cpp
 )
 
-target_link_libraries(core-ssl megatron-core crypto)
+target_link_libraries(core-ssl megatron-core crypto pthread)
 
 install(TARGETS core-ssl DESTINATION ${PLUGIN_TARGET_DIR})
 

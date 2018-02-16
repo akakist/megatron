@@ -3,7 +3,9 @@
 #include <sys/types.h>
 #include <stdint.h>
 #include "ioBuffer.h"
-//#ifdef DEBUG
+
+/// Service ID. Possible be a number (old style) and string
+
 struct SERVICE_id
 {
     enum

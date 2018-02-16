@@ -6,16 +6,22 @@
 #include "IInstance.h"
 #include "eventDeque.h"
 class ListenerBuffered;
-/**
-*       Базовый класс буферизованного листенера
-*/
+
+/// multithreaded listener implementation
+
 class ListenerBuffered:protected ListenerBase, protected Mutexable
 {
     friend struct st_busy;
 
+    /// event deque for each thread
     std::map<pthread_t, REF_getter<EventDeque> > m_container;
+
+    /// same as deque, needed to choose deque wich process event
     std::vector<std::pair<pthread_t, REF_getter<EventDeque> > > m_vector;
+
+    /// max thread number
     size_t m_maxThreads;
+
     IInstance * instance;
 
     static void* worker(void*);
@@ -25,16 +31,19 @@ class ListenerBuffered:protected ListenerBase, protected Mutexable
 
 
 protected:
-/// переопределенный метод
+/// base class funcs implementation
     void listenToEvent(const REF_getter<Event::Base>&e);
     void listenToEvent(const std::deque<REF_getter<Event::Base> >&);
 
 public:
-/// абстрактный метод. Можно его переопределить у потомка.
+
+    /// call method in inherited class to process event
     virtual bool handleEvent(const REF_getter<Event::Base>& e)=0;
+
     virtual ~ListenerBuffered();
     ListenerBuffered(UnknownBase *i, const std::string& name, IConfigObj* conf, const SERVICE_id& sid,IInstance *ins);
 
+    /// caller of handleEvent
     void processEvent(const REF_getter<Event::Base>&);
 };
 #endif

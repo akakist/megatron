@@ -155,6 +155,8 @@ static Mutex fullSqliteMutex;
 Sqlite3Wrapper::~Sqlite3Wrapper()
 {
 
+    if(inTransaction)
+        rollbackTransaction();
 
 
     //execSimple((std::string)"COMMIT");
@@ -190,9 +192,33 @@ Sqlite3Wrapper::~Sqlite3Wrapper()
 }
 
 
+void Sqlite3Wrapper::beginTransaction()
+{
+    if(inTransaction)
+        return;
+    inTransaction=true;
+    execSimple((QUERY)"BEGIN");
+}
+void Sqlite3Wrapper::commitTransaction()
+{
+    if(inTransaction)
+    {
+        inTransaction=false;
+        execSimple((QUERY)"COMMIT");
+    }
+}
+void Sqlite3Wrapper::rollbackTransaction()
+{
+    if(inTransaction)
+    {
+        inTransaction=false;
+        execSimple((QUERY)"ROLLBACK");
+    }
+
+}
 
 
-Sqlite3Wrapper::Sqlite3Wrapper(const std::string& name):dbname(name)
+Sqlite3Wrapper::Sqlite3Wrapper(const std::string& name):dbname(name),inTransaction(false),noErrors(true)
 {
     {
         MUTEX_INSPECTOR;

@@ -3,10 +3,10 @@
 #include "unknown.h"
 #include "unknownCastDef.h"
 
+/// interface for logger service
 class ILogger
 {
 public:
-    // check chunk in store only
     virtual void _log(const char* str)=0;
     virtual ~ILogger() {}
     ILogger(UnknownBase* i)

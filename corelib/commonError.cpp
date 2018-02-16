@@ -20,8 +20,6 @@
 #include <android/log.h>
 #endif
 #include <stdarg.h>
-
-//##include <sys/ti>
 #include "megatron_config.h"
 
 #ifdef QT_CORE_LIB
@@ -160,8 +158,6 @@ void logErr2(const char* fmt, ...)
             {
                 fd=fopen(getLogName().c_str(),"a+b");
             }
-            //st_FILE f(getLogName(),"a+b");
-            //if(f)
             if(fd) {
                 timeb tb;
                 ftime(&tb);
@@ -175,7 +171,6 @@ void logErr2(const char* fmt, ...)
                 vfprintf(fd,fmt,ap1);
                 fprintf(fd,"\n");
                 fflush(fd);
-                //fclose(fd);
             }
         }
 #endif

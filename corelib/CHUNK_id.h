@@ -3,6 +3,9 @@
 #include "commonError.h"
 #include "ioBuffer.h"
 #ifdef DEBUG
+
+/// this is typed int for use in debug mode
+
 struct CHUNK_id
 {
     int64_t container;

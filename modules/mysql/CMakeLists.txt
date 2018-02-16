@@ -8,7 +8,7 @@ add_library(core-mysql SHARED
     mysqlService.cpp
 )
 
-target_link_libraries(core-mysql megatron-core mysqlclient)
+target_link_libraries(core-mysql megatron-core mysqlclient pthread)
 
 install(TARGETS core-mysql DESTINATION ${PLUGIN_TARGET_DIR})
 
