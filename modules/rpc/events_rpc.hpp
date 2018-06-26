@@ -66,8 +66,10 @@ inline void regEvents_rpc()
 	iUtils->registerEvent(rpcEvent::SendPacket::construct);
 	iUtils->registerEvent(rpcEvent::SubscribeNotifications::construct);
 	iUtils->registerEvent(rpcEvent::UnsubscribeNotifications::construct);
-	iUtils->registerEvent(rpcEvent::UpnpPortMap::construct);
+#if !defined(WITHOUT_UPNP)
+        iUtils->registerEvent(rpcEvent::UpnpPortMap::construct);
 	iUtils->registerEvent(rpcEvent::UpnpResult::construct);
+#endif
 	iUtils->registerEvent(systemEvent::startService::construct);
 	iUtils->registerEvent(timerEvent::SetTimer::construct);
 	iUtils->registerEvent(timerEvent::TickAlarm::construct);

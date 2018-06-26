@@ -73,7 +73,6 @@ msockaddr_in ConfigDB::get_tcpaddr(const std::string&name, const std::string& de
 
 std::string ConfigDB::get_string(const std::string& name, const std::string& defv) const
 {
-    MUTEX_INSPECTOR;
     std::string v=val(name);
     if(v.size()==0)
     {
@@ -83,7 +82,6 @@ std::string ConfigDB::get_string(const std::string& name, const std::string& def
 }
 uint64_t ConfigDB::get_uint64_t(const std::string&name, const uint64_t& defv)const
 {
-    MUTEX_INSPECTOR;
     std::string vv=val(name);
     if(vv.size()==0)
     {

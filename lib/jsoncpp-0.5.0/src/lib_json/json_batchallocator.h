@@ -8,6 +8,7 @@
 //extern void (*assert)(bool);
 //extern void (*assert)(bool);
 #ifndef USE_JSONASSERT
+#undef assert
 void assert(bool);
 #endif
 

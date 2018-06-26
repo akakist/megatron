@@ -106,14 +106,14 @@ void SocketIO::Service::onEPOLLIN(const REF_getter<epoll_socket_info>&esi)
     if (esi->m_streamType==epoll_socket_info::_LISTENING)
     {
         XTRY;
-        int len=sizeof(sockaddr_in);
         msockaddr_in neu_sa;
-        SOCKET_fd neu_fd = ::accept(CONTAINER(esi->get_fd()), (struct sockaddr *) &neu_sa,(socklen_t*)&len);
+        socklen_t len=neu_sa.maxAddrLen();
+        SOCKET_fd neu_fd = ::accept(CONTAINER(esi->get_fd()), neu_sa.addr(),&len);
 
         DBG(logErr2("accept: fd=%d",neu_fd));
         if (CONTAINER(neu_fd) < 0)
         {
-            log(ERROR_log,"accept: %d errno %d", CONTAINER(neu_fd),errno);
+            log(ERROR_log,"accept: %d errno %d %s", CONTAINER(neu_fd),errno,strerror(errno));
 
             return;
         }
@@ -121,13 +121,13 @@ void SocketIO::Service::onEPOLLIN(const REF_getter<epoll_socket_info>&esi)
         //{
             msockaddr_in local_name;
             msockaddr_in remote_name;
-            socklen_t sl=sizeof(local_name);
-            socklen_t sr=sizeof(remote_name);
-            if(getsockname(CONTAINER(neu_fd), (struct sockaddr *)& local_name, &sl))
+            socklen_t sl=local_name.maxAddrLen();
+            socklen_t sr=remote_name.maxAddrLen();
+            if(getsockname(CONTAINER(neu_fd), local_name.addr(), &sl))
             {
                 throw CommonError("getsockname: errno %d",errno);
             }
-            if(getpeername(CONTAINER(neu_fd), (struct sockaddr *)& remote_name, &sr))
+            if(getpeername(CONTAINER(neu_fd), remote_name.addr(), &sr))
             {
                 throw CommonError("getsockname: errno %d",errno);
             }
@@ -327,13 +327,13 @@ void SocketIO::Service::onEPOLLOUT(const REF_getter<epoll_socket_info>&__EV_)
 
         msockaddr_in local_name;
         msockaddr_in remote_name;
-        socklen_t sl=sizeof(local_name);
-        socklen_t sr=sizeof(remote_name);
-        if(getsockname(CONTAINER(esi->get_fd()), (struct sockaddr *)& local_name, &sl))
+        socklen_t sl=local_name.maxAddrLen();
+        socklen_t sr=remote_name.maxAddrLen();
+        if(getsockname(CONTAINER(esi->get_fd()), local_name.addr(), &sl))
         {
             throw CommonError("getsockname: errno %d",errno);
         }
-        if(getpeername(CONTAINER(esi->get_fd()), (struct sockaddr *)& remote_name, &sr))
+        if(getpeername(CONTAINER(esi->get_fd()),  remote_name.addr(), &sr))
         {
             throw CommonError("getsockname: errno %d",errno);
         }
@@ -451,35 +451,6 @@ void SocketIO::Service::onEPOLLOUT(const REF_getter<epoll_socket_info>&__EV_)
 
             }
             }
-            /**                EBADF   Указан неверный дескриптор.
-
-                            ENOTSOCK
-                                    Аргумент s не является сокетом.
-
-                            EFAULT  В качестве параметра передан неверный адрес.
-
-                            EMSGSIZE
-                                    Сокет  требует,  чтобы  сообщение  было  отослано  за   одну   операцию
-                                    (атомарно), а размер сообщения не позволяет этого.
-
-                            EAGAIN или EWOULDBLOCK
-                                    Сокет  помечен как неблокирующий, а запрошенная операция должна была бы
-                                    заблокировать его.
-
-                            ENOBUFS Исходящая очередь сетевого интерфейса заполнена.  Обычно это  означает,
-                                    что интерфейс прекратил отправку, но может быть также вызвано временной
-                                    перегрузкой.  (Этого не может произойти под  Linux,  потому  что  здесь
-                                    пакеты просто отбрасываются, когда очередь устройства переполняется.)
-
-                            EINTR   Появился сигнал.
-
-                            ENOMEM  Не хватило памяти.
-
-                            EINVAL  Передан неверный аргумент.
-
-                            EPIPE   Локальный  конец сокета, ориентированного на соединение, был закрыт.  В
-                                    этом случае процесс  также  получит  сигнал  SIGPIPE,  если  только  не
-                                    установлен флаг MSG_NOSIGNAL.*/
 
             XPASS;
             return;
@@ -827,7 +798,7 @@ bool  SocketIO::Service::on_AddToListenTCP(const socketEvent::AddToListenTCP*ev)
         }
     }
     //logErr2("")
-    while (bind (CONTAINER(nesi->get_fd()),(struct sockaddr *) &ev->addr, sizeof (sockaddr_in)) == -1)
+    while (bind (CONTAINER(nesi->get_fd()),ev->addr.addr(), ev->addr.addrLen()) == -1)
     {
 #ifdef DEBUG
         log(ERROR_log,"Server: bind()  failed: errno %d %s %s (%s) %s %d", errno,strerror(errno),ev->addr.dump().c_str(),ev->route.dump().c_str(),__FILE__,__LINE__);
@@ -838,9 +809,9 @@ bool  SocketIO::Service::on_AddToListenTCP(const socketEvent::AddToListenTCP*ev)
         return true;
     }
 
-    socklen_t len=sizeof(sockaddr_in);
     msockaddr_in addr;
-    if(getsockname(CONTAINER(nesi->get_fd()),(sockaddr*)& addr,&len))
+    socklen_t len=addr.maxAddrLen();
+    if(getsockname(CONTAINER(nesi->get_fd()),addr.addr(),&len))
     {
         nesi->close((std::string)"getsockname");
         return true;
@@ -919,10 +890,10 @@ bool  SocketIO::Service::on_AddToConnectTCP(const socketEvent::AddToConnectTCP*e
 
     msockaddr_in sa=ev->addr;
 #ifdef __IOS__
-    sa.sin_len=16;
+    sa.u.sa4.sin_len=16;
 #endif
-    sa.sin_family=AF_INET;
-    if(::connect(CONTAINER(sock),(sockaddr*)&sa, sizeof(sockaddr_in)))
+//    sa.sa4.sin_family=AF_INET;
+    if(::connect(CONTAINER(sock),sa.addr(), sa.addrLen()))
     {
 
 #ifndef _WIN32

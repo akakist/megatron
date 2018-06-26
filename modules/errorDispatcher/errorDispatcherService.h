@@ -42,7 +42,7 @@ namespace ErrorDispatcher
 
 
         std::set<route_t> m_subscribers;
-        std::map<int,std::string> m_cache;
+        //std::map<std::string,std::string> m_cache;
 
     public:
         static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa)

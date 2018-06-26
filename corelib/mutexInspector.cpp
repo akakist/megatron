@@ -27,7 +27,10 @@ MutexInspector::MutexInspector(const char *ff, int ll, const char *func, const s
 }
 MutexInspector::~MutexInspector()
 {
-    if (!iUtils) throw CommonError("!iUtils");
+    if (!iUtils) {
+        logErr2("!iUtils");
+        return;
+    }
     iUtils->getIThreadNameController()->pop_mi(pthread_self());
 }
 

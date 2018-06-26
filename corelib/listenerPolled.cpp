@@ -44,7 +44,7 @@ void ListenerPolled::poll()
             if(!processed)
             {
                 XTRY;
-                logErr2("ListenerPolled: unhandled event %s in %s",d[n]->dump().c_str(),listenerName.c_str());
+                logErr2("ListenerPolled: unhandled event %s in %s",d[n]->dump().toStyledString().c_str(),listenerName.c_str());
                 XPASS;
 
             }
@@ -52,7 +52,7 @@ void ListenerPolled::poll()
     }
     catch(std::exception &e)
     {
-        logErr2("exception: %s %s ",e.what(),_DMI().c_str());
+        logErr2("ListenerPolled exception: %s %s ",e.what(),_DMI().c_str());
     }
 
     return;

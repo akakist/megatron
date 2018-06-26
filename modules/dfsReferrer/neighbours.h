@@ -14,6 +14,9 @@ namespace dfsReferrer
     class _neighbours: public Mutexable /// sosedi referrers
     {
     public:
+//#ifdef __ANDROID__
+        std::set<msockaddr_in>sas;
+//#endif
         _neighbours();
         void remove(const msockaddr_in& sa);
         std::vector<msockaddr_in> getAllAndClear();

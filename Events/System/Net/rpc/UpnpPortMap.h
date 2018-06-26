@@ -1,6 +1,8 @@
 #ifndef ___RPC_EV1_H4aa
 #define ___RPC_EV1_H4aa
 #include "___rpcEvent.h"
+#if !defined(WITHOUT_UPNP)
+
 namespace rpcEvent{
 
 class UpnpPortMap: public Event::NoPacked
@@ -19,4 +21,5 @@ public:
     }
 };
 }
+#endif
 #endif

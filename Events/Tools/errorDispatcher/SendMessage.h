@@ -13,11 +13,11 @@ public:
     {
         return new SendMessage(r);
     }
-    SendMessage(const int &_opcode, const std::string& _msg)
+    SendMessage(const std::string &_opcode, const std::string& _msg)
         :Base(errorDispatcherEventEnum::SendMessage,channel,"errorDispatcherSendMessage"),opcode(_opcode),msg(_msg) {}
     SendMessage(const route_t&r)
         :Base(errorDispatcherEventEnum::SendMessage,channel,"errorDispatcherSendMessage",r) {}
-    int opcode;
+    std::string opcode;
     std::string msg;
     void unpack(inBuffer& o)
     {

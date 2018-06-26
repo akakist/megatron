@@ -20,8 +20,7 @@
 #include "GuiUCHandler.h"
 #include "Events/DFS/Referrer/Pong.h"
 #include "Events/DFS/Referrer/InitClient.h"
-#include "Events/DFS/Referrer/UpdateConfigREQ.h"
-#include "Events/DFS/Referrer/UpdateConfigRSP.h"
+#include "Events/DFS/Referrer/UpdateConfig.h"
 #include "megatron.h"
 extern megatron* mega;
 /*
@@ -54,7 +53,11 @@ MainWindow::MainWindow(QWidget *parent) :
         handler=new GuiUCHandler(mega->iInstance);
         connectToHandler();
         std::set<msockaddr_in> caps;
-        caps.insert(msockaddr_in(CAPS_ADDRESS));
+//        caps.insert(msockaddr_in(CAPS_ADDRESS));
+        msockaddr_in sa;
+        sa.initFromUrl(CAPS_ADDRESS);
+        caps.insert(sa);
+
         handler->sendEvent(ServiceEnum::ReferrerClient,new dfsReferrerEvent::InitClient(caps,handler));
 
 
@@ -129,7 +132,7 @@ bool MainWindow::checkHandler()
 {
     if(!handler)
     {
-        QMessageBox::warning(this,"Ошибка","Не выполнен вход");
+        QMessageBox::warning(this,"Error","Entry must be performed");
         return false;
     }
     return true;

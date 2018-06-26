@@ -5,7 +5,6 @@
 namespace dfsReferrerEvent {
     class Elloh: public Event::Base
     {
-        /// данное событие идет в обратную сторону в клиента, который пытался подцепиться для проверки, что он доступен.
         enum {channel=CHANNEL_100};
 
     public:

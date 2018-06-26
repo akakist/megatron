@@ -1,6 +1,7 @@
 #include "eventDeque.h"
 #include "mutexInspector.h"
 
+
 void EventDeque::push(const REF_getter<Event::Base> & e)
 {
 
@@ -9,7 +10,7 @@ void EventDeque::push(const REF_getter<Event::Base> & e)
         M_LOCKC(m_mutex);
         if(container.size()>1000)
         {
-            DBG(logErr2("Warning: EventDeque size overflow > 1000 %s",e->dump().c_str()));
+            DBG(logErr2("Warning: EventDeque size overflow > 1000 %s",e->dump().toStyledString().c_str()));
         }
         container.push_back(e);
     }

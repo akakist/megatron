@@ -23,24 +23,18 @@ public:
 
 
 
-    //void makeConnection(const sqliteConf& conf);
 
     std::string select_1(const QUERY &) const;
 
-    /// получить 1 строку. Примечание строка должна действительно выбраться.
     std::vector<std::string> select_1_row(const QUERY&)const;
 
-    /// получить 1 столбец. Примечание столбец должен действительно выбраться.
     std::vector<std::string> select_1_column(const QUERY&)const;
 
 
-    /// получить 1 элемент из запроса типа "select last_insert_rowid()". Примечание element должeн действительно выбраться.
     std::string select_1(const std::string &)const;
 
-    /// получить 1 строку. Примечание строка должна действительно выбраться.
     std::vector<std::string> select_1_row(const std::string &)const;
 
-    /// получить 1 столбец. Примечание столбец должен действительно выбраться.
     std::vector<std::string> select_1_column(const std::string &)const;
 
 

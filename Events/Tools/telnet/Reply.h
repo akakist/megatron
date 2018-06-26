@@ -9,12 +9,6 @@ namespace telnetEvent
 class Reply: public Event::NoPacked
 {
 public:
-    /**
-    *   Регистрация команды
-    *   Направление - от клиента
-    *   \param socketId  идентидификатор соединения
-    *   \param buffer данные, которые нужно вывести в консоли
-    */
     static Base* construct(const route_t &)
     {
         return NULL;

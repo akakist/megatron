@@ -7,9 +7,9 @@
 enum LOGTYPE
 {
     ERROR_log,INFO_log
-#ifdef DEBUG
+//#ifdef DEBUG
     ,TRACE_log, TRACE_ALL_EVENTS_log
-#endif
+//#endif
 };
 class Logging
 {

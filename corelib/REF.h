@@ -33,7 +33,10 @@ public:
     };
     virtual ~ Refcountable ()
     {
-        if(__Ref_Count!=0) throw CommonError("destructor with __Ref_Count!=0");
+        if(__Ref_Count!=0)
+        {
+            logErr2("destructor with __Ref_Count!=0");
+        }
     }
 };
 

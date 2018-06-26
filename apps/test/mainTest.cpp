@@ -20,6 +20,20 @@ void onterm(int signum);
 
 
 //IUtils *iUtils=NULL;
+void registerDFSCapsService(const char* pn);
+void registerDFSReferrerService(const char*pn);
+void registerErrorDispatcherService(const char* pn);
+void registerHTTPModule(const char* pn);
+void registerObjectProxyModule(const char* pn);
+void registerOscarModule(const char* pn);
+void registerOscarSecureModule(const char* pn);
+void registerReferrerClientService(const char*pn);
+void registerRPCService(const char* pn);
+void registerSocketModule(const char* pn);
+void registerSSL(const char* pn);
+void registerTelnetService(const char* pn);
+void registerTimerService(const char* pn);
+void registerWebHandlerModule(const char* pn);
 
 
 
@@ -156,6 +170,21 @@ int main(int argc, char* argv[])
 
         std::set<std::string> sp;
 
+registerDFSCapsService(NULL);
+registerDFSReferrerService(NULL);
+registerErrorDispatcherService(NULL);
+registerHTTPModule(NULL);
+registerObjectProxyModule(NULL);
+registerOscarModule(NULL);
+registerOscarSecureModule(NULL);
+registerReferrerClientService(NULL);
+registerRPCService(NULL);
+registerSocketModule(NULL);
+registerSSL(NULL);
+registerTelnetService(NULL);
+registerTimerService(NULL);
+registerWebHandlerModule(NULL);
+
 
         sp.insert(PLUGIN_TARGET_DIR);
 
@@ -171,6 +200,7 @@ int main(int argc, char* argv[])
             t->run();
             delete t;
         }
+	delete iUtils;
 
 
 
@@ -223,6 +253,7 @@ void onterm(int signum)
 #endif
             ex=true;
             iUtils->getIThreadNameController()->print_term(signum);
+	    delete iUtils;
 //            mega.stop();
             exit(0);
 

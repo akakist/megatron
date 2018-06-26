@@ -96,8 +96,8 @@ bool RPC::Service::on_Connected(const oscarEvent::Connected* E)
     msockaddr_in addr;
     bool need_send_connected=false;
     msockaddr_in sa;
-    socklen_t sl=sizeof(sa);
-    if(getsockname(CONTAINER(E->esi->get_fd()), (sockaddr*)&sa,&sl))
+    socklen_t sl=sa.maxAddrLen();
+    if(getsockname(CONTAINER(E->esi->get_fd()), sa.addr(),&sl))
     {
         log(ERROR_log,"getsockname: errno %d",errno);
     }
@@ -149,7 +149,7 @@ bool RPC::Service::on_Connected(const oscarEvent::Connected* E)
 }
 bool RPC::Service::on_PacketOnAcceptor(const oscarEvent::PacketOnAcceptor*E)
 {
-    
+    MUTEX_INSPECTOR;
     try {
         inBuffer buf(E->buf.data(),E->buf.size());
         int direction;
@@ -158,6 +158,7 @@ bool RPC::Service::on_PacketOnAcceptor(const oscarEvent::PacketOnAcceptor*E)
         //logErr2("UNPACK %s",iUtils->bin2hex(E->buf).c_str());
         if(direction=='p')
         {
+            MUTEX_INSPECTOR;
             REF_getter<Event::Base> e=iUtils->unpackEvent(buf);
             if(!e.valid())
             {
@@ -176,8 +177,11 @@ bool RPC::Service::on_PacketOnAcceptor(const oscarEvent::PacketOnAcceptor*E)
         }
         else if(direction=='s')
         {
+            MUTEX_INSPECTOR;
             SERVICE_id dst;//=buf.get_PN();
+            //iInstance->initService(dst);
             buf>>dst;
+            UnknownBase *zzz=iInstance->getServiceOrCreate(dst);
             REF_getter<Event::Base> e=iUtils->unpackEvent(buf);
             if(!e.valid())
             {
@@ -236,6 +240,7 @@ bool RPC::Service::on_PacketOnConnector(const oscarEvent::PacketOnConnector* E)
         //logErr2("UNPACK %s",iUtils->bin2hex(E->buf).c_str());
         if(direction=='p')
         {
+            MUTEX_INSPECTOR;
             REF_getter<Event::Base> e=iUtils->unpackEvent(buf);
             if(!e.valid())
             {
@@ -252,11 +257,13 @@ bool RPC::Service::on_PacketOnConnector(const oscarEvent::PacketOnConnector* E)
             }
             else
             {
-                throw CommonError("!(r->type==Route::LOCALSERVICE %d) %s %s %s %s ",r->type,e->name,r->dump().c_str(),e->dump().c_str(),_DMI().c_str());
+                throw CommonError("!(r->type==Route::LOCALSERVICE %d) %s %s %s %s ",
+                                  r->type,e->name,r->dump().c_str(),e->dump().toStyledString().c_str(),_DMI().c_str());
             }
         }
         else if(direction=='s')
         {
+            MUTEX_INSPECTOR;
             SERVICE_id dst=buf.get_PN();
             REF_getter<Event::Base> e=iUtils->unpackEvent(buf);
             if(!e.valid())
@@ -347,9 +354,9 @@ bool RPC::Service::on_NotifyBindAddress(const oscarEvent::NotifyBindAddress*e)
         {
             sessions->clear();
         }
-        socklen_t len=sizeof(sockaddr_in);
+        socklen_t len=addr.addrLen();
 
-        if(getsockname(CONTAINER(e->esi->get_fd()),(sockaddr*)&addr,&len))
+        if(getsockname(CONTAINER(e->esi->get_fd()),addr.addr(),&len))
         {
             log(ERROR_log,"getsockname: errno %d",errno);
             return true;
@@ -373,9 +380,9 @@ bool RPC::Service::on_NotifyBindAddress(const oscarEvent::NotifyBindAddress*e)
             {
                 sessions->clear();
             }
-            socklen_t len=sizeof(sockaddr_in);
+            socklen_t len=addr.maxAddrLen();
 
-            if(getsockname(CONTAINER(e->esi->get_fd()),(sockaddr*)&addr,&len))
+            if(getsockname(CONTAINER(e->esi->get_fd()),addr.addr(),&len))
             {
                 log(ERROR_log,"getsockname: errno %d",errno);
                 return true;
@@ -444,8 +451,8 @@ bool RPC::Service::on_Accepted(const oscarEvent::Accepted* E)
     S_LOG("on_Accepted");
     
     msockaddr_in sa;
-    socklen_t sl=sizeof(sa);
-    if(getsockname(CONTAINER(E->esi->get_fd()), (sockaddr*)&sa,&sl))
+    socklen_t sl=sa.maxAddrLen();
+    if(getsockname(CONTAINER(E->esi->get_fd()), sa.addr(),&sl))
     {
         log(ERROR_log,"getsockname: errno %d",errno);
     }
@@ -662,7 +669,7 @@ bool RPC::Service::on_NotifyOutBufferEmpty(const oscarEvent::NotifyOutBufferEmpt
     for(auto &i:subscribers)
     {
         //REF_getter<Event::Base>
-        passEventAndLog(new rpcEvent::Accepted(e->esi,poppedFrontRoute(i)));
+        passEvent(new rpcEvent::Accepted(e->esi,poppedFrontRoute(i)));
 
     }
     REF_getter<Session> S=sessions->getSessionOrNull(e->esi->m_id);
@@ -890,6 +897,7 @@ void RPC::Service::doSendAll()
     }
 
 }
+#if !defined(WITHOUT_UPNP)
 bool RPC::Service::on_UpnpPortMap(const rpcEvent::UpnpPortMap* e)
 {
     DBG(log(TRACE_log,"--------------before upnp_pulse();"));
@@ -904,6 +912,7 @@ bool RPC::Service::on_UpnpPortMap(const rpcEvent::UpnpPortMap* e)
 
     return true;
 }
+#endif
 bool RPC::Service::on_ConnectFailed(const oscarEvent::ConnectFailed*e)
 {
 
@@ -1021,8 +1030,10 @@ bool RPC::Service::handleEvent(const REF_getter<Event::Base>& e)
         return(this->on_Disconnect((const rpcEvent::Disconnect*)e.operator->()));
     if( rpcEventEnum::Disaccept==ID)
         return(this->on_Disaccept((const rpcEvent::Disaccept*)e.operator->()));
+#if !defined(WITHOUT_UPNP)
     if( rpcEventEnum::UpnpPortMap==ID)
         return(this->on_UpnpPortMap((const rpcEvent::UpnpPortMap*)e.operator->()));
+#endif
 
 
     XPASS;

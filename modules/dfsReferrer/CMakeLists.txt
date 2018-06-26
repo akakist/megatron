@@ -3,6 +3,7 @@ add_definitions(-DWITH_IO)
 
 add_library(dfs-referrer SHARED
 
+../../corelib/sqlite3Wrapper.cpp
 dfsReferrer.cpp
 dfsReferrerService.cpp
 neighbours.cpp

@@ -1476,8 +1476,8 @@ bool Telnet::Service::on_NotifyBindAddress(const socketEvent::NotifyBindAddress*
     //if(iInstance->no_bind())
     //  throw CommonError("Telnet::Service::on_NotifyBindAddress %s",_DMI().c_str());
 
-    socklen_t len=sizeof(sockaddr_in);
-    if(getsockname(CONTAINER(e->esi->get_fd()),(sockaddr*)&m_bindAddr,&len))
+    socklen_t len=e->esi->local_name.maxAddrLen();
+    if(getsockname(CONTAINER(e->esi->get_fd()),e->esi->local_name.addr(),&len))
     {
         log(ERROR_log,"getsockname: errno %d",errno);
         return true;

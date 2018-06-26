@@ -129,7 +129,9 @@ REF_getter<QueryResult> Sqlite3Wrapper::exec(const std::string &query) const
 #else
             std::string str="";
 #endif
-            throw CommonError("sqlite error: %s (%s) %s",sqlite3_errmsg(dbh),query.c_str(),str.c_str());;
+//#ifndef __ANDROID__
+            throw CommonError("sqlite sqlite3_finalize error: %s (%s) %s",sqlite3_errmsg(dbh),query.c_str(),str.c_str());;
+//#endif
         }
 
 

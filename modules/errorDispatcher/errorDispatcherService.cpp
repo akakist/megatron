@@ -43,7 +43,7 @@ void registerErrorDispatcherService(const char* pn)
 bool ErrorDispatcher::Service::on_errorDispatcherSendMessage(const errorDispatcherEvent::SendMessage* e)
 {
     XTRY;
-    m_cache[e->opcode]=e->msg;
+    //m_cache[e->opcode]=e->msg;
     for(std::set<route_t>::iterator i=m_subscribers.begin(); i!=m_subscribers.end(); i++)
     {
         {
@@ -73,11 +73,11 @@ bool ErrorDispatcher::Service::on_errorDispatcherSubscribe(const errorDispatcher
 {
     XTRY;
     m_subscribers.insert(e->route);
-    for(auto &i:m_cache)
+    /*for(auto &i:m_cache)
     {
         passEvent(new errorDispatcherEvent::NotifySubscriber(i.first,i.second,poppedFrontRoute(e->route)));
 
-    }
+    }*/
     XPASS;
     return true;
 }

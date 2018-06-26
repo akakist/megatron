@@ -15,8 +15,10 @@ ListenerBuffered1Thread::~ListenerBuffered1Thread()
 ListenerBuffered1Thread::ListenerBuffered1Thread(UnknownBase *i, const std::string& name, IConfigObj* , const SERVICE_id & sid, IInstance *ins)
     :ListenerBase(i,name,sid),m_container(name,ins),m_pt(0),instance(ins),m_isTerminating(false) {
 
+    XTRY;
     if(pthread_create(&m_pt,NULL,ListenerBuffered1Thread::worker,this))
         throw CommonError("pthread_create: errno %d",errno);
+    XPASS;
 
 }
 
@@ -51,14 +53,20 @@ void ListenerBuffered1Thread::processEvent(const REF_getter<Event::Base>&e)
         if(!processed)
         {
             XTRY;
-            logErr2("ListenerBuffered1Thread: unhandled event %s svs=%s in listener=%s %s",e->dump().c_str(),listenerName.c_str(), listenerName.c_str(),e->dump().c_str());
+            logErr2("ListenerBuffered1Thread: unhandled event %s svs=%s in listener=%s %s",
+                    e->dump().toStyledString().c_str(),listenerName.c_str(), listenerName.c_str(),e->dump().toStyledString().c_str());
             XPASS;
 
         }
     }
+    catch(CommonError& e)
+    {
+        logErr2("CommonError: %s %s",e.what(),_DMI().c_str());
+
+    }
     catch(std::exception &e)
     {
-        logErr2("std::exception: %s %s",e.what(),_DMI().c_str());
+        logErr2("ListenerBuffered1Thread std::exception: %s %s",e.what(),_DMI().c_str());
     }
 
 }

@@ -22,7 +22,8 @@ public:
         m_app_name(app_name.substr(0,app_name.rfind("-d"))),
         _argc(ac),
         _argv(av),
-        m_isTerminating(false)
+        m_isTerminating(false),
+        m_addrInfos(new _addrInfos)
 
     {}
     ~CUtils();
@@ -74,7 +75,7 @@ public:
     std::string  Base64Decode(const std::string&);
     std::string  hex2bin(const std::string&);
     std::string  bin2hex(const std::string&);
-    std::string bin2escaped(const std::string & in);
+//    std::string bin2escaped(const std::string & in);
     std::string uriEncode(const std::string & sSrc);
     std::string uriDecode(const std::string & sSrc);
 
@@ -242,6 +243,15 @@ public:
     bool isTerminating();
 
     void load_plugins_info(const std::set<std::string>& bases);
+
+    REF_getter<_addrInfos> m_addrInfos;
+    REF_getter<_addrInfos> getAddrInfos(){return m_addrInfos;}
+
+    struct _registered_dlls: public Mutexable
+    {
+        std::set<void*> registered_dlls;
+    };
+    _registered_dlls registered_dlls;
 
 };
 #endif

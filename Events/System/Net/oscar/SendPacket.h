@@ -4,7 +4,6 @@
 namespace oscarEvent
 {
 
-/// послать евент в оскар
 class SendPacket: public Event::NoPacked
 {
 public:
@@ -16,7 +15,6 @@ public:
         :NoPacked(oscarEventEnum::SendPacket,"oscarSendPacket",r),
          socketId(_sock), buf(_buf) {}
 
-    /// сокет
     const SOCKET_id socketId;
 
     /// buffer

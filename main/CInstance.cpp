@@ -347,6 +347,7 @@ UnknownBase* CInstance::initService(const SERVICE_id& sid)
                         XPASS;
                     }
                     XTRY;
+//                    printf("@@@ constr %s\n",name.c_str());
                     u=constr(sid,name.c_str(),this);
                     XPASS;
                     XPASS;

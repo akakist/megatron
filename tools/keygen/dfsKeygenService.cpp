@@ -137,7 +137,6 @@ dfsKeygen::Service::Service(const SERVICE_id& id, const std::string& nm,IConfigO
 
 void registerDFSKeygenService(const char* pn)
 {
-    /// регистрация в фабрике сервиса и событий
 
     XTRY;
     if(pn)

@@ -14,7 +14,7 @@ bool ObjectProxy::Threaded::handleEvent(const REF_getter<Event::Base>& e)
 {
     XTRY;
     
-    //logErr2("ObjectProxy::Threaded::handleEvent %s",e->dump().c_str());
+//    logErr2("ObjectProxy::Threaded::handleEvent %s",e->dump().toStyledString().c_str());
     auto &ID=e->id;
     if(systemEventEnum::startService==ID)
         return on_startService((const systemEvent::startService*)e.operator->());
@@ -61,7 +61,7 @@ bool ObjectProxy::Threaded::handleEvent(const REF_getter<Event::Base>& e)
                     //logErr2("if(!OH->OH_handleObjectEvent(e)) %s ",OH->name);
                     if(!OH->OH_handleObjectEvent(e))
                     {
-                        logErr2("ObjectProxy::Threaded: unhandled event %s in %s",e->dump().c_str(), OH->name);
+                        logErr2("ObjectProxy::Threaded: unhandled event %s in %s",e->dump().toStyledString().c_str(), OH->name);
                     }
                 }
                 catch(...)
@@ -133,7 +133,7 @@ bool ObjectProxy::Polled::handleEvent(const REF_getter<Event::Base>& e)
                     //logErr2("if(!OH->OH_handleObjectEvent(e)) %s",OH->name);
                     if(!OH->OH_handleObjectEvent(e))
                     {
-                        logErr2("ObjectProxy::Threaded: unhandled event %s in %s",e->dump().c_str(), OH->name);
+                        logErr2("ObjectProxy::Threaded: unhandled event %s in %s",e->dump().toStyledString().c_str(), OH->name);
                     }
                 }
                 catch(...)

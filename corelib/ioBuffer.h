@@ -102,9 +102,6 @@ public:
     inBuffer& operator>>(float &);
 public:
 };
-/**
-* Класс байтового потока без битовых операций, но с темплейтами STL
-*/
 class outBuffer
 {
 private:
@@ -343,11 +340,14 @@ inline uint64_t inBuffer::get_PN()
     uint64_t NN=0;
     while (1)
     {
+
+//        printf("1NN: %llx\n",NN);
         unsigned char c=get_8();
         if (c<0x80)
         {
             NN<<=7;
             NN|=c;
+//            printf("2NN: %llx\n",NN);
             return NN;
         }
         else

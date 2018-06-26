@@ -11,7 +11,8 @@ mainTest.cpp
 
 )
 include_directories(../../main)
+#add_definitions(-DWITHOUT_UPNP )
 
-target_link_libraries(mt-test-${PORT}.exe megatron-core z dl pthread)
+target_link_libraries(mt-test-${PORT}.exe zsingle megatron-core ssl crypto  z dl pthread)
 install(TARGETS mt-test-${PORT}.exe DESTINATION ${BIN_TARGET_DIR})
 

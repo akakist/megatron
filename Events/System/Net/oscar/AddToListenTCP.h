@@ -6,7 +6,6 @@ namespace oscarEvent
 {
 
 
-/// скомандовать слушать ip/порт
 class AddToListenTCP: public Event::NoPacked
 {
 public:
@@ -17,9 +16,7 @@ public:
     AddToListenTCP(const SOCKET_id& _socketId, const msockaddr_in& _addr,const std::string& _socketDescription,const route_t & r):
         NoPacked(oscarEventEnum::AddToListenTCP,"oscarAddToListenTCP",r),
         socketId(_socketId), addr(_addr),socketDescription(_socketDescription) {}
-    /// socket Id
     const SOCKET_id socketId;
-    /// bind address
     const msockaddr_in addr;
     const std::string socketDescription;
     void jdump(Json::Value &) const

@@ -9,7 +9,9 @@
 #include "ifaces.h"
 #include "VERSION_id.h"
 #include "GlobalCookie_id.h"
-#include "sqlite3Wrapper.h"
+#ifndef __ANDROID__
+//#include "sqlite3Wrapper.h"
+#endif
 
 ///       Service sandbox management
 

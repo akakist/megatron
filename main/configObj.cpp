@@ -12,21 +12,15 @@ void ConfigObj::appendLine(const std::string& key, const bool& val, const std::s
 }
 void ConfigObj::appendLine(const std::string& key, const real& val, const std::string& comment)
 {
-    //char s[100];
-    //snprintf(s,sizeof(s),"%f",val);
     appendLine(key,iUtils->toString(val),comment);
 }
 void ConfigObj::appendLine(const std::string& key, const int64_t& val, const std::string& comment)
 {
-    //char s[100];
-    //snprintf(s,sizeof(s),"%ld",val);
     appendLine(key,iUtils->toString(val),comment);
 
 }
 void ConfigObj::appendLine(const std::string& key, const uint64_t& val, const std::string& comment)
 {
-    //char s[100];
-    //snprintf(s,sizeof(s),"%llu",val);
     appendLine(key,iUtils->toString(val),comment);
 
 }

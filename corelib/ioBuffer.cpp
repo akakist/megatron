@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "Rational.h"
 #include "ioBuffer.h"
 #include "IInstance.h"
 #include "mutexInspector.h"
@@ -54,7 +55,7 @@ void inBuffer::unpack(uint8_t* buf, size_t sz)
 {
     if (sz > m_size-out_pos)
     {
-        throw CommonError("unpack error not enough");
+        throw CommonError("unpack error not enough %s",_DMI().c_str());
     }
     memcpy(buf,&m_data[out_pos],sz);
     out_pos += sz;
@@ -436,8 +437,9 @@ outBuffer& outBuffer::put_PN$(const uint64_t &N)
 {
     XTRY;
     adjust(10);
-    int start=56;
+    int start=63;
 
+    /// loop to skip spaces
     for (int i=start; i>=0; i-=7)
     {
         unsigned char c=(N>>i) & 0x7F;
@@ -445,12 +447,18 @@ outBuffer& outBuffer::put_PN$(const uint64_t &N)
         {
             for (; i>=0; i-=7)
             {
-                if (i) c=(N>>i) & 0x7F;
-                else c=N & 0x7F;
                 if (i)
+                {
+                    c=(N>>i) & 0x7F;
                     put_8$(c|0x80);
+                }
                 else
+                {
+                    c=N & 0x7F;
                     put_8$(c);
+                }
+//                if (i)
+//                else
             }
             return *this;
         }

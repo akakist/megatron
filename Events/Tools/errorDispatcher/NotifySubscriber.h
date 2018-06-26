@@ -12,11 +12,11 @@ public:
     {
         return new NotifySubscriber(r);
     }
-    NotifySubscriber(const int& _opcode, const std::string& _msg, const route_t&r)
+    NotifySubscriber(const std::string& _opcode, const std::string& _msg, const route_t&r)
         :Base(errorDispatcherEventEnum::NotifySubscriber,channel,"errorDispatcherNotifySubscriber",r),opcode(_opcode),msg(_msg) {}
     NotifySubscriber(const route_t&r)
         :Base(errorDispatcherEventEnum::NotifySubscriber,channel,"errorDispatcherNotifySubscriber",r) {}
-    int opcode;
+    std::string opcode;
     std::string msg;
     void unpack(inBuffer& o)
     {

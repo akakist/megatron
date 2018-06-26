@@ -63,6 +63,8 @@ public:
     /// получить md5 cksum
     std::string md5(const std::string & s);
     std::string rand_bytes(int n);
+    void rand_bytes(uint8_t* p, int n);
+
     int rand_int();
 
     std::string sha1(const std::string & s);

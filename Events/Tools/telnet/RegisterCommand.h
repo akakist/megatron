@@ -8,14 +8,6 @@ namespace telnetEvent
 
 class RegisterCommand: public Event::NoPacked
 {
-    /**
-    *   Регистрация команды
-    *   Направление - от клиента
-    *   \param cmd команда, может состоять из нескольких слов
-    *   \param help строка которая будет выводиться в хелпе для типа.
-    *   \param directory родительская директория, разбитая на элементы
-    *   \param params  строка со списком имен регекспов параметров
-    */
 public:
     static Base* construct(const route_t &)
     {

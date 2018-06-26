@@ -25,7 +25,9 @@
 #include "Events/System/Net/rpc/Disconnected.h"
 #include "Events/System/Net/rpc/Disaccepted.h"
 #include "Events/System/Net/rpc/Accepted.h"
+#if !defined(WITHOUT_UPNP)
 #include "Events/System/Net/rpc/UpnpResult.h"
+#endif
 #include "Events/System/Net/rpc/Connected.h"
 #include "Events/System/Net/rpc/ConnectFailed.h"
 #include "Events/System/Net/rpc/Binded.h"
@@ -33,10 +35,10 @@
 #include "Events/System/timer/TickAlarm.h"
 #include "Events/DFS/Referrer/Elloh.h"
 #include "Events/DFS/Referrer/Hello.h"
-#include "Events/DFS/Referrer/NotifyReferrerUplinkIsDisconnected.h"
-#include "Events/DFS/Referrer/NotifyReferrerUplinkIsConnected.h"
-#include "Events/DFS/Referrer/NotifyReferrerDownlinkConnected.h"
-#include "Events/DFS/Referrer/NotifyReferrerDownlinkDisconnected.h"
+#include "Events/DFS/Referrer/NotifyReferrer.h"
+#include "Events/DFS/Referrer/NotifyReferrer.h"
+#include "Events/DFS/Referrer/NotifyReferrer.h"
+#include "Events/DFS/Referrer/NotifyReferrer.h"
 #include "Events/DFS/Referrer/Ping.h"
 #include "Events/DFS/Referrer/Pong.h"
 #include "Events/DFS/Referrer/SubscribeNotifications.h"
@@ -45,13 +47,15 @@
 #include "Events/DFS/Caps/RegisterMyRefferrer.h"
 #include "Events/DFS/Caps/GetRefferrers.h"
 #include "Events/System/Net/rpc/SubscribeNotifications.h"
+#if !defined(WITHOUT_UPNP)
 #include "Events/System/Net/rpc/UpnpPortMap.h"
+#endif
 #include "Events/Tools/telnet/RegisterCommand.h"
 #include "Events/Tools/telnet/Reply.h"
 #include "Events/Tools/webHandler/RegisterDirectory.h"
 #include "Events/Tools/webHandler/RegisterHandler.h"
-#include "Events/DFS/Referrer/ToplinkDeliverREQ.h"
-#include "Events/DFS/Referrer/ToplinkDeliverRSP.h"
+#include "Events/DFS/Referrer/ToplinkDeliver.h"
+#include "Events/DFS/Referrer/ToplinkDeliver.h"
 
 
 namespace crefTimer {

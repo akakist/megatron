@@ -9,12 +9,10 @@
 #include "IInstance.h"
 #include "timerHelper.h"
 #include "Events/System/timer/TickAlarm.h"
-#include "Events/System/Net/jsonRef/JsonREQ.h"
-#include "Events/System/Net/jsonRef/JsonRSP.h"
-#include "Events/DFS/Referrer/NotifyReferrerUplinkIsConnected.h"
-#include "Events/DFS/Referrer/NotifyReferrerUplinkIsDisconnected.h"
-#include "Events/DFS/Referrer/ToplinkDeliverREQ.h"
-#include "Events/DFS/Referrer/ToplinkDeliverRSP.h"
+#include "Events/System/Net/jsonRef/Json.h"
+#include "Events/System/Net/jsonRef/Json.h"
+#include "Events/DFS/Referrer/NotifyReferrer.h"
+#include "Events/DFS/Referrer/ToplinkDeliver.h"
 #ifdef __ANDROID__
 #include "jni.h"
 #endif

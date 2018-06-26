@@ -39,7 +39,7 @@ void logRemote(const char *fmt, ...);
 #endif
 
 /// XTRY, XPASS is two macros used to print stack while exception throwing
-#ifdef DEBUG
+#ifdef MUTEX_INSPECTOR_DEBUG
 #define XTRY try{
 #define XPASS } catch(...){logErr2("XPASS @%s %s %d",__func__,__FILE__,__LINE__);throw;}
 #else

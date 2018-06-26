@@ -276,6 +276,8 @@ void st_AES_impl::init(const std::string &key)
 {
 
     XTRY;
+    if(key.size()==0)
+        throw CommonError("password size == 0");
     std::string keyBuff;
     while(keyBuff.size()<16)
     {
@@ -458,6 +460,10 @@ std::string C_ssl::sha512(const std::string & s)
     std::string ret((char *)p, SHA512_DIGEST_LENGTH);
     return ret;
 
+}
+void C_ssl::rand_bytes(uint8_t* p, int n)
+{
+    RAND_bytes(p,n);
 }
 
 std::string C_ssl::rand_bytes(int n)

@@ -29,13 +29,11 @@ class DBH: public Refcountable
 public:
     enum engine {mysql,sqlite,postgres};
 
-    ///  Example: execSimple((QEURY)"insert into table tbl (a,b,c) values(?,?,?)"<<a<<b<<c);
     virtual void execSimple(const QUERY &query)=0;
 
     ///   Execute SQL and return QueryResult.
     virtual REF_getter<QueryResult> exec(const QUERY &)=0;
 
-    ///   Example: execSimple((QEURY)"insert into table tbl (a,b,c) values(?,?,?)"<<a<<b<<c);
     virtual void execSimple(const std::string &query)=0;
 
     ///   Execute SQL and return QueryResult.

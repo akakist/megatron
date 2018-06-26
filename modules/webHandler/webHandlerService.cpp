@@ -22,7 +22,9 @@ WebHandler::Service::Service(const SERVICE_id& id, const std::string& nm,IInstan
     Logging(this,ERROR_log,ifa),
     root(new WebHandler::Node(NULL,"","Home")),iInstance(ifa)
 {
+    XTRY;
     m_bindAddr=ifa->getConfig()->get_tcpaddr("bindAddr","NONE","Addr:port to bind. Addr=INADDR_ANY:port - bind to all interfaces. NONE - no bind");
+    XPASS;
 }
 
 

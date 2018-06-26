@@ -4,3 +4,4 @@ project (dfsCoreModules)
 
 
 ADD_SUBDIRECTORY(rpc)
+ADD_SUBDIRECTORY(containers)

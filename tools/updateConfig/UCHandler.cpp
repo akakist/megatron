@@ -1,7 +1,7 @@
 #include "UCHandler.h"
 #include "tools_mt.h"
 #include "Events/System/timer/TickTimer.h"
-#include "Events/DFS/Referrer/UpdateConfigRSP.h"
+#include "Events/DFS/Referrer/UpdateConfig.h"
 #include "ISSL.h"
 
 

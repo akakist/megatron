@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 2.6)
 add_library(dfs-caps SHARED
 
+../../corelib/sqlite3Wrapper.cpp
 dfsCaps.cpp
 dfsCapsService.cpp
 NetTreeRoute.cpp

@@ -16,6 +16,7 @@
 //void (*assert)(bool)=NULL;
 //extern void (*assert)(bool);
 #ifndef USE_JSONASSERT
+#undef assert
 void assert(bool);
 #endif
 #if _MSC_VER >= 1400 // VC++ 8.0

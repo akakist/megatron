@@ -177,10 +177,10 @@ bool Oscar::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                     if(ver>>8!=COREVERSION>>8)
                     {
                         if(COREVERSION>ver)
-                            sendEvent(ServiceEnum::ErrorDispatcher,new errorDispatcherEvent::SendMessage(ED_VERSION_WRONG,"Packet version wrong for peer. You running newest version, please wait"));
+                            sendEvent(ServiceEnum::ErrorDispatcher,new errorDispatcherEvent::SendMessage("ED_VERSION_WRONG","Packet version wrong for peer. You running newest version, please wait"));
                         else
                         {
-                            sendEvent(ServiceEnum::ErrorDispatcher,new errorDispatcherEvent::SendMessage(ED_VERSION_WRONG,"Packet version wrong for peer in oscar. Your need upgrade software"));
+                            sendEvent(ServiceEnum::ErrorDispatcher,new errorDispatcherEvent::SendMessage("ED_VERSION_WRONG","Packet version wrong for peer in oscar. Your need upgrade software"));
                         }
 
                         evt->esi->close("oscar: invalid peer version");

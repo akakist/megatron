@@ -38,7 +38,7 @@ void Logging::sendEventAndLog(const SERVICE_id& svs, const REF_getter<Event::Bas
 #ifdef DEBUG
     if(loglevel>=TRACE_log)
     {
-        log(loglevel,"sendEventAndLog to %s %s %s",iUtils->serviceName(svs).c_str(),e->name,e->dump().c_str());
+        log(loglevel,"sendEventAndLog to %s %s %s",iUtils->serviceName(svs).c_str(),e->name,e->dump().toStyledString().c_str());
     }
 #endif
     XPASS;
@@ -50,7 +50,7 @@ void Logging::sendEventAndLog(const msockaddr_in& addr, const SERVICE_id& svs, c
 #ifdef DEBUG
     if(loglevel>=TRACE_log)
     {
-        log(loglevel,"sendEventAndLog %s to %s %s %s",addr.dump().c_str(),iUtils->serviceName(svs).c_str(),e->name,e->dump().c_str());
+        log(loglevel,"sendEventAndLog %s to %s %s %s",addr.dump().c_str(),iUtils->serviceName(svs).c_str(),e->name,e->dump().toStyledString().c_str());
     }
 #endif
     XPASS;
@@ -73,7 +73,7 @@ void Logging::sendEventAndLog(const std::string& addr, const SERVICE_id& svs, co
 #ifdef DEBUG
     if(loglevel>=TRACE_log)
     {
-        log(loglevel,"sendEventAndLog remote addr=%s to serv=%s name=%s dump=%s",addr.c_str(),iUtils->serviceName(svs).c_str(),e->name,e->dump().c_str());
+        log(loglevel,"sendEventAndLog remote addr=%s to serv=%s name=%s dump=%s",addr.c_str(),iUtils->serviceName(svs).c_str(),e->name,e->dump().toStyledString().c_str());
     }
 #endif
     XPASS;
@@ -85,7 +85,7 @@ void Logging::passEventAndLog(const REF_getter<Event::Base>&e)
 #ifdef DEBUG
     if(loglevel>=TRACE_log)
     {
-        log(loglevel,"passEventAndLog route=%s name=%s dump=%s",e->route.dump().c_str(),e->name,e->dump().c_str());
+        log(loglevel,"passEventAndLog route=%s name=%s dump=%s",e->route.dump().c_str(),e->name,e->dump().toStyledString().c_str());
     }
 #endif
     XPASS;

@@ -8,6 +8,11 @@ namespace dfsReferrerEvent {
 
 
     public:
+        enum ClientType
+        {
+            CT_NODE,
+            CT_CLIENT
+        };
         static Base* construct(const route_t &r)
         {
             return new Ping(r);
@@ -18,15 +23,16 @@ namespace dfsReferrerEvent {
         std::set<msockaddr_in> internalListenAddr;
         int64_t ping_time;
         int connection_sequence_id;
-        Ping(const int& _type, const GlobalCookie_id& _globalCookie, unsigned short _externalListenPort, const std::set<msockaddr_in>& _internalListenAddr, int64_t _ping_time, int _connection_sequence_id, const route_t &r)
+        int clientType;
+        Ping(const int& _type, const GlobalCookie_id& _globalCookie, unsigned short _externalListenPort, const std::set<msockaddr_in>& _internalListenAddr, int64_t _ping_time, int _connection_sequence_id, int _clientType,const route_t &r)
             :Base(dfsReferrerEventEnum::Ping,channel,"Ping",r),
-             pingType(_type),globalCookieOfSender(_globalCookie),externalListenPort(_externalListenPort),internalListenAddr(_internalListenAddr),ping_time(_ping_time),connection_sequence_id(_connection_sequence_id)
+             pingType(_type),globalCookieOfSender(_globalCookie),externalListenPort(_externalListenPort),internalListenAddr(_internalListenAddr),ping_time(_ping_time),connection_sequence_id(_connection_sequence_id),clientType(_clientType)
         {}
 
         Ping(const int& _type, const GlobalCookie_id& _globalCookie,
-             int64_t _ping_time, int _connection_sequence_id, const route_t &r)
+             int64_t _ping_time, int _connection_sequence_id, int _clientType,const route_t &r)
             :Base(dfsReferrerEventEnum::Ping,channel,"Ping",r),
-             pingType(_type),globalCookieOfSender(_globalCookie),externalListenPort(0),ping_time(_ping_time),connection_sequence_id(_connection_sequence_id)
+             pingType(_type),globalCookieOfSender(_globalCookie),externalListenPort(0),ping_time(_ping_time),connection_sequence_id(_connection_sequence_id),clientType(_clientType)
         {}
 
         Ping(const route_t& r)
@@ -34,12 +40,12 @@ namespace dfsReferrerEvent {
         void unpack(inBuffer& o)
         {
             
-            o>>pingType>>globalCookieOfSender>>externalListenPort>>internalListenAddr>>ping_time>>connection_sequence_id;
+            o>>pingType>>globalCookieOfSender>>externalListenPort>>internalListenAddr>>ping_time>>connection_sequence_id>>clientType;
         }
         void pack(outBuffer& o) const
         {
             
-            o<<pingType<<globalCookieOfSender<<externalListenPort<<internalListenAddr<<ping_time<<connection_sequence_id;
+            o<<pingType<<globalCookieOfSender<<externalListenPort<<internalListenAddr<<ping_time<<connection_sequence_id<<clientType;
         }
         void jdump(Json::Value &v) const
         {

@@ -49,6 +49,7 @@ public:
     virtual std::string sha256(const std::string & s)=0;
     virtual std::string sha512(const std::string & s)=0;
     virtual std::string rand_bytes(int n)=0;
+    virtual void rand_bytes(uint8_t* p, int n)=0;
     virtual int rand_int()=0;
 
 };

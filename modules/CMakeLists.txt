@@ -5,12 +5,6 @@ project (dfsCoreModules)
 
 ADD_SUBDIRECTORY(errorDispatcher)
 ADD_SUBDIRECTORY(http)
-#ADD_SUBDIRECTORY(jsonLocalRefClient)
-#ADD_SUBDIRECTORY(jsonNoRefClient)
-#ADD_SUBDIRECTORY(jsonNoRefServer)
-#ADD_SUBDIRECTORY(jsonRefClient)
-#ADD_SUBDIRECTORY(jsonRefServer)
-#ADD_SUBDIRECTORY(logger)
 ADD_SUBDIRECTORY(mysql)
 ADD_SUBDIRECTORY(objectProxy)
 ADD_SUBDIRECTORY(oscar)
@@ -28,3 +22,5 @@ ADD_SUBDIRECTORY(dfsReferrer)
 ADD_SUBDIRECTORY(dfsCaps)
 
 ADD_SUBDIRECTORY(referrerClient)
+
+ADD_SUBDIRECTORY(zsingle)

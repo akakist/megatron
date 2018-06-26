@@ -128,12 +128,15 @@ public:
         //std::string buf(s,sz);
         std::string md5=ssl->md5(buf);
 
-        if(seq%100==0)
+        if(seq%1000==0)
             logErr2("send %d:%d",session,seq+1);
 #ifdef USE_LOCAL
         sendEvent(ServiceEnum::rpcTestService2,new testEvent::testREQ(session,seq+1,buf,md5,ListenerBase::serviceId));
 #else
-        sendEvent(msockaddr_in(REMOTE_ADDR),
+	 msockaddr_in sa;
+        sa.initFromUrl(REMOTE_ADDR);
+//        caps.insert(sa);
+        sendEvent(sa,
                   ServiceEnum::rpcTestService2,new testEvent::testREQ(session,seq+1,buf,md5,ListenerBase::serviceId));
 #endif
 
@@ -186,7 +189,7 @@ public:
     bool on_testRSP(const testEvent::testRSP* e)
     {
         MUTEX_INSPECTOR;
-        if(e->seq%100==0)
+        if(e->seq%1000==0)
             logErr2("on rsp %d",e->seq);
         sendEvent(ServiceEnum::Timer,new timerEvent::ResetAlarm(TI_ACTIVITY,NULL,NULL,TI_ACTIVITY_VALUE,ListenerBase::serviceId));
 
@@ -226,7 +229,7 @@ public:
     bool on_testREQ(const testEvent::testREQ* e)
     {
         MUTEX_INSPECTOR;
-        if(e->seq%100==0)
+        if(e->seq%1000==0)
             logErr2("recv %d",e->seq);
         if(ssl->md5(e->buf)!=e->md5)
         {

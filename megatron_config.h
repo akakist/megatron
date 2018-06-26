@@ -9,6 +9,7 @@
 
 #define LOG_TARGET_DIR "~/bin-9900/log"
 #define CAPS_ADDRESS "testquant.com:9900"
+#define CLIENT_ADDRESS "testquant.com:9901"
 #define CAPS_PORT "9900"
 #define CAPS_IP "testquant.com"
 #endif

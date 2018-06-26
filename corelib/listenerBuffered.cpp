@@ -38,14 +38,19 @@ void ListenerBuffered::processEvent(const REF_getter<Event::Base>&e)
         if(!processed)
         {
             XTRY;
-            logErr2("ListenerBuffered: unhandled event %s svs=%s in listener=%s %s",e->dump().c_str(),iUtils->serviceName(serviceId).c_str(), listenerName.c_str(),e->dump().c_str());
+            logErr2("ListenerBuffered: unhandled event %s svs=%s in listener=%s %s",e->dump().toStyledString().c_str(),iUtils->serviceName(serviceId).c_str(), listenerName.c_str(),e->dump().toStyledString().c_str());
             XPASS;
 
         }
     }
+    catch(CommonError& e)
+    {
+        logErr2("ListenerBuffered CommonError: %s %s",e.what(),_DMI().c_str());
+
+    }
     catch(std::exception &e)
     {
-        logErr2("std::exception: %s %s",e.what(),_DMI().c_str());
+        logErr2("ListenerBuffered std::exception: %s %s",e.what(),_DMI().c_str());
     }
 
 

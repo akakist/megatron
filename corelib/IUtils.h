@@ -24,8 +24,6 @@
 class epoll_socket_info;
 struct Utils_local;
 
-/**        This is interface to access to  shared utils library between plugins
-*/
 class IInstance;
 typedef UnknownBase* (*unknown_static_constructor) (const SERVICE_id& id, const std::string& name,IInstance* ifa);
 
@@ -43,17 +41,12 @@ public:
         int so;
         int eo;
     };
-    /// загрузить мап из файла. В файле перечисляются данные в виде пар key=value
     virtual std::map<std::string,std::string> loadStringMapFromFile(const std::string& pathname) =0;
 
-    /// загрузить мап из буфера
     virtual std::map<std::string,std::string> loadStringMapFromBuffer(const std::string &body, const char *linedelim)=0;
 
-    /// загрузить файл в буфер.
-    /// \throw CommonError
     virtual std::string load_file(const std::string & fn)=0;
     virtual std::string load_file_no_throw(const std::string & fn)=0;
-    /// загрузить файл с диска без throw
     virtual long load_file_from_disk(std::string & res, const std::string & fn)=0;
 
     virtual int64_t calcFileSize(const std::string & fn)=0;
@@ -63,24 +56,18 @@ public:
     virtual std::string expand_homedir(const std::string& base)=0;
 
 
-    /// разбить строку по разделителю
     virtual std::vector < std::string> splitString(const char *seps, const std::string & src)=0;
 
     virtual std::set < std::string> splitStringSET(const char *seps, const std::string & src)=0;
 
-    /// разбить строку по разделителю
     virtual std::deque < std::string> splitStringDQ(const char *seps, const std::string & src)=0;
 
-    /// объединить строку с разделителем
     virtual std::string join(const char* sep,const std::deque<std::string>& )=0;
 
-    /// объединить строку с разделителем
     virtual std::string join(const char* sep,const std::vector<std::string>& )=0;
 
-    /// объединить строку с разделителем
     virtual std::string join(const char *pattern, const std::set < std::string> &st)=0;
 
-    /// удалить пробелы с краев
     virtual std::string trim(const std::string &s)=0;
 
     virtual std::string toString(real i)=0;
@@ -93,41 +80,27 @@ public:
     virtual std::string toString(uint16_t i)=0;
     virtual std::string toString(int8_t i)=0;
     virtual std::string toString(uint8_t i)=0;
-#ifndef _LP64
-    //virtual std::string toString(time_t i)=0;
-#endif
     virtual std::string toString(const std::pair<int64_t,int64_t> &i)=0;
 #ifdef __MACH__
     virtual std::string toString(size_t i)=0;
 #endif
-#ifdef _WIN32
-//    virtual std::string toString(long int i)=0;
-#endif
     virtual void rxfind(std::vector < rxfind_data > &res, const char *regexp, const char *buffer)=0;
 
 
-    /// сконверировать строку в верхний регистр (без учета кодировок)
     virtual std::string strupper(const std::string &s)=0;
 
-    /// сконверировать строку в нижний регистр (без учета кодировок)
     virtual std::string strlower(const std::string & s)=0;
 
     virtual std::string str_replace(const std::string &searchSample,const std::string &replacement,const std::string &src)=0;
 
 
-    /// закодировать буфер в base64
     virtual std::string Base64Encode(const std::string &str)=0;
 
-    /// раскодировать буфер из base64
     virtual std::string Base64Decode(const std::string &str)=0;
 
-    /// закодировать в HEX
     virtual std::string hex2bin(const std::string &s)=0;
 
-    /// раскодировать из HEX
     virtual std::string bin2hex(const std::string & in)=0;
-    /// раскодировать из escaped
-    virtual std::string bin2escaped(const std::string & in)=0;
 
 
     virtual std::string uriEncode(const std::string & sSrc)=0;
@@ -135,7 +108,6 @@ public:
 
 
 
-    /// убрать из URL escapes
     virtual std::string unescapeURL(const std::string & s)=0;
     virtual std::string extractFileExt(const std::string & f)=0;
     virtual std::string extractFileName(const std::string & f)=0;
@@ -160,10 +132,8 @@ public:
     virtual bool readable_fd(const REF_getter<epoll_socket_info>& esi,int sec, int usec)=0;
     virtual bool writeable_fd(const REF_getter<epoll_socket_info>& esi, int timeout_sec, int timeout_usec)=0;
 
-//#ifndef _WIN32
     virtual REF_getter<refbuffer>  zcompress(const REF_getter<refbuffer>& data)=0;
     virtual REF_getter<refbuffer>  zexpand(const REF_getter<refbuffer>& data)=0;
-//#endif
 
     virtual std::string replace_vals(std::map<std::string,std::string> &p, const std::string &src)=0;
 
@@ -180,13 +150,10 @@ public:
     virtual ~IUtils() {}
 
 
-    /// получить новый ИД сокета
     virtual SOCKET_id getSocketId()=0;
 
-    /// пометить сокет ИД как ненужный
     virtual void ungetSocketId(const SOCKET_id& s)=0;
 
-    /// получить число аллокированных сокетов
     virtual size_t getSocketCount()=0;
     virtual IThreadNameController* getIThreadNameController()=0;
 
@@ -195,7 +162,6 @@ public:
     virtual Ifaces::Base* queryIface(const SERVICE_id& id)=0;
 
     virtual void registerITest(const VERSION_id& vid,const SERVICE_id& id, itest_static_constructor p)=0;
-    //virtual itest_static_constructor queryITest(const SERVICE_id& id)=0;
     virtual std::vector<itest_static_constructor> getAllITests()=0;
 
 
@@ -221,24 +187,17 @@ public:
     virtual void registerPlugingInfo(const VERSION_id& version, const char* pluginFileName, PluginType pt, const SERVICE_id &id, const char* name)=0;
     virtual void registerPluginDLL(const std::string& pn)=0;
 
-    /// зарегистрировать сервис
     virtual void registerService(const VERSION_id& ver, const SERVICE_id& id, unknown_static_constructor cs, const std::string& literalName)=0;
 
 
-    /// зарегистрировать евент
-    /// \param id идентификатор евента
-    /// \param ec статический конструктор евента
-    /// \param literalName строковое имя евента
     virtual void registerEvent(event_static_constructor ec)=0;
 
 
     virtual REF_getter<Event::Base> unpackEvent(inBuffer&)=0;
     virtual void packEvent(outBuffer&, const REF_getter<Event::Base>&)const =0;
 
-    /// получить имя сервиса по его ИД
     virtual std::string serviceName(const SERVICE_id& id)const=0;
 
-    /// получить ИД сервиса по его имени
     virtual SERVICE_id serviceIdByName(const std::string& name)const=0;
     virtual bool isServiceRegistered(const SERVICE_id& svs)=0;
 
@@ -248,8 +207,6 @@ public:
 
     virtual Utils_local *getLocals()=0;
 
-    //virtual int64_t getEmailKey()=0;
-    //virtual void setEmailKey(int64_t)=0;
     virtual std::set<IInstance*> getInstances()=0;
     virtual void registerInstance(IInstance *i)=0;
     virtual void unregisterInstance(IInstance *i)=0;
@@ -257,6 +214,8 @@ public:
     virtual void setTerminate()=0;
     virtual bool isTerminating()=0;
     virtual  void load_plugins_info(const std::set<std::string>& bases)=0;
+
+    virtual REF_getter<_addrInfos> getAddrInfos()=0;
 
 };
 extern IUtils * iUtils;

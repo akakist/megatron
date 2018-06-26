@@ -208,10 +208,8 @@ namespace RPC
 
         bool on_TickAlarm(const timerEvent::TickAlarm*);
 
-        bool on_UpnpPortMap(const rpcEvent::UpnpPortMap*);
-
-
 #if !defined(WITHOUT_UPNP)
+        bool on_UpnpPortMap(const rpcEvent::UpnpPortMap*);
         void upnp_enablePortmapping();
         void upnp_disablePortmapping();
 #endif

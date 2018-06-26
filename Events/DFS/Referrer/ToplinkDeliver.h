@@ -1,11 +1,7 @@
 #ifndef _________ToplinkDeliverREQ__h
 #define _________ToplinkDeliverREQ__h
 #include "___dfsReferrerEvent.h"
-/**
-Доставка события вверх по облаку. На некотором уровне оно форвардится в сервис, согласно общей конфигурации ботов.
-
-Eсли destination service == "broadcast", то делаем бродкаст по облаку.
-*/
+#include "mutexInspector.h"
 namespace dfsReferrerEvent {
     class ToplinkDeliverREQ: public Event::Base
     {
@@ -38,6 +34,7 @@ namespace dfsReferrerEvent {
 
         REF_getter<Event::Base> getEvent() const
         {
+            MUTEX_INSPECTOR;
             inBuffer in(eventData);
             REF_getter<Event::Base> z=iUtils->unpackEvent(in);
             return z;
@@ -54,10 +51,61 @@ namespace dfsReferrerEvent {
         {
 
             v["destinationService"]=destinationService.dump();
-            v["event"]=getEvent()->dump().c_str();
+            //v["event"]=getEvent()->dump();
         }
 
     };
+    class ToplinkDeliverRSP: public Event::Base
+    {
+        enum {channel=CHANNEL_0};
+
+    public:
+        static Base* construct(const route_t &r)
+        {
+
+            return new ToplinkDeliverRSP(r);
+        }
+        ToplinkDeliverRSP(const REF_getter<Event::Base>& _e,const route_t& r)
+            :Base(dfsReferrerEventEnum::ToplinkDeliverRSP,channel,"ToplinkDeliverRSP",r),
+             eventData(NULL)
+        {
+            outBuffer o;
+            iUtils->packEvent(o,_e);
+            eventData=o.asString();
+
+        }
+        ToplinkDeliverRSP(const route_t& r)
+            :Base(dfsReferrerEventEnum::ToplinkDeliverRSP,channel,"ToplinkDeliverRSP",r),eventData(NULL)
+        {
+            if(!eventData.valid())
+                eventData=new refbuffer;
+
+        }
+        REF_getter<refbuffer> eventData;
+        void unpack(inBuffer& o)
+        {
+
+            o>>eventData;
+        }
+        void pack(outBuffer&o) const
+        {
+
+            o<<eventData;
+        }
+        void jdump(Json::Value &j) const
+        {
+            //j["event"]=getEvent()->dump();
+        }
+        REF_getter<Event::Base> getEvent() const
+        {
+            MUTEX_INSPECTOR;
+            inBuffer in(eventData);
+            REF_getter<Event::Base> z=iUtils->unpackEvent(in);
+            return z;
+        }
+
+    };
+
 
 }
 #endif

@@ -40,8 +40,6 @@ public:
         }
     }
 
-    /** destructor автоматически закрывает файл
-    */
     virtual  ~st_FILE ()
     {
         if (f)

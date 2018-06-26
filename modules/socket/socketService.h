@@ -37,7 +37,6 @@ namespace SocketIO
         e_poll m_epoll;
 #endif
 #ifdef HAVE_KQUEUE
-        //k_queue m_kqueue;
         int m_kqueue;
         std::vector<struct kevent> evSet;
 #endif
@@ -92,15 +91,11 @@ namespace SocketIO
         int64_t m_listen_backlog;
         const int64_t maxOutBufferSize;
 #ifdef HAVE_EPOLL
-        /// конфигурационный параметр
         int epoll_size;
-        /// конфигурационный параметр
         int epoll_timeout_millisec;
 #endif
 #ifdef HAVE_KQUEUE
-        /// конфигурационный параметр
         int kqueue_size;
-        /// конфигурационный параметр
         int kqueue_timeout_millisec;
 #endif
 

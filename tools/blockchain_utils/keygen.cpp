@@ -426,7 +426,7 @@ int main(int argc, char** argv)
     if(argc>1)
     {
         if(std::string(argv[1])=="-r");
-        Json::Value z=makeRegistration("Петр","Федорович","Иванов","пр. Ленина 118, кв. 29","gaga1234");
+        Json::Value z=makeRegistration("John","Theodor","Miller","ave  29","gaga1234");
 
         printf("%s\n",z.toStyledString().c_str());
     }

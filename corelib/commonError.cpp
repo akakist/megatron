@@ -26,7 +26,7 @@
 #include <QStandardPaths>
 #endif
 #if !defined __MOBILE__
-static Mutex *__logLock=NULL;
+//static Mutex *__logLock=NULL;
 #endif
 bool prevLogUnlinked=false;
 CommonError::CommonError(const std::string& str):m_error(str)
@@ -99,8 +99,8 @@ void logErr(const char* fmt, ...)
 #if !defined __MOBILE__
 
         if(1) {
-            if(!__logLock) __logLock=new Mutex;
-            M_LOCK(__logLock);
+//            if(!__logLock) __logLock=new Mutex;
+//            M_LOCK(__logLock);
             st_FILE f(getLogName(),"a+b");
             vfprintf(f.f,fmt,ap1);
             fprintf(f.f,"\n");
@@ -152,8 +152,8 @@ void logErr2(const char* fmt, ...)
 
         if(1)
         {
-            if(!__logLock) __logLock=new Mutex;
-            M_LOCK(__logLock);
+//            if(!__logLock) __logLock=new Mutex;
+//            M_LOCK(__logLock);
             if(fd==NULL)
             {
                 fd=fopen(getLogName().c_str(),"a+b");

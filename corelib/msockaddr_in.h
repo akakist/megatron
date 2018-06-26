@@ -22,22 +22,48 @@ class outBuffer;
 /**
 * C++ wrapper for sockaddr_in
 */
+struct _addrInfo{
+    std::pair<std::set<std::string>,std::set<std::string> > addrs;
+    time_t t;
+    _addrInfo(const std::pair<std::set<std::string>,std::set<std::string> > &addrs_)
+    {
+        addrs=addrs_;
+        t=time(NULL);
+    }
+};
+struct _addrInfos: public Refcountable, public Mutexable{
 
-class msockaddr_in:public sockaddr_in
+    std::map<std::string,
+        _addrInfo
+    > host2AddrInfo;
+
+};
+
+class msockaddr_in
 {
 
 public:
     msockaddr_in()
     {
-        sin_family=AF_INET;
-        sin_addr.s_addr=INADDR_ANY;
-        sin_port=0;
+        u.sa4.sin_family=AF_INET;
+        u.sa4.sin_addr.s_addr=INADDR_ANY;
+        u.sa4.sin_port=0;
 
     }
+private:
+
+    std::pair<std::set<std::string>,std::set<std::string> > getAddrInfo(const std::string& host);
+
+public:
+    union _addr
+    {
+    sockaddr_in sa4;
+    sockaddr_in6 sa6;
+    } u;
+public:
+    void initFromUrl(const std::string &url);
     std::string dump() const;
     std::string getStringAddr() const;
-    uint32_t inaddr() const;
-    void setInaddr(const uint32_t&);
     unsigned short port() const;
     void setPort(const unsigned short& port);
     msockaddr_in(const msockaddr_in& n);
@@ -46,23 +72,20 @@ public:
     int cmp(const msockaddr_in& a)const;
     void init(const char* hostname, unsigned short port);
     void init(const Url& url);
-    msockaddr_in(const std::string &url);
     std::string  asString() const;
 
-    bool operator<(const msockaddr_in&b) const
-    {
-        return cmp(b);
-    }
-    bool operator==(const msockaddr_in&b) const
-    {
-        return sin_addr.s_addr==b.sin_addr.s_addr && sin_port==b.sin_port && sin_family==b.sin_family;
-    }
+    bool operator<(const msockaddr_in&b) const;
+    bool operator==(const msockaddr_in&b) const;
     bool operator!=(const msockaddr_in&b) const
     {
-        return sin_addr.s_addr!=b.sin_addr.s_addr || sin_port!=b.sin_port || sin_family!=b.sin_family;
+        return  !operator ==(b);
     }
     bool isNAT() const;
 
+    socklen_t addrLen() const;
+    socklen_t maxAddrLen() const;
+    sockaddr* addr() const;
+    int8_t family() const;
 
 };
 outBuffer & operator<<(outBuffer&b,const msockaddr_in &a);

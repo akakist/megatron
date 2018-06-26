@@ -29,8 +29,8 @@
 #include "Events/System/timer/TickAlarm.h"
 #include "Events/DFS/Caps/GetRefferrers.h"
 #include "Events/DFS/Caps/RegisterMyRefferrer.h"
-#include "Events/DFS/Referrer/ToplinkDeliverREQ.h"
-#include "Events/DFS/Referrer/ToplinkDeliverRSP.h"
+#include "Events/DFS/Referrer/ToplinkDeliver.h"
+#include "Events/DFS/Referrer/ToplinkDeliver.h"
 #include "Events/System/Net/rpc/IncomingOnAcceptor.h"
 #include "Events/System/Net/rpc/IncomingOnConnector.h"
 
@@ -57,25 +57,17 @@ namespace dfsCaps
         bool on_TickAlarm(const timerEvent::TickAlarm*);
         bool on_RequestIncoming(const webHandlerEvent::RequestIncoming*);
 
-        int pack(outBitStream& o,int val,int maxval);
 
 
         IInstance* iInstance;
 
+        std::map<time_t,std::set<msockaddr_in> > nodes;
 
-        NetTreeRoute calcTreeRoute(const int32_t &ip);
-        std::string m_GeoLiteCity_Location;
-        std::string m_GeoLiteCity_Blocks;
-        std::string m_pn_netBlocks;
-        bool m_createNetBlocks;
-        NetTreeRouteGenerator netgen;
 
     public:
         Service(const SERVICE_id &svs, const std::string&  nm,IInstance* _ifa);
         static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm, IInstance* _ifa);
         ~Service();
-
-        std::map<int,NetTreeNode> rootTreeNode;
     };
 }
 

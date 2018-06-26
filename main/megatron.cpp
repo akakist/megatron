@@ -42,7 +42,7 @@ void registerOscarSecureModule(const char*);
 void registerRPCService(const char*);
 void registerSocketModule(const char*);
 void registerTimerService(const char*);
-
+void registerReferrerClientService(const char* pn);
 static void registerModules()
 {
 #ifdef __FULL__
@@ -60,6 +60,7 @@ static void registerModules()
         registerRPCService(pn);
         registerSocketModule(pn);
         registerTimerService(pn);
+        registerReferrerClientService(pn);
     }
     void registerSSL(const char* pn);
     registerSSL(pn);

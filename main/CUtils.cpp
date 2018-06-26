@@ -280,12 +280,10 @@ std::string CUtils::toString(real i)
 }
 std::string CUtils::toString(const std::pair<int64_t,int64_t> &i)
 {
-    char ss[200];
+//    char ss[200];
     std::string s;
     return toString(i.first)+"/"+toString(i.second);
 
-    s = ss;
-    return s;
 
 }
 
@@ -713,24 +711,24 @@ std::string CUtils::hex2bin(const std::string &s)
     }
     return out;
 }
-std::string CUtils::bin2escaped(const std::string & in)
-{
-    std::string out = "";
-    const unsigned char *p = (unsigned char *)in.data();
-    for (unsigned int i = 0; i < in.size(); i++)
-    {
-        if(in[i]<0x20)
-        {
-            char s[40];
-            ::snprintf(s, sizeof(s) - 1, "\\x%02x", p[i]);
-            out += s;
-        }
-        else out+=in[i];
+//std::string CUtils::bin2escaped(const std::string & in)
+//{
+//    std::string out = "";
+//    const unsigned char *p = (unsigned char *)in.data();
+//    for (unsigned int i = 0; i < in.size(); i++)
+//    {
+//        if(in[i]<0x20)
+//        {
+//            char s[40];
+//            ::snprintf(s, sizeof(s) - 1, "\\x%02x", p[i]);
+//            out += s;
+//        }
+//        else out+=in[i];
 
-    }
-    return out;
+//    }
+//    return out;
 
-}
+//}
 
 std::string CUtils::bin2hex(const std::string & in)
 {
@@ -1692,6 +1690,7 @@ void CUtils::registerPluginDLL(const std::string& pn)
     HMODULE h=LoadLibraryA(pn.c_str());
 #else
     void *h=dlopen(pn.c_str(),RTLD_LAZY);
+
 #endif
     if (!h)
     {
@@ -1699,6 +1698,10 @@ void CUtils::registerPluginDLL(const std::string& pn)
     }
     if (h)
     {
+        {
+            M_LOCK(registered_dlls);
+            registered_dlls.registered_dlls.insert(h);
+        }
 #ifdef DEBUG
         const char *funcname="registerModuleDebug";
 #else
@@ -1720,6 +1723,11 @@ void CUtils::registerPluginDLL(const std::string& pn)
 #else
             dlclose(h);
 #endif
+            {
+                M_LOCK(registered_dlls);
+                registered_dlls.registered_dlls.erase(h);
+            }
+
         }
 
     }
@@ -1796,6 +1804,7 @@ void CUtils::registerService(const VERSION_id& vid, const SERVICE_id& id, unknow
 
 REF_getter<Event::Base> CUtils::unpackEvent(inBuffer&b)
 {
+    MUTEX_INSPECTOR;
     XTRY;
     M_LOCK(local.event_constructors);
     EVENT_id id;
@@ -1806,7 +1815,8 @@ REF_getter<Event::Base> CUtils::unpackEvent(inBuffer&b)
     std::map<EVENT_id,std::pair<event_static_constructor,std::string> > ::iterator i=local.event_constructors.container.find(id);
     if(i==local.event_constructors.container.end())
     {
-        DBG(logErr2("1cannot find event unpacker for eventId %s try to load service", id.dump().c_str()));
+        MUTEX_INSPECTOR;
+        DBG(logErr2("1cannot find event unpacker for eventId %s try to load service %s", id.dump().c_str(),_DMI().c_str()));
         {
             M_UNLOCK(local.event_constructors);
             M_LOCK(local.pluginInfo);
@@ -1839,11 +1849,13 @@ REF_getter<Event::Base> CUtils::unpackEvent(inBuffer&b)
     }
     event_static_constructor esc=i->second.first;
     {
+        MUTEX_INSPECTOR;
         if(esc==NULL)
-            throw CommonError("if(esc==NULL)");
+            throw CommonError("if(esc==NULL) %s",_DMI().c_str());
 
         Event::Base *e=esc(r);
         {
+            MUTEX_INSPECTOR;
             e->unpack(b);
         }
         return e;
@@ -2084,7 +2096,26 @@ CUtils::~CUtils()
     {
         delete z.second;
     }
+    m_addrInfos=NULL;
     //local.ifaces.container
+
+
+            {
+                M_LOCK(registered_dlls);
+                for(auto h: registered_dlls.registered_dlls)
+                {
+#ifdef _WIN32
+                    FreeLibrary(h);
+#else
+                    dlclose(h);
+#endif
+
+                }
+                registered_dlls.registered_dlls.clear();
+            }
+
+
+
 }
 
 void CUtils::load_plugins_info(const std::set<std::string>& bases)

@@ -39,7 +39,7 @@ add_library(megatron-core STATIC
             objectHandler.cpp
             route_t.cpp
             socketsContainer.cpp
-            sqlite3Wrapper.cpp
+#            sqlite3Wrapper.cpp
             st_rsa.cpp
             unknown.cpp
             url.cpp

@@ -21,10 +21,9 @@ namespace dfsReferrerEventEnum
         const EVENT_id ToplinkDeliverREQ("_xe_ToplinkDeliverREQ");
         const EVENT_id ToplinkDeliverRSP("_xe_ToplinkDeliverRSP");
 
-        const EVENT_id ToplinkBroadcastByBackroute("ToplinkBroadcastByBackroute");
+        //const EVENT_id ToplinkBroadcastByBackroute("ToplinkBroadcastByBackroute");
 
 
-        const EVENT_id NotifyDownlink("NotifyDownlink");
 
         const EVENT_id Pong("_xe_dfsReferrerPong");
         const EVENT_id Elloh("_xe_dfsReferrerElloh");
@@ -53,7 +52,7 @@ namespace dfsReferrer {
     }
 
 }
-/// если SOCKET_id==0 значит это файлы с локального стоража.
+/// if SOCKET_id==0 then socket is local storage
 
 
 #endif

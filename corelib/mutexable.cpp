@@ -1,4 +1,4 @@
-#include "mutexable.h"
+//#include "mutexable.h"
 #include "mutexInspector.h"
 Mutex::Mutex()
 {
@@ -197,6 +197,6 @@ Condition::~Condition()
 {
     XTRY;
     if(pthread_cond_destroy((pthread_cond_t*)&m_cond))
-        throw CommonError("pthread_cond_destroy: errno %d", errno);
+        logErr2("pthread_cond_destroy: errno %d", errno);
     XPASS;
 }

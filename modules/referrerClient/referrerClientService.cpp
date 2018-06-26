@@ -30,7 +30,9 @@
 #include "st_rsa.h"
 
 
-#include "sqlite3Wrapper.h"
+//#ifndef __ANDROID__
+//#include "sqlite3Wrapper.h"
+//#endif
 #include "configDB.h"
 
 #include "Events/Tools/webHandler/RequestIncoming.h"
@@ -39,9 +41,8 @@
 #include "Events/Tools/telnet/RegisterCommand.h"
 #include "Events/Tools/telnet/Reply.h"
 #include "Events/System/Net/rpc/SubscribeNotifications.h"
-#include "Events/System/Net/http/GetBindPortsRSP.h"
-#include "Events/DFS/Referrer/UpdateConfigREQ.h"
-#include "Events/DFS/Referrer/UpdateConfigRSP.h"
+#include "Events/System/Net/http/GetBindPorts.h"
+#include "Events/DFS/Referrer/UpdateConfig.h"
 
 
 #include "events_referrerClient.hpp"
@@ -131,6 +132,7 @@ UnknownBase* Service::construct(const SERVICE_id& id, const std::string&  nm,IIn
 void registerReferrerClientService(const char* pn)
 {
     XTRY;
+    
     if(pn)
     {
         iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::ReferrerClient,"ReferrerClient");
@@ -150,9 +152,6 @@ bool Service::on_ConnectFailed(rpcEvent::ConnectFailed const* e)
 {
     MUTEX_INSPECTOR;
     S_LOG("on_ConnectFailed");
-    /**
-      Для центрального сервера никаких реконнектов нет
-      */
 
     msockaddr_in destination_addr=e->destination_addr;
     DBG(log(TRACE_log,"DFSREferrer::Service::on_ConnectFailed %s (%s %d)",destination_addr.dump().c_str(),__FILE__,__LINE__));
@@ -246,7 +245,7 @@ bool  Service::on_IncomingOnConnector(const rpcEvent::IncomingOnConnector *evt)
     if(dfsReferrerEventEnum::UpdateConfigRSP==IDC)
     {
         const dfsReferrerEvent::UpdateConfigRSP*xe=(const dfsReferrerEvent::UpdateConfigRSP*)evt->e.operator ->();
-        logErr2("referrerClientService.cpp: if(dfsReferrerEventEnum::UpdateConfigRSP==IDC) %s route=%s",xe->body.c_str(),xe->route.dump().c_str() );
+//        logErr2("referrerClientService.cpp: if(dfsReferrerEventEnum::UpdateConfigRSP==IDC) %s route=%s",xe->body.c_str(),xe->route.dump().c_str() );
         config_body=xe->body;
 
         for(auto& z: m_readyNotificationBackroutes)
@@ -347,6 +346,7 @@ bool Service::handleEvent(const REF_getter<Event::Base>& ev)
                           new dfsReferrerEvent::Ping(dfsReferrer::PingType::PT_CACHED, iInstance->globalCookie(),
                                                      now,
                                                      connection_sequence_id,
+                                                     dfsReferrerEvent::Ping::CT_CLIENT,
                                                      ListenerBase::serviceId));
             }
         }
@@ -534,6 +534,7 @@ bool Service::on_TickAlarm(const timerEvent::TickAlarm* e)
                                                  iInstance->globalCookie(),
                                                  iUtils->getNow().get(),
                                                  connection_sequence_id,
+                                                 dfsReferrerEvent::Ping::CT_CLIENT,
                                                  ListenerBase::serviceId));
             _reset_alarm(T_007_D6_resend_ping_caps_short,remote_addr);
 
@@ -684,6 +685,7 @@ void Service::d6_on_T_011_resend_ping_PT_CAPS_LONG(const msockaddr_in& remote_ad
                                          iInstance->globalCookie(),
                                          iUtils->getNow().get(),
                                          connection_sequence_id,
+                                         dfsReferrerEvent::Ping::CT_CLIENT,
                                          ListenerBase::serviceId));
 }
 void Service::d6_on_T_012_pong_timed_out_PT_CAPS_LONG(const msockaddr_in& remote_addr)
@@ -728,7 +730,7 @@ bool Service::on_Pong(const dfsReferrerEvent::Pong* e, const REF_getter<epoll_so
     }
     if(e->connection_sequence_id!=connection_sequence_id)
     {
-        DBG(log(TRACE_log,"if(e->connection_sequence_id!=connection_sequence_id)"));
+        DBG(log(TRACE_log,"if(e->connection_sequence_id!=connection_sequence_id) %d %d",e->connection_sequence_id,connection_sequence_id));
         return true;
     }
 
@@ -792,10 +794,8 @@ bool Service::on_Pong(const dfsReferrerEvent::Pong* e, const REF_getter<epoll_so
                 {
                     if(!isCaps(y.first->remote_name))
                     {
-//#ifdef KALLREMOVEAFTERDEBUG
-                        if(y.second.inaddr()!=e->visible_name_of_pinger.inaddr())
+                        if(y.second.getStringAddr()!=e->visible_name_of_pinger.getStringAddr())
                             throw CommonError("if(y.second!=e->visible_name_of_pinger) %s %s",y.second.dump().c_str(),e->visible_name_of_pinger.dump().c_str());
-//#endif
                         _stop_alarm(T_020_D31_wait_after_send_PT_CACHE_on_recvd_from_GetReferrers);
                         d4_uplink_mode(y.first,e->visible_name_of_pinger);
                         return true;
@@ -808,10 +808,8 @@ bool Service::on_Pong(const dfsReferrerEvent::Pong* e, const REF_getter<epoll_so
                 {
                     if(isCaps(y.first->remote_name))
                     {
-//#ifdef KALLREMOVEAFTERDEBUG
-                        if(y.second.inaddr()!=e->visible_name_of_pinger.inaddr())
+                        if(y.second.getStringAddr()!=e->visible_name_of_pinger.getStringAddr())
                             throw CommonError("if(y.second!=e->visible_name_of_pinger) %s %s",y.second.dump().c_str(),e->visible_name_of_pinger.dump().c_str());
-//#endif
                         _stop_alarm(T_020_D31_wait_after_send_PT_CACHE_on_recvd_from_GetReferrers);
                         d4_uplink_mode(y.first,e->visible_name_of_pinger);
                         return true;
@@ -851,13 +849,15 @@ bool Service::on_connectionEstablished(const msockaddr_in& remote_addr)
     //DBG(log(TRACE_log,"sa %s",remote_addr.dump().c_str()));
     stopAlarm(crefTimer::T_001_common_connect_failed,NULL,ListenerBase::serviceId);
 
-    DBG(log(TRACE_log,"bool Service::on_connectionEstablished( ) !!!--- %s",remote_addr.dump().c_str()));
+    DBG(log(ERROR_log,"bool Service::on_connectionEstablished( ) !!!--- %s",remote_addr.dump().c_str()));
 
-    logErr2("--------- connection established %s",remote_addr.dump().c_str());
+    log(ERROR_log,"--------- connection established %s",remote_addr.dump().c_str());
 
     uplinkConnectionState->connectionEstablished=true;
+
     for(auto &i:m_readyNotificationBackroutes)
     {
+        log(ERROR_log,"m_readyNotificationBackroutes %s",i.dump().c_str());
         REF_getter<Event::Base> z=new dfsReferrerEvent::NotifyReferrerUplinkIsConnected(remote_addr,poppedFrontRoute(i));
         passEvent(z);
         //logErr2("pass %s",z->dump().c_str());
@@ -952,6 +952,7 @@ void Service::d6_start(const msockaddr_in& sa)
                                          iInstance->globalCookie(),
                                          iUtils->getNow().get(),
                                          connection_sequence_id,
+                                         dfsReferrerEvent::Ping::CT_CLIENT,
                                          ListenerBase::serviceId));
     _reset_alarm(T_007_D6_resend_ping_caps_short,sa);
 }
@@ -989,6 +990,7 @@ void Service::STAGE_D21_PING_CAPS_start()
         sendEvent(caps,ServiceEnum::DFSReferrer,
                   new dfsReferrerEvent::Ping(dfsReferrer::PingType::PT_CACHED, gcid,iUtils->getNow().get(),
                                              connection_sequence_id,
+                                             dfsReferrerEvent::Ping::CT_CLIENT,
                                              ListenerBase::serviceId));
     }
     reset_T_001_common_connect_failed();
@@ -996,16 +998,16 @@ void Service::STAGE_D21_PING_CAPS_start()
 }
 void Service::STAGE_D2_PING_NEIGHBOURS_start()
 {
+    MUTEX_INSPECTOR;
     connection_sequence_id++;
 
     stage=STAGE_D2_PING_NEIGHBOURS;
 
 
-    I_ssl *ssl=(I_ssl*)iUtils->queryIface(Ifaces::SSL);
+    //I_ssl *ssl=(I_ssl*)iUtils->queryIface(Ifaces::SSL);
     if(!uplinkConnectionState.valid())
         throw CommonError("if(!uplinkConnectionState.valid())");
     uplinkConnectionState=new _uplinkConnectionState(uplinkConnectionState->saCapsFromConfig);
-    MUTEX_INSPECTOR;
     S_LOG("d2_start");
     DBG(log(TRACE_log,"d2_start"));
 
@@ -1020,16 +1022,22 @@ void Service::STAGE_D2_PING_NEIGHBOURS_start()
 
 
     std::vector<msockaddr_in> s=neighbours.getAllAndClear();
-    bool sent=false;
+//    bool sent=false;
     if(s.size())
     {
+        logErr2("send cached");
         for(auto& i:s)
         {
-            if(isCaps(i)) continue;
+            if(isCaps(i))
+            {
+                logErr2("if(isCaps(i)) %s",i.dump().c_str());
+                continue;
+            }
             sendEvent(i,ServiceEnum::DFSReferrer,
                       new dfsReferrerEvent::Ping(dfsReferrer::PingType::PT_CACHED, iInstance->globalCookie(),
                                                  iUtils->getNow().get(),
                                                  connection_sequence_id,
+                                                 dfsReferrerEvent::Ping::CT_CLIENT,
                                                  ListenerBase::serviceId));
         }
         _reset_alarm(T_040_D2_cache_pong_timed_out_from_neighbours);
