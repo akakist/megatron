@@ -7,7 +7,7 @@
 namespace dfsCapsEvent {
 class GetReferrersREQ: public Event::Base
 {
-    enum {channel=CHANNEL_70};
+    enum {rpcChannel=CHANNEL_70};
 
 
 public:
@@ -18,13 +18,13 @@ public:
     }
 
     GetReferrersREQ(const std::set<msockaddr_in> &sas, const route_t& r)
-        :Base(dfsCapsEventEnum::GetReferrersREQ,channel,"GetReferrersREQ",r), externalListenAddr(sas)
+        :Base(dfsCapsEventEnum::GetReferrersREQ,rpcChannel,"GetReferrersREQ",r), externalListenAddr(sas)
     {
 
     }
 
     GetReferrersREQ(const route_t& r)
-        :Base(dfsCapsEventEnum::GetReferrersREQ,channel,"GetReferrersREQ",r)
+        :Base(dfsCapsEventEnum::GetReferrersREQ,rpcChannel,"GetReferrersREQ",r)
     {
 
     }
@@ -47,7 +47,7 @@ public:
 };
 class GetReferrersRSP: public Event::Base
 {
-    enum {channel=CHANNEL_70};
+    enum {rpcChannel=CHANNEL_70};
 
 
 public:
@@ -57,19 +57,19 @@ public:
         return new GetReferrersRSP(r);
     }
 
-    GetReferrersRSP(const std::set<msockaddr_in> &sas, const route_t& r)
-        :Base(dfsCapsEventEnum::GetReferrersRSP,channel,"GetReferrersRSP",r), referrer_addresses(sas)
+    GetReferrersRSP(const std::vector<msockaddr_in> &sas, const route_t& r)
+        :Base(dfsCapsEventEnum::GetReferrersRSP,rpcChannel,"GetReferrersRSP",r), referrer_addresses(sas)
     {
 
     }
 
     GetReferrersRSP(const route_t& r)
-        :Base(dfsCapsEventEnum::GetReferrersRSP,channel,"GetReferrersRSP",r)
+        :Base(dfsCapsEventEnum::GetReferrersRSP,rpcChannel,"GetReferrersRSP",r)
     {
 
     }
 
-    std::set<msockaddr_in> referrer_addresses;
+    std::vector<msockaddr_in> referrer_addresses;
 
     void unpack(inBuffer& o)
     {

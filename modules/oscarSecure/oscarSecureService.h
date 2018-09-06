@@ -38,6 +38,9 @@
 #include "Events/System/Net/oscar/SocketClosed.h"
 #include "Events/System/timer/TickTimer.h"
 #include "Events/System/timer/TickTimer.h"
+#include "Events/Tools/webHandler/RegisterDirectory.h"
+#include "Events/Tools/webHandler/RegisterHandler.h"
+#include "Events/Tools/webHandler/RequestIncoming.h"
 
 
 namespace OscarSecure
@@ -91,6 +94,7 @@ namespace OscarSecure
             return true;
         }
 
+        bool on_RequestIncoming(const webHandlerEvent::RequestIncoming*);
 
 
         bool on_startService(const systemEvent::startService*);
@@ -99,7 +103,7 @@ namespace OscarSecure
         //void setAuth(const std::string &abuf);
     protected:
         void sendPacketPlain(const OscarSecure::StartByte& startByte, const REF_getter<epoll_socket_info>& esi, const outBuffer &o);
-        void sendPacketPlain(const OscarSecure::StartByte& startByte, const REF_getter<epoll_socket_info>& esi, const std::string &o);
+        void sendPacketPlain(const OscarSecure::StartByte& startByte, const REF_getter<epoll_socket_info>& esi, const REF_getter<refbuffer> &o);
 
         //void processRequest(const SOCKET_id&  socketId, const std::string& buf,const route_t & route);
         //bool on_SOCKET_READ(const socketEvent::StreamRead* evt);

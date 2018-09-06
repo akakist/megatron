@@ -5,7 +5,8 @@
 namespace dfsReferrerEvent {
     class Elloh: public Event::Base
     {
-        enum {channel=CHANNEL_100};
+        /// данное событие идет в обратную сторону в клиента, который пытался подцепиться для проверки, что он доступен.
+        enum {rpcChannel=CHANNEL_100};
 
     public:
         static Base* construct(const route_t &r)
@@ -13,9 +14,9 @@ namespace dfsReferrerEvent {
             return new Elloh(r);
         }
         Elloh(const route_t& r)
-            :Base(dfsReferrerEventEnum::Elloh,channel,"Elloh",r) {}
+            :Base(dfsReferrerEventEnum::Elloh,rpcChannel,"Elloh",r) {}
         Elloh(const unsigned short &_externalListenPort,  const route_t &r)
-            :Base(dfsReferrerEventEnum::Elloh,channel,"Elloh",r),
+            :Base(dfsReferrerEventEnum::Elloh,rpcChannel,"Elloh",r),
              externalListenPort(_externalListenPort) {}
         unsigned short externalListenPort;
         void unpack(inBuffer& o)

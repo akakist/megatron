@@ -36,19 +36,19 @@ enum timers
 namespace testEvent {
     class testREQ: public Event::Base
     {
-        enum {channel=CHANNEL_100};
+        enum {rpcChannel=CHANNEL_100};
     public:
         static Base* construct(const route_t &r)
         {
             return new testREQ(r);
         }
         testREQ(int session_,int _seq,const std::string &_buf, const std::string& _md5, const route_t& r)
-            :Base(testEventEnum::testREQ,channel,"testREQ",r),
+            :Base(testEventEnum::testREQ,rpcChannel,"testREQ",r),
              session(session_), seq(_seq),buf(_buf),md5(_md5)
         {
         }
         testREQ(const route_t& r)
-            :Base(testEventEnum::testREQ,channel,"testREQ",r)
+            :Base(testEventEnum::testREQ,rpcChannel,"testREQ",r)
         {
         }
         int session;
@@ -70,15 +70,15 @@ namespace testEvent {
     };
     class testRSP: public Event::Base
     {
-        enum {channel=CHANNEL_70};
+        enum {rpcChannel=CHANNEL_70};
     public:
         static Base* construct(const route_t &r)
         {
             return new testRSP(r);
         }
         testRSP(int session_,int _seq,const std::string &_buf, const std::string& _md5, const route_t& r)
-            :Base(testEventEnum::testRSP,channel,"testRSP",r), session(session_),seq(_seq),buf(_buf),md5(_md5) {}
-        testRSP(const route_t& r):Base(testEventEnum::testRSP,channel,"testRSP",r) {}
+            :Base(testEventEnum::testRSP,rpcChannel,"testRSP",r), session(session_),seq(_seq),buf(_buf),md5(_md5) {}
+        testRSP(const route_t& r):Base(testEventEnum::testRSP,rpcChannel,"testRSP",r) {}
 
         int session;
         int seq;
@@ -106,7 +106,9 @@ public:
     I_ssl *ssl;
     static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa)
     {
+        XTRY;
         return new rpcTestService1(id,nm,ifa);
+        XPASS;
     }
     rpcTestService1(const SERVICE_id &id, const std::string&  nm,IInstance* ins):
         UnknownBase(nm),
@@ -217,7 +219,9 @@ public:
     I_ssl *ssl;
     static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa)
     {
+        XTRY;
         return new rpcTestService2(id,nm,ifa);
+        XPASS;
     }
     rpcTestService2(const SERVICE_id &id, const std::string&  nm,IInstance* ins):
         UnknownBase(nm),
@@ -287,7 +291,9 @@ public:
     ~rpcTest() {}
     static ITests::Base* construct()
     {
+        XTRY;
         return new rpcTest;
+        XPASS;
     }
 
 

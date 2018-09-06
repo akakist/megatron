@@ -110,7 +110,7 @@ namespace Oscar
 
     protected:
         void sendPacketPlain(const Oscar::StartByte& startByte, const REF_getter<epoll_socket_info>& esi, const outBuffer &o);
-        void sendPacketPlain(const Oscar::StartByte& startByte, const REF_getter<epoll_socket_info>& esi, const std::string &o);
+        void sendPacketPlain(const Oscar::StartByte& startByte, const REF_getter<epoll_socket_info>& esi, const REF_getter<refbuffer> &o);
 
         void processRequest(const SOCKET_id&  socketId, const std::string& buf,const route_t & route);
         Json::Value jdump()

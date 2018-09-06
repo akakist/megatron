@@ -5,7 +5,7 @@ namespace errorDispatcherEvent
 {
 class NotifySubscriber: public Event::Base
 {
-    enum {channel=CHANNEL_100};
+    enum {rpcChannel=CHANNEL_100};
 
 public:
     static Base* construct(const route_t &r)
@@ -13,9 +13,9 @@ public:
         return new NotifySubscriber(r);
     }
     NotifySubscriber(const std::string& _opcode, const std::string& _msg, const route_t&r)
-        :Base(errorDispatcherEventEnum::NotifySubscriber,channel,"errorDispatcherNotifySubscriber",r),opcode(_opcode),msg(_msg) {}
+        :Base(errorDispatcherEventEnum::NotifySubscriber,rpcChannel,"errorDispatcherNotifySubscriber",r),opcode(_opcode),msg(_msg) {}
     NotifySubscriber(const route_t&r)
-        :Base(errorDispatcherEventEnum::NotifySubscriber,channel,"errorDispatcherNotifySubscriber",r) {}
+        :Base(errorDispatcherEventEnum::NotifySubscriber,rpcChannel,"errorDispatcherNotifySubscriber",r) {}
     std::string opcode;
     std::string msg;
     void unpack(inBuffer& o)

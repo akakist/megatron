@@ -132,7 +132,7 @@ bool MainWindow::checkHandler()
 {
     if(!handler)
     {
-        QMessageBox::warning(this,"Error","Entry must be performed");
+        QMessageBox::warning(this,"Ошибка","Не выполнен вход");
         return false;
     }
     return true;

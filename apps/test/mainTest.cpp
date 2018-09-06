@@ -221,7 +221,7 @@ registerWebHandlerModule(NULL);
         syslog(LOG_ERR,"CommonError: %s\n",e.what());
 #endif
     }
-    catch(std::exception e)
+    catch(std::exception &e)
     {
         printf("std::exception: %s\n",e.what());
     }

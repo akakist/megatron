@@ -26,9 +26,7 @@
 #include "Events/System/Net/rpc/Disconnected.h"
 #include "Events/System/Net/rpc/Disaccepted.h"
 #include "Events/System/Net/rpc/Accepted.h"
-#if !defined(WITHOUT_UPNP)
 #include "Events/System/Net/rpc/UpnpResult.h"
-#endif
 #include "Events/System/Net/rpc/Connected.h"
 #include "Events/System/Net/rpc/ConnectFailed.h"
 #include "Events/System/Net/rpc/Binded.h"
@@ -58,6 +56,7 @@
 #include "Events/DFS/Referrer/ToplinkDeliver.h"
 #include "Events/DFS/Referrer/ToplinkDeliver.h"
 
+#define T_CAPS "caps"
 
 namespace refTimer {
     enum {
@@ -72,7 +71,7 @@ namespace refTimer {
         T_019_D5_external_connection_check_timeout=1019,
 
         T_020_D31_wait_after_send_PT_CACHE_on_recvd_from_GetReferrers=1020,
-
+        ///
         T_040_D2_cache_pong_timed_out_from_neighbours=1040,
 
     };
@@ -81,6 +80,66 @@ namespace refTimer {
 using namespace  refTimer;
 
 #define CLOSE_DOWNLINKS
+
+
+struct _referrerData
+{
+    _referrerData():uplinkConnectionState(NULL),
+        urirefs(new dfsReferrer::_uriReferals()),
+        d2_start_time(0),externalAccessIsPossible(false)
+    #if !defined(WITHOUT_UPNP)
+        ,m_upnpExecuted(false),
+        m_upnpInRequesting(false)
+     #endif
+      ,
+          connection_sequence_id(0)
+    {}
+    REF_getter<dfsReferrer::_uplinkConnectionState> uplinkConnectionState;
+    REF_getter<dfsReferrer::_uriReferals> urirefs;
+    time_t d2_start_time;
+    std::set<route_t> m_readyNotificationBackroutes;
+    bool externalAccessIsPossible;
+#if !defined(WITHOUT_UPNP)
+        bool m_upnpExecuted;
+        bool m_upnpInRequesting;
+#endif
+        std::string config_body;
+        int connection_sequence_id;
+        _neighbours neighbours;
+        enum _stage
+        {
+            /*
+                Кэшем не пользуемся, поскольку реферреров не будет много.
+                ^STATE_D2_PING_NEIGHBOURS
+                Взводим таймер - T_001_common_connect_failed
+                Сначала пингуем капсы из конфига. Взводим referrers_timed_out
+                Первый понг от капса - посылаем ему getReferres.
+                ^STATE_D3_GET_GEFERRERS
+                Пингуем полученные рефферы.
+                Первый понг от реферрера ^STATE_D5_CHECK_EXTERNAL - посылаем CHECK_EXTERNAL_CONNECTION взводим CHECK_EXTERNAL_CONNECTION_TIMED_OUT
+                Сработал referrers_timed_out ^STATE_D5_CHECK_EXTERNAL посылаем на понговый капс CHECK_EXTERNAL_CONNECTION взводим CHECK_EXTERNAL_CONNECTION_TIMED_OUT
+
+                CHECK_EXTERNAL_CONNECTION_TIMED_OUT - exception невозможно стартовать реферрер.
+
+                EXTERNAL_CONNECTION_CHECKED - запускаем ^STATE_D6_MAINTAIN_CONNECTION
+
+                MAINTAIN_CONNECTION fail - ^STATE_D2_PING_NEIGHBOURS
+
+                T_001_common_connect_failed - ^STATE_D2_PING_NEIGHBOURS
+
+            */
+            STAGE_D2_PING_NEIGHBOURS,
+            STAGE_D21_PING_CAPS,
+            STAGE_D3_GET_GEFERRERS,
+            STAGE_D3_1_SEND_PING_TO_RESPONDED_REFERRERS,
+            STAGE_D4_MAINTAIN_CONNECTION,
+            STAGE_D5_CHECK_EXTERNAL,
+            STAGE_D6_MAINTAIN_CONNECTION,
+
+        };
+        _stage stage;
+
+};
 
 namespace dfsReferrer
 {
@@ -94,20 +153,12 @@ namespace dfsReferrer
         public TimerHelper
     {
 
-        REF_getter<_uplinkConnectionState> uplinkConnectionState;
-
-
+        _referrerData rd;
         msockaddr_in getUL();
         bool hasUL();
 
-
-
-        REF_getter<_uriReferals> urirefs;
-
         bool on_startService(const systemEvent::startService*);
-
     public:
-
         void on_Disaccepted(const SOCKET_id& sockId);
         bool handleEvent(const REF_getter<Event::Base>& e);
 
@@ -153,7 +204,6 @@ namespace dfsReferrer
         void STAGE_D21_PING_CAPS_start();
 
 
-        time_t d2_start_time;
 
 
         void STAGE_D3_GET_GEFERRERS_start(const msockaddr_in& sa);
@@ -184,6 +234,7 @@ namespace dfsReferrer
 
         bool on_ToplinkDeliverREQ(const dfsReferrerEvent::ToplinkDeliverREQ *e, const rpcEvent::IncomingOnAcceptor* acc);
         bool on_ToplinkDeliverRSP(const dfsReferrerEvent::ToplinkDeliverRSP *e);
+        bool on_ToplinkDeliverRSP2Node(const dfsReferrerEvent::ToplinkDeliverRSP2Node *e);
 
         bool on_Pong(const dfsReferrerEvent::Pong* e,  const REF_getter<epoll_socket_info>& esi);
 
@@ -194,7 +245,6 @@ namespace dfsReferrer
 
         void sendToplinkReq(const msockaddr_in &uplink, dfsReferrerEvent::ToplinkDeliverREQ *ee);
 
-        std::set<route_t> m_readyNotificationBackroutes;
 
         void kill_downlinks();
 
@@ -208,31 +258,6 @@ namespace dfsReferrer
         ~Service();
 
         IInstance *iInstance;
-        ////
-#if !defined(WITHOUT_UPNP)
-        bool m_upnpExecuted;
-        bool m_upnpInRequesting;
-#endif
-        bool externalAccessIsPossible;
-        enum _stage
-        {
-            STAGE_D2_PING_NEIGHBOURS,
-            STAGE_D21_PING_CAPS,
-            STAGE_D3_GET_GEFERRERS,
-            STAGE_D3_1_SEND_PING_TO_RESPONDED_REFERRERS,
-            STAGE_D4_MAINTAIN_CONNECTION,
-            STAGE_D5_CHECK_EXTERNAL,
-            STAGE_D6_MAINTAIN_CONNECTION,
-
-        };
-        _stage stage;
-
-        int connection_sequence_id;
-        _neighbours neighbours;
-
-        std::string config_body;
-
-
     };
 
 }

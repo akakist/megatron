@@ -11,8 +11,8 @@ namespace dfsReferrerEvent {
         {
             return NULL;
         }
-        InitClient(const std::set<msockaddr_in>& _caps,const route_t& r)
-            :NoPacked(dfsReferrerEventEnum::InitClient,"InitClient",r),caps(_caps) {}
+        InitClient(const std::set<msockaddr_in>& _caps)
+            :NoPacked(dfsReferrerEventEnum::InitClient,"InitClient"),caps(_caps) {}
 
         std::set<msockaddr_in>caps;
         void jdump(Json::Value &) const

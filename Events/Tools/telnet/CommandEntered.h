@@ -8,6 +8,12 @@ namespace telnetEvent
 
 class CommandEntered: public Event::NoPacked
 {
+    /**
+    *   Регистрация команды
+    *   Направление - от сервера
+    *   \param socketId  идентидификатор соединения
+    *   \param tokens массив принятых слов
+    */
 public:
     static Base* construct(const route_t &)
     {

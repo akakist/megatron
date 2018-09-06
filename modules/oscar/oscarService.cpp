@@ -157,11 +157,11 @@ bool Oscar::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                     {
                         if(!__m_users->isServer(evt->esi->m_id))
                         {
-                            passEvent(new oscarEvent::PacketOnConnector(evt->esi,req,evt->route));
+                            passEvent(new oscarEvent::PacketOnConnector(evt->esi,toRef(req),evt->route));
                         }
                         else
                         {
-                            passEvent(new oscarEvent::PacketOnAcceptor(evt->esi,req,evt->route));
+                            passEvent(new oscarEvent::PacketOnAcceptor(evt->esi,toRef(req),evt->route));
                         }
                     }
                     continue;
@@ -220,7 +220,9 @@ bool Oscar::Service::on_Connected(const socketEvent::Connected* e)
 }
 UnknownBase* Oscar::Service::construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa)
 {
+    XTRY;
     return new Service(id,nm,ifa);
+    XPASS;
 }
 bool Oscar::Service::on_NotifyOutBufferEmpty(const socketEvent::NotifyOutBufferEmpty* e)
 {
@@ -241,7 +243,7 @@ void Oscar::Service::sendPacketPlain(const Oscar::StartByte& startByte, const RE
     esi->write_(O2.asString()->asString());
     XPASS;
 }
-void Oscar::Service::sendPacketPlain(const Oscar::StartByte& startByte, const REF_getter<epoll_socket_info>& esi, const std::string &o)
+void Oscar::Service::sendPacketPlain(const Oscar::StartByte& startByte, const REF_getter<epoll_socket_info>& esi, const REF_getter<refbuffer> &o)
 {
     XTRY;
     outBuffer O2;

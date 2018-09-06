@@ -36,7 +36,9 @@ std::string datef(const time_t &__t);
 
 UnknownBase* HTTP::Service::construct(const SERVICE_id &id, const std::string& nm,IInstance* _if)
 {
+    XTRY;
     return new Service(id,nm,_if);
+    XPASS;
 }
 
 

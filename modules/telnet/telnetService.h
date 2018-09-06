@@ -166,7 +166,9 @@ namespace Telnet
     public:
         static UnknownBase* construct(const SERVICE_id &id, const std::string& nm,IInstance* ifa)
         {
+            XTRY;
             return new Service(id,nm,ifa);
+            XPASS;
         }
         bool handleEvent(const REF_getter<Event::Base>& e);
 

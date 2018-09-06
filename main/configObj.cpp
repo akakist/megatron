@@ -120,9 +120,9 @@ std::set<msockaddr_in>ConfigObj::get_tcpaddr(const std::string&_name, const std:
     }
     else
     {
-#ifndef __MOBILE__
-        DBG(logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str()));
-#endif
+//#ifndef __MOBILE__
+        logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str());
+//#endif
         val=defv;
         appendLine(name,defv,comment);
     }
@@ -175,9 +175,9 @@ std::set<msockaddr_in>ConfigObj::get_tcpaddr2(const std::string&_name, const std
     }
     else
     {
-#ifndef __MOBILE__
-        DBG(logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str()));
-#endif
+//#ifndef __MOBILE__
+        logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str());
+//#endif
         val=defv;
         appendLine(name,defv,comment);
     }
@@ -230,9 +230,9 @@ std::string ConfigObj::get_string(const std::string& _name, const std::string& d
     }
     else
     {
-#ifndef __MOBILE__
-        DBG(logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str()));
-#endif
+//#ifndef __MOBILE__
+        logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str());
+//#endif
         v=defv;
         appendLine(name,defv,comment);
     }
@@ -252,9 +252,9 @@ std::string ConfigObj::get_string2(const std::string& _name, const std::string& 
     }
     else
     {
-#ifndef __MOBILE__
-        DBG(logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str()));
-#endif
+//#ifndef __MOBILE__
+        logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str());
+//#endif
         v=defv;
         appendLine(name,defv,comment);
     }
@@ -274,9 +274,9 @@ real ConfigObj::get_real(const std::string&_name, const real& defv, const std::s
     }
     else
     {
-#ifndef __MOBILE__
-        DBG(logErr2("%s: skipped param, using deflt %s=%f",m_filename.c_str(),name.c_str(),float(defv)));
-#endif
+//#ifndef __MOBILE__
+        logErr2("%s: skipped param, using deflt %s=%f",m_filename.c_str(),name.c_str(),float(defv));
+//#endif
         v=defv;
         appendLine(name,defv,comment);
     }
@@ -297,9 +297,9 @@ real ConfigObj::get_real2(const std::string&_name, const real &defv, const std::
     }
     else
     {
-#ifndef __MOBILE__
-        DBG(logErr2("%s: skipped param, using deflt %s=%f",m_filename.c_str(),name.c_str(),defv));
-#endif
+//#ifndef __MOBILE__
+        logErr2("%s: skipped param, using deflt %s=%f",m_filename.c_str(),name.c_str(),defv);
+//#endif
         v=defv;
         appendLine(name,defv,comment);
     }
@@ -327,9 +327,9 @@ std::set<std::string> ConfigObj::get_stringset(const std::string& _name, const s
     }
     else
     {
-#ifndef __MOBILE__
-        DBG(logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str()));
-#endif
+//#ifndef __MOBILE__
+        logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str());
+//#endif
         appendLine(name,defv,comment);
         std::vector<std::string> vv=iUtils->splitString(",|",defv);
         for (size_t i=0; i<vv.size(); i++)
@@ -361,9 +361,9 @@ std::set<std::string> ConfigObj::get_stringset2(const std::string& _name, const 
     }
     else
     {
-#ifndef __MOBILE__
-        DBG(logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str()));
-#endif
+//#ifndef __MOBILE__
+        logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str());
+//#endif
         appendLine(name,defv,comment);
         std::vector<std::string> vv=iUtils->splitString(",|",defv);
         for (size_t i=0; i<vv.size(); i++)
@@ -389,9 +389,9 @@ bool ConfigObj::get_bool(const std::string& _name, bool defv, const std::string&
     }
     else
     {
-#ifndef __MOBILE__
-        DBG(logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv?"true":"false"));
-#endif
+//#ifndef __MOBILE__
+        logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv?"true":"false");
+//#endif
         v=defv;
         appendLine(name,defv,comment);
     }
@@ -411,9 +411,9 @@ bool ConfigObj::get_bool2(const std::string& _name, bool defv, const std::string
     }
     else
     {
-#ifndef __MOBILE__
-        DBG(logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv?"true":"false"));
-#endif
+//#ifndef __MOBILE__
+        logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv?"true":"false");
+//#endif
         v=defv;
         appendLine(name,defv,comment);
     }
@@ -444,9 +444,9 @@ int64_t ConfigObj::get_int64_t(const std::string&_name, int64_t defv, const std:
     }
     else
     {
-#ifndef __MOBILE__
-        DBG(logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),iUtils->toString(defv).c_str()));
-#endif
+//#ifndef __MOBILE__
+        logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),iUtils->toString(defv).c_str());
+//#endif
         v=defv;
         appendLine(name,defv,comment);
     }
@@ -470,9 +470,9 @@ int64_t ConfigObj::get_int64_t2(const std::string&_name, int64_t defv, const std
     }
     else
     {
-#ifndef __MOBILE__
-        DBG(logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),iUtils->toString(defv).c_str()));
-#endif
+//#ifndef __MOBILE__
+        logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),iUtils->toString(defv).c_str());
+//#endif
         v=defv;
         appendLine(name,defv,comment);
     }
@@ -496,9 +496,9 @@ uint64_t ConfigObj::get_uint64_t(const std::string&_name, uint64_t defv, const s
     }
     else
     {
-#ifndef __MOBILE__
-        DBG(logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),iUtils->toString(defv).c_str()));
-#endif
+//#ifndef __MOBILE__
+        logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),iUtils->toString(defv).c_str());
+//#endif
         v=defv;
         appendLine(name,defv,comment);
     }

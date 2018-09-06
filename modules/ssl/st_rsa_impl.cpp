@@ -6,6 +6,7 @@
 #include "mutexInspector.h"
 #include "st_rsa.h"
 #include "rsa-pub_512_1387663237.h"
+#include "st_malloc.h"
 
 #ifdef _MSC_VER
 #pragma comment(lib, "libeay32.lib")
@@ -290,121 +291,100 @@ void st_AES_impl::init(const std::string &key)
     XPASS;
 }
 
-std::string st_AES_impl::encrypt(const std::string& buf_)
+void _AES_ecb_encryptD(const unsigned char *in, unsigned char *out,
+                     const AES_KEY *key, const int enc)
+{
+    AES_ecb_encrypt(in,out, key, enc);
+}
+void _AES_ecb_encryptE(const unsigned char *in, unsigned char *out,
+                     const AES_KEY *key, const int enc)
+{
+    AES_ecb_encrypt(in,out, key, enc);
+}
+
+REF_getter<refbuffer> st_AES_impl::encrypt(const REF_getter<refbuffer> &buf_)
 {
 
     XTRY;
     if (!inited)
     {
         throw CommonError("st_AES not inited "+_DMI());
-        //exit(0);
     }
 
-    std::string buf=buf_;
+
+    REF_getter<refbuffer> buf=buf_;
     int l=0x10;
-    if (buf.size()%AES_BLOCK_SIZE!=0)
+    if (buf->size_%AES_BLOCK_SIZE!=0)
     {
-        l=AES_BLOCK_SIZE - (buf.size()%AES_BLOCK_SIZE);
+        l=AES_BLOCK_SIZE - (buf->size_%AES_BLOCK_SIZE);
     }
+    std::string addl;
     for (int i=0; i<l; i++)
     {
-        buf+=l;
+        addl+=l;
     }
-    std::string out;
-    for (unsigned i=0; i<buf.size(); i+=AES_BLOCK_SIZE)
+    if(buf->capacity - buf->size_ >= addl.size())
     {
-        int l=AES_BLOCK_SIZE;
-        if (i+l>buf.size()) l=buf.size()-i;
-        unsigned char ib[AES_BLOCK_SIZE];
-        unsigned char ob[AES_BLOCK_SIZE];
-        memset(ib,0,sizeof(ib));
-        memset(ob,0,sizeof(ob));
-        memcpy(ib,&buf.data()[i],l);
-        AES_ecb_encrypt(ib,ob,&keyenc,AES_ENCRYPT);
-        out+=std::string((char*)ob,AES_BLOCK_SIZE);
+        memcpy(&buf->buffer[buf->size_],addl.data(),addl.size());
+        buf->size_+=addl.size();
     }
-    return out;
+    else
+        throw CommonError("if(buf->capacity - buf->size >= addl.size())");
+
+    REF_getter<refbuffer> o=new refbuffer;
+    o->buffer=(uint8_t*)malloc(buf->size_);
+    o->size_=buf->size_;
+    o->capacity=buf->size_;
+    //st_malloc m(buf.size());
+    //uint8_t *p=(uint8_t *)o->buffer;
+    memset(o->buffer,0,o->size_);
+    for (unsigned i=0; i<buf->size_; i+=AES_BLOCK_SIZE)
+    {
+        unsigned char *ib=(uint8_t*)buf->buffer+i;
+        unsigned char *ob=o->buffer+i;
+        _AES_ecb_encryptE(ib,ob,&keyenc,AES_ENCRYPT);
+    }
+    return o;
+//    return std::string((char*)m.buf,buf.size());
     XPASS;
 }
-void  st_AES_impl::encrypt(unsigned char*buf, size_t size)
-{
-    if (!inited)
-    {
-        //     throw CommonError("st_AES not inited "+_DMI());
-        exit(0);
-    }
-    if(size%AES_BLOCK_SIZE)     throw CommonError("if(size mod AES_BLOCK_SIZE)"+_DMI());
-    for (unsigned i=0; i<size; i+=AES_BLOCK_SIZE)
-    {
-        unsigned char ib[AES_BLOCK_SIZE];
-        unsigned char ob[AES_BLOCK_SIZE];
-        memset(ib,0,sizeof(ib));
-        memset(ob,0,sizeof(ob));
-        memcpy(ib,&buf[i],AES_BLOCK_SIZE);
-        AES_ecb_encrypt(ib,ob,&keyenc,AES_ENCRYPT);
-        memcpy(&buf[i],ob,AES_BLOCK_SIZE);
-    }
-}
-void st_AES_impl::decrypt(unsigned char*buf, size_t size)
+
+REF_getter<refbuffer> st_AES_impl::decrypt(const REF_getter<refbuffer> &buf)
 {
 
     XTRY;
     if (!inited)
     {
         throw CommonError("st_AES not inited "+_DMI());
-        //exit(0);
     }
 
-    if (size%AES_BLOCK_SIZE!=0) throw CommonError("buf.size() mod AES_BLOCK_SIZE!=0"+_DMI());
 
-    for (unsigned i=0; i<size; i+=AES_BLOCK_SIZE)
-    {
-        unsigned char ib[AES_BLOCK_SIZE];
-        unsigned char ob[AES_BLOCK_SIZE];
-        memset(ib,0,sizeof(ib));
-        memset(ob,0,sizeof(ob));
-        {
-            memcpy(ib,&buf[i],AES_BLOCK_SIZE);
-        }
-        {
-            AES_ecb_encrypt(ib,ob,&keydec,AES_DECRYPT);
-        }
-        memcpy(&buf[i],ob,AES_BLOCK_SIZE);
-    }
-    XPASS;
+    if (buf->size_%AES_BLOCK_SIZE!=0) throw CommonError("buf.size() mod AES_BLOCK_SIZE!=0"+_DMI());
 
-}
 
-std::string st_AES_impl::decrypt(const std::string& buf)
-{
+    REF_getter<refbuffer> o=new refbuffer;
+    o->buffer=(uint8_t*)malloc(buf->size_);
+    o->size_=buf->size_;
+    o->capacity=buf->size_;
 
-    XTRY;
-    if (!inited)
-    {
-        throw CommonError("st_AES not inited "+_DMI());
-        //exit(0);
-    }
-
-    if (buf.size()%AES_BLOCK_SIZE!=0) throw CommonError("buf.size() mod AES_BLOCK_SIZE!=0"+_DMI());
-    std::string out;
-    for (unsigned i=0; i<buf.size(); i+=AES_BLOCK_SIZE)
+//    st_malloc m(buf.size());
+//    uint8_t *p=(uint8_t *) m.buf;
+    for (unsigned i=0; i<buf->size_; i+=AES_BLOCK_SIZE)
     {
 
-        unsigned char ib[AES_BLOCK_SIZE];
-        unsigned char ob[AES_BLOCK_SIZE];
-        memset(ib,0,sizeof(ib));
-        memset(ob,0,sizeof(ob));
-        memcpy(ib,&buf.data()[i],AES_BLOCK_SIZE);
-        AES_ecb_encrypt(ib,ob,&keydec,AES_DECRYPT);
-        out+=std::string((char*)ob,AES_BLOCK_SIZE);
+        unsigned char *ib=buf->buffer+i;
+        unsigned char *ob=o->buffer+i;
+        _AES_ecb_encryptD(ib,ob,&keydec,AES_DECRYPT);
     }
-    if (out.size())
+    if (buf->size_)
     {
 
-        char n=out[out.size()-1];
-        out=out.substr(0,out.size()-n);
+        char n=o->buffer[o->size_-1];
+        o->size_-=n;
+//        return std::string((char*)p,buf.size()-n);
+        return o;
     }
-    return out;
+    throw CommonError("empty AES buffer");
     XPASS;
 }
 

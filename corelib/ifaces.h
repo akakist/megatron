@@ -7,7 +7,8 @@ namespace Ifaces
 enum
     {
         AV=1,
-        SSL=2
+        SSL=2,
+        GEOIP=3,
     };
     class Base
     {

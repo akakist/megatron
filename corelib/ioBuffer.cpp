@@ -11,7 +11,7 @@ inBuffer::inBuffer(const unsigned char* d, size_t siz) :  out_pos(0), m_size(siz
 inBuffer::inBuffer(const char* d, size_t siz) :  out_pos(0), m_size(siz), m_data(( unsigned char*)d) { }
 
 inBuffer::inBuffer(const std::string& s) :  out_pos(0), m_size(s.size()) , m_data(( unsigned char*)s.data()) { }
-inBuffer::inBuffer(const REF_getter<refbuffer>& s) :  out_pos(0), m_size(s->size) , m_data(( unsigned char*)s->buffer) { }
+inBuffer::inBuffer(const REF_getter<refbuffer>& s) :  out_pos(0), m_size(s->size_) , m_data(( unsigned char*)s->buffer) { }
 
 unsigned char inBuffer::get_8()
 {
@@ -98,8 +98,9 @@ void outBuffer::clear()
 REF_getter<refbuffer> outBuffer::asString() const
 {
 
-    buffer->size=cur_pos;
-    buffer->buffer=(uint8_t*)realloc(buffer->buffer,buffer->size);
+    buffer->size_=cur_pos;
+    buffer->buffer=(uint8_t*)realloc(buffer->buffer,buffer->size_+0x20);
+    buffer->capacity=buffer->size_+0x20;
     return buffer;
 }
 outBuffer::outBuffer():buffer(NULL), bufsize(0),cur_pos(0)
@@ -112,6 +113,8 @@ void outBuffer::construct()
     buffer=new refbuffer;
 
     buffer->buffer=(unsigned char*)malloc(SPLICE__);
+    buffer->capacity=SPLICE__;
+    //buffer->size_=0;
     if (buffer==NULL) throw CommonError("alloc error %s %d",__FILE__,__LINE__);
     bufsize=SPLICE__;
     cur_pos=0;
@@ -508,8 +511,8 @@ outBuffer & operator<< (outBuffer& b,const REF_getter<refbuffer> &s)
     {
         if(s->buffer)
         {
-            b.put_PN(s->size);
-            b.pack(s->buffer,s->size);
+            b.put_PN(s->size_);
+            b.pack(s->buffer,s->size_);
             packed=true;
         }
     }
@@ -525,10 +528,11 @@ inBuffer & operator>> (inBuffer& b,  REF_getter<refbuffer> &s)
     s=new refbuffer;
     if(size)
     {
-        s->buffer=(uint8_t*)malloc(size);
+        s->buffer=(uint8_t*)malloc(size+0x20);
         if(!s->buffer) throw CommonError("memory alloc error %d",size);
-        s->size=size;
-        b.unpack(s->buffer,s->size);
+        s->size_=size;
+        s->capacity=size+0x20;
+        b.unpack(s->buffer,s->size_);
     }
     return b;
 }

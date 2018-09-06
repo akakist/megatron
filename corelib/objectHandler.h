@@ -11,12 +11,13 @@
 class ObjectHandler
 {
 public:
-    const char* name;
+    const std::string name;
 
     /// send event to any service local or remote
     virtual void sendEvent(const std::string & dstHost, const SERVICE_id & dstService, const REF_getter<Event::Base>& e)=0;
     virtual void sendEvent(const msockaddr_in & dstHost, const SERVICE_id & dstService, const REF_getter<Event::Base>& e)=0;
     virtual void sendEvent(const SERVICE_id & dstService, const REF_getter<Event::Base>& e)=0;
+    virtual void sendEvent(const std::set<msockaddr_in> & dstHost, const SERVICE_id & dstService, const REF_getter<Event::Base>& e)=0;
 
     /// reply/pass event according backrouting data
     void passEvent(const REF_getter<Event::Base>& e);
@@ -26,7 +27,7 @@ public:
         POLLED,THREADED
     };
     Type type;
-    ObjectHandler(const char*_name,Type t,IInstance* _if):name(_name),type(t),iInstance(_if)
+    ObjectHandler(const std::string& _name,Type t,IInstance* _if):name(_name),type(t),iInstance(_if)
     {
     }
     virtual ~ObjectHandler()
@@ -53,7 +54,7 @@ public:
 
     void sendEvent(const std::set<msockaddr_in> & dstHost, const SERVICE_id & dstService, const REF_getter<Event::Base>& e);
 
-    ObjectHandlerPolled(const char *name,IInstance* _if);
+    ObjectHandlerPolled(const std::string& name,IInstance* _if);
     ~ObjectHandlerPolled();
 
 };
@@ -69,7 +70,7 @@ public:
 
     void sendEvent(const std::set<msockaddr_in> & dstHost, const SERVICE_id & dstService, const REF_getter<Event::Base>& e);
 
-    ObjectHandlerThreaded(const char *name,IInstance* _if);
+    ObjectHandlerThreaded(const std::string& name,IInstance* _if);
     ~ObjectHandlerThreaded();
 
 };

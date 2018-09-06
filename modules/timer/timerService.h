@@ -78,7 +78,7 @@ namespace Timer
             if(!(a.t->destination == b.t->destination))
                 return a.t->destination < b.t->destination;
 
-            return std::string((char*)a.t->data->buffer,a.t->data->size) < std::string((char*)b.t->data->buffer,b.t->data->size);
+            return std::string((char*)a.t->data->buffer,a.t->data->size_) < std::string((char*)b.t->data->buffer,b.t->data->size_);
             return 0;
         }
     };
@@ -188,7 +188,9 @@ namespace Timer
     public:
         static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa)
         {
+            XTRY;
             return new Service(id,nm,ifa);
+            XPASS;
         }
     private:
         void worker();

@@ -8,7 +8,7 @@
 #include "route_t.h"
 #include "CHUNK_id.h"
 #include "msockaddr_in.h"
-#include "../dfsReferrer/neighbours.h"
+#include "neighbours.h"
 #include "logging.h"
 #include "GlobalCookie_id.h"
 #include "linkinfo.h"
@@ -206,7 +206,7 @@ namespace referrerClient
         _stage stage;
 
         int connection_sequence_id;
-        dfsReferrer::_neighbours neighbours;
+        _neighbours neighbours;
 
 
         std::string config_body;

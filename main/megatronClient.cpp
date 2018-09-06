@@ -10,6 +10,7 @@
 #else
 #include <dlfcn.h>
 #endif
+//#include "megatron_config.h"
 #include "megatronClient.h"
 #include "CInstance.h"
 #include "CUtils.h"
@@ -60,19 +61,7 @@ static void registerModules()
 
 IUtils *Megatron::initMegatron(int argc, char** argv)
 {
-    std::string appName="app_name";
-    if(argc>0)
-    {
-        appName.clear();
-        for(int i=0; i<strlen(argv[0]); i++)
-        {
-            if(isalnum(argv[0][i]))
-                appName+=argv[0][i];
-
-        }
-    }
-    iUtils=new CUtils(argc,argv,appName);
-
+    iUtils=new CUtils(argc,argv,"app_name");
     registerModules();
     return iUtils;
 }
@@ -89,3 +78,11 @@ void Megatron::setFilesDir(IUtils* iu,const std::string &fdir)
     iu->setFilesDir(fdir);
 }
 
+void Megatron::poll(IInstance* instance)
+{
+    if(!instance)return;
+    IObjectProxyPolled* op=static_cast<IObjectProxyPolled*>
+                           (instance->getServiceOrCreate(ServiceEnum::ObjectProxyPolled)->cast(UnknownCast::IObjectProxyPolled));
+    op->poll();
+
+}

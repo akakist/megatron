@@ -40,7 +40,9 @@ public:
     ~CTRTest() {}
     static ITests::Base* construct()
     {
+        XTRY;
         return new CTRTest;
+        XPASS;
     }
 
 

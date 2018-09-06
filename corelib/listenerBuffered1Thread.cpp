@@ -2,6 +2,7 @@
 #include "mutexInspector.h"
 ListenerBuffered1Thread::~ListenerBuffered1Thread()
 {
+    XTRY;
     m_container.push(NULL);
     if(m_pt)
     {
@@ -10,6 +11,7 @@ ListenerBuffered1Thread::~ListenerBuffered1Thread()
         m_container.m_cond.broadcast();
         pthread_join(m_pt,NULL);
     }
+    XPASS;
 }
 
 ListenerBuffered1Thread::ListenerBuffered1Thread(UnknownBase *i, const std::string& name, IConfigObj* , const SERVICE_id & sid, IInstance *ins)

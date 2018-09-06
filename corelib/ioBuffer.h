@@ -102,6 +102,9 @@ public:
     inBuffer& operator>>(float &);
 public:
 };
+/**
+* Класс байтового потока без битовых операций, но с темплейтами STL
+*/
 class outBuffer
 {
 private:

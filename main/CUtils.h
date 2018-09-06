@@ -111,9 +111,10 @@ public:
     bool writeable_fd(const REF_getter<epoll_socket_info>& esi, int timeout_sec, int timeout_usec);
 
 //#ifndef _WIN32
+#ifdef __WITH_ZLIB
     REF_getter<refbuffer>  zcompress(const REF_getter<refbuffer>& data);
     REF_getter<refbuffer>  zexpand(const REF_getter<refbuffer>& data);
-//#endif
+#endif
     std::string replace_vals(std::map<std::string,std::string> &p, const std::string &src);
     std::string rus_datetime(const time_t& t);
     std::string rus_date(const time_t& t);
@@ -220,11 +221,11 @@ public:
     void removeWebDumpableHandler(WebDumpable *h);
     std::string dumpWebDumpable(WebDumpable* h);
 
-#ifdef __MOBILE__
+//#ifdef __MOBILE__
     std::string filesDir();
     void setFilesDir(const std::string& s);
     std::string m_files_dir;
-#endif
+//#endif
 
 
     Utils_local *getLocals();

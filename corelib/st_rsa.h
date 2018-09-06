@@ -36,10 +36,10 @@ public:
     st_AES();
     virtual ~st_AES();
     void init(const std::string &key);
-    std::string encrypt(const std::string& buf_);
-    std::string decrypt(const std::string& buf);
-    void encrypt(unsigned char*buf, size_t size);
-    void decrypt(unsigned char*buf, size_t size);
+    REF_getter<refbuffer> encrypt(const REF_getter<refbuffer>& buf_);
+    REF_getter<refbuffer> decrypt(const REF_getter<refbuffer>& buf);
+//    void encrypt(unsigned char*buf, size_t size);
+//    void decrypt(unsigned char*buf, size_t size);
     std::string generateRandomKey();
 };
 

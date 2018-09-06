@@ -26,6 +26,8 @@ inline std::set<EVENT_id> getEvents_OscarSecure()
 	out.insert(socketEventEnum::NotifyOutBufferEmpty);
 	out.insert(socketEventEnum::StreamRead);
 	out.insert(systemEventEnum::startService);
+	out.insert(webHandlerEventEnum::RegisterHandler);
+	out.insert(webHandlerEventEnum::RequestIncoming);
 
 	return out;
 }
@@ -52,5 +54,7 @@ inline void regEvents_OscarSecure()
 	iUtils->registerEvent(socketEvent::NotifyOutBufferEmpty::construct);
 	iUtils->registerEvent(socketEvent::StreamRead::construct);
 	iUtils->registerEvent(systemEvent::startService::construct);
+	iUtils->registerEvent(webHandlerEvent::RegisterHandler::construct);
+	iUtils->registerEvent(webHandlerEvent::RequestIncoming::construct);
 }
 #endif

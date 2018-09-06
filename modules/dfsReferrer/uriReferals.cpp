@@ -8,9 +8,8 @@ Json::Value dfsReferrer::_uriReferals::wdump()
 }
 REF_getter<dfsReferrer::linkInfoDownReferrer> dfsReferrer::_uriReferals::getDownlinkOrNull(const SOCKET_id& id)
 {
-    M_LOCK(this);
-    std::map<SOCKET_id, REF_getter<linkInfoDownReferrer> > ::iterator i=downlinks_mx.find(id);
-    if(i!=downlinks_mx.end()) return i->second;
+    std::map<SOCKET_id, REF_getter<linkInfoDownReferrer> > ::iterator i=m_downlinks.find(id);
+    if(i!=m_downlinks.end()) return i->second;
     return NULL;
 }
 REF_getter<dfsReferrer::linkInfoDownReferrer> dfsReferrer::_uriReferals::getDownlinkOrCreate(const REF_getter<epoll_socket_info>& esi, const msockaddr_in& externalAddr,const std::set<msockaddr_in>& internalAddrs, const route_t& backRoute, bool* created)
@@ -20,9 +19,8 @@ REF_getter<dfsReferrer::linkInfoDownReferrer> dfsReferrer::_uriReferals::getDown
 
     REF_getter<linkInfoDownReferrer> l(NULL);
     {
-        M_LOCK(this);
-        std::map<SOCKET_id, REF_getter<linkInfoDownReferrer> > ::iterator i=downlinks_mx.find(esi->m_id);
-        if(i!=downlinks_mx.end())
+        std::map<SOCKET_id, REF_getter<linkInfoDownReferrer> > ::iterator i=m_downlinks.find(esi->m_id);
+        if(i!=m_downlinks.end())
         {
             l=i->second;
         }
@@ -49,8 +47,7 @@ REF_getter<dfsReferrer::linkInfoDownReferrer> dfsReferrer::_uriReferals::getDown
     {
         l=new linkInfoDownReferrer(esi,externalAddr,internalAddrs,backRoute);
         {
-            M_LOCK(this);
-            downlinks_mx.insert(std::make_pair(esi->m_id,l));
+            m_downlinks.insert(std::make_pair(esi->m_id,l));
         }
         *created=true;
         return l;

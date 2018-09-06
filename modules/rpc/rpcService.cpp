@@ -151,7 +151,7 @@ bool RPC::Service::on_PacketOnAcceptor(const oscarEvent::PacketOnAcceptor*E)
 {
     MUTEX_INSPECTOR;
     try {
-        inBuffer buf(E->buf.data(),E->buf.size());
+        inBuffer buf(E->buf);
         int direction;
         buf>>direction;
 
@@ -233,7 +233,7 @@ bool RPC::Service::on_PacketOnConnector(const oscarEvent::PacketOnConnector* E)
     
 
     try {
-        inBuffer buf(E->buf.data(),E->buf.size());
+        inBuffer buf(E->buf);
         int direction;
         buf>>direction;
 
@@ -295,10 +295,10 @@ void RPC::Service::addSendPacket(const int& channel, const REF_getter<Session>&S
         if(S->bufferSize>10*1000*1000)
             throw CommonError("buffer too large");
         S->m_OutEventCache[channel].push_back(P);
-        S->bufferSize+=P->buf.size();
+        S->bufferSize+=P->buf->size_;
         {
             M_LOCK (mx);
-            mx.totalSendBufferSize+=P->buf.size();
+            mx.totalSendBufferSize+=P->buf->size_;
         }
     }
     if(S->m_connectionEstablished)
@@ -332,7 +332,7 @@ bool RPC::Service::on_PassPacket(const rpcEvent::PassPacket* E)
     if(S.valid() && esi.valid())
     {
         S->update_last_time_hit();
-        addSendPacket(e->e->channel,S,new oscarEvent::SendPacket(esi->m_id,o.asString()->asString(),serviceId));
+        addSendPacket(e->e->rpcChannel,S,new oscarEvent::SendPacket(esi->m_id,o.asString(),serviceId));
     }
     else
     {
@@ -403,7 +403,12 @@ bool RPC::Service::on_NotifyBindAddress(const oscarEvent::NotifyBindAddress*e)
 bool RPC::Service::on_startService(const systemEvent::startService* )
 {
     XTRY;
-    
+
+    if(iUtils->isServiceRegistered(ServiceEnum::WebHandler))
+    {
+        sendEvent(ServiceEnum::WebHandler, new webHandlerEvent::RegisterHandler("RPC","RPC",ListenerBase::serviceId));
+    }
+
 
     sendEvent(ServiceEnum::Timer,new timerEvent::SetTimer(timers::CONNECTION_ACTIVITY,NULL,NULL,m_iterateTimeout,ListenerBase::serviceId));
 
@@ -466,7 +471,7 @@ bool RPC::Service::on_Accepted(const oscarEvent::Accepted* E)
             std::map<SOCKET_id,REF_getter<Session> >::iterator it=sessions->all.m_socketId2session.find(e->esi->m_id);
             if(it==sessions->all.m_socketId2session.end())
             {
-                REF_getter<Session> S=new Session();
+                REF_getter<Session> S=new Session(e->esi->m_id);
                 sessions->all.m_socketId2session.insert(std::make_pair(e->esi->m_id,S));
                 sessions->add(ServiceEnum::RPC,e->esi);
                 S->m_connectionEstablished=true;
@@ -547,7 +552,7 @@ bool RPC::Service::on_SendPacket(const rpcEvent::SendPacket* E)
         //addressTo.setSocketId(sockId);
         sessions->connector.m_socketId2sa[sockId]=addressTo;
         sessions->connector.m_sa2socketId[addressTo]=sockId;
-        S=new Session();
+        S=new Session(sockId);
 
         sessions->all.m_socketId2session.erase(sockId);
         sessions->all.m_socketId2session.insert(std::make_pair(sockId,S));
@@ -583,7 +588,7 @@ bool RPC::Service::on_SendPacket(const rpcEvent::SendPacket* E)
         iUtils->packEvent(o,E->ev);
 
 
-        addSendPacket(E->ev->channel,S,new oscarEvent::SendPacket(sockId,o.asString()->asString(),ListenerBase::serviceId));
+        addSendPacket(E->ev->rpcChannel,S,new oscarEvent::SendPacket(sockId,o.asString(),ListenerBase::serviceId));
         XPASS;
     }
     XPASS;
@@ -611,12 +616,12 @@ void RPC::Service::doSend(const REF_getter<Session> & S)
 
                         REF_getter<oscarEvent::SendPacket> p=d[0];
                         d.pop_front();
-                        S->bufferSize-=p->buf.size();
+                        S->bufferSize-=p->buf->size_;
                         {
                             M_LOCK(mx);
-                            mx.totalSendBufferSize-=p->buf.size();
+                            mx.totalSendBufferSize-=p->buf->size_;
                         }
-                        sum+=p->buf.size();
+                        sum+=p->buf->size_;
                         sendEvent(myOscar,p.operator ->());
 
                     }
@@ -657,7 +662,7 @@ bool RPC::Service::on_NotifyOutBufferEmpty(const oscarEvent::NotifyOutBufferEmpt
         std::map<SOCKET_id,REF_getter<Session> >::iterator it=sessions->all.m_socketId2session.find(e->esi->m_id);
         if(it==sessions->all.m_socketId2session.end())
         {
-            REF_getter<Session> S=new Session();
+            REF_getter<Session> S=new Session(e->esi->m_id);
             sessions->all.m_socketId2session.insert(std::make_pair(e->esi->m_id,S));
             sessions->add(ServiceEnum::RPC,e->esi);
             S->m_connectionEstablished=true;
@@ -707,7 +712,9 @@ bool RPC::Service::on_SocketClosed(const oscarEvent::SocketClosed*e)
 
 UnknownBase* RPC::Service::construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa)
 {
+    XTRY;
     return new Service(id,nm,ifa);
+    XPASS;
 }
 int64_t RPC::Service::getTotalSendBufferSize()
 {
@@ -849,6 +856,8 @@ Json::Value RPC::__sessions::jdump()
         m=all.m_socketId2session;
         s=all.m_subscribers;
     }
+    v["sessions.size"]=iUtils->toString(m.size());
+    v["subscribers.size"]=iUtils->toString(s.size());
     for(auto &i:s)
     {
         v["subscribers"].append(i.dump());
@@ -1030,6 +1039,8 @@ bool RPC::Service::handleEvent(const REF_getter<Event::Base>& e)
         return(this->on_Disconnect((const rpcEvent::Disconnect*)e.operator->()));
     if( rpcEventEnum::Disaccept==ID)
         return(this->on_Disaccept((const rpcEvent::Disaccept*)e.operator->()));
+    if( webHandlerEventEnum::RequestIncoming==ID)
+        return(this->on_RequestIncoming((const webHandlerEvent::RequestIncoming*)e.operator->()));
 #if !defined(WITHOUT_UPNP)
     if( rpcEventEnum::UpnpPortMap==ID)
         return(this->on_UpnpPortMap((const rpcEvent::UpnpPortMap*)e.operator->()));
@@ -1039,4 +1050,17 @@ bool RPC::Service::handleEvent(const REF_getter<Event::Base>& e)
     XPASS;
     return false;
 
+}
+bool RPC::Service::on_RequestIncoming(const webHandlerEvent::RequestIncoming* e)
+{
+
+    HTTP::Response cc;
+    cc.content+="<h1>RPC report</h1><p>";
+
+    Json::Value v=jdump();
+    Json::StyledWriter w;
+    cc.content+="<pre>\n"+w.write(v)+"\n</pre>";
+
+    cc.makeResponse(e->esi);
+    return true;
 }

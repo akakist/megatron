@@ -1,0 +1,21 @@
+drop table if exists city_block4;
+create table if not exists city_block4
+(
+    network blob,
+    geoname_id blob,
+    registered_country_geoname_id blob,
+    represented_country_geoname_id blob,
+    is_anonymous_proxy blob,
+    is_satellite_provider blob,
+    postal_code blob,
+    latitude blob,
+    longitude blob,
+    accuracy_radius blob
+);
+.mode csv
+.separator ','
+.import /Users/s.belyalov/Downloads/GeoLite2-City-CSV_20180605/GeoLite2-City-Blocks-IPv4.csv city_block4;
+alter table city_block4 add column start_ip blob;
+alter table city_block4 add column end_ip blob;
+CREATE INDEX IF NOT EXISTS start_ip_idx ON city_block4(start_ip) ;
+CREATE INDEX IF NOT EXISTS end_ip_idx ON city_block4(end_ip) ;

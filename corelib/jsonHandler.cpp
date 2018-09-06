@@ -21,6 +21,10 @@ JsonHandler::JsonHandler(IInstance *ins):
 #endif
     isConnected(false)
 {
+    //setTimerValue(T_START_CONNECT,0.5);
+
+    //setAlarm(T_START_CONNECT,NULL,NULL,this);
+    //  registerReferrerClientService(NULL);
     iUtils->registerEvent(jsonRefEvent::JsonREQ::construct);
     iUtils->registerEvent(jsonRefEvent::JsonRSP::construct);
     iUtils->registerEvent(dfsReferrerEvent::UpdateConfigRSP::construct);
@@ -31,6 +35,7 @@ JsonHandler::JsonHandler(IInstance *ins):
 
 bool JsonHandler::on_NotifyReferrerUplinkIsConnected(const dfsReferrerEvent::NotifyReferrerUplinkIsConnected *)
 {
+    //logErr2("on_NotifyReferrerUplinkIsConnected");
     MUTEX_INSPECTOR;
     isConnected=true;
     signal_connected();
@@ -127,9 +132,11 @@ void JsonHandler::push_msg(const Json::Value &s,const std::string& binData, cons
     j["data"]=s;
     j["errcode"]="0";
     j["javaCookie"]=CONTAINER(javaCookie);
+    //logErr2("JsonHandler::push_msg %s",j.toStyledString().c_str());
 #ifdef __MOBILE__
     mx.java_msgs.push_back(std::make_pair(j.toStyledString(),binData));
 #else
+    //logErr2("msg: %s",j.toStyledString().c_str());
 #endif
 
 }
@@ -145,6 +152,7 @@ void JsonHandler::push_err(const std::string & action,const std::string& s, cons
 #ifdef __MOBILE__
     mx.java_msgs.push_back(std::make_pair(j.toStyledString(),""));
 #else
+    //logErr2("msg: %s",s.c_str());
 #endif
 
 }
@@ -165,4 +173,6 @@ std::pair<std::string,std::string> JsonHandler::getMessage()
 
 
 
+/// если емейл еще не зареген, то он вставляется в базу в привязке к UID, в ответе прилетает uid/cookie,
+/// если зареген, то в ответе прилетает новая uid/cookie.
 

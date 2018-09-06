@@ -4,7 +4,7 @@
 namespace dfsReferrerEvent {
     class Ping: public Event::Base
     {
-        enum {channel=CHANNEL_0};
+        enum {rpcChannel=CHANNEL_0};
 
 
     public:
@@ -25,18 +25,18 @@ namespace dfsReferrerEvent {
         int connection_sequence_id;
         int clientType;
         Ping(const int& _type, const GlobalCookie_id& _globalCookie, unsigned short _externalListenPort, const std::set<msockaddr_in>& _internalListenAddr, int64_t _ping_time, int _connection_sequence_id, int _clientType,const route_t &r)
-            :Base(dfsReferrerEventEnum::Ping,channel,"Ping",r),
+            :Base(dfsReferrerEventEnum::Ping,rpcChannel,"Ping",r),
              pingType(_type),globalCookieOfSender(_globalCookie),externalListenPort(_externalListenPort),internalListenAddr(_internalListenAddr),ping_time(_ping_time),connection_sequence_id(_connection_sequence_id),clientType(_clientType)
         {}
 
         Ping(const int& _type, const GlobalCookie_id& _globalCookie,
              int64_t _ping_time, int _connection_sequence_id, int _clientType,const route_t &r)
-            :Base(dfsReferrerEventEnum::Ping,channel,"Ping",r),
+            :Base(dfsReferrerEventEnum::Ping,rpcChannel,"Ping",r),
              pingType(_type),globalCookieOfSender(_globalCookie),externalListenPort(0),ping_time(_ping_time),connection_sequence_id(_connection_sequence_id),clientType(_clientType)
         {}
 
         Ping(const route_t& r)
-            :Base(dfsReferrerEventEnum::Ping,channel,"Ping",r) {}
+            :Base(dfsReferrerEventEnum::Ping,rpcChannel,"Ping",r) {}
         void unpack(inBuffer& o)
         {
             

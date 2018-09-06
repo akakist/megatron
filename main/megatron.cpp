@@ -22,7 +22,7 @@
 #endif
 
 //IInstance* iInstance=NULL;
-IUtils *iUtils=NULL;
+//
 #ifndef _WIN32
 //std::string gCacheDirNoCheck();
 #endif

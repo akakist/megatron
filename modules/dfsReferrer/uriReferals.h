@@ -7,7 +7,7 @@
 
 namespace dfsReferrer
 {
-    struct _uriReferals: public Refcountable,public WebDumpable, public Mutexable//, public Broadcaster
+    struct _uriReferals: public Refcountable,public WebDumpable
     {
 
         REF_getter<linkInfoDownReferrer> getDownlinkOrNull(const SOCKET_id& id);
@@ -24,30 +24,32 @@ namespace dfsReferrer
 
         std::map<SOCKET_id, REF_getter<linkInfoDownReferrer> > getDownlinks()
         {
-            M_LOCK(this);
-            return downlinks_mx;
+            return m_downlinks;
         }
         void clearDownlinks()
         {
-            M_LOCK(this);
-            downlinks_mx.clear();
+            m_downlinks.clear();
             DBG(logErr2("downlinks_mx clear %s",_DMI().c_str()));
 
         }
         void eraseFromDownlinks(const SOCKET_id & id)
         {
-            M_LOCK(this);
-            downlinks_mx.erase(id);
+            m_downlinks.erase(id);
             DBG(logErr2("downlinks_mx erase %d %s",CONTAINER(id),_DMI().c_str()));
         }
         size_t countInDownlinks(const SOCKET_id & id)
         {
-            M_LOCK(this);
-            return downlinks_mx.count(id);
+            return m_downlinks.count(id);
 
         }
+        size_t sizeOfDownlinks()
+        {
+            return m_downlinks.size();
+
+        }
+
     private:
-        std::map<SOCKET_id, REF_getter<linkInfoDownReferrer> > downlinks_mx;
+        std::map<SOCKET_id, REF_getter<linkInfoDownReferrer> > m_downlinks;
 
     };
 

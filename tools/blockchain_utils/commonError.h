@@ -3,6 +3,9 @@
 
 #include <exception>
 #include <string>
+/**
+* Общий класс исключения
+*/
 class CommonError: public std::exception
 {
 private:

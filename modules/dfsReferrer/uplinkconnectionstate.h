@@ -16,14 +16,14 @@ namespace dfsReferrer {
 
         _uplinkConnectionState(bool isCapsServer,const std::set<msockaddr_in> & _saCaps):
             m_isCapsServer(isCapsServer),
-            getServiceSent(false),
+//            getServiceSent(false),
             saCapsFromConfig(_saCaps),
             connectionEstablished(false),
             nodeLevelInHierarhy(0)
         {}
         _uplinkConnectionState(bool isCapsServer):
             m_isCapsServer(isCapsServer),
-            getServiceSent(false),
+//            getServiceSent(false),
             connectionEstablished(false),
             nodeLevelInHierarhy(0)
         {
@@ -37,7 +37,7 @@ namespace dfsReferrer {
 
 
 
-        bool getServiceSent;
+//        bool getServiceSent;
         std::set<msockaddr_in> saCapsFromConfig;
 
 

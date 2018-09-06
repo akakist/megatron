@@ -1,0 +1,24 @@
+drop table if exists city_block4;
+create table if not exists city_block4
+(
+    network varbinary(100),
+    geoname_id varbinary(100),
+    registered_country_geoname_id varbinary(100),
+    represented_country_geoname_id varbinary(100),
+    is_anonymous_proxy varbinary(100),
+    is_satellite_provider varbinary(100),
+    postal_code varbinary(100),
+    latitude varbinary(100),
+    longitude varbinary(100),
+    accuracy_radius varbinary(100)
+);
+LOAD DATA INFILE '/tmp/GeoLite2-City-Blocks-IPv4.csv' INTO TABLE city_block4
+  FIELDS TERMINATED BY ',' ENCLOSED BY '"'
+  LINES TERMINATED BY '\n'
+  IGNORE 1 LINES;
+  
+alter table city_block4 add column start_ip varbinary(40);
+alter table city_block4 add column end_ip varbinary(40);
+alter table city_block4 add key(network);
+alter table city_block4 add key(start_ip);
+alter table city_block4 add key(end_ip);

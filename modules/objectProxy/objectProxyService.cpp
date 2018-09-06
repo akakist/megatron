@@ -61,12 +61,12 @@ bool ObjectProxy::Threaded::handleEvent(const REF_getter<Event::Base>& e)
                     //logErr2("if(!OH->OH_handleObjectEvent(e)) %s ",OH->name);
                     if(!OH->OH_handleObjectEvent(e))
                     {
-                        logErr2("ObjectProxy::Threaded: unhandled event %s in %s",e->dump().toStyledString().c_str(), OH->name);
+                        logErr2("ObjectProxy::Threaded: unhandled event %s in %s",e->dump().toStyledString().c_str(), OH->name.c_str());
                     }
                 }
                 catch(...)
                 {
-                    logErr2("PASS in %s, %s %d",OH->name,__FILE__,__LINE__);
+                    logErr2("PASS in %s, %s %d",OH->name.c_str(),__FILE__,__LINE__);
                     throw;
                 }
             }
@@ -74,7 +74,7 @@ bool ObjectProxy::Threaded::handleEvent(const REF_getter<Event::Base>& e)
     }
     else
     {
-        logErr2("!(r->type==Route::OBJECTHANDLER_THREADED) %s",r->dump().c_str());
+        logErr2("!(r->type==Route::OBJECTHANDLER_THREADED) %d %s",r->dump().c_str(),r->type);
     }
     return true;
 
@@ -133,7 +133,7 @@ bool ObjectProxy::Polled::handleEvent(const REF_getter<Event::Base>& e)
                     //logErr2("if(!OH->OH_handleObjectEvent(e)) %s",OH->name);
                     if(!OH->OH_handleObjectEvent(e))
                     {
-                        logErr2("ObjectProxy::Threaded: unhandled event %s in %s",e->dump().toStyledString().c_str(), OH->name);
+                        logErr2("ObjectProxy::Threaded: unhandled event %s in %s",e->dump().toStyledString().c_str(), OH->name.c_str());
                     }
                 }
                 catch(...)

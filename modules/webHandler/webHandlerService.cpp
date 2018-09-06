@@ -8,7 +8,9 @@
 
 UnknownBase* WebHandler::Service::construct(const SERVICE_id &id, const std::string& nm, IInstance* ifa)
 {
+    XTRY;
     return new Service(id,nm,ifa);
+    XPASS;
 }
 WebHandler::Service::~Service()
 {

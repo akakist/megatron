@@ -8,6 +8,10 @@ namespace telnetEvent
 
 class RegisterCommand: public Event::NoPacked
 {
+    /**
+    *   Регистрация команды
+    *   Направление - от клиента
+    */
 public:
     static Base* construct(const route_t &)
     {

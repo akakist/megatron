@@ -4,7 +4,8 @@
 #include "ifaces.h"
 #include <string>
 #include <sys/types.h>
-
+#include "REF.h"
+#include "refstring.h"
 /// interfaces/wrapper to access OpenSSL
 
 class I_st_rsa_impl
@@ -28,12 +29,12 @@ class I_st_AES_impl
 {
 public:
     virtual void init(const std::string &key)=0;
-    virtual std::string encrypt(const std::string& buf_)=0;
-    virtual std::string decrypt(const std::string& buf)=0;
+    virtual REF_getter<refbuffer> encrypt(const REF_getter<refbuffer>& buf_)=0;
+    virtual REF_getter<refbuffer> decrypt(const REF_getter<refbuffer>& buf)=0;
     virtual std::string generateRandomKey()=0;
     virtual  ~I_st_AES_impl() {}
-    virtual void encrypt(unsigned char*buf, size_t size)=0;
-    virtual void decrypt(unsigned char*buf, size_t size)=0;
+//    virtual void encrypt(unsigned char*buf, size_t size)=0;
+//    virtual void decrypt(unsigned char*buf, size_t size)=0;
 
 };
 

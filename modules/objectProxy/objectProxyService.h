@@ -62,7 +62,9 @@ namespace ObjectProxy
         }
         static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa)
         {
+            XTRY;
             return new Polled(id,nm,ifa);
+            XPASS;
         }
 
         void poll()
@@ -109,7 +111,9 @@ namespace ObjectProxy
         }
         static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa)
         {
+            XTRY;
             return new Threaded(id,nm,ifa);
+            XPASS;
         }
     };
 

@@ -5,7 +5,7 @@ namespace errorDispatcherEvent
 {
 class Unsubscribe: public Event::Base
 {
-    enum {channel=CHANNEL_100};
+    enum {rpcChannel=CHANNEL_100};
 
 
 public:
@@ -14,7 +14,7 @@ public:
         return new Unsubscribe(r);
     }
     Unsubscribe(const route_t&r)
-        :Base(errorDispatcherEventEnum::Unsubscribe,channel,"Unsubscribe",r) {}
+        :Base(errorDispatcherEventEnum::Unsubscribe,rpcChannel,"Unsubscribe",r) {}
     void unpack(inBuffer&)
     {
     }

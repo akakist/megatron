@@ -7,7 +7,7 @@
 namespace dfsCapsEvent {
 class RegisterMyRefferrerREQ: public Event::Base
 {
-    enum {channel=CHANNEL_70};
+    enum {rpcChannel=CHANNEL_70};
 
 
 public:
@@ -17,27 +17,28 @@ public:
         return new RegisterMyRefferrerREQ(r);
     }
 
-    RegisterMyRefferrerREQ(const std::set<msockaddr_in> &sas, const route_t& r)
-        :Base(dfsCapsEventEnum::RegisterMyRefferrerREQ,channel,"RegisterMyRefferrerREQ",r), externalListenAddr(sas)
+    RegisterMyRefferrerREQ(const std::set<msockaddr_in> &sas, int _downlinkCount, const route_t& r)
+        :Base(dfsCapsEventEnum::RegisterMyRefferrerREQ,rpcChannel,"RegisterMyRefferrerREQ",r), externalListenAddr(sas),downlinkCount(_downlinkCount)
     {
 
     }
 
     RegisterMyRefferrerREQ(const route_t& r)
-        :Base(dfsCapsEventEnum::RegisterMyRefferrerREQ,channel,"RegisterMyRefferrerREQ",r)
+        :Base(dfsCapsEventEnum::RegisterMyRefferrerREQ,rpcChannel,"RegisterMyRefferrerREQ",r)
     {
 
     }
 
     std::set<msockaddr_in> externalListenAddr;
+    int downlinkCount;
 
     void unpack(inBuffer& o)
     {
-        o>>externalListenAddr;
+        o>>externalListenAddr>>downlinkCount;
     }
     void pack(outBuffer&o) const
     {
-        o<<externalListenAddr;
+        o<<externalListenAddr<<downlinkCount;
     }
     void jdump(Json::Value &v) const
     {

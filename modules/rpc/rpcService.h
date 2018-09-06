@@ -39,6 +39,9 @@
 #include "Events/System/Net/oscar/ConnectFailed.h"
 #include "Events/System/timer/TickAlarm.h"
 #include "Events/System/timer/TickTimer.h"
+#include "Events/Tools/webHandler/RegisterDirectory.h"
+#include "Events/Tools/webHandler/RegisterHandler.h"
+#include "Events/Tools/webHandler/RequestIncoming.h"
 
 namespace RPC
 {
@@ -51,9 +54,10 @@ namespace RPC
         };
     }
 
-    struct Session: public Refcountable, public Mutexable
+    struct Session: public Refcountable, public Mutexable,WebDumpable
     {
 
+        SOCKET_id socketId;
         std::deque<std::string> m_cache;
         std::map<int,std::deque<REF_getter<oscarEvent::SendPacket> > > m_OutEventCache;
         time_t last_time_hit;
@@ -66,19 +70,51 @@ namespace RPC
             last_time_hit=time(NULL);
         }
 
-        Session():last_time_hit(time(NULL)), cstate(EMPTY), bufferSize(0),m_connectionEstablished(false) {}
+        Session(SOCKET_id sockId):socketId(sockId),last_time_hit(time(NULL)), cstate(EMPTY), bufferSize(0),m_connectionEstablished(false) {}
 
         Json::Value jdump()
         {
+            M_LOCK(this);
             Json::Value v;
+            v["socketId"]=iUtils->toString(CONTAINER(socketId));
+            v["cache_element_count"]=iUtils->toString((int64_t)m_cache.size());
+            int64_t csum=0;
+            for(auto &z: m_cache)
+            {
+                csum+=z.size();
+            }
 
-            v["cache_size"]=iUtils->toString((int64_t)m_cache.size());
+            v["cache_buffer_size"]=iUtils->toString(csum);
+            v["OutEventCache count"]=iUtils->toString(m_OutEventCache.size());
+
+            int64_t oecSum=0;
+            for(auto &z: m_OutEventCache)
+            {
+                for(auto &x: z.second)
+                {
+                    oecSum+=x->buf->size_;
+                }
+            }
+            v["OutEventCache size"]=iUtils->toString(oecSum);
+
             v["last_time_hit_dt"]=iUtils->toString(uint64_t(time(NULL)-last_time_hit));
             v["m_connectionEstablished"]=m_connectionEstablished;
+            v["currentState"]=cstate==EMPTY?"EMPTY":"FULL";
+            v["bufferSize"]=iUtils->toString(bufferSize);
             return v;
         }
+        std::string wname()
+        {
+            return iUtils->toString(CONTAINER(socketId));
+        }
+        Json::Value wdump()
+        {
+            Json::Value j;
+            return jdump();
+        }
+
     };
-    struct __sessions: public SocketsContainerBase,Broadcaster
+    struct __sessions: public SocketsContainerBase,Broadcaster, WebDumpable
     {
         Mutex m_lock;
 
@@ -88,6 +124,17 @@ namespace RPC
         __sessions(IInstance* ifa):SocketsContainerBase("rpc::sessions"),Broadcaster(ifa) {}
         void on_mod_write(const REF_getter<epoll_socket_info>&) {}
         void on_delete(const REF_getter<epoll_socket_info>&esi, const std::string& reason);
+
+        std::string wname()
+        {
+            return "sessions";
+        }
+        Json::Value wdump()
+        {
+            Json::Value j;
+            return jdump();
+        }
+
 
         // all
         struct _all
@@ -206,6 +253,8 @@ namespace RPC
         bool on_SubscribeNotifications(const rpcEvent::SubscribeNotifications* E);
         bool on_UnsubscribeNotifications(const rpcEvent::UnsubscribeNotifications* E);
 
+        bool on_RequestIncoming(const webHandlerEvent::RequestIncoming* e);
+
         bool on_TickAlarm(const timerEvent::TickAlarm*);
 
 #if !defined(WITHOUT_UPNP)
@@ -235,6 +284,20 @@ namespace RPC
         Service(const SERVICE_id &svs, const std::string&  nm,  IInstance *ifa);
         static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa);
         ~Service();
+
+        Json::Value jdump()
+        {
+            Json::Value j;
+            {
+                M_LOCK(mx);
+                j["totalSendBufferSize"]=iUtils->toString(mx.totalSendBufferSize);
+            }
+            j["sessions"].append(sessions->getWebDumpableLink("sessions"));
+
+//            j["sessions"].append(sessions->ge->second->getWebDumpableLink(iUtils->toString(CONTAINER(i->second->m_id))));
+            return j;
+
+        }
     };
 }
 

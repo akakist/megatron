@@ -39,7 +39,9 @@ class st_log
 public:
     st_log(Logging* _l, const std::string& keyword):l(_l)
     {
+        XTRY;
         l->push_back(keyword);
+        XPASS;
     }
     ~st_log()
     {

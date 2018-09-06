@@ -6,7 +6,7 @@ namespace errorDispatcherEvent
 
 class Subscribe: public Event::Base
 {
-    enum {channel=CHANNEL_100};
+    enum {rpcChannel=CHANNEL_100};
 
 
 public:
@@ -15,7 +15,7 @@ public:
         return new Subscribe(r);
     }
     Subscribe(const route_t&r)
-        :Base(errorDispatcherEventEnum::Subscribe,channel,"errorDispatcherSubscribe",r) {}
+        :Base(errorDispatcherEventEnum::Subscribe,rpcChannel,"errorDispatcherSubscribe",r) {}
     void unpack(inBuffer&)
     {
     }

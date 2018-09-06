@@ -44,6 +44,7 @@ add_library(megatron-core STATIC
             unknown.cpp
             url.cpp
             webDumpable.cpp
+            neighbours.cpp
             ../lib/jsoncpp-0.5.0/src/lib_json/json_reader.cpp
             ../lib/jsoncpp-0.5.0/src/lib_json/json_value.cpp
             ../lib/jsoncpp-0.5.0/src/lib_json/json_writer.cpp

@@ -5,11 +5,11 @@ cmake_minimum_required (VERSION 2.6)
 #include_directories(../local ../lib/jsoncpp-0.5.0/include /usr/local/include .. . )
 
 add_library(zsingle STATIC
+../dfsCaps/CapsAlgorithm.cpp
 
 ../dfsCaps/dfsCapsService.cpp
-../dfsCaps/NetTreeRoute.cpp
 ../dfsReferrer/dfsReferrerService.cpp
-../dfsReferrer/neighbours.cpp
+#../dfsReferrer/neighbours.cpp
 ../dfsReferrer/uplinkconnectionstate.cpp
 ../dfsReferrer/uriReferals.cpp
 ../errorDispatcher/errorDispatcherService.cpp

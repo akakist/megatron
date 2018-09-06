@@ -34,6 +34,7 @@ void ListenerSimple::listenToEvent(const std::deque<REF_getter<Event::Base> >&D)
 
 void ListenerSimple::listenToEvent(const REF_getter<Event::Base>& e)
 {
+    XTRY;
     try {
         if(!e.valid()) return;
         for(std::vector<std::pair<eventhandler,void*> >::iterator i=handlers.begin(); i!=handlers.end(); i++)
@@ -55,6 +56,6 @@ void ListenerSimple::listenToEvent(const REF_getter<Event::Base>& e)
     {
         logErr2("ListenerSimple std::exception: %s %s %d",ec.what(),__FILE__,__LINE__);
     }
-
+    XPASS;
 }
 

@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     }
 
     memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6
+    hints.ai_family = AF_UNSPEC; // AF_INET или AF_INET6 для указания версии протокола
     hints.ai_socktype = SOCK_STREAM;
 
     if ((status = getaddrinfo(argv[1], NULL, &hints, &res)) != 0) {
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
         char *ipver;
 
 
-        
+        // получаем указатель на адрес, по разному в разных протоколах
         if (p->ai_family == AF_INET) { // IPv4
             struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
             addr = &(ipv4->sin_addr);
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
             ipver = "IPv6";
         }
 
-        
+        // преобразуем IP в строку и выводим его:
         inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
         printf("  %s: %s\n", ipver, ipstr);
     }

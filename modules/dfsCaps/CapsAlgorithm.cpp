@@ -11,12 +11,12 @@ void CapsAlgorithm::addReferrer(double lat,double lon, const msockaddr_in& sa, i
     if(rcontainers.size()>2)
         rcontainers.erase(rcontainers.begin());
 
-    rcontainers[time(NULL)/3600][sa.family()].add(lat,lon,sa,downlinkCount);
-    rcontainers[time(NULL)/3600+1][sa.family()].add(lat,lon,sa,downlinkCount);
+    rcontainers[time(NULL)/3600].add(lat,lon,sa,downlinkCount);
+    rcontainers[time(NULL)/3600+1].add(lat,lon,sa,downlinkCount);
 }
-std::vector<REF_getter<referrerItem> > CapsAlgorithm::findReferrers(double lat,double lon, int addressFamily)
+std::vector<REF_getter<referrerItem> > CapsAlgorithm::findReferrers(double lat,double lon)
 {
-    referrerContainer& c=rcontainers[time(NULL)/3600][addressFamily];
+    referrerContainer& c=rcontainers[time(NULL)/3600];
 
     iLatLon ll=std::make_pair(int(lat),int(lon));
     iLatLon ll2=std::make_pair(int(lat/2),int(lon/2));
@@ -29,8 +29,6 @@ std::vector<REF_getter<referrerItem> > CapsAlgorithm::findReferrers(double lat,d
         lookFor=c.quadratsDegree_2[ll2];
     else if(c.quadratsDegree_4[ll4].size()>MAX_REFFERRERS_COUNT_IN_RESPONSE)
         lookFor=c.quadratsDegree_4[ll4];
-    else if(c.quadratsDegree_8[ll8].size()>MAX_REFFERRERS_COUNT_IN_RESPONSE)
-        lookFor=c.quadratsDegree_8[ll8];
     else
     {
         for(auto& z: c.referrers)
@@ -60,15 +58,6 @@ std::vector<REF_getter<referrerItem> > CapsAlgorithm::findReferrers(double lat,d
         }
         if(ret.size()>MAX_REFFERRERS_COUNT_IN_RESPONSE)
             break;
-    }
-    if(ret.size()==0)
-    {
-        for(auto& z:rcontainers[time(NULL)/3600][addressFamily].referrers)
-        {
-            ret.push_back(z.second);
-            if(ret.size()>MAX_REFFERRERS_COUNT_IN_RESPONSE)
-                break;
-        }
     }
     return ret;
 }

@@ -8,6 +8,13 @@ namespace telnetEvent
 
 class RegisterType: public Event::NoPacked
 {
+    /**
+    *   Регистрация типа параметра.
+    *   Направление - от клиента
+    *   \param name наименование параметра, которое потом будет использоваться в командах.
+    *   \param pattern regexp pattern
+    *   \param help строка которая будет выводиться в хелпе для типа.
+    */
 public:
     static Base* construct(const route_t &)
     {

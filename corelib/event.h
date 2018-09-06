@@ -24,14 +24,16 @@ namespace Event
     class Base: public Refcountable
     {
     public:
+        /// тип евента
         const EVENT_id id;
-        const int channel;
+        const int rpcChannel;
         const char* name;
         virtual ~Base() {}
         virtual void jdump(Json::Value &v) const=0;
+        /// маршрут
         route_t route;
-        Base(const EVENT_id&_id, const int _channel, const char* _name): id(_id),channel(_channel),name(_name) {}
-        Base(const EVENT_id& _id, const int _channel, const char* _name,const route_t &_route):id(_id),channel(_channel),name(_name), route(_route) {}
+        Base(const EVENT_id&_id, const int _channel, const char* _name): id(_id),rpcChannel(_channel),name(_name) {}
+        Base(const EVENT_id& _id, const int _channel, const char* _name,const route_t &_route):id(_id),rpcChannel(_channel),name(_name), route(_route) {}
 
         /// pack/unpack to outBuffer/inBuffer, used for RPC
         virtual void pack(outBuffer& b)const =0;

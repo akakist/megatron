@@ -36,6 +36,8 @@ inline std::set<EVENT_id> getEvents_rpc()
 	out.insert(timerEventEnum::SetTimer);
 	out.insert(timerEventEnum::TickAlarm);
 	out.insert(timerEventEnum::TickTimer);
+	out.insert(webHandlerEventEnum::RegisterHandler);
+	out.insert(webHandlerEventEnum::RequestIncoming);
 
 	return out;
 }
@@ -66,13 +68,13 @@ inline void regEvents_rpc()
 	iUtils->registerEvent(rpcEvent::SendPacket::construct);
 	iUtils->registerEvent(rpcEvent::SubscribeNotifications::construct);
 	iUtils->registerEvent(rpcEvent::UnsubscribeNotifications::construct);
-#if !defined(WITHOUT_UPNP)
-        iUtils->registerEvent(rpcEvent::UpnpPortMap::construct);
+	iUtils->registerEvent(rpcEvent::UpnpPortMap::construct);
 	iUtils->registerEvent(rpcEvent::UpnpResult::construct);
-#endif
 	iUtils->registerEvent(systemEvent::startService::construct);
 	iUtils->registerEvent(timerEvent::SetTimer::construct);
 	iUtils->registerEvent(timerEvent::TickAlarm::construct);
 	iUtils->registerEvent(timerEvent::TickTimer::construct);
+	iUtils->registerEvent(webHandlerEvent::RegisterHandler::construct);
+	iUtils->registerEvent(webHandlerEvent::RequestIncoming::construct);
 }
 #endif

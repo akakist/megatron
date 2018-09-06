@@ -87,7 +87,7 @@ std::map<std::string,std::string> CUtils::loadStringMapFromBuffer(const std::str
 }
 std::map<std::string,std::string> CUtils::loadStringMapFromFile(const std::string &fn)
 {
-
+    XTRY;
     std::map<std::string,std::string>m;
     std::string body;
     std::string section;
@@ -139,6 +139,7 @@ std::map<std::string,std::string> CUtils::loadStringMapFromFile(const std::strin
         m[key]=val;
     }
     return m;
+    XPASS;
 
 }
 std::deque<std::string> CUtils::splitStringDQ(const char *seps, const std::string & src)
@@ -749,6 +750,7 @@ std::string CUtils::bin2hex(const std::string & in)
 //#ifndef __ANDROID__
 long CUtils::load_file_from_disk(std::string & res, const std::string & fn)
 {
+    XTRY;
 #if defined(QT5)
     QFile file(fn.c_str());
 
@@ -790,7 +792,7 @@ long CUtils::load_file_from_disk(std::string & res, const std::string & fn)
         }*/
         if ((off_t)fread(b.buf,1,st.st_size,f.f)!=st.st_size)
         {
-            throw CommonError("if(fread(b,1,st.st_size,f)!=st.st_size) ");
+            throw CommonError("if(fread(b,1,st.st_size,f)!=st.st_size)  %s",fn.c_str());
         }
         std::string al((char *)b.buf, st.st_size);
         res=al;
@@ -798,13 +800,14 @@ long CUtils::load_file_from_disk(std::string & res, const std::string & fn)
     }
     return -1;
 #endif
+    XPASS;
 
 }
 //#endif
 //#ifndef __ANDROID__
 std::string CUtils::load_file(const std::string & fn)
 {
-
+    XTRY;
     std::string res;
     int r=load_file_from_disk(res,fn);
     if(r<0)
@@ -812,19 +815,28 @@ std::string CUtils::load_file(const std::string & fn)
         throw CommonError("cannot stat file %s",fn.c_str());
     }
     return res;
+    XPASS;
 }
 std::string CUtils::load_file_no_throw(const std::string & fn)
 {
+    XTRY;
     std::string res;
 
-    int r=load_file_from_disk(res,fn);
+    try{
+        int r=load_file_from_disk(res,fn);
 
-    if(r<0)
+        if(r<0)
+        {
+            logErr2("cannot stat file %s",fn.c_str());
+            return "";
+        }
+        return res;
+    }catch(...)
     {
-        logErr2("cannot stat file %s",fn.c_str());
         return "";
     }
-    return res;
+
+    XPASS;
 }
 std::string CUtils::unescapeURL(const std::string & s)
 {
@@ -933,6 +945,7 @@ int64_t CUtils::get_param_int64_t(std::deque<std::string> &tokens, const std::st
     return atoi(ret.c_str());
 #endif
 }
+
 
 Integer CUtils::getNow()
 {
@@ -1380,18 +1393,19 @@ std::string CUtils::uriDecode(const std::string &SRC)
     }
     return (ret);
 }
+#ifdef __WITH_ZLIB
 
 REF_getter<refbuffer>  CUtils::zcompress(const REF_getter<refbuffer>& data)
 {
     if(!data.valid())
         return data;
-    uLongf olen=data->size*2;
+    uLongf olen=data->size_*2;
     Bytef *obuf=(Bytef*) malloc(olen);
-    compress(obuf,&olen,(Bytef*)data->buffer,data->size);
+    compress(obuf,&olen,(Bytef*)data->buffer,data->size_);
     std::string ret=std::string((char*)obuf,olen);
     free(obuf);
     outBuffer o;
-    o<<data->size<<ret;
+    o<<data->size_<<ret;
     return o.asString();
 }
 REF_getter<refbuffer>  CUtils::zexpand(const REF_getter<refbuffer>& data)
@@ -1410,11 +1424,12 @@ REF_getter<refbuffer>  CUtils::zexpand(const REF_getter<refbuffer>& data)
     uncompress(obuf,&olen,(Bytef*)buf.data(),buf.size());
     REF_getter<refbuffer> ret=new refbuffer;//(std::string((char*)obuf,olen);
     ret->buffer=obuf;
-    ret->size=olen;
+    ret->size_=olen;
+    ret->capacity=olen;
     //free(obuf);
     return ret;
 }
-//#endif
+#endif
 std::string CUtils::replace_vals(std::map<std::string,std::string> &p, const std::string &src)
 {
     if(!p.size())return src;
@@ -1671,7 +1686,7 @@ std::string CUtils::gConfigDir()
 
 #endif
 }
-#ifdef __MOBILE__
+//#ifdef __MOBILE__
 std::string CUtils::filesDir()
 {
     return m_files_dir;
@@ -1680,8 +1695,8 @@ void CUtils::setFilesDir(const std::string& s)
 {
     m_files_dir=s;
 }
-std::string m_files_dir;
-#endif
+//std::string m_files_dir;
+//#endif
 
 
 void CUtils::registerPluginDLL(const std::string& pn)

@@ -43,6 +43,7 @@
 #include "Events/System/Net/rpc/SubscribeNotifications.h"
 #include "Events/System/Net/http/GetBindPorts.h"
 #include "Events/DFS/Referrer/UpdateConfig.h"
+#include <algorithm>
 
 
 #include "events_referrerClient.hpp"
@@ -73,6 +74,7 @@ Service::Service(const SERVICE_id &svs, const std::string&  nm, IInstance* ifa):
 
 
 {
+    XTRY;
 
     MUTEX_INSPECTOR;
     try
@@ -93,6 +95,7 @@ Service::Service(const SERVICE_id &svs, const std::string&  nm, IInstance* ifa):
         logErr2("exception: %s %s %d",e.what(),__FILE__,__LINE__);
         throw;
     }
+    XPASS;
 }
 bool  Service::on_startService(const systemEvent::startService* )
 {
@@ -126,7 +129,9 @@ Service::~Service()
 
 UnknownBase* Service::construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa)
 {
+    XTRY;
     return new Service(id,nm,ifa);
+    XPASS;
 }
 
 void registerReferrerClientService(const char* pn)
@@ -152,6 +157,9 @@ bool Service::on_ConnectFailed(rpcEvent::ConnectFailed const* e)
 {
     MUTEX_INSPECTOR;
     S_LOG("on_ConnectFailed");
+    /**
+      Для центрального сервера никаких реконнектов нет
+      */
 
     msockaddr_in destination_addr=e->destination_addr;
     DBG(log(TRACE_log,"DFSREferrer::Service::on_ConnectFailed %s (%s %d)",destination_addr.dump().c_str(),__FILE__,__LINE__));
@@ -337,10 +345,17 @@ bool Service::handleEvent(const REF_getter<Event::Base>& ev)
         {
             /// TODO
             //uplinkConnectionState->
+            logErr2("if(e->referrer_addresses.size()==0) %s\n %s",__PRETTY_FUNCTION__,e->dump().toStyledString().c_str());
         }
         else
         {
+            std::vector<msockaddr_in> sas;
             for(auto i:e->referrer_addresses)
+            {
+                sas.push_back(i);
+            }
+            std::random_shuffle(sas.begin(),sas.end());
+            for(auto i:sas)
             {
                 sendEvent(i,ServiceEnum::DFSReferrer,
                           new dfsReferrerEvent::Ping(dfsReferrer::PingType::PT_CACHED, iInstance->globalCookie(),
@@ -857,7 +872,7 @@ bool Service::on_connectionEstablished(const msockaddr_in& remote_addr)
 
     for(auto &i:m_readyNotificationBackroutes)
     {
-        log(ERROR_log,"m_readyNotificationBackroutes %s",i.dump().c_str());
+//        log(ERROR_log,"m_readyNotificationBackroutes %s",i.dump().c_str());
         REF_getter<Event::Base> z=new dfsReferrerEvent::NotifyReferrerUplinkIsConnected(remote_addr,poppedFrontRoute(i));
         passEvent(z);
         //logErr2("pass %s",z->dump().c_str());

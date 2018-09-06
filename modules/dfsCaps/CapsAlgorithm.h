@@ -61,12 +61,12 @@ class CapsAlgorithm
 {
 public:
 
-    std::map<time_t,std::map<int/*AF*/,referrerContainer> > rcontainers;
+    std::map<time_t,referrerContainer> rcontainers;
 
     void addReferrer(double lat,double lon, const msockaddr_in& sa, int downlinkCount);
 
 //    static double cmp_lat,cmp_lon;
-    std::vector<REF_getter<referrerItem> > findReferrers(double lat, double lon, int addressFamily);
+    std::vector<REF_getter<referrerItem> > findReferrers(double lat,double lon);
 
     CapsAlgorithm();
 };

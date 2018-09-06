@@ -41,11 +41,9 @@ public:
     st_AES_impl();
     ~st_AES_impl();
     void init(const std::string &key);
-    std::string encrypt(const std::string& buf_);
-    std::string decrypt(const std::string& buf);
+    REF_getter<refbuffer> encrypt(const REF_getter<refbuffer>& buf_);
+    REF_getter<refbuffer> decrypt(const REF_getter<refbuffer>& buf);
     std::string generateRandomKey();
-    void encrypt(unsigned char*buf, size_t size);
-    void decrypt(unsigned char*buf, size_t size);
 
 };
 class C_ssl: public I_ssl

@@ -145,7 +145,7 @@ bool OscarSecure::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                 case OscarSecure::SB_SINGLEPACKET_AES:
                 {
                     REF_getter<User> u=__m_users->find_throw(evt->esi->m_id);
-                    std::string buf=u->aes.decrypt(req);
+                    REF_getter<refbuffer> buf=u->aes.decrypt(toRef(req));
                     if(u->isServer)
                     {
                         passEvent(new oscarEvent::PacketOnAcceptor(evt->esi,buf,evt->route));
@@ -279,7 +279,9 @@ bool OscarSecure::Service::on_NotifyBindAddress(const socketEvent::NotifyBindAdd
 
 UnknownBase* OscarSecure::Service::construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa)
 {
+    XTRY;
     return new Service(id,nm,ifa);
+    XPASS;
 }
 
 void OscarSecure::Service::sendPacketPlain(const OscarSecure::StartByte& startByte, const REF_getter<epoll_socket_info>& esi, const outBuffer &o)
@@ -291,7 +293,7 @@ void OscarSecure::Service::sendPacketPlain(const OscarSecure::StartByte& startBy
     esi->write_(O2.asString()->asString());
     XPASS;
 }
-void OscarSecure::Service::sendPacketPlain(const OscarSecure::StartByte& startByte, const REF_getter<epoll_socket_info>& esi, const std::string &o)
+void OscarSecure::Service::sendPacketPlain(const OscarSecure::StartByte& startByte, const REF_getter<epoll_socket_info>& esi, const REF_getter<refbuffer> &o)
 {
     XTRY;
     outBuffer O2;
@@ -382,6 +384,10 @@ bool OscarSecure::Service::on_Connected(const socketEvent::Connected*e)
 }
 bool OscarSecure::Service::on_startService(const systemEvent::startService* )
 {
+    if(iUtils->isServiceRegistered(ServiceEnum::WebHandler))
+    {
+        sendEvent(ServiceEnum::WebHandler, new webHandlerEvent::RegisterHandler("oscarSecure","OscarSecure",ListenerBase::serviceId));
+    }
 
     return true;
 }
@@ -428,7 +434,25 @@ bool OscarSecure::Service::handleEvent(const REF_getter<Event::Base>& e)
     if(systemEventEnum::startService==ID)
         return on_startService((const systemEvent::startService*)e.operator->());
 
+    if(systemEventEnum::startService==ID)
+        return on_startService((const systemEvent::startService*)e.operator->());
+    if(webHandlerEventEnum::RequestIncoming==ID)
+        return on_RequestIncoming((const webHandlerEvent::RequestIncoming*)e.operator->());
+
     XPASS;
     return false;
 
+}
+bool OscarSecure::Service::on_RequestIncoming(const webHandlerEvent::RequestIncoming* e)
+{
+
+    HTTP::Response cc;
+    cc.content+="<h1>OscarSecure report</h1><p>";
+
+    Json::Value v=jdump();
+    Json::StyledWriter w;
+    cc.content+="<pre>\n"+w.write(v)+"\n</pre>";
+
+    cc.makeResponse(e->esi);
+    return true;
 }

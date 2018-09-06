@@ -21,9 +21,6 @@
 #include "logging.h"
 #include "_bitStream.h"
 #include <algorithm>
-#include "NetRec.h"
-#include "NetTreeRoute.h"
-#include "NetTreeNode.h"
 #include "Events/System/Run/startService.h"
 #include "Events/Tools/webHandler/RequestIncoming.h"
 #include "Events/System/timer/TickAlarm.h"
@@ -33,11 +30,17 @@
 #include "Events/DFS/Referrer/ToplinkDeliver.h"
 #include "Events/System/Net/rpc/IncomingOnAcceptor.h"
 #include "Events/System/Net/rpc/IncomingOnConnector.h"
-
+#include "DBH.h"
+#include "CapsAlgorithm.h"
+//#include "CapsGeoIP.h"
 #include "timerHelper.h"
 struct ServiceNode;
 
 #define GET_SERVICE_NODE_LIMIT 50
+#define IPDATA "ipdata.txt"
+
+
+
 namespace dfsCaps
 {
 
@@ -61,13 +64,13 @@ namespace dfsCaps
 
         IInstance* iInstance;
 
-        std::map<time_t,std::set<msockaddr_in> > nodes;
-
-
+        CapsAlgorithm algo;
     public:
         Service(const SERVICE_id &svs, const std::string&  nm,IInstance* _ifa);
         static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm, IInstance* _ifa);
         ~Service();
+
+        std::string dbname;
     };
 }
 

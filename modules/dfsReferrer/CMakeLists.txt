@@ -6,7 +6,7 @@ add_library(dfs-referrer SHARED
 ../../corelib/sqlite3Wrapper.cpp
 dfsReferrer.cpp
 dfsReferrerService.cpp
-neighbours.cpp
+#neighbours.cpp
 uplinkconnectionstate.cpp
 uriReferals.cpp
 

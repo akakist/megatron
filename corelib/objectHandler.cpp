@@ -80,7 +80,7 @@ void ObjectHandlerThreaded::sendEvent(const SERVICE_id & dstService, const REF_g
 {
     objectProxy->sendObjectRequest(dstService,e);
 }
-ObjectHandlerPolled::ObjectHandlerPolled(const char *name,IInstance* _if)
+ObjectHandlerPolled::ObjectHandlerPolled(const std::string &name, IInstance* _if)
     :ObjectHandler(name,ObjectHandler::POLLED,_if),
      objectProxy(static_cast<IObjectProxyPolled*>
                  (_if->getServiceOrCreate(ServiceEnum::ObjectProxyPolled)->cast(UnknownCast::IObjectProxyPolled)))
@@ -89,7 +89,7 @@ ObjectHandlerPolled::ObjectHandlerPolled(const char *name,IInstance* _if)
     objectProxy->addObjectHandler(this);
     XPASS;
 }
-ObjectHandlerThreaded::ObjectHandlerThreaded(const char *name, IInstance *_if)
+ObjectHandlerThreaded::ObjectHandlerThreaded(const std::string& name, IInstance *_if)
     :ObjectHandler(name,ObjectHandler::THREADED,_if),
      objectProxy(static_cast<IObjectProxyThreaded*>
                  (_if->getServiceOrCreate(ServiceEnum::ObjectProxyThreaded)->cast(UnknownCast::IObjectProxyThreaded)))

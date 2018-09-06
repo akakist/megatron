@@ -6,7 +6,7 @@
 namespace dfsReferrerEvent {
     class UpdateConfigREQ: public Event::Base
     {
-        enum {channel=CHANNEL_100};
+        enum {rpcChannel=CHANNEL_100};
 
     public:
         static Base* construct(const route_t &r)
@@ -14,9 +14,9 @@ namespace dfsReferrerEvent {
             return new UpdateConfigREQ(r);
         }
         UpdateConfigREQ(const route_t& r)
-            :Base(dfsReferrerEventEnum::UpdateConfigREQ,channel,"UpdateConfigREQ",r) {}
+            :Base(dfsReferrerEventEnum::UpdateConfigREQ,rpcChannel,"UpdateConfigREQ",r) {}
         UpdateConfigREQ(const std::string &_body,  const route_t &r)
-            :Base(dfsReferrerEventEnum::UpdateConfigREQ,channel,"UpdateConfigREQ",r),
+            :Base(dfsReferrerEventEnum::UpdateConfigREQ,rpcChannel,"UpdateConfigREQ",r),
              body(_body) {}
         std::string body;
         void unpack(inBuffer& o)
@@ -37,7 +37,7 @@ namespace dfsReferrerEvent {
 
     class UpdateConfigRSP: public Event::Base
     {
-        enum {channel=CHANNEL_100};
+        enum {rpcChannel=CHANNEL_100};
 
     public:
         static Base* construct(const route_t &r)
@@ -45,9 +45,9 @@ namespace dfsReferrerEvent {
             return new UpdateConfigRSP(r);
         }
         UpdateConfigRSP(const route_t& r)
-            :Base(dfsReferrerEventEnum::UpdateConfigRSP,channel,"UpdateConfigRSP",r) {}
+            :Base(dfsReferrerEventEnum::UpdateConfigRSP,rpcChannel,"UpdateConfigRSP",r) {}
         UpdateConfigRSP(const std::string &_body,  const route_t &r)
-            :Base(dfsReferrerEventEnum::UpdateConfigRSP,channel,"UpdateConfigRSP",r),
+            :Base(dfsReferrerEventEnum::UpdateConfigRSP,rpcChannel,"UpdateConfigRSP",r),
              body(_body) {}
         std::string body;
         void unpack(inBuffer& o)

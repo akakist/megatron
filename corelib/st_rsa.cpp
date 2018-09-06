@@ -5,25 +5,25 @@
 
 
 
-std::string st_AES::encrypt(const std::string& buf)
+REF_getter<refbuffer> st_AES::encrypt(const REF_getter<refbuffer> &buf)
 {
     return impl->encrypt(buf);
 }
 
 
-std::string st_AES::decrypt(const std::string& buf)
+REF_getter<refbuffer> st_AES::decrypt(const REF_getter<refbuffer> &buf)
 {
     return impl->decrypt(buf);
 }
 
 
 
-void st_AES::encrypt(unsigned char *buf, size_t size) {
-    impl->encrypt(buf,size);
-}
-void st_AES::decrypt(unsigned char *buf, size_t size) {
-    impl->decrypt(buf,size);
-}
+//void st_AES::encrypt(unsigned char *buf, size_t size) {
+//    impl->encrypt(buf,size);
+//}
+//void st_AES::decrypt(unsigned char *buf, size_t size) {
+//    impl->decrypt(buf,size);
+//}
 
 std::string st_AES::generateRandomKey() {
     return impl->generateRandomKey();

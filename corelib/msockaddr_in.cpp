@@ -216,14 +216,14 @@ std::pair<std::set<std::string>,std::set<std::string> > msockaddr_in::getAddrInf
 
 
     memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_UNSPEC; 
+    hints.ai_family = AF_UNSPEC; // AF_INET или AF_INET6 для указания версии протокола
     hints.ai_socktype = SOCK_STREAM;
 
     if ((status = getaddrinfo(host.c_str(), NULL, &hints, &res)) != 0) {
         throw CommonError("getaddrinfo: %sn", gai_strerror(status));
     }
 
-    printf("IP addresses for %s:\n", host.c_str());
+//    printf("IP addresses for %s:\n", host.c_str());
     std::set<std::string> ipv4;
     std::set<std::string> ipv6;
 
@@ -232,18 +232,45 @@ std::pair<std::set<std::string>,std::set<std::string> > msockaddr_in::getAddrInf
         char *ipver;
 
 
+        // получаем указатель на адрес, по разному в разных протоколах
         if (p->ai_family == AF_INET) { // IPv4
             struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
             addr = &(ipv4->sin_addr);
             ipver = "IPv4";
+            //for(int i=0;i<4;i++)
+            {
+                auto addr=inet_ntoa(ipv4->sin_addr);
+//                logErr2("addr %s",addr);
+//                unsigned int a[4];
+//                a[0]=addr>>24 & 0xff;
+//                a[1]=addr>>16 & 0xff;
+//                a[2]=addr>>8 & 0xff;
+//                a[3]=addr>>0 & 0xff;
+//                for(int i=0;i<4;i++)
+//                {
+//                    logErr2("a %02x",a[i]);
+//                }
+            }
         } else { // IPv6
             struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)p->ai_addr;
             addr = &(ipv6->sin6_addr);
+            for(int i=0;i<16;i++)
+            {
+#ifdef __MACH__
+
+//                logErr2("A %02x",(unsigned char)ipv6->sin6_addr.__u6_addr.__u6_addr8[i]);
+#else
+
+//                logErr2("A %02x",(unsigned char)ipv6->sin6_addr.__in6_u.__u6_addr8[i]);
+#endif
+
+            }
             ipver = "IPv6";
         }
 
+        // преобразуем IP в строку и выводим его:
         inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
-        printf("  %s: %s\n", ipver, ipstr);
+//        printf("  %s: %s\n", ipver, ipstr);
         if(p->ai_family == AF_INET)
             ipv4.insert(ipstr);
         else

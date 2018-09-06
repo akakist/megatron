@@ -85,7 +85,7 @@ void MainWindow::printLine(size_t n, const std::vector<QPoint>& ls, bool isLeft)
     QFile file(fn);
     if(!file.open(QIODevice::WriteOnly))
     {
-        QMessageBox::warning(this,"Error",tr("Write open failed\n%1").arg(fn));
+        QMessageBox::warning(this,"Ошибка",tr("Невзможно открыть на запись\n%1").arg(fn));
         return;
     }
     file.setTextModeEnabled(false);

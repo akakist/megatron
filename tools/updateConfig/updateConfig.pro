@@ -451,14 +451,7 @@ HEADERS  += mainwindow.h \
     ../../../megatron/modules/common/linkinfo.h \
     ../../../megatron/corelib/linkinfo.h \
     ../../../megatron/modules/dfsCaps/dfsCapsService.h \
-    ../../../megatron/modules/dfsCaps/NetRec.h \
-    ../../../megatron/modules/dfsCaps/NetTreeNode.h \
-    ../../../megatron/modules/dfsCaps/NetTreeRoute.h \
     ../../../megatron/corelib/_bitStream.h \
-    ../../../megatron/Events/DFS/Referrer/NotifyReferrerDownlinkConnected.h \
-    ../../../megatron/Events/DFS/Referrer/NotifyReferrerDownlinkDisconnected.h \
-    ../../../megatron/Events/DFS/Referrer/NotifyReferrerUplinkIsDisconnected.h \
-    ../../../megatron/Events/DFS/Referrer/NotifyReferrerUplinkIsConnected.h \
     ../../../megatron/Events/DFS/Caps/RegisterMyRefferrer.h \
     ../../../megatron/Events/DFS/Caps/GetRefferrers.h \
     ../../../megatron/modules/referrerClient/referrerClientService.h \

@@ -37,6 +37,7 @@ namespace SocketIO
         e_poll m_epoll;
 #endif
 #ifdef HAVE_KQUEUE
+        //k_queue m_kqueue;
         int m_kqueue;
         std::vector<struct kevent> evSet;
 #endif
@@ -78,6 +79,17 @@ namespace SocketIO
             v["total_accepted"]=iUtils->toString(m_total_accepted);
             v["listen_backlog"]=(int)m_listen_backlog;
             v["sockets"]=m_socks->jdump();
+            v["maxOutBufferSize"]=iUtils->toString(maxOutBufferSize);
+#ifdef HAVE_EPOLL
+            v["epoll_size"]=iUtils->toString(epoll_size);
+            v["epoll_timeout_millisec"]=iUtils->toString(epoll_timeout_millisec);
+#endif
+#ifdef HAVE_KQUEUE
+            v["kqueue_size"]=iUtils->toString(kqueue_size);
+            v["kqueue_timeout_millisec"]=iUtils->toString(kqueue_timeout_millisec);
+#endif
+            v["sockets"]=m_socks->jdump();
+
             return v;
         }
         int64_t m_total_recv, m_total_send,m_total_accepted;
@@ -91,11 +103,15 @@ namespace SocketIO
         int64_t m_listen_backlog;
         const int64_t maxOutBufferSize;
 #ifdef HAVE_EPOLL
+        /// конфигурационный параметр
         int epoll_size;
+        /// конфигурационный параметр
         int epoll_timeout_millisec;
 #endif
 #ifdef HAVE_KQUEUE
+        /// конфигурационный параметр
         int kqueue_size;
+        /// конфигурационный параметр
         int kqueue_timeout_millisec;
 #endif
 

@@ -6,7 +6,7 @@ add_library(ReferrerClient SHARED
 
 referrerClient.cpp
 referrerClientService.cpp
-../dfsReferrer/neighbours.cpp
+#../dfsReferrer/neighbours.cpp
 
 )
 target_link_libraries(ReferrerClient megatron-core sqlite3 pthread)

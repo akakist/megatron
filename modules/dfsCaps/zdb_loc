@@ -1,0 +1,23 @@
+drop table if exists city_loc;
+
+create table if not exists city_loc
+(
+    geoname_id varchar(100),
+    locale_code varchar(100),
+    continent_code varchar(100),
+    continent_name varchar(100),
+    country_iso_code varchar(100),
+    country_name varchar(100),
+    subdivision_1_iso_code varchar(100),
+    subdivision_1_name varchar(100),
+    subdivision_2_iso_code varchar(100),
+    subdivision_2_name varchar(100),
+    city_name varchar(100),
+    metro_code varchar(100),
+    time_zone varchar(100),
+    is_in_european_union varchar(100)
+);
+LOAD DATA INFILE '/tmp/GeoLite2-City-Locations-en.csv' INTO TABLE city_loc
+  FIELDS TERMINATED BY ',' ENCLOSED BY '"'
+  LINES TERMINATED BY '\n'
+  IGNORE 1 LINES;

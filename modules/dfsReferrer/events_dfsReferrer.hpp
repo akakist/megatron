@@ -11,7 +11,6 @@ inline std::set<EVENT_id> getEvents_dfsReferrer()
 	out.insert(dfsCapsEventEnum::RegisterMyRefferrerREQ);
 	out.insert(dfsReferrerEventEnum::Elloh);
 	out.insert(dfsReferrerEventEnum::Hello);
-	out.insert(dfsReferrerEventEnum::NotifyReferrerDownlinkConnected);
 	out.insert(dfsReferrerEventEnum::NotifyReferrerDownlinkDisconnected);
 	out.insert(dfsReferrerEventEnum::NotifyReferrerUplinkIsConnected);
 	out.insert(dfsReferrerEventEnum::NotifyReferrerUplinkIsDisconnected);
@@ -20,6 +19,7 @@ inline std::set<EVENT_id> getEvents_dfsReferrer()
 	out.insert(dfsReferrerEventEnum::SubscribeNotifications);
 	out.insert(dfsReferrerEventEnum::ToplinkDeliverREQ);
 	out.insert(dfsReferrerEventEnum::ToplinkDeliverRSP);
+	out.insert(dfsReferrerEventEnum::ToplinkDeliverRSP2Node);
 	out.insert(dfsReferrerEventEnum::UpdateConfigREQ);
 	out.insert(dfsReferrerEventEnum::UpdateConfigRSP);
 	out.insert(rpcEventEnum::Accepted);
@@ -53,7 +53,6 @@ inline void regEvents_dfsReferrer()
 	iUtils->registerEvent(dfsCapsEvent::RegisterMyRefferrerREQ::construct);
 	iUtils->registerEvent(dfsReferrerEvent::Elloh::construct);
 	iUtils->registerEvent(dfsReferrerEvent::Hello::construct);
-	iUtils->registerEvent(dfsReferrerEvent::NotifyReferrerDownlinkConnected::construct);
 	iUtils->registerEvent(dfsReferrerEvent::NotifyReferrerDownlinkDisconnected::construct);
 	iUtils->registerEvent(dfsReferrerEvent::NotifyReferrerUplinkIsConnected::construct);
 	iUtils->registerEvent(dfsReferrerEvent::NotifyReferrerUplinkIsDisconnected::construct);
@@ -62,6 +61,7 @@ inline void regEvents_dfsReferrer()
 	iUtils->registerEvent(dfsReferrerEvent::SubscribeNotifications::construct);
 	iUtils->registerEvent(dfsReferrerEvent::ToplinkDeliverREQ::construct);
 	iUtils->registerEvent(dfsReferrerEvent::ToplinkDeliverRSP::construct);
+	iUtils->registerEvent(dfsReferrerEvent::ToplinkDeliverRSP2Node::construct);
 	iUtils->registerEvent(dfsReferrerEvent::UpdateConfigREQ::construct);
 	iUtils->registerEvent(dfsReferrerEvent::UpdateConfigRSP::construct);
 	iUtils->registerEvent(rpcEvent::Accepted::construct);
@@ -73,10 +73,8 @@ inline void regEvents_dfsReferrer()
 	iUtils->registerEvent(rpcEvent::IncomingOnAcceptor::construct);
 	iUtils->registerEvent(rpcEvent::IncomingOnConnector::construct);
 	iUtils->registerEvent(rpcEvent::SubscribeNotifications::construct);
-#if !defined(WITHOUT_UPNP)
-        iUtils->registerEvent(rpcEvent::UpnpPortMap::construct);
+	iUtils->registerEvent(rpcEvent::UpnpPortMap::construct);
 	iUtils->registerEvent(rpcEvent::UpnpResult::construct);
-#endif
 	iUtils->registerEvent(systemEvent::startService::construct);
 	iUtils->registerEvent(telnetEvent::CommandEntered::construct);
 	iUtils->registerEvent(telnetEvent::RegisterCommand::construct);

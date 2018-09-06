@@ -1,7 +1,6 @@
 #ifndef ___RPC_EV1_H4bb
 #define ___RPC_EV1_H4bb
 #include "___rpcEvent.h"
-#if !defined(WITHOUT_UPNP)
 namespace rpcEvent{
 
 class UpnpResult: public Event::NoPacked
@@ -21,5 +20,4 @@ public:
 };
 
 }
-#endif
 #endif

@@ -188,16 +188,16 @@ UnknownBase * CInstance::getServiceOrCreate(const SERVICE_id& svs)
 
 void CInstance::forwardEvent(const SERVICE_id& svs,  const REF_getter<Event::Base>&e)
 {
-    MUTEX_INSPECTOR;
+    MUTEX_INSPECTOR; /// TODO
     //if(isTerminating()) return ;
 
     XTRY;
     try
     {
-        MUTEX_INSPECTOR;
+        MUTEX_INSPECTOR; /// TODO
         UnknownBase *u=NULL;
         {
-            MUTEX_INSPECTOR;
+            MUTEX_INSPECTOR; /// TODO
             XTRY;
             M_LOCK(services);
             std::map<SERVICE_id,UnknownBase* >  &c=services.container;
@@ -224,7 +224,7 @@ void CInstance::forwardEvent(const SERVICE_id& svs,  const REF_getter<Event::Bas
         }
         if(u)
         {
-            MUTEX_INSPECTOR;
+            MUTEX_INSPECTOR; /// TODO
             XTRY;
             ((ListenerBase*) u->cast(UnknownCast::listener))->listenToEvent(e);
             XPASS;
@@ -408,7 +408,7 @@ void CInstance::deinitServices()
     for(std::map<SERVICE_id,UnknownBase* >::iterator i=svs.begin(); i!=svs.end(); i++)
     {
         UnknownBase* u=i->second;
-        logErr2("deleting service %s",u->classname.c_str());
+        printf("deleting service %s\n",u->classname.c_str());
         try {
             delete u;
         }
