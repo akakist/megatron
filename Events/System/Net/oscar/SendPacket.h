@@ -4,24 +4,26 @@
 namespace oscarEvent
 {
 
-class SendPacket: public Event::NoPacked
-{
-public:
-    static Base* construct(const route_t &)
+/// послать евент в оскар
+    class SendPacket: public Event::NoPacked
     {
-        return NULL;
-    }
-    SendPacket(const SOCKET_id& _sock, const std::string &_buf, const route_t& r)
-        :NoPacked(oscarEventEnum::SendPacket,"oscarSendPacket",r),
-         socketId(_sock), buf(_buf) {}
+    public:
+        static Base* construct(const route_t &)
+        {
+            return NULL;
+        }
+        SendPacket(const SOCKET_id& _sock, const REF_getter<refbuffer> &_buf, const route_t& r)
+            :NoPacked(oscarEventEnum::SendPacket,r),
+             socketId(_sock), buf(_buf) {}
 
-    const SOCKET_id socketId;
+        /// сокет
+        const SOCKET_id socketId;
 
-    /// buffer
-    const std::string buf;
-    void jdump(Json::Value &) const
-    {
-    }
-};
+        /// buffer
+        const REF_getter<refbuffer> buf;
+        void jdump(Json::Value &) const
+        {
+        }
+    };
 }
 #endif
