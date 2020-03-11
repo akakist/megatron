@@ -8,7 +8,6 @@
 
 
 /// rational numbers, tried to solve serialization problem in form num/denum, but no performed
-///
 class Rational
 {
 public:

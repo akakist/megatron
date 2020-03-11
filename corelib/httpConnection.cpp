@@ -1,5 +1,7 @@
 #define _FILE_OFFSET_BITS 64
+#ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
+#endif
 
 #include <stdlib.h>
 #ifndef _WIN32
@@ -110,23 +112,23 @@ std::string HTTP::make_http_header(const int code,std::map<std::string,std::stri
 {
     std::string a("HTTP/1.1 ");
     std::string res=get_name_of_http_code(code);
-    a+=iUtils->toString(code)+" "+res+"\r\n";
+    a+=std::to_string(code)+" "+res+"\r\n";
     if(!pr.count(("Server")))
         a+="Server: servak\r\n";
     if (!pr.count("Connection"))
     {
         pr["Connection"]="close";
     }
-    for (std::map<std::string,std::string>::const_iterator i=pr.begin(); i!=pr.end(); i++)
+    for (auto& i:pr)
     {
-        a+=i->first+": "+i->second+"\r\n";
+        a+=i.first+": "+i.second+"\r\n";
     }
     return a;
 }
 std::string HTTP::Response::build_html_response()
 {
     std::string ret;
-    ret += "HTTP/1.1 " + iUtils->toString(http_code) + " " + HTTP::get_name_of_http_code(http_code) + "\r\n";
+    ret += "HTTP/1.1 " + std::to_string(http_code) + " " + HTTP::get_name_of_http_code(http_code) + "\r\n";
     if (http_content_type != "")
     {
         std::string r = http_content_type;
@@ -138,20 +140,20 @@ std::string HTTP::Response::build_html_response()
         http_header_out["Connection"] = "close";
 
     http_header_out["Server"] = "Web Server";
-    http_header_out["Content-Length"] = iUtils->toString(int64_t(content.size()));
+    http_header_out["Content-Length"] = std::to_string(content.size());
 
-    for (std::map<std::string,std::string>::const_iterator i = http_header_out.begin(); i != http_header_out.end(); i++)
+    for (auto& i: http_header_out)
     {
-        ret += i->first + ": " + i->second + "\r\n";
+        ret += i.first + ": " + i.second + "\r\n";
     }
     if (out_cookies.size())
     {
-        for (std::map<std::string,std::string>::const_iterator i = out_cookies.begin(); i != out_cookies.end(); i++)
+        for (auto& i: out_cookies)
         {
             std::string r;
-            r += "Set-Cookie: "+i->first;
+            r += "Set-Cookie: "+i.first;
             r += "=";
-            r += i->second;
+            r += i.second;
             r += "; path=/\r\n";
             ret+=r;
 

@@ -1,18 +1,15 @@
-#ifndef _________________CUTILS____H_HHH
-#define _________________CUTILS____H_HHH
-#include <vector>
-#include <string>
-#include <map>
-#include <deque>
-#include <set>
-#include "IUtils.h"
-#include "mutexable.h"
-#include "threadNameCtl.h"
-#include "commonError.h"
-#include "mutexInspector.h"
-#include "version_mega.h"
-#include "ITests.h"
+#ifndef _________________CUTILS____H_HHH1
+#define _________________CUTILS____H_HHH1
+#ifndef _WIN32
+#include <dlfcn.h>
+#include <IUtils.h>
+#include <CapsId.h>
+
+#endif
+
+#include "colorOutput.h"
 #include "utils_local.h"
+#include "Real.h"
 
 class CUtils: public IUtils
 {
@@ -28,7 +25,6 @@ public:
     {}
     ~CUtils();
 
-//#if !defined __MOBILE__
 
     std::map<std::string,std::string> loadStringMapFromFile(const std::string& pathname);
     std::map<std::string,std::string> loadStringMapFromBuffer(const std::string &body, const char *linedelim);
@@ -40,7 +36,6 @@ public:
     std::string expand_homedir(const std::string& base);
 
     std::string findExecutable(const std::string& _fn);
-//#endif
     std::set < std::string> splitStringSET(const char *seps, const std::string & src);
     std::vector < std::string> splitString(const char *seps, const std::string & src);
     std::deque < std::string> splitStringDQ(const char *seps, const std::string & src);
@@ -48,22 +43,6 @@ public:
     std::string join(const char* sep,const std::vector<std::string>& );
     std::string join(const char *pattern, const std::set < std::string> &st);
     std::string trim(const std::string &s);
-    std::string toString(int64_t i);
-    std::string toString(uint64_t i);
-    std::string toString(int32_t i);
-    std::string toString(uint32_t i);
-    std::string toString(int16_t i);
-    std::string toString(uint16_t i);
-    std::string toString(int8_t i);
-    std::string toString(uint8_t i);
-#ifdef __MACH__
-    std::string toString(size_t i);
-#endif
-    std::string toString(real i);
-    std::string toString(const std::pair<int64_t,int64_t> &i);
-
-
-
 
     std::string strupper(const std::string &s);
     std::string strlower(const std::string & s);
@@ -75,7 +54,6 @@ public:
     std::string  Base64Decode(const std::string&);
     std::string  hex2bin(const std::string&);
     std::string  bin2hex(const std::string&);
-//    std::string bin2escaped(const std::string & in);
     std::string uriEncode(const std::string & sSrc);
     std::string uriDecode(const std::string & sSrc);
 
@@ -110,7 +88,6 @@ public:
     bool readable_fd(const REF_getter<epoll_socket_info>& esi,int sec, int usec);
     bool writeable_fd(const REF_getter<epoll_socket_info>& esi, int timeout_sec, int timeout_usec);
 
-//#ifndef _WIN32
 #ifdef __WITH_ZLIB
     REF_getter<refbuffer>  zcompress(const REF_getter<refbuffer>& data);
     REF_getter<refbuffer>  zexpand(const REF_getter<refbuffer>& data);
@@ -127,10 +104,7 @@ public:
 
     std::string makeSlug(const std::string& s);
 
-//////////////
     SOCKET_id getSocketId();
-    void ungetSocketId(const SOCKET_id& s);
-    size_t getSocketCount();
 
     IThreadNameController* getIThreadNameController();
 
@@ -143,14 +117,22 @@ public:
 
     void registerITest(const VERSION_id& vid,const SERVICE_id& id, itest_static_constructor p);
 
-    std::vector<itest_static_constructor> getAllITests();
+    std::map<SERVICE_id, itest_static_constructor> getAllITests();
 
 
-    const std::string m_app_name;
+    Mutex m_app_name_mx;
+    std::string m_app_name;
     const std::string app_name()
     {
+        M_LOCK(m_app_name_mx);
         return m_app_name;
     }
+    void set_app_name(const std::string& an)
+    {
+        M_LOCK(m_app_name_mx);
+        m_app_name=an;
+    }
+
 
     std::string gCacheDir();
     std::string gLogDir();
@@ -172,7 +154,6 @@ public:
         {
             CONTAINER(gen)=0L;
         }
-        std::set<SOCKET_id> usedItems;
         SOCKET_id get()
         {
             M_LOCK(this);
@@ -180,15 +161,10 @@ public:
             if(CONTAINER(gen)<=0) CONTAINER(gen)=1;
             return gen;
         }
-        void unget(const SOCKET_id& id)
-        {
-            M_LOCK(this);
-            usedItems.erase(id);
-        }
         size_t size()
         {
             M_LOCK(this);
-            return usedItems.size();
+            return 0;
         }
 
 
@@ -197,7 +173,7 @@ public:
     __sockIdGen sockIdGen;
 
 
-    void registerPlugingInfo(const VERSION_id& version, const char* pluginFileName, PluginType pt, const SERVICE_id &id, const char* name);
+    void registerPlugingInfo(const VERSION_id& version, const char* pluginFileName, PluginType pt, const SERVICE_id &id, const char* name, const std::set<EVENT_id>& evts);
     void registerPluginDLL(const std::string& pn);
 
     void registerService(const VERSION_id&, const SERVICE_id& id, unknown_static_constructor cs, const std::string& literalName);
@@ -221,23 +197,37 @@ public:
     void removeWebDumpableHandler(WebDumpable *h);
     std::string dumpWebDumpable(WebDumpable* h);
 
-//#ifdef __MOBILE__
     std::string filesDir();
     void setFilesDir(const std::string& s);
     std::string m_files_dir;
-//#endif
 
 
     Utils_local *getLocals();
     struct __instances: public Mutexable
     {
         std::set<IInstance*> container;
+        void clear()
+        {
+            std::set<IInstance*> ins;
+
+            {
+                M_LOCK(this);
+                ins=container;
+                container.clear();
+            }
+            for(auto z: ins)
+            {
+                printf(BLUE("deleting instance"));
+                delete z;
+            }
+
+        }
     };
     __instances instances;
     std::set<IInstance*> getInstances();
     void registerInstance(IInstance *i);
     void unregisterInstance(IInstance *i);
-    IInstance* createNewInstance();
+    IInstance* createNewInstance(const std::string& name);
 
     bool m_isTerminating;
     void setTerminate();
@@ -246,13 +236,88 @@ public:
     void load_plugins_info(const std::set<std::string>& bases);
 
     REF_getter<_addrInfos> m_addrInfos;
-    REF_getter<_addrInfos> getAddrInfos(){return m_addrInfos;}
+    REF_getter<_addrInfos> getAddrInfos() {
+        return m_addrInfos;
+    }
 
     struct _registered_dlls: public Mutexable
     {
+#ifdef _WIN32
+        std::set<HMODULE> registered_dlls;
+#else
         std::set<void*> registered_dlls;
+#endif
+        void clear()
+        {
+            M_LOCK(this);
+            for(auto h: registered_dlls)
+            {
+#ifdef _WIN32
+                FreeLibrary(h);
+#else
+                dlclose(h);
+#endif
+
+            }
+            registered_dlls.clear();
+
+        }
     };
     _registered_dlls registered_dlls;
+
+
+    std::set<pollable*> mx_pollables;
+    Mutex mutex_pollables;
+    void poll() {
+        std::set<pollable*> p;
+        {
+            M_LOCK(mutex_pollables);
+            p=mx_pollables;
+        }
+        for(auto &z :p)
+            z->poll();
+    }
+    void addPollable(pollable* p) {
+        M_LOCK(mutex_pollables);
+        mx_pollables.insert(p);
+
+    }
+    void removePollable(pollable* p)
+    {
+        M_LOCK(mutex_pollables);
+        mx_pollables.erase(p);
+
+    }
+    void clearPollable()
+    {
+
+        M_LOCK(mutex_pollables);
+        mx_pollables.clear();
+    }
+
+    struct _logPrefix: public Mutexable
+    {
+        std::map<pthread_t,std::deque<std::string> > container;
+    };
+    _logPrefix logPrefix;
+    void pushLogPrefix(const std::string& l)
+    {
+        M_LOCK(logPrefix);
+        logPrefix.container[pthread_self()].push_back(l);
+
+    }
+    void popLogPrefix()
+    {
+        M_LOCK(logPrefix);
+        logPrefix.container[pthread_self()].pop_back();
+    }
+    std::deque<std::string> getLogPrefix()
+    {
+        M_LOCK(logPrefix);
+        return logPrefix.container[pthread_self()];
+    }
+
+
 
 };
 #endif

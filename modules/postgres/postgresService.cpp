@@ -56,8 +56,6 @@ REF_getter<QueryResult>DBH_postgres::exec(const QUERY &query)
 
     while (1)
     {
-        //std::string sql=query.prepare();
-        //logErr2("query.prepare().c_str() %s",sql.c_str());
         PGresult *res=PQexecParams(dbh, query.query.c_str(), query.params.size(), NULL, paramValues, paramLengths, NULL, 0);
         //result status
         int rs=PQresultStatus(res);

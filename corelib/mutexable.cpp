@@ -1,4 +1,3 @@
-//#include "mutexable.h"
 #include "mutexInspector.h"
 Mutex::Mutex()
 {
@@ -46,7 +45,6 @@ MutexC::MutexC()
 void Mutex::lock() const
 {
     XTRY;
-//#define  DEBUG1z
 #ifdef _WIN32
     EnterCriticalSection((CRITICAL_SECTION*)&m_lock);
 #else
@@ -61,8 +59,6 @@ void Mutex::lock() const
             if(time(NULL)-start>10)
             {
                 throw CommonError("mutexlock timeout %s",iUtils->getIThreadNameController()->dump_mutex_inspectors().c_str());
-                //logErr2("mutexlock timeout %s",_DMI().c_str());
-                // start=time(NULL);
             }
             usleep(1000);
             continue;
@@ -81,7 +77,6 @@ void Mutex::lock() const
 void MutexC::lock() const
 {
     XTRY;
-//#define  DEBUG1z
 
 #ifdef DEBUG
     time_t start=time(NULL);
@@ -93,8 +88,6 @@ void MutexC::lock() const
             if(time(NULL)-start>10)
             {
                 throw CommonError("mutexlock timeout %s",iUtils->getIThreadNameController()->dump_mutex_inspectors().c_str());
-                //logErr2("mutexlock timeout %s",_DMI().c_str());
-                // start=time(NULL);
             }
             usleep(1000);
             continue;
@@ -115,14 +108,18 @@ void Mutex::unlock() const
 #ifdef _WIN32
     LeaveCriticalSection((CRITICAL_SECTION*)&m_lock);
 #else
-    if(pthread_mutex_unlock((pthread_mutex_t*)&m_lock))
-        throw CommonError("pthread_mutex_unlock: errno %d", errno);
+    int r=pthread_mutex_unlock((pthread_mutex_t*)&m_lock);
+#ifndef __FreeBSD__
+    if(r)
+        throw CommonError("pthread_mutex_unlock: errno %d %s r=%d", errno,strerror(errno),r);
+#endif
 #endif
 }
 void MutexC::unlock() const
 {
-    if(pthread_mutex_unlock((pthread_mutex_t*)&m_lock))
-        throw CommonError("pthread_mutex_unlock: errno %d", errno);
+    int r=pthread_mutex_unlock((pthread_mutex_t*)&m_lock);
+    if(r)
+        throw CommonError("pthread_mutex_unlock: errno %d %s", errno,strerror(errno));
 }
 Mutex::~Mutex()
 {
@@ -167,7 +164,6 @@ void Condition::timedwait(const mtimespec& ts) const
 #ifndef _WIN32
         if(errno!=ETIMEDOUT && errno!=0 && errno!=EAGAIN && errno!=ENOTSOCK)
         {
-//            throw CommonError
         }
 #else
         if(errno!=0)
@@ -195,8 +191,6 @@ void Condition::broadcast() const
 }
 Condition::~Condition()
 {
-    XTRY;
     if(pthread_cond_destroy((pthread_cond_t*)&m_cond))
         logErr2("pthread_cond_destroy: errno %d", errno);
-    XPASS;
 }

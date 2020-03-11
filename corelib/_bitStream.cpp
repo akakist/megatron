@@ -10,7 +10,7 @@
 inBitStream::inBitStream(const unsigned char* d, size_t siz) :  m_pos(0), m_size(siz), m_data(d),m_BitsRemainsInByte(8) { }
 inBitStream::inBitStream(const char* d, size_t siz) :  m_pos(0), m_size(siz), m_data(( unsigned char*)d),m_BitsRemainsInByte(8) { }
 
-inBitStream::inBitStream(const std::string& s) :  m_pos(0), m_size(s.size()) , m_data(( unsigned char*)s.data()),m_BitsRemainsInByte(8) { }
+inBitStream::inBitStream(const std::string& s) :  m_pos(0), m_size(s.size()), m_data(( unsigned char*)s.data()),m_BitsRemainsInByte(8) { }
 
 outBitStream& outBitStream::pack(const std::string& s)
 {

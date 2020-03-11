@@ -13,7 +13,6 @@
 struct pr_item:public Refcountable
 {
     route_t route;
-    //int level;
     pr_item() {
     }
 };
@@ -38,7 +37,6 @@ public:
         pthread_t pt=pthread_self();
         if(!m_items.count(pt))
         {
-            //throw CommonError("progressor getItem() not fount pthread "+_DMI());
             return NULL;
         }
         return m_items.find(pt)->second;

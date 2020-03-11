@@ -14,26 +14,26 @@ namespace dfsReferrer {
             return "_uplinkConnectionState";
         }
 
-        _uplinkConnectionState(bool isCapsServer,const std::set<msockaddr_in> & _saCaps):
-            m_isCapsServer(isCapsServer),
+        _uplinkConnectionState(bool isTopServer,const std::set<msockaddr_in> & _saCaps):
+            m_isTopServer(isTopServer),
 //            getServiceSent(false),
             saCapsFromConfig(_saCaps),
             connectionEstablished(false),
             nodeLevelInHierarhy(0)
         {}
-        _uplinkConnectionState(bool isCapsServer):
-            m_isCapsServer(isCapsServer),
+        _uplinkConnectionState(bool isTopServer):
+            m_isTopServer(isTopServer),
 //            getServiceSent(false),
             connectionEstablished(false),
             nodeLevelInHierarhy(0)
         {
 
-            if(!isCapsServer)
-                throw CommonError("if(!isCapsServer)");
+            if(!isTopServer)
+                throw CommonError("if(!isTopServer)");
         }
 
 
-        bool m_isCapsServer;
+        bool m_isTopServer;
 
 
 

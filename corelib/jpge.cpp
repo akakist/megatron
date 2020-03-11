@@ -12,7 +12,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#ifdef __MACH__
+#if defined  __MACH__ || defined __FreeBSD__
 #include <stdlib.h>
 #else
 #include <malloc.h>

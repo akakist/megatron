@@ -8,14 +8,18 @@ struct referrerItem: public Refcountable
     msockaddr_in sa;
     time_t lastReport;
     int dowlinkCount;
-    double lat,lon;
+    int64_t lat,lon;
+    msockaddr_in uplink;
     void pack(outBuffer& b)
     {
-        b<<sa<<lastReport<<dowlinkCount<<lat<<lon;
+        b<<sa<<(int64_t)lastReport<<dowlinkCount<<lat<<lon<<uplink;
     }
     void unpack(inBuffer& in)
     {
-        in>>sa>>lastReport>>dowlinkCount>>lat>>lon;
+        int64_t lr = 0;
+//        in>>sa;
+        in>>sa>>lr>>dowlinkCount>>lat>>lon>>uplink;
+        lastReport= static_cast<time_t>(lr);
     }
 };
 
@@ -23,7 +27,7 @@ typedef std::pair<int,int> iLatLon;
 
 struct referrerContainer
 {
-    void add(double lat,double lon, const msockaddr_in& sa, int downlinkCount)
+    void add(int64_t lat,int64_t lon, const msockaddr_in& sa, int downlinkCount, const msockaddr_in& uplink)
     {
         auto it=referrers.find(sa);
         if(it==referrers.end())
@@ -37,6 +41,7 @@ struct referrerContainer
         it->second->lat=lat;
         it->second->lon=lon;
         it->second->sa=sa;
+        it->second->uplink=uplink;
 
         iLatLon ll=std::make_pair(int(lat),int(lon));
         iLatLon ll2=std::make_pair(int(lat/2),int(lon/2));
@@ -61,12 +66,11 @@ class CapsAlgorithm
 {
 public:
 
-    std::map<time_t,referrerContainer> rcontainers;
+    std::map<time_t,std::map<int/*AF*/,referrerContainer> > rcontainers;
 
-    void addReferrer(double lat,double lon, const msockaddr_in& sa, int downlinkCount);
+    void addReferrer(int64_t lat, int64_t lon, const msockaddr_in& sa, int downlinkCount, const msockaddr_in &uplink);
 
-//    static double cmp_lat,cmp_lon;
-    std::vector<REF_getter<referrerItem> > findReferrers(double lat,double lon);
+    std::vector<REF_getter<referrerItem> > findReferrers(int64_t lat, int64_t lon, int addressFamily);
 
     CapsAlgorithm();
 };

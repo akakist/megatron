@@ -1,32 +1,26 @@
 #ifndef ___________________C_FACTORY____H
 #define ___________________C_FACTORY____H
-#include "IInstance.h"
-#include "unknown.h"
-#include "listenerBase.h"
-#include "configObj.h"
-#include "configDB.h"
-#include "threadNameCtl.h"
-#include "ISSL.h"
-#include "VERSION_id.h"
-#include "version_mega.h"
-#include "mutexInspector.h"
-#include "st_FILE.h"
+
+#include <IInstance.h>
+#include <listenerBase.h>
 
 class CInstance: public IInstance
 {
     Mutex initService_MX;
     std::map<SERVICE_id,Mutex*> mx_initInProcess;
     UnknownBase* initService(const SERVICE_id& sid);
+    std::string name;
 public:
     void setConfig(IConfigObj *value)
     {
         config_z=value;
     }
-    CInstance( IUtils *_m_utils
+    CInstance( IUtils *_m_utils, const std::string& _name
 
              );
     ~CInstance()
     {
+        m_terminating=true;
         deinitServices();
         delete config_z;
         for(auto z: mx_initInProcess)
@@ -34,8 +28,10 @@ public:
             delete z.second;
         }
     }
+    std::string getName() {
+        return name;
+    }
 
-    std::vector<SERVICE_id> getAllRunningServices();
 
 
 
@@ -55,8 +51,8 @@ public:
     void initServices();
     void deinitServices();
 
-    UnknownBase * getServiceOrCreate(const SERVICE_id& id);
-    UnknownBase * getServiceNoCreate(const SERVICE_id& id);
+    UnknownBase* getServiceOrCreate(const SERVICE_id& id);
+    UnknownBase* getServiceNoCreate(const SERVICE_id& id);
 
     IConfigObj* getConfig()
     {
@@ -105,6 +101,8 @@ public:
         return myExternalAddresses.size();
 
     }
+
+    bool m_terminating;
 
 
 };

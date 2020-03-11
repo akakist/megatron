@@ -13,7 +13,7 @@ inline bool bufferVerify(const std::string& s)
     {
         return false;
     }
-    size_t len=b.get_PN_nothrow(success);
+    size_t len= static_cast<size_t>(b.get_PN_nothrow(success));
 
     if (!success) return false;
 

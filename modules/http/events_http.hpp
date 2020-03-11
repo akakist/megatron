@@ -15,6 +15,8 @@ inline std::set<EVENT_id> getEvents_http()
 	out.insert(socketEventEnum::Accepted);
 	out.insert(socketEventEnum::AddToListenTCP);
 	out.insert(socketEventEnum::Connected);
+	out.insert(socketEventEnum::Disaccepted);
+	out.insert(socketEventEnum::Disconnected);
 	out.insert(socketEventEnum::NotifyBindAddress);
 	out.insert(socketEventEnum::NotifyOutBufferEmpty);
 	out.insert(socketEventEnum::StreamRead);
@@ -34,6 +36,8 @@ inline void regEvents_http()
 	iUtils->registerEvent(socketEvent::Accepted::construct);
 	iUtils->registerEvent(socketEvent::AddToListenTCP::construct);
 	iUtils->registerEvent(socketEvent::Connected::construct);
+	iUtils->registerEvent(socketEvent::Disaccepted::construct);
+	iUtils->registerEvent(socketEvent::Disconnected::construct);
 	iUtils->registerEvent(socketEvent::NotifyBindAddress::construct);
 	iUtils->registerEvent(socketEvent::NotifyOutBufferEmpty::construct);
 	iUtils->registerEvent(socketEvent::StreamRead::construct);

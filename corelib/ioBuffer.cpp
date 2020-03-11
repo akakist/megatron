@@ -10,8 +10,8 @@
 inBuffer::inBuffer(const unsigned char* d, size_t siz) :  out_pos(0), m_size(siz), m_data(d) { }
 inBuffer::inBuffer(const char* d, size_t siz) :  out_pos(0), m_size(siz), m_data(( unsigned char*)d) { }
 
-inBuffer::inBuffer(const std::string& s) :  out_pos(0), m_size(s.size()) , m_data(( unsigned char*)s.data()) { }
-inBuffer::inBuffer(const REF_getter<refbuffer>& s) :  out_pos(0), m_size(s->size_) , m_data(( unsigned char*)s->buffer) { }
+inBuffer::inBuffer(const std::string& s) :  out_pos(0), m_size(s.size()), m_data(( unsigned char*)s.data()) { }
+inBuffer::inBuffer(const REF_getter<refbuffer>& s) :  out_pos(0), m_size(s->size_), m_data(( unsigned char*)s->buffer) { }
 
 unsigned char inBuffer::get_8()
 {
@@ -87,7 +87,7 @@ void inBuffer::unpack(std::string& s, int64_t size)
 {
     XTRY;
     bool success;
-    unpack_nothrow(s,size,success);
+    unpack_nothrow(s, static_cast<size_t>(size), success);
     if (!success) throw CommonError("inBuffer unpack:  buffer size to small sz=%ld remains=%d %s",size,remains(),_DMI().c_str());
     XPASS;
 }
@@ -100,10 +100,12 @@ REF_getter<refbuffer> outBuffer::asString() const
 
     buffer->size_=cur_pos;
     buffer->buffer=(uint8_t*)realloc(buffer->buffer,buffer->size_+0x20);
+    if(!buffer->buffer)
+        throw std::runtime_error("alloc error");
     buffer->capacity=buffer->size_+0x20;
     return buffer;
 }
-outBuffer::outBuffer():buffer(NULL), bufsize(0),cur_pos(0)
+outBuffer::outBuffer():buffer(nullptr), bufsize(0),cur_pos(0)
 {
     construct();
 }
@@ -114,8 +116,7 @@ void outBuffer::construct()
 
     buffer->buffer=(unsigned char*)malloc(SPLICE__);
     buffer->capacity=SPLICE__;
-    //buffer->size_=0;
-    if (buffer==NULL) throw CommonError("alloc error %s %d",__FILE__,__LINE__);
+    if (buffer==nullptr) throw CommonError("alloc error %s %d",__FILE__,__LINE__);
     bufsize=SPLICE__;
     cur_pos=0;
 
@@ -164,7 +165,7 @@ std::string inBuffer::get_PSTR()
 }
 std::string inBuffer::get_PSTR_nothrow(bool &success)
 {
-    std::string container = "";
+    std::string container;
     XTRY;
 
     uint64_t sz=get_PN_nothrow(success);
@@ -219,6 +220,7 @@ inBuffer& inBuffer::operator>>(size_t &p)
 inBuffer& inBuffer::operator>>(double& p)
 {
 
+
     XTRY;
     Rational r;
     *this>>r;
@@ -229,10 +231,11 @@ inBuffer& inBuffer::operator>>(double& p)
 inBuffer& inBuffer::operator>>(float& p)
 {
 
+
     XTRY;
     Rational r;
     *this>>r;
-    p=r.v;
+    p= static_cast<float>(r.v);
     XPASS;
     return *this;
 }
@@ -240,42 +243,42 @@ inBuffer& inBuffer::operator>>(float& p)
 inBuffer& inBuffer::operator>>(int8_t& p)
 {
     XTRY;
-    p=get_PN();
+    p= static_cast<int8_t>(get_PN());
     XPASS;
     return *this;
 }
 inBuffer& inBuffer::operator>>(uint8_t& p)
 {
     XTRY;
-    p=get_PN();
+    p= static_cast<uint8_t>(get_PN());
     XPASS;
     return *this;
 }
 inBuffer& inBuffer::operator>>(int16_t& p)
 {
     XTRY;
-    p=get_PN();
+    p= static_cast<int16_t>(get_PN());
     XPASS;
     return *this;
 }
 inBuffer& inBuffer::operator>>(uint16_t& p)
 {
     XTRY;
-    p=get_PN();
+    p= static_cast<uint16_t>(get_PN());
     XPASS;
     return *this;
 }
 inBuffer& inBuffer::operator>>(int32_t& p)
 {
     XTRY;
-    p=get_PN();
+    p=(int32_t)get_PN();
     XPASS;
     return *this;
 }
 inBuffer& inBuffer::operator>>(uint32_t& p)
 {
     XTRY;
-    p=get_PN();
+    p=(uint32_t)get_PN();
     XPASS;
     return *this;
 }
@@ -306,7 +309,7 @@ inBuffer& inBuffer::operator>>(std::string&p)
 inBuffer& inBuffer::operator>>(bool& p)
 {
     XTRY;
-    p=get_PN();
+    p= static_cast<bool>(get_PN());
     XPASS;
     return *this;
 
@@ -336,19 +339,19 @@ outBuffer& outBuffer::operator<<(const long&c)
 #endif
 outBuffer& outBuffer::operator<<(const double &c)
 {
+
     XTRY;
     Rational r=c;
     *this<<r;
-    //put_PN(c);
     XPASS;
     return *this;
 }
 outBuffer& outBuffer::operator<<(const float &c)
 {
+
     XTRY;
     Rational r=c;
     *this<<r;
-    //put_PN(c);
     XPASS;
     return *this;
 }
@@ -356,7 +359,7 @@ outBuffer& outBuffer::operator<<(const float &c)
 outBuffer& outBuffer::operator<<(const int8_t &c)
 {
     XTRY;
-    put_PN(c);
+    put_PN(static_cast<const uint64_t>(c));
     XPASS;
     return *this;
 }
@@ -370,7 +373,7 @@ outBuffer& outBuffer::operator<<(const uint8_t &c)
 outBuffer& outBuffer::operator<<(const int16_t &c)
 {
     XTRY;
-    put_PN(c);
+    put_PN(static_cast<const uint64_t>(c));
     XPASS;
     return *this;
 }
@@ -384,7 +387,7 @@ outBuffer& outBuffer::operator<<(const uint16_t &c)
 outBuffer& outBuffer::operator<<(const int32_t &c)
 {
     XTRY;
-    put_PN(c);
+    put_PN(static_cast<const uint64_t>(c));
     XPASS;
     return *this;
 }
@@ -398,7 +401,7 @@ outBuffer& outBuffer::operator<<(const uint32_t &c)
 outBuffer& outBuffer::operator<<(const int64_t &c)
 {
     XTRY;
-    put_PN(c);
+    put_PN(static_cast<const uint64_t>(c));
     XPASS;
     return *this;
 }
@@ -426,7 +429,7 @@ outBuffer& outBuffer::operator<<(const char* c)
 outBuffer& outBuffer::operator<<(const bool &c)
 {
     XTRY;
-    put_PN(c);
+    put_PN(static_cast<const uint64_t>(c));
     XPASS;
     return *this;
 }
@@ -460,8 +463,6 @@ outBuffer& outBuffer::put_PN$(const uint64_t &N)
                     c=N & 0x7F;
                     put_8$(c);
                 }
-//                if (i)
-//                else
             }
             return *this;
         }
@@ -524,7 +525,7 @@ outBuffer & operator<< (outBuffer& b,const REF_getter<refbuffer> &s)
 inBuffer & operator>> (inBuffer& b,  REF_getter<refbuffer> &s)
 {
 
-    size_t size=b.get_PN();
+    auto size= static_cast<size_t>(b.get_PN());
     s=new refbuffer;
     if(size)
     {

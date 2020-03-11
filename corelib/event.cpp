@@ -11,10 +11,7 @@ Json::Value Event::Base::dump() const
 {
     Json::Value v;
     v["evid"]=id.dump();
-    v["evname"]=name;
     v["evroute"]=route.dump();
     jdump(v);
     return v;
-//    Json::FastWriter w;
-//    return w.write(v);
 }

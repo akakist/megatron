@@ -6,11 +6,12 @@
 #endif
 
 #endif
+#ifdef _WIN32
+#include <ws2tcpip.h>
+#endif
 #include "commonError.h"
 #include "mutexInspector.h"
 #include "url.h"
-
-//std::map<std::string,msockaddr_in::_addrInfo> msockaddr_in::host2AddrInfo;
 
 outBuffer & operator<<(outBuffer&b,const msockaddr_in &a)
 {
@@ -23,6 +24,7 @@ inBuffer & operator>>(inBuffer &b,msockaddr_in &a)
 
 bool msockaddr_in::operator<(const msockaddr_in&b) const
 {
+    MUTEX_INSPECTOR;
     if(family()<b.family()) return true;
     if(family()>b.family()) return false;
 
@@ -37,19 +39,34 @@ bool msockaddr_in::operator<(const msockaddr_in&b) const
     else if(family()==AF_INET6)
     {
 #ifdef __MACH__
-        for(size_t i=0;i<sizeof(u.sa6.sin6_addr.__u6_addr.__u6_addr8);i++)
+        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.__u6_addr.__u6_addr8); i++)
         {
             if (u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]<b.u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]) return true;
             if (u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]>b.u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]) return false;
         }
 #elif defined(__ANDROID__)
-        for(size_t i=0;i<sizeof(u.sa6.sin6_addr.in6_u.u6_addr8);i++)
+        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.in6_u.u6_addr8); i++)
         {
             if (u.sa6.sin6_addr.in6_u.u6_addr8[i]<b.u.sa6.sin6_addr.in6_u.u6_addr8[i]) return true;
             if (u.sa6.sin6_addr.in6_u.u6_addr8[i]>b.u.sa6.sin6_addr.in6_u.u6_addr8[i]) return false;
         }
+#elif defined __FreeBSD__
+
+        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.__u6_addr.__u6_addr8); i++)
+        {
+            if (u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]<b.u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]) return true;
+            if (u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]>b.u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]) return false;
+        }
+
+#elif defined _WIN32
+        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.u.Byte); i++)
+        {
+            if (u.sa6.sin6_addr.u.Byte[i]<b.u.sa6.sin6_addr.u.Byte[i]) return true;
+            if (u.sa6.sin6_addr.u.Byte[i]>b.u.sa6.sin6_addr.u.Byte[i]) return false;
+        }
 #else
-        for(size_t i=0;i<sizeof(u.sa6.sin6_addr.__in6_u.__u6_addr8);i++)
+
+        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.__in6_u.__u6_addr8); i++)
         {
             if (u.sa6.sin6_addr.__in6_u.__u6_addr8[i]<b.u.sa6.sin6_addr.__in6_u.__u6_addr8[i]) return true;
             if (u.sa6.sin6_addr.__in6_u.__u6_addr8[i]>b.u.sa6.sin6_addr.__in6_u.__u6_addr8[i]) return false;
@@ -62,7 +79,7 @@ bool msockaddr_in::operator<(const msockaddr_in&b) const
     }
     else
     {
-        throw CommonError("invalid family");
+        throw CommonError("1 invalid family %s %s",family(),_DMI().c_str());
     }
 
     return false;
@@ -79,18 +96,30 @@ bool msockaddr_in::operator==(const msockaddr_in&b) const
     {
         if(u.sa6.sin6_port != b.u.sa6.sin6_port) return false;
 #ifdef __MACH__
-        for(size_t i=0;i<sizeof(u.sa6.sin6_addr.__u6_addr.__u6_addr8);i++)
+        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.__u6_addr.__u6_addr8); i++)
         {
             if (u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]!=b.u.sa6.sin6_addr.__u6_addr.__u6_addr8[i])
                 return false;
         }
 #elif defined(__ANDROID__)
-        for(size_t i=0;i<sizeof(u.sa6.sin6_addr.in6_u.u6_addr8);i++)
+        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.in6_u.u6_addr8); i++)
         {
             if (u.sa6.sin6_addr.in6_u.u6_addr8[i]!=b.u.sa6.sin6_addr.in6_u.u6_addr8[i]) return false;
         }
+#elif defined __FreeBSD__
+        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.__u6_addr.__u6_addr8); i++)
+        {
+            if (u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]!=b.u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]) return false;
+        }
+
+#elif defined _WIN32
+        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.u.Byte); i++)
+        {
+            if (u.sa6.sin6_addr.u.Byte[i]!=b.u.sa6.sin6_addr.u.Byte[i]) return false;
+        }
+
 #else
-        for(size_t i=0;i<sizeof(u.sa6.sin6_addr.__in6_u.__u6_addr8);i++)
+        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.__in6_u.__u6_addr8); i++)
         {
             if (u.sa6.sin6_addr.__in6_u.__u6_addr8[i]!=b.u.sa6.sin6_addr.__in6_u.__u6_addr8[i]) return false;
         }
@@ -98,6 +127,8 @@ bool msockaddr_in::operator==(const msockaddr_in&b) const
 #endif
 
     }
+    else
+        throw CommonError("3 invalid family %d %s",family(),_DMI().c_str());
     return true;
 }
 
@@ -114,15 +145,27 @@ outBuffer &msockaddr_in::pack(outBuffer &b) const
         b.put_PN(u.sa6.sin6_family);
         b.put_PN(htons(u.sa4.sin_port));
         char str[100];
+#ifdef _WIN32
+#if (_WIN32_WINNT >= 0x0600)
+        InetNtop(u.sa6.sin6_family,& u.sa6.sin6_addr,str,sizeof(str));
+#else
+        throw CommonError("windows version too old");
+#endif
+#else
         inet_ntop(u.sa6.sin6_family, &u.sa6.sin6_addr, str,sizeof(str));
+#endif
         b.put_PSTR(str);
     }
+    else
+        throw CommonError("3 invalid family %d %s",family(),_DMI().c_str());
+
 
     return b;
 }
 inBuffer &msockaddr_in::unpack(inBuffer&b)
 {
 
+    MUTEX_INSPECTOR;
     uint8_t fam=b.get_PN();
     if(fam==AF_INET)
     {
@@ -135,14 +178,23 @@ inBuffer &msockaddr_in::unpack(inBuffer&b)
         u.sa6.sin6_family=fam;
         u.sa6.sin6_port=htons(b.get_PN());
         std::string s=b.get_PSTR();
+#ifdef _WIN32
+#if (_WIN32_WINNT >= 0x0600)
         inet_pton(u.sa6.sin6_family,s.c_str(),&u.sa6.sin6_addr);
+#else
+        throw CommonError("SDK version too small");
+#endif
+#else
+        inet_pton(u.sa6.sin6_family,s.c_str(),&u.sa6.sin6_addr);
+#endif
     }
     else
-        throw CommonError("invalid family %d",fam);
+        throw CommonError("2 invalid family %d %s",fam,_DMI().c_str());
     return b;
 }
 std::string msockaddr_in::getStringAddr() const
 {
+    MUTEX_INSPECTOR;
     if(family()==AF_INET)
     {
         return inet_ntoa(u.sa4.sin_addr);
@@ -150,31 +202,84 @@ std::string msockaddr_in::getStringAddr() const
     else if(family()==AF_INET6)
     {
         char str[100];
+#ifdef _WIN32
+#if (_WIN32_WINNT >= 0x0600)
         inet_ntop(u.sa6.sin6_family, &u.sa6.sin6_addr, str,sizeof(str));
+#else
+        throw CommonError("SDK version too small");
+#endif
+#else
+        inet_ntop(u.sa6.sin6_family, &u.sa6.sin6_addr, str,sizeof(str));
+#endif
         return str;
     }
     else
-        throw CommonError("invalid family %d",family());
+        throw CommonError("3 invalid family %d %s",family(),_DMI().c_str());
 }
 unsigned short msockaddr_in::port() const
 {
+    MUTEX_INSPECTOR;
     if(family()==AF_INET)
-    return ntohs(u.sa4.sin_port);
-    else
+        return ntohs(u.sa4.sin_port);
+    else if(family()==AF_INET6)
         return ntohs(u.sa6.sin6_port);
+    else
+        throw CommonError("3 invalid family %d %s",family(),_DMI().c_str());
 }
-//std::string msockaddr_in::inaddr() const
-//{
-//    return ntohl(u.sa4.sin_addr.s_addr);
-//}
 
 msockaddr_in::msockaddr_in(const msockaddr_in& n)
 {
+    memset(&u,0,sizeof(u));
+
     memcpy(&u,&n.u,sizeof(n.u));
-//    u.sa4.sin_family=n.u.sa4.sin_family;
-//    u.sa4.sin_port=n.u.sa4.sin_port;
-//    u.sa4.sin_addr=n.u.sa4.sin_addr;
 }
+Json::Value msockaddr_in::jdump() const
+{
+    Json::Value j;
+    j["url"]=dump();
+    if(family()!=AF_INET && family()!=AF_INET6)
+        throw CommonError("if(family()!=AF_INET && family()!=AF_INET6)");
+    j["family"]=u.sa4.sin_family==AF_INET?"AF_INET":"AF_INET6";
+    if(family()==AF_INET)
+    {
+        j["sin_port"]=ntohs(u.sa4.sin_port);
+#if !defined __linux__ && !defined(_WIN32)
+        j["sin_len"]=u.sa4.sin_len;
+
+#endif
+        j["sin_addr"]=inet_ntoa(u.sa4.sin_addr);
+
+
+    }
+    else if(family()==AF_INET6)
+    {
+        j["port"]=ntohs(u.sa6.sin6_port);
+        char str[100];
+#ifdef _WIN32
+#if (_WIN32_WINNT >= 0x0600)
+        inet_ntop(u.sa6.sin6_family, &u.sa6.sin6_addr, str,sizeof(str));
+#else
+        throw CommonError("SDK version too small");
+#endif
+#else
+        inet_ntop(u.sa6.sin6_family, &u.sa6.sin6_addr, str,sizeof(str));
+#endif
+        j["sin6_addr"]=str;
+#if !defined __linux__ && !defined (_WIN32)
+        j["sin6_len"]=u.sa6.sin6_len;
+#endif
+#if !defined _WIN32
+        j["sin6_flowinfo"]=u.sa6.sin6_flowinfo;
+        j["sin6_scope_id"]=u.sa6.sin6_scope_id;
+#endif
+
+    }
+    else
+        throw CommonError("3 invalid family %d %s",family(),_DMI().c_str());
+
+    return j;
+}
+
 std::string msockaddr_in::dump() const
 {
     char s[200];
@@ -182,12 +287,12 @@ std::string msockaddr_in::dump() const
     {
         snprintf(s,sizeof(s),"%s:%d",getStringAddr().c_str(), ntohs(u.sa4.sin_port));
     }
-    else
+    else if(family()==AF_INET6)
     {
-        snprintf(s,sizeof(s),"%s@%d",getStringAddr().c_str(), ntohs(u.sa4.sin_port));
-
+        snprintf(s,sizeof(s),"[%s]:%d",getStringAddr().c_str(), ntohs(u.sa4.sin_port));
     }
-    //else throw CommonError("invalid fam");
+    else
+        throw CommonError("3 invalid family %d %s",family(),_DMI().c_str());
 
     return s;
 
@@ -195,6 +300,7 @@ std::string msockaddr_in::dump() const
 
 std::pair<std::set<std::string>,std::set<std::string> > msockaddr_in::getAddrInfo(const std::string& host)
 {
+    MUTEX_INSPECTOR;
     auto ai=iUtils->getAddrInfos();
     {
         M_LOCK(ai.operator ->());
@@ -220,16 +326,15 @@ std::pair<std::set<std::string>,std::set<std::string> > msockaddr_in::getAddrInf
     hints.ai_socktype = SOCK_STREAM;
 
     if ((status = getaddrinfo(host.c_str(), NULL, &hints, &res)) != 0) {
-        throw CommonError("getaddrinfo: %sn", gai_strerror(status));
+        throw CommonError("getaddrinfo: %s\n%s", gai_strerror(status),host.c_str());
     }
 
-//    printf("IP addresses for %s:\n", host.c_str());
     std::set<std::string> ipv4;
     std::set<std::string> ipv6;
 
-    for(p = res;p != NULL; p = p->ai_next) {
+    for(p = res; p != NULL; p = p->ai_next) {
         void *addr;
-        char *ipver;
+        std::string ipver;
 
 
         // получаем указатель на адрес, по разному в разных протоколах
@@ -237,31 +342,15 @@ std::pair<std::set<std::string>,std::set<std::string> > msockaddr_in::getAddrInf
             struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
             addr = &(ipv4->sin_addr);
             ipver = "IPv4";
-            //for(int i=0;i<4;i++)
-            {
-                auto addr=inet_ntoa(ipv4->sin_addr);
-//                logErr2("addr %s",addr);
-//                unsigned int a[4];
-//                a[0]=addr>>24 & 0xff;
-//                a[1]=addr>>16 & 0xff;
-//                a[2]=addr>>8 & 0xff;
-//                a[3]=addr>>0 & 0xff;
-//                for(int i=0;i<4;i++)
-//                {
-//                    logErr2("a %02x",a[i]);
-//                }
-            }
         } else { // IPv6
             struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)p->ai_addr;
             addr = &(ipv6->sin6_addr);
-            for(int i=0;i<16;i++)
+            for(int i=0; i<16; i++)
             {
 #ifdef __MACH__
 
-//                logErr2("A %02x",(unsigned char)ipv6->sin6_addr.__u6_addr.__u6_addr8[i]);
+#elif defined (_WIN32)
 #else
-
-//                logErr2("A %02x",(unsigned char)ipv6->sin6_addr.__in6_u.__u6_addr8[i]);
 #endif
 
             }
@@ -269,8 +358,16 @@ std::pair<std::set<std::string>,std::set<std::string> > msockaddr_in::getAddrInf
         }
 
         // преобразуем IP в строку и выводим его:
+#ifdef _WIN32
+#if (_WIN32_WINNT >= 0x0600)
         inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
-//        printf("  %s: %s\n", ipver, ipstr);
+#else
+        throw CommonError("SDK version too small");
+#endif
+#else
+        inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
+#endif
+
         if(p->ai_family == AF_INET)
             ipv4.insert(ipstr);
         else
@@ -289,84 +386,87 @@ std::pair<std::set<std::string>,std::set<std::string> > msockaddr_in::getAddrInf
     return std::make_pair(ipv4,ipv6);
 }
 
-void msockaddr_in::init(const char* host, unsigned short port)
+void msockaddr_in::init(const std::string& host, unsigned short port)
 {
+    MUTEX_INSPECTOR;
     XTRY;
-    auto z=getAddrInfo(host);
+    if(host=="INADDR_ANY")
+    {
+#ifdef __MACH__
+        u.sa4.sin_len=sizeof(sockaddr_in);
+#endif
+        u.sa4.sin_family=AF_INET;
+        u.sa4.sin_port=htons(port);
+        u.sa4.sin_addr.s_addr=INADDR_ANY;
+        return;
+    }
+    else if(host=="INADDR6_ANY")
+    {
+#ifdef __MACH__
+        u.sa6.sin6_len=sizeof(sockaddr_in6);
+#endif
+        u.sa6.sin6_family=AF_INET6;
+        u.sa6.sin6_port=htons(port);
+        u.sa6.sin6_addr = in6addr_any;
+        return;
+    }
+    std::pair<std::set<std::string>,std::set<std::string> > z;
+    z=getAddrInfo(host);
+
+
     if(z.first.size())
     {
+#ifdef __MACH__
+        u.sa4.sin_len=sizeof(sockaddr_in);
+#endif
         u.sa4.sin_family=AF_INET;
         u.sa4.sin_port=htons(port);
         u.sa4.sin_addr.s_addr=inet_addr(z.first.begin()->c_str());
     }
     else if(z.second.size())
     {
+#ifdef __MACH__
+        u.sa6.sin6_len=sizeof(sockaddr_in6);
+#endif
         u.sa6.sin6_family=AF_INET6;
         u.sa6.sin6_port=htons(port);
+#ifdef _WIN32
+#if (_WIN32_WINNT >= 0x0600)
         inet_pton(u.sa6.sin6_family,z.second.begin()->c_str(),&u.sa6.sin6_addr);
-
+#else
+        throw CommonError("SDK version too small");
+#endif
+#else
+        inet_pton(u.sa6.sin6_family,z.second.begin()->c_str(),&u.sa6.sin6_addr);
+#endif
     }
-    /*u.sa4.sin_port=htons(port);
-    bool isA=false;
-    size_t len=strlen(host);
-    for(size_t i=0; i<len; i++)
-    {
-        if(host[i]>='a'&& host[i]<'z') isA=true;
-        if(host[i]>='A'&& host[i]<'Z') isA=true;
-
-    }
-
-    if(!isA)
-    {
-        //if(strchr(host,'.')==NULL)
-        u.sa4.sin_addr.s_addr=inet_addr(host);
-    }
-    else
-    {
-        uint32_t addr;
-        if(iUtils->getHostByName(host,addr))
-        {
-            throw CommonError("getHostByName: (%s) errno %d %s",host,errno,_DMI().c_str());
-        }
-        u.sa4.sin_addr.s_addr=addr;
-    }*/
+    else throw CommonError("invalid case! %s %d",__FILE__,__LINE__);
     XPASS;
 }
 void msockaddr_in::setPort(const unsigned short& port)
 {
     if(family()==AF_INET)
         u.sa4.sin_port=htons(port);
-    else
+    else if(family()==AF_INET6)
         u.sa6.sin6_port=htons(port);
+    else
+        throw CommonError("3 invalid family %d",family());
+
 }
 void msockaddr_in::init(const Url& u)
 {
     init(u.host.c_str(),atoi(u.port.c_str()));
 }
-//void msockaddr_in::setInaddr(const uint32_t& v)
-//{
-//    u.sa4.sin_addr.s_addr=htonl(v);
-//}
 
 static bool check_addr_for_mask(in_addr a, const char *ipmask, int maskShift)
 {
     unsigned int val=ntohl(a.s_addr);
-    /*unsigned char *ps=(unsigned char *)&a.s_addr;
-    unsigned char *pd=(unsigned char *)&val;
-    pd[0]=ps[3];
-    pd[1]=ps[2];
-    pd[2]=ps[1];
-    pd[3]=ps[0];*/
 
     int shift=32-maskShift;
     val>>=shift;
     val<<=shift;
 
     a.s_addr=htonl(val);
-//    ps[0]=pd[3];
-//    ps[1]=pd[2];
-//    ps[2]=pd[1];
-//    ps[3]=pd[0];
     std::string rest=inet_ntoa(a);
     return rest==ipmask;
 
@@ -408,8 +508,11 @@ socklen_t msockaddr_in::addrLen() const
 {
     if(family()==AF_INET)
         return sizeof(sockaddr_in);
-    else
+    else if(family()==AF_INET6)
         return sizeof(sockaddr_in6);
+    else
+        throw CommonError("3 invalid family %d %s",family(),_DMI().c_str());
+
 }
 socklen_t msockaddr_in::maxAddrLen() const
 {

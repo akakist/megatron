@@ -1,26 +1,20 @@
 #ifndef __________________DBH___H______
 #define __________________DBH___H______
-#include <vector>
-#include <string>
+#include "SERVICE_id.h"
 #include "_QUERY.h"
-#include "REF.h"
-#include "IConfigObj.h"
+#include "queryResult.h"
 #include "unknown.h"
 #include "IInstance.h"
+#include "REF.h"
 #include "unknownCastDef.h"
-#include "pthread.h"
-#include "serviceEnum.h"
+
 #define SQL_BUFFER_SIZE 4096
 /**  Universal device independant database handler
 */
 namespace ServiceEnum
 {
-    enum
-    {
-        Mysql=_xs_Mysql,
-        Postgres=_xs_Postgres,
-
-    };
+    const SERVICE_id Mysql("Mysql");
+    const SERVICE_id Postgres("Postgres");
 
 }
 
@@ -52,6 +46,7 @@ public:
     int64_t select_1_int(const QUERY &);
     std::string select_1_orThrow(const QUERY &);
     int64_t select_1_int_orThrow(const QUERY &);
+    int64_t select_1_real_orThrow(const QUERY &);
 
 
     /// get single row
@@ -85,8 +80,7 @@ class DBH_source
 public:
     virtual REF_getter<DBH> get()=0;
     virtual void unget(const REF_getter<DBH>&)=0;
-    static DBH_source* cast(UnknownBase *c);
-    DBH_source(UnknownBase*);
+    DBH_source();
     virtual ~DBH_source() {}
 };
 
@@ -115,13 +109,15 @@ private:
 public:
     DBH_feature(IInstance* ifa)
     {
-        dbh_src=static_cast<DBH_source*>(ifa->getServiceOrCreate(ServiceEnum::Mysql)->cast(UnknownCast::DBH_source));
+        dbh_src=dynamic_cast<DBH_source*>(ifa->getServiceOrCreate(ServiceEnum::Mysql));
+        if(!dbh_src)
+            throw CommonError("if(!dbh_src)");
     }
     REF_getter<DBH> getDB()
     {
         pthread_t pt=pthread_self();
         M_LOCK(mx);
-        std::map<pthread_t,std::pair<REF_getter<DBH>,time_t > >::iterator it=m_sources.find(pt);
+        auto it=m_sources.find(pt);
         if(it!=m_sources.end())
         {
             if(time(NULL)-it->second.second>600)
@@ -160,23 +156,23 @@ struct st_TRANSACTION
     }
     st_TRANSACTION(const REF_getter<DBH> &df):dbh(df),exitState(___ROLLBACK)
     {
-        dbh->execSimple((std::string)"BEGIN");
+        dbh->exec((std::string)"BEGIN");
 
     }
     ~st_TRANSACTION()
     {
         switch (exitState) {
         case ___UNDEF:
-            throw CommonError("exitState UNDEF");
+            logErr2("exitState UNDEF");
             break;
         case ___COMMIT:
-            dbh->execSimple((std::string)"COMMIT");
+            dbh->exec((std::string)"COMMIT");
             break;
         case ___ROLLBACK:
-            dbh->execSimple((std::string)"ROLLBACK");
+            dbh->exec((std::string)"ROLLBACK");
             break;
         default:
-            throw CommonError("exitState UNDEF");
+            logErr2("exitState UNDEF");
             break;
         }
     }

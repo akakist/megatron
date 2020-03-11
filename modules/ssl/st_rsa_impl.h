@@ -17,6 +17,8 @@ class st_rsa_impl: public I_st_rsa_impl
 {
     std::string encrypt(const std::string &m, int (*func)(int, const unsigned char*, unsigned char*, RSA*,int));
     std::string decrypt(const std::string &m, int (*func)(int, const unsigned char*, unsigned char*, RSA*,int));
+    int encrypt(const std::string &m, std::string&out, int (*func)(int, const unsigned char*, unsigned char*, RSA*,int));
+    int decrypt(const std::string &m, std::string&out, int (*func)(int, const unsigned char*, unsigned char*, RSA*,int));
 public:
     RSA *rsa_xxx;
     st_rsa_impl();
@@ -25,11 +27,19 @@ public:
     void generate_key(int b);
     std::string privateEncrypt(const std::string &m);
     std::string privateDecrypt(const std::string &m);
-    void initFromPrivateKey(const std::string &pk);
-    std::string getPrivateKey();
     std::string publicEncrypt(const std::string &m);
     std::string publicDecrypt(const std::string &m);
+
+    int privateEncrypt(const std::string &m,std::string& out);
+    int privateDecrypt(const std::string &m,std::string& out);
+    int publicEncrypt(const std::string &m,std::string& out);
+    int publicDecrypt(const std::string &m,std::string& out);
+
+    void initFromPrivateKey(const std::string &pk);
     void initFromPublicKey(const std::string &pk);
+    int initFromPrivateKey_int(const std::string &pk);
+    int initFromPublicKey_int(const std::string &pk);
+    std::string getPrivateKey();
     std::string getPublicKey();
 
 };
@@ -70,6 +80,7 @@ public:
     std::string sha512(const std::string & s);
 
     C_ssl();
+    ~C_ssl() {}
 
 };
 

@@ -4,7 +4,7 @@
 #include <sys/time.h>
 #endif
 #if !defined __MOBILE__
-#ifndef  __ANDROID_API__
+#if !defined  __ANDROID_API__ && !defined __FreeBSD__
 #include <sys/timeb.h>
 #endif
 #endif

@@ -25,7 +25,6 @@ typedef void JNIEnv;
 #define JEND
 #endif
 
-//#define AUTH_FILE_NAME "auth3.txt"
 
 enum timers
 {
@@ -56,8 +55,8 @@ struct JsonHandler: public TimerHelper,
 
 
 
-    void push_msg(const Json::Value&, const std::string &binData, const JAVACOOKIE_id &javaCookie);
-    void push_err(const std::string& action,const std::string& err, const JAVACOOKIE_id &javaCookie);
+    void push_msg(const Json::Value&, const std::string &binData, const std::string &javaCookie);
+    void push_err(const std::string& action,const std::string& err, const std::string &javaCookie);
 
 
 #ifdef __MOBILE__

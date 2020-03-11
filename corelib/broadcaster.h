@@ -1,10 +1,7 @@
 #ifndef _______________BROADCASTER____H
 #define _______________BROADCASTER____H
-#include "SERVICE_id.h"
-#include "REF.h"
-#include "event.h"
 #include "IInstance.h"
-#include "route_t.h"
+
 /**
 * Базовый класс для сервисов, дающим им возможность посылки сообщений
 */

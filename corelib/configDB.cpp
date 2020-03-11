@@ -5,10 +5,11 @@
 #include "queryResult.h"
 
 #include "st_FILE.h"
-#ifdef QT_CORE_LIB
+#ifdef QT5
 #include <QFile>
 #include <QDir>
 #endif
+#include "url.h"
 
 
 ConfigDB::ConfigDB(bool shared):m_shared(shared)
@@ -19,7 +20,7 @@ ConfigDB::ConfigDB(bool shared):m_shared(shared)
 std::string ConfigDB::val(const std::string& key) const
 {
     MUTEX_INSPECTOR;
-#ifdef QT_CORE_LIB
+#ifdef QT5
     QString fn=fileName(QString::fromStdString(key));
     QFile file(fn);
 
@@ -47,25 +48,20 @@ msockaddr_in ConfigDB::get_tcpaddr(const std::string&name, const std::string& de
     MUTEX_INSPECTOR;
     XTRY;
     std::string v=val(name);
-    if(v.size()==0)
+    if(v.empty())
     {
         v=defv;
     }
-    std::vector<std::string> _vv= iUtils->splitString(":",v);
+    Url u;
+    u.parse(v);
+    if(u.host=="INADDR_ANY")
+    {
+
+    }
+
     msockaddr_in bindAddr;
-    std::string serviceAddr,servicePort;
-    if (_vv.size()!=2) throw CommonError("error in LISTEN task line must be ADDR:PORT %s",v.c_str());
-    if (_vv.size()>0)
-        serviceAddr=_vv[0];
-    if (_vv.size()>1) servicePort=_vv[1];
-    if (serviceAddr=="INADDR_ANY")
-    {
-        bindAddr.setPort(atoi(servicePort.c_str()));
-    }
-    else
-    {
-        bindAddr.init(serviceAddr.c_str(),atoi(servicePort.c_str()));
-    }
+
+    bindAddr.init(u);
     return bindAddr;
     XPASS;
 
@@ -74,7 +70,7 @@ msockaddr_in ConfigDB::get_tcpaddr(const std::string&name, const std::string& de
 std::string ConfigDB::get_string(const std::string& name, const std::string& defv) const
 {
     std::string v=val(name);
-    if(v.size()==0)
+    if(v.empty())
     {
         v=defv;
     }
@@ -90,10 +86,10 @@ uint64_t ConfigDB::get_uint64_t(const std::string&name, const uint64_t& defv)con
 #ifdef _MSC_VER
     return atol(vv.c_str());
 #else
-    return atoll(vv.c_str());
+    return static_cast<uint64_t>(atoll(vv.c_str()));
 #endif
 }
-#ifdef QT_CORE_LIB
+#ifdef QT5
 QString ConfigDB::fileName(const QString &k) const
 {
     QString baseDir=QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
@@ -109,7 +105,6 @@ QString ConfigDB::fileName(const QString &k) const
     return baseDir;
 
 }
-//#endif
 #else
 std::string ConfigDB::fileName(const std::string &k) const
 {
@@ -130,7 +125,7 @@ std::string ConfigDB::fileName(const std::string &k) const
 void ConfigDB::set(const std::string&k, const std::string&v)
 {
     MUTEX_INSPECTOR;
-#ifdef QT_CORE_LIB
+#ifdef QT5
     QString fn=fileName(QString::fromStdString(k));
     if(v.size())
     {
@@ -151,7 +146,7 @@ void ConfigDB::set(const std::string&k, const std::string&v)
     }
 #else
     std::string pn=fileName(k);
-    if(v.size())
+    if(!v.empty())
     {
         st_FILE f(pn.c_str(),"wb");
         fwrite(v.data(),1,v.size(),f.f);

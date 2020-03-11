@@ -10,7 +10,6 @@
 #include "VERSION_id.h"
 #include "GlobalCookie_id.h"
 #ifndef __ANDROID__
-//#include "sqlite3Wrapper.h"
 #endif
 
 ///       Service sandbox management
@@ -48,10 +47,10 @@ public:
 
 
     /// get pointer to service, initialize it if not running
-    virtual UnknownBase * getServiceOrCreate(const SERVICE_id& id)=0;
+    virtual UnknownBase*  getServiceOrCreate(const SERVICE_id& id)=0;
 
     /// get pointer to service without init
-    virtual UnknownBase * getServiceNoCreate(const SERVICE_id& id)=0;
+    virtual UnknownBase* getServiceNoCreate(const SERVICE_id& id)=0;
 
     /// get config for current sanbox
     virtual IConfigObj* getConfig()=0;
@@ -70,6 +69,8 @@ public:
 
     /// set config for this sandbox
     virtual void setConfig(IConfigObj *value)=0;
+
+    virtual std::string getName()=0;
 
 };
 

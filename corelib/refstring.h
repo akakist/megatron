@@ -8,13 +8,11 @@
 /// refbuffer - string replacement with recount
 struct refbuffer: public Refcountable
 {
-//    friend REF_getter<refbuffer> toRef(const std::string&s);
 private:
 public:
     uint8_t * buffer;
     size_t size_;
     size_t capacity;
-//    uint8_t* data(){return buffer;}
 
     std::string asString()
     {
@@ -28,16 +26,16 @@ public:
         if(buffer)
             ::free(buffer);
     }
-//    uint8_t * alloc(size_t sz)
-//    {
-//        if(size>=sz && buffer)
-//            return buffer;
-//        if(buffer)
-//            free(buffer);
-//        buffer=(uint8_t*)malloc(sz+0x20);
-//        size=sz+10;
-//        return buffer;
-//    }
+    uint8_t * alloc(size_t sz)
+    {
+        if(size_>=sz && buffer)
+            return buffer;
+        if(buffer)
+            free(buffer);
+        buffer=(uint8_t*)malloc(sz+0x20);
+        size_=sz+10;
+        return buffer;
+    }
 };
 
 inline REF_getter<refbuffer> toRef(const std::string&s)

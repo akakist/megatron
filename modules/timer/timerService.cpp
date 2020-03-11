@@ -1,14 +1,14 @@
 #include "timerService.h"
 #include "events_timer.hpp"
-#if !defined __MOBILE__
-
+#include "colorOutput.h"
+#if !defined __MOBILE__ && !defined __FreeBSD__
 #include <sys/timeb.h>
 #endif
-#ifndef __ANDROID_API__
+#if !defined __ANDROID_API__ && !defined __FreeBSD__
 #include <sys/timeb.h>
 #endif
 #include "version_mega.h"
-int Timer::task::total=0;
+//int Timer::task::total=0;
 Integer getNow()
 {
 
@@ -31,12 +31,12 @@ Integer getNow()
     {
         throw CommonError("clock_gettime: errno %d",errno);
     }
-    uint64_t _1=tstmp.tv_sec;
+    auto _1=tstmp.tv_sec;
     _1*=1000000;
-    uint64_t _2=tstmp.tv_nsec;
+    auto _2=tstmp.tv_nsec;
     _2/=1000;
 
-    now=_1;
+    now= static_cast<uint64_t>(_1);
     now+=_2;
     Integer v;
     v.set(now);
@@ -53,25 +53,38 @@ Timer::Service::Service(const SERVICE_id& id, const std::string& nm, IInstance* 
 
     ListenerBuffered1Thread(this,nm,ifa->getConfig(),id,ifa),
     Broadcaster(ifa),
-    Logging(this,ERROR_log,ifa),
+    all(new _all),
+    nexts(new _nexts),
     iInstance(ifa),
     m_isTerminating(false)
 
 {
 }
+void Timer::Service::deinit()
+{
+    m_isTerminating=true;
+    nexts->clear();
+    all->clear();
+    {
+        nexts->m_condition.broadcast();
+    }
+    int err=pthread_join(m_pt_of_thread,NULL);
+    if(err)
+    {
+        printf(RED("%s pthread_join: %s"),__PRETTY_FUNCTION__,strerror(errno));
+    }
+
+    ListenerBuffered1Thread::denit();
+}
 
 Timer::Service::~Service()
 {
-    m_isTerminating=true;
-    nexts.clear();
-    all.clear();
-    {
-        nexts.m_condition.broadcast();
-    }
-    pthread_join(m_pt_of_thread,NULL);
+
+
 }
 bool Timer::Service::on_startService(const systemEvent::startService*)
 {
+
     XTRY;
     if(pthread_create(&m_pt_of_thread,NULL,__worker,this))
     {
@@ -84,10 +97,11 @@ bool Timer::Service::on_startService(const systemEvent::startService*)
 
 void* Timer::Service::__worker(void*p)
 {
+
 #ifdef __MACH__
     pthread_setname_np("Timer");
 #else
-#ifndef _WIN32
+#if !defined _WIN32 && !defined __FreeBSD__
     pthread_setname_np(pthread_self(),"Timer");
 #endif
 #endif
@@ -106,33 +120,45 @@ void Timer::Service::worker()
             {
                 {
                     XTRY;
-                    //if(iInstance->isTerminating()) return;
                     if(m_isTerminating) return;
 
                     {
-                        M_LOCKC(nexts.m_mutex);
-                        if(nexts.mx_nexts.size()==0)
+                        auto n=nexts;
+                        if(!n.valid())
+                            return;
                         {
-                            XTRY;
-                            if(m_isTerminating) return;
-                            //if(iInstance->isTerminating()) return;
-                            nexts.m_condition.wait();
-                            if(m_isTerminating) return;
-                            //if(iInstance->isTerminating()) return;
-                            XPASS;
+                            M_LOCKC(n->m_mutex);
+                            if(n->mx_nexts.size()==0)
+                            {
+                                XTRY;
+                                if(m_isTerminating) return;
+                                //if(iInstance->isTerminating()) return;
+                                n->m_condition.wait();
+                                if(m_isTerminating) return;
+                                //if(iInstance->isTerminating()) return;
+                                XPASS;
+                            }
                         }
                     }
 
                     while(1)
                     {
+                        if(m_isTerminating) return;
                         Integer itFirst;
                         std::deque<REF_getter<task> > itSecondCopy;
+                        auto n=nexts;
+                        auto a=all;
+                        if(!n.valid())
+                            return;
+                        if(!a.valid())
+                            return;
                         {
-                            M_LOCKC(nexts.m_mutex);
-                            if(nexts.mx_nexts.size())
+                            M_LOCKC(n->m_mutex);
+                            if(m_isTerminating) return;
+                            if(n->mx_nexts.size())
                             {
                                 Integer now=getNow();
-                                std::map<Integer,std::deque<REF_getter<task> > >::iterator it2=nexts.mx_nexts.begin();
+                                auto it2=n->mx_nexts.begin();
                                 itFirst=it2->first;
                                 std::deque<REF_getter<task> > &itSecondRef=it2->second;
                                 if(getNow()<itFirst)
@@ -156,9 +182,8 @@ void Timer::Service::worker()
                                     if(m_isTerminating) return;
                                     //if(iInstance->isTerminating()) return;
                                     {
-                                        nexts.m_condition.timedwait(ts);
+                                        n->m_condition.timedwait(ts);
                                     }
-                                    //if(iInstance->isTerminating()) return;
                                     if(m_isTerminating) return;
 
                                     XPASS;
@@ -167,15 +192,15 @@ void Timer::Service::worker()
                                 else
                                 {
                                     itSecondCopy=itSecondRef;
-                                    nexts.mx_nexts.erase(itFirst);
+                                    n->mx_nexts.erase(itFirst);
                                 }
                             }
-                            //if(iInstance->isTerminating()) return;
                             if(m_isTerminating) return;
 
                         }
                         for(size_t i=0; i<itSecondCopy.size(); i++)
                         {
+                            if(m_isTerminating) return;
                             REF_getter<task> t=itSecondCopy[i];
                             if(!t->erased)
                             {
@@ -185,8 +210,8 @@ void Timer::Service::worker()
                                     REF_getter<Event::Base> e=new timerEvent::TickTimer(t->id, t->data,t->cookie,t->destination);
                                     passEvent(e);
                                     {
-                                        M_LOCKC(nexts.m_mutex);
-                                        nexts.mx_nexts[getNow() + t->period_real*1000000].push_back(t);
+                                        M_LOCKC(n->m_mutex);
+                                        n->mx_nexts[getNow() + t->period_real*1000000].push_back(t);
                                     }
                                     XPASS;
                                 }
@@ -195,12 +220,12 @@ void Timer::Service::worker()
                                     REF_getter<Event::Base> e=new timerEvent::TickAlarm(t->id,t->data, t->cookie, t->destination);
                                     passEvent(e);
                                     REF_getter<task> t=itSecondCopy[i];
-                                    all.remove_t_only(t);
+                                    a->remove_t_only(t);
                                 }
                             }
                             else
                             {
-                                all.remove_t_only(t);
+                                a->remove_t_only(t);
                             }
                         }
                     }
@@ -221,10 +246,17 @@ void Timer::Service::worker()
 }
 bool Timer::Service::on_SetTimer(const timerEvent::SetTimer* ev)
 {
+    if(m_isTerminating)return false;
+    auto n=nexts;
+    auto a=all;
+    if(!n.valid())
+        return true;
+    if(!a.valid())
+        return true;
     route_t r=ev->route;
     r.pop_front();
     REF_getter<task> t=new task(task::TYPE_TIMER,ev->tid,ev->data,ev->cookie,r,ev->delay_secs);
-    all.add(t);
+    a->add(t);
 
     Integer tb=getNow();
     real d=ev->delay_secs;
@@ -232,61 +264,78 @@ bool Timer::Service::on_SetTimer(const timerEvent::SetTimer* ev)
     tb+=d;
 
     {
-        M_LOCKC(nexts.m_mutex);
-        nexts.mx_nexts[tb].push_back(t);
+        M_LOCKC(n->m_mutex);
+        n->mx_nexts[tb].push_back(t);
     }
-    //logErr2("setTimer signal");
-    nexts.m_condition.signal();
+    n->m_condition.signal();
     return true;
 }
 bool Timer::Service::on_SetAlarm(const timerEvent::SetAlarm* ev)
 {
     XTRY;
+    if(m_isTerminating)return false;
+    auto n=nexts;
+    auto a=all;
+    if(!n.valid())
+        return true;
+    if(!a.valid())
+        return true;
 
     route_t r=ev->route;
     r.pop_front();
     REF_getter<task> t=new task(task::TYPE_ALARM,ev->tid,ev->data,ev->cookie,r,ev->delay_secs);
-    all.add(t);
+    a->add(t);
     Integer tb=getNow();
     real d=ev->delay_secs;
     d*=1000000;
     tb+=d;
     {
         XTRY;
-        M_LOCKC(nexts.m_mutex);
-        nexts.mx_nexts[tb].push_back(t);
+        M_LOCKC(n->m_mutex);
+        n->mx_nexts[tb].push_back(t);
         XPASS;
     }
-    nexts.m_condition.signal();
+    n->m_condition.signal();
     XPASS;
     return true;
 }
 bool Timer::Service::on_StopTimer(const timerEvent::StopTimer* ev)
 {
     XTRY;
+    if(m_isTerminating)return false;
+    auto a=all;
+    if(!a.valid())
+        return true;
     route_t r=ev->route;
     r.pop_front();
     REF_getter<task> t=new task(task::TYPE_TIMER,ev->tid,ev->data,new refbuffer,r,0);
-    all.remove(t);
+    a->remove(t);
     XPASS;
     return true;
 }
 bool Timer::Service::on_ResetAlarm(const timerEvent::ResetAlarm* ev)
 {
     XTRY;
+    if(m_isTerminating)return false;
+    auto n=nexts;
+    auto a=all;
+    if(!n.valid())
+        return true;
+    if(!a.valid())
+        return true;
     route_t r=ev->route;
     r.pop_front();
     REF_getter<task> t=new task(task::TYPE_ALARM,ev->tid,ev->data,ev->cookie,r,ev->delay_secs);
-    all.replace(t);
+    a->replace(t);
     Integer tb=getNow();
     real d=ev->delay_secs;
     d*=1000000;
     tb+=d;
     {
-        M_LOCKC(nexts.m_mutex);
-        nexts.mx_nexts[tb].push_back(t);
+        M_LOCKC(n->m_mutex);
+        n->mx_nexts[tb].push_back(t);
     }
-    nexts.m_condition.signal();
+    n->m_condition.signal();
     XPASS;
     return true;
 }
@@ -294,10 +343,14 @@ bool Timer::Service::on_ResetAlarm(const timerEvent::ResetAlarm* ev)
 bool Timer::Service::on_StopAlarm(const timerEvent::StopAlarm* ev)
 {
     XTRY;
+    if(m_isTerminating)return false;
+    auto a=all;
+    if(!a.valid())
+        return true;
     route_t r=ev->route;
     r.pop_front();
     REF_getter<task> t=new task(task::TYPE_ALARM,ev->tid,ev->data,new refbuffer,r,0);
-    all.remove(t);
+    a->remove(t);
     XPASS;
     return true;
 }
@@ -306,7 +359,7 @@ void registerTimerService(const char* pn)
 {
     if(pn)
     {
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::Timer,"Timer");
+        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::Timer,"Timer",getEvents_timer());
     }
     else
     {
@@ -317,6 +370,7 @@ void registerTimerService(const char* pn)
 
 bool Timer::Service::handleEvent(const REF_getter<Event::Base>& e)
 {
+    MUTEX_INSPECTOR;
     XTRY;
     auto &ID=e->id;
     if(timerEventEnum::SetTimer==ID)
@@ -337,3 +391,85 @@ bool Timer::Service::handleEvent(const REF_getter<Event::Base>& e)
 
 }
 
+
+
+Json::Value Timer::task::jdump()
+{
+    Json::Value v;
+    v["type"]= type==TYPE_ALARM?"ALARM":"TIMER";
+    v["destination"]=destination.dump();
+    v["period_real"]=period_real;
+    v["id"]=id;
+
+    return v;
+}
+int Timer::_searchKey::operator < (const _searchKey& b) const
+{
+    const _searchKey& a=*this;
+    if(a.t->id != b.t->id)
+        return a.t->id < b.t->id;
+
+    if(a.t->type != b.t->type)
+        return a.t->type < b.t->type;
+
+    if(!(a.t->destination == b.t->destination))
+        return a.t->destination < b.t->destination;
+
+    return std::string((char*)a.t->data->buffer,a.t->data->size_) < std::string((char*)b.t->data->buffer,b.t->data->size_);
+    return 0;
+}
+void Timer::_all::clear()
+{
+    M_LOCK(this);
+    timers.clear();
+}
+int Timer::_all::exists(const REF_getter<task>& tt)
+{
+    M_LOCK(this);
+    return timers.count(tt);
+}
+void Timer::_all::replace(const REF_getter<task>& t)
+{
+    M_LOCK(this);
+    std::set<REF_getter<task> > &s=timers[t];
+    for(auto& i:s)
+    {
+        REF_getter<task> task=i;
+        task->erased=true;
+    }
+    timers.erase(t);
+    timers[t].insert(t);
+}
+void Timer::_all::add(const REF_getter<task>& t)
+{
+    M_LOCK(this);
+    timers[t].insert(t);
+}
+void Timer::_all::remove_t_only(const REF_getter<task>&t)
+{
+    M_LOCK(this);
+    std::set<REF_getter<task> > &s=timers[t];
+    if(s.count(t))
+    {
+        s.erase(t);
+    }
+}
+void Timer::_all::remove(const REF_getter<task>& t)
+{
+    M_LOCK(this);
+    std::set<REF_getter<task> > &s=timers[t];
+    bool found=false;
+    for(auto& i:s)
+    {
+        REF_getter<task> t=i;
+        t->erased=true;
+        found=true;
+    }
+    timers.erase(t);
+    if(!found)
+    {
+    }
+    else
+    {
+    }
+}

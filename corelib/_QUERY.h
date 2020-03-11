@@ -1,11 +1,9 @@
 #ifndef __DB_POSTGRES_QUERY_H
 #define __DB_POSTGRES_QUERY_H
 
+
 #include <string>
-#include <vector>
 #include <deque>
-#include "queryResult.h"
-#include <stdint.h>
 #include "Rational.h"
 
 #define MAX_PARAMS_IN_SQL		64

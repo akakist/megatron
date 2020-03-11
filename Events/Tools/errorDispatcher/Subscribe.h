@@ -4,28 +4,28 @@
 namespace errorDispatcherEvent
 {
 
-class Subscribe: public Event::Base
-{
-    enum {rpcChannel=CHANNEL_100};
+    class Subscribe: public Event::Base
+    {
+        enum {rpcChannel=CHANNEL_100};
 
 
-public:
-    static Base* construct(const route_t &r)
-    {
-        return new Subscribe(r);
-    }
-    Subscribe(const route_t&r)
-        :Base(errorDispatcherEventEnum::Subscribe,rpcChannel,"errorDispatcherSubscribe",r) {}
-    void unpack(inBuffer&)
-    {
-    }
-    void pack(outBuffer&) const
-    {
-    }
-    void jdump(Json::Value &) const
-    {
-    }
-};
+    public:
+        static Base* construct(const route_t &r)
+        {
+            return new Subscribe(r);
+        }
+        Subscribe(const route_t&r)
+            :Base(errorDispatcherEventEnum::Subscribe,rpcChannel,r) {}
+        void unpack(inBuffer&)
+        {
+        }
+        void pack(outBuffer&) const
+        {
+        }
+        void jdump(Json::Value &) const
+        {
+        }
+    };
 
 }
 #endif

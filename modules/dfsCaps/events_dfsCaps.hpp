@@ -6,9 +6,12 @@ inline std::set<EVENT_id> getEvents_dfsCaps()
 {
 
 	std::set<EVENT_id> out;
+	out.insert(dfsCapsEventEnum::GetCloudRootsREQ);
+	out.insert(dfsCapsEventEnum::GetCloudRootsRSP);
 	out.insert(dfsCapsEventEnum::GetReferrersREQ);
 	out.insert(dfsCapsEventEnum::GetReferrersRSP);
-	out.insert(dfsCapsEventEnum::RegisterMyRefferrerREQ);
+	out.insert(dfsCapsEventEnum::RegisterCloudRoot);
+	out.insert(dfsCapsEventEnum::RegisterMyRefferrerNodeREQ);
 	out.insert(dfsReferrerEventEnum::ToplinkDeliverREQ);
 	out.insert(dfsReferrerEventEnum::ToplinkDeliverRSP);
 	out.insert(rpcEventEnum::IncomingOnAcceptor);
@@ -24,9 +27,12 @@ inline std::set<EVENT_id> getEvents_dfsCaps()
 
 inline void regEvents_dfsCaps()
 {
+	iUtils->registerEvent(dfsCapsEvent::GetCloudRootsREQ::construct);
+	iUtils->registerEvent(dfsCapsEvent::GetCloudRootsRSP::construct);
 	iUtils->registerEvent(dfsCapsEvent::GetReferrersREQ::construct);
 	iUtils->registerEvent(dfsCapsEvent::GetReferrersRSP::construct);
-	iUtils->registerEvent(dfsCapsEvent::RegisterMyRefferrerREQ::construct);
+	iUtils->registerEvent(dfsCapsEvent::RegisterCloudRoot::construct);
+	iUtils->registerEvent(dfsCapsEvent::RegisterMyRefferrerNodeREQ::construct);
 	iUtils->registerEvent(dfsReferrerEvent::ToplinkDeliverREQ::construct);
 	iUtils->registerEvent(dfsReferrerEvent::ToplinkDeliverRSP::construct);
 	iUtils->registerEvent(rpcEvent::IncomingOnAcceptor::construct);

@@ -33,18 +33,16 @@
 #include "Events/System/Net/rpc/Binded.h"
 #include "Events/System/timer/TickTimer.h"
 #include "Events/System/timer/TickAlarm.h"
-#include "Events/DFS/Referrer/Elloh.h"
 #include "Events/DFS/Referrer/Hello.h"
 #include "Events/DFS/Referrer/NotifyReferrer.h"
 #include "Events/DFS/Referrer/NotifyReferrer.h"
 #include "Events/DFS/Referrer/NotifyReferrer.h"
 #include "Events/DFS/Referrer/NotifyReferrer.h"
 #include "Events/DFS/Referrer/Ping.h"
-#include "Events/DFS/Referrer/Pong.h"
 #include "Events/DFS/Referrer/SubscribeNotifications.h"
 #include "Events/DFS/Referrer/InitClient.h"
 
-#include "Events/DFS/Caps/RegisterMyRefferrer.h"
+#include "Events/DFS/Caps/RegisterMyRefferrerNode.h"
 #include "Events/DFS/Caps/GetRefferrers.h"
 #include "Events/System/Net/rpc/SubscribeNotifications.h"
 #if !defined(WITHOUT_UPNP)
@@ -80,10 +78,9 @@ namespace referrerClient
 
 
     class Service:
-        private UnknownBase,
-        private ListenerBuffered1Thread,
+        public UnknownBase,
+        public ListenerBuffered1Thread,
         public Broadcaster,
-        public Logging,
         public TimerHelper
     {
 
@@ -95,7 +92,6 @@ namespace referrerClient
 
 
 
-        //REF_getter<_uriReferals> urirefs;
 
         bool on_startService(const systemEvent::startService*);
 
@@ -126,7 +122,6 @@ namespace referrerClient
         void _stop_alarm(int alarm_id, const msockaddr_in& sa);
         void _stop_alarm(int alarm_id1,int alarm_id2, const msockaddr_in& sa);
         void _stop_alarm(int alarm_id1,int alarm_id2,int alarm_id3, const msockaddr_in& sa);
-        //void _stop_alarm(int alarm_id, const AddrSet& sas);
 
         void reset_T_001_common_connect_failed();
 
@@ -152,7 +147,6 @@ namespace referrerClient
 
         /// maintain connection with caps
         void d6_start(const msockaddr_in& sa);
-        //void d6_on_T_007_D6_resend_ping_caps_short(const msockaddr_in& remote_addr);
         bool d6_on_pong_PT_CAPS_SHORT(const msockaddr_in&visible_name_of_pinger, const REF_getter<epoll_socket_info>&);
         bool d6_on_pong_PT_CAPS_LONG(const msockaddr_in&visible_name_of_pinger, const REF_getter<epoll_socket_info>&);
         void d6_on_T_011_resend_ping_PT_CAPS_LONG(const msockaddr_in& remote_addr);
@@ -180,9 +174,14 @@ namespace referrerClient
 
 
 
-        bool isCaps(const msockaddr_in& sa);
+//        bool isTopServer(const msockaddr_in& sa);
 
     public:
+        void deinit()
+        {
+            ListenerBuffered1Thread::denit();
+        }
+
         Service(const SERVICE_id &svs, const std::string&  nm,IInstance* ifa);
         static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa);
         ~Service();

@@ -5,7 +5,7 @@ ListenerSimple::~ListenerSimple()
 }
 
 
-ListenerSimple::ListenerSimple(UnknownBase *i, const std::string& name,IConfigObj*, const SERVICE_id& sid):ListenerBase(i,name,sid) {}
+ListenerSimple::ListenerSimple(const std::string& name,IConfigObj*, const SERVICE_id& sid):ListenerBase(name,sid) {}
 
 void ListenerSimple::listenToEvent(const std::deque<REF_getter<Event::Base> >&D)
 {
@@ -13,9 +13,9 @@ void ListenerSimple::listenToEvent(const std::deque<REF_getter<Event::Base> >&D)
         for(size_t DI=0; DI<D.size(); DI++)
         {
             if(!D[DI].valid()) return;
-            for(std::vector<std::pair<eventhandler,void*> >::iterator i=handlers.begin(); i!=handlers.end(); i++)
+            for(auto& i:handlers)
             {
-                if(i->first(D[DI].operator ->(),i->second))
+                if(i.first(D[DI].operator ->(),i.second))
                     return;
             }
             if(!handleEvent(D[DI].operator ->()))
@@ -37,9 +37,9 @@ void ListenerSimple::listenToEvent(const REF_getter<Event::Base>& e)
     XTRY;
     try {
         if(!e.valid()) return;
-        for(std::vector<std::pair<eventhandler,void*> >::iterator i=handlers.begin(); i!=handlers.end(); i++)
+        for(auto& i:handlers)
         {
-            if(i->first(e.operator ->(),i->second))
+            if(i.first(e.operator ->(),i.second))
                 return;
         }
         if(!handleEvent(e.operator ->()))

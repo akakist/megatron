@@ -41,15 +41,19 @@ public:
     route_t(const SERVICE_id& id);
     route_t(ObjectHandlerPolled* id);
     route_t(ObjectHandlerThreaded* id);
+    route_t(const std::string &javaCookie,ObjectHandlerPolled* id);
+    route_t(const std::string &javaCookie,ObjectHandlerThreaded* id);
 
     std::string dump() const;
     void push_front(const REF_getter<Route>& v);
+    void push_front(const route_t& r);
     REF_getter<Route> pop_front();
     size_t size()const ;
     void pack(outBuffer&o) const;
     void unpack(inBuffer&o);
     int operator<(const route_t& a) const;
     bool operator==(const route_t& a) const;
+    std::string getLastJavaCookie() const;
 
 };
 outBuffer& operator << (outBuffer& b, const route_t & r);
@@ -60,7 +64,7 @@ class LocalServiceRoute:public Route
 public:
     SERVICE_id id;
     LocalServiceRoute(const SERVICE_id& _id): Route(Route::LOCALSERVICE),id(_id) {}
-    LocalServiceRoute():Route(Route::LOCALSERVICE),id(0L) {}
+    LocalServiceRoute():Route(Route::LOCALSERVICE) {}
     void unpack(inBuffer&o);
     void pack(outBuffer&o) const;
     std::string dump()const;

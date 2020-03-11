@@ -40,6 +40,8 @@ void  Url::clear()
 };
 void  Url::parse(const std::string& u)
 {
+
+
     clear();
     std::string::size_type curpos=0;
     std::string hostmax;
@@ -73,7 +75,20 @@ void  Url::parse(const std::string& u)
             else user=lp;
 
         }
-        pz=hostmax.find(":",cp);
+
+        bool inSkobka=false;
+        pz=std::string::npos;
+        for(size_t i=cp; i<hostmax.size(); i++)
+        {
+            if(hostmax[i]=='[') inSkobka=true;
+            if(hostmax[i]==']') inSkobka=false;
+            if(!inSkobka && hostmax[i]==':')
+            {
+                pz=i;
+                break;
+            }
+
+        }
         if(pz!=std::string::npos)
         {
             host=hostmax.substr(cp,pz-cp);
@@ -115,7 +130,27 @@ void  Url::parse(const std::string& u)
             else user=lp;
 
         }
-        pz=hostmax.find(":",cp);
+
+        bool inSkobka=false;
+        pz=std::string::npos;
+        for(size_t i=cp; i<hostmax.size(); i++)
+        {
+            if(hostmax[i]=='[') {
+                inSkobka=true;
+                continue;
+            }
+            if(hostmax[i]==']') {
+                inSkobka=false;
+                continue;
+            }
+            if(!inSkobka && hostmax[i]==':')
+            {
+                pz=i;
+                break;
+            }
+
+        }
+
         if(pz!=std::string::npos)
         {
             host=hostmax.substr(cp,pz-cp);
@@ -125,6 +160,8 @@ void  Url::parse(const std::string& u)
         host_port=hostmax.substr(cp,hostmax.size()-cp);
 
     }
+    if(!host.empty() && host[0]=='[' && host[host.size()-1]==']')
+        host=host.substr(1,host.size()-2);
 
 
 }

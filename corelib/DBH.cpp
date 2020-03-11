@@ -19,7 +19,7 @@ st_DBH::st_DBH(DBH_source* src, bool _isTransaction): m_source(src),isTransactio
 
     MUTEX_INSPECTOR;
     if(isTransaction)
-        dbh->execSimple((std::string)"BEGIN");
+        dbh->exec((std::string)"BEGIN");
 
 }
 st_DBH::~st_DBH()
@@ -29,24 +29,17 @@ st_DBH::~st_DBH()
     if(isTransaction)
     {
         if(transactionResult)
-            dbh->execSimple((std::string)"COMMIT");
+            dbh->exec((std::string)"COMMIT");
         else
-            dbh->execSimple((std::string)"ROLLBACK");
+            dbh->exec((std::string)"ROLLBACK");
     }
 
     if (!m_source) logErr2("undefined DBH_source %s %d",__FILE__,__LINE__);
     m_source->unget(dbh);
 }
-DBH_source* DBH_source::cast(UnknownBase *c)
-{
-    MUTEX_INSPECTOR;
-    return static_cast<DBH_source*>(c->cast(UnknownCast::DBH_source));
-}
 
-DBH_source::DBH_source(UnknownBase* i)
+DBH_source::DBH_source()
 {
-    MUTEX_INSPECTOR;
-    i->addClass(UnknownCast::DBH_source,this);
 }
 
 void DBH::insertStrVal(std::map<std::string,std::string>&m,const std::string& name,const char* prefix, const std::string& val, const char* postfix)
@@ -59,10 +52,10 @@ std::string DBH::insertString(const std::map<std::string,std::string>&m, const c
     MUTEX_INSPECTOR;
     std::string ret;
     std::vector<std::string> v1,v2;
-    for(std::map<std::string,std::string>::const_iterator i=m.begin(); i!=m.end(); ++i)
+    for(auto& i:m)
     {
-        v1.push_back(i->first);
-        v2.push_back(i->second);
+        v1.push_back(i.first);
+        v2.push_back(i.second);
     }
     ret.append("insert into ").append(tblname).append("(").append(iUtils->join(",",v1)).append(") values (").append(iUtils->join(",",v2)).append(")");
     return ret;
@@ -134,6 +127,11 @@ int64_t DBH::select_1_int_orThrow(const QUERY &q)
 {
 
     return atoll(select_1_orThrow(q).c_str());
+}
+int64_t DBH::select_1_real_orThrow(const QUERY &q)
+{
+
+    return atof(select_1_orThrow(q).c_str());
 }
 
 

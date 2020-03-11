@@ -24,10 +24,10 @@ namespace ErrorDispatcher
 {
 
     class Service:
-        private UnknownBase,
-        private ListenerBuffered1Thread,
-        private Broadcaster,
-        public Logging
+        public UnknownBase,
+        public ListenerBuffered1Thread,
+        public Broadcaster
+
     {
         bool on_errorDispatcherSendMessage(const errorDispatcherEvent::SendMessage*);
         bool on_errorDispatcherSubscribe(const errorDispatcherEvent::Subscribe*);
@@ -45,6 +45,10 @@ namespace ErrorDispatcher
         //std::map<std::string,std::string> m_cache;
 
     public:
+        void deinit()
+        {
+            ListenerBuffered1Thread::denit();
+        }
         static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa)
         {
             XTRY;

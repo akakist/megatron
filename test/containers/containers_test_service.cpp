@@ -7,33 +7,99 @@
 #include "main/CInstance.h"
 #include "Events/System/Run/startService.h"
 #include "tools_mt.h"
-//#include "Events/System/Net/rpc/IncomingOnAcceptor.h"
-//#include "Events/System/Net/rpc/IncomingOnConnector.h"
-//#include "Events/System/Net/rpc/SubscribeNotifications.h"
-//#include "Events/System/timer/TickAlarm.h"
-//bool done_test=false;
-//#define BUF_SIZE_MAX (8*100*1)
-//#define N_PONG 12000
-//#define TI_ACTIVITY_VALUE 2.0
-//#define USE_LOCAL 1
-
-//#define REMOTE_ADDR "localhost:2001"
-//int session=0;
+#include "url.h"
+#include "colorOutput.h"
+#include "ISSL.h"
+#include "main/configObj.h"
 namespace ServiceEnum {
     const SERVICE_id CTRTest("CTRTest");
 }
 namespace testEventEnum {
 }
 
+template <class T1, class T2> bool ASSERT_eq(const char* file, int line, const char* func, const T1& t1, const T2& t2)
+{
+    if(t1!=t2)
+    {
+        std::cout <<ANSI_COLOR_RED " compare failed ";
+        std::cout<< "t1"<< t1 << " t2 "<<t2;
+        std::cout<< ANSI_COLOR_RESET;
+        return true;
+    }
+    return false;
+}
 
+#define ASSERT_EQ(a,b) if(ASSERT_eq(__FILE__,__LINE__,__PRETTY_FUNCTION__,a,b)){return;}
+void TEST1()
+{
+    Url u;
+    u.parse("INADDR_ANY:8080");
+//    logErr2("u dump %s",u.dump().c_str());
+    ASSERT_EQ(u.protocol,"");
+    ASSERT_EQ(u.user,"");
+    ASSERT_EQ(u.pass,"");
+    ASSERT_EQ(u.host,"INADDR_ANY");
+    ASSERT_EQ(u.port,"8080");
+    ASSERT_EQ(u.dirname,"");
+    ASSERT_EQ(u.filename,"");
+    printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
 
+}
+
+void TEST2()
+{
+    Url u;
+    u.parse("http://akakist:tipaopa@[fc20:634b:308f:a3f7:4efa:f817:8631:15e5]:22/bla/faka/blaz?aaa=1&bbb=2");
+//    logErr2("u dump %s",u.dump().c_str());
+    ASSERT_EQ(u.protocol,"http");
+    ASSERT_EQ(u.user,"akakist");
+    ASSERT_EQ(u.pass,"tipaopa");
+    ASSERT_EQ(u.host,"fc20:634b:308f:a3f7:4efa:f817:8631:15e5");
+    ASSERT_EQ(u.port,"22");
+    ASSERT_EQ(u.dirname,"/bla/faka");
+    ASSERT_EQ(u.filename,"blaz");
+    printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
+}
+void TEST3()
+{
+    Url u;
+    u.parse("http://192.168.1.0:22/bla/faka/blaz");
+    ASSERT_EQ(u.protocol,"http");
+    ASSERT_EQ(u.user,"");
+    ASSERT_EQ(u.pass,"");
+    ASSERT_EQ(u.host,"192.168.1.0");
+    ASSERT_EQ(u.port,"22");
+    ASSERT_EQ(u.dirname,"/bla/faka");
+    ASSERT_EQ(u.filename,"blaz");
+    printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
+}
+void TEST4()
+{
+    Url u;
+    u.parse("http://akakist:tipaopa@192.168.1.0:22/bla/faka/blaz?aaa=1&bbb=2");
+    ASSERT_EQ(u.protocol,"http");
+    ASSERT_EQ(u.user,"akakist");
+    ASSERT_EQ(u.pass,"tipaopa");
+    ASSERT_EQ(u.host,"192.168.1.0");
+    ASSERT_EQ(u.port,"22");
+    ASSERT_EQ(u.dirname,"/bla/faka");
+    ASSERT_EQ(u.filename,"blaz");
+    ASSERT_EQ(u.params,"aaa=1&bbb=2");
+    printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
+
+}
 
 
 class CTRTest: public ITests::Base
 {
 public:
     int zzz;
-    void run();
+    int run();
+    std::string getName()
+    {
+        return "CTRTest";
+    }
+
     CTRTest() {
         zzz=100;
     }
@@ -56,7 +122,7 @@ template <class T> void fillrnd(I_ssl*ssl,T &z)
 template <class T> void fillrnd(I_ssl* ssl, std::vector<T> &z)
 {
     int rnd=rand()%10000;
-    for(int i=0;i<rnd;i++)
+    for(int i=0; i<rnd; i++)
     {
         int z1;
         fillrnd(ssl,z1);
@@ -67,7 +133,7 @@ template <class T> void fillrnd(I_ssl* ssl, std::vector<T> &z)
 template <class T> void fillrnd(I_ssl* ssl, std::deque<T> &z)
 {
     int rnd=rand()%10000;
-    for(int i=0;i<rnd;i++)
+    for(int i=0; i<rnd; i++)
     {
         int z1;
         fillrnd(ssl,z1);
@@ -78,7 +144,7 @@ template <class T> void fillrnd(I_ssl* ssl, std::deque<T> &z)
 template <class T> void fillrnd(I_ssl* ssl, std::set<T> &z)
 {
     int rnd=rand()%10000;
-    for(int i=0;i<rnd;i++)
+    for(int i=0; i<rnd; i++)
     {
         int z1;
         fillrnd(ssl,z1);
@@ -89,7 +155,7 @@ template <class T> void fillrnd(I_ssl* ssl, std::set<T> &z)
 template <class T1,class T2> void fillrnd(I_ssl* ssl, std::map<T1,T2> &z)
 {
     int rnd=rand()%10000;
-    for(int i=0;i<rnd;i++)
+    for(int i=0; i<rnd; i++)
     {
         int z1;
         fillrnd(ssl,z1);
@@ -115,18 +181,48 @@ struct a
     std::map<unsigned  long,int> n10;
     std::deque<int64_t>    n11;
     std::set<uint16_t> n12;
-    bool operator !=(const a& z)
+    bool operator !=(const a& z) const
     {
-        if(n1!=z.n1){logErr2("fail %d",__LINE__); return true;}
-        if(n2!=z.n2){logErr2("fail %d",__LINE__); return true;}
-        if(n3!=z.n3){logErr2("fail %d",__LINE__); return true;}
-        if(n4!=z.n4){logErr2("fail %d",__LINE__); return true;}
-        if(n5!=z.n5){logErr2("fail %d",__LINE__); return true;}
-        if(n6!=z.n6){logErr2("fail %d",__LINE__); return true;}
-        if(n7!=z.n7){logErr2("fail %d",__LINE__); return true;}
-        if(n8!=z.n8) {logErr2("fail %d",__LINE__); return true;}
-        if(n9!=z.n9){logErr2("fail %d",__LINE__); return true;}
-        if(n10!=z.n10){logErr2("fail %d",__LINE__); return true;}
+        if(n1!=z.n1) {
+            logErr2("fail %d",__LINE__);
+            return true;
+        }
+        if(n2!=z.n2) {
+            logErr2("fail %d",__LINE__);
+            return true;
+        }
+        if(n3!=z.n3) {
+            logErr2("fail %d",__LINE__);
+            return true;
+        }
+        if(n4!=z.n4) {
+            logErr2("fail %d",__LINE__);
+            return true;
+        }
+        if(n5!=z.n5) {
+            logErr2("fail %d",__LINE__);
+            return true;
+        }
+        if(n6!=z.n6) {
+            logErr2("fail %d",__LINE__);
+            return true;
+        }
+        if(n7!=z.n7) {
+            logErr2("fail %d",__LINE__);
+            return true;
+        }
+        if(n8!=z.n8) {
+            logErr2("fail %d",__LINE__);
+            return true;
+        }
+        if(n9!=z.n9) {
+            logErr2("fail %d",__LINE__);
+            return true;
+        }
+        if(n10!=z.n10) {
+            logErr2("fail %d",__LINE__);
+            return true;
+        }
         if(n11!=z.n11) return true;
         if(n12!=z.n12) return true;
         return false;
@@ -150,18 +246,18 @@ struct a
 };
 inline outBuffer& operator<< (outBuffer& b,const a& s)
 {
-   b<<s.n1
-    <<s.n2
-    <<s.n3
-    <<s.n4
-    <<s.n5
-    <<s.n6
-    <<s.n7
-    <<s.n8
-    <<s.n9
-    <<s.n10
-    <<s.n11
-    <<s.n12;
+    b<<s.n1
+     <<s.n2
+     <<s.n3
+     <<s.n4
+     <<s.n5
+     <<s.n6
+     <<s.n7
+     <<s.n8
+     <<s.n9
+     <<s.n10
+     <<s.n11
+     <<s.n12;
     return b;
 }
 inline inBuffer& operator>> (inBuffer& b,  a& s)
@@ -190,7 +286,7 @@ struct Z
     {
         I_ssl *ssl=(I_ssl*)iUtils->queryIface(Ifaces::SSL);
         int rnd=rand()%10000;
-        for(int i=0;i<rnd;i++)
+        for(int i=0; i<rnd; i++)
         {
             int r2=rand()%10000;
             uint8_t s[r2];
@@ -199,12 +295,21 @@ struct Z
         }
 
     }
-    bool operator !=(const Z& z)
+    bool operator !=(const Z& z) const
     {
-        if(_a!=z._a){ logErr2("a failed");return true;}
-//        if(_n!=z._n){ logErr2("n failed");return true;}
-        if(strs!=z.strs){ logErr2("strs failed");return true;}
+        if(_a!=z._a) {
+            logErr2("a failed");
+            return true;
+        }
+        if(strs!=z.strs) {
+            logErr2("strs failed");
+            return true;
+        }
         return false;
+    }
+    bool operator ==(const Z& z) const
+    {
+        return !operator !=(z);
     }
 };
 inline outBuffer& operator<< (outBuffer& b,const Z& s)
@@ -222,104 +327,101 @@ inline inBuffer& operator>> (inBuffer& b,  Z& s)
     b>>s.strs;
     return b;
 }
-inline void testIoBuffer()
+void TEST5()
 {
-    try
-
+//    try
+//    {
+    uint64_t sn[]= {
+        0xFFFFFFFFFFFFFFFF,
+        0xFFFFFFFFFFFFFFF,
+        0xFFFFFFFFFFFFFF,
+        0xFFFFFFFFFFFFF,
+        0xFFFFFFFFFFFF,
+        0xFFFFFFFFFFF,
+        0xFFFFFFFFFF,
+        0xFFFFFFFFF,
+        0xFFFFFFFF,
+        0xFFFFFFF,
+        0xFFFFFF,
+        0xFFFFF,
+        0xFFFF,
+        0xFFF,
+        0xFF,
+        0xF
+    };
+    for(int i=sizeof(sn)-1; i>=0; i--)
     {
-        uint64_t sn[]={
-            0xFFFFFFFFFFFFFFFF,
-            0xFFFFFFFFFFFFFFF,
-            0xFFFFFFFFFFFFFF,
-            0xFFFFFFFFFFFFF,
-            0xFFFFFFFFFFFF,
-            0xFFFFFFFFFFF,
-            0xFFFFFFFFFF,
-            0xFFFFFFFFF,
-            0xFFFFFFFF,
-            0xFFFFFFF,
-            0xFFFFFF,
-            0xFFFFF,
-            0xFFFF,
-            0xFFF,
-            0xFF,
-            0xF
-            };
-        for(int i=sizeof(sn)-1;i>=0;i--)
-        {
-            uint64_t n=sn[i];
-//            printf("test %lx\n",sn[i]);
-            outBuffer o;
-            o<<n;
-            std::string buf=o.asString()->asString();
-//            logErr2("buf %s",iUtils->bin2hex(buf).c_str());
-            inBuffer in(buf);
-            int64_t nn;
-            in>>nn;
-            if(n!=nn)
-            {
-                printf("n!=nn %lx %lx\n",n,nn);
-                exit(1);
-            }
-        }
-        printf("!!!!!!!!!!!!! iobuffer numbers success\n");
-
-        for(int i=0;i<3;i++)
-        {
-            Z z;
-            outBuffer o;
-            o<<z;
-            std::string buf=o.asString()->asString();
-            logErr2("buf %d",buf.size());
-            inBuffer in(buf);
-            Z zz;
-            in >> zz;
-            if(z!=zz)
-            {
-                fprintf(stderr,"iobuffer 1 failed\n");
-                exit(1);
-            }
-        }
-        printf("!!!! iobuffer 1 OK\n");
-
-    }
-    catch(std::exception& e)
-    {
-        printf("catched %s",e.what());
-        exit(1);
+        uint64_t n=sn[i];
+        outBuffer o;
+        o<<n;
+        std::string buf=o.asString()->asString();
+        inBuffer in(buf);
+        int64_t nn;
+        in>>nn;
+        ASSERT_EQ(n,nn);
     }
 
 }
-void testEncoding()
+void TEST6()
 {
+    for(int i=0; i<3; i++)
+    {
+        Z z;
+        outBuffer o;
+        o<<z;
+        std::string buf=o.asString()->asString();
+        inBuffer in(buf);
+        Z zz;
+        in >> zz;
+        if(z!=zz)
+        {
+            ASSERT_EQ(1,2);
+        }
+    }
+    printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
 
+}
+void TEST7()
+{
     I_ssl *ssl=(I_ssl*)iUtils->queryIface(Ifaces::SSL);
     int rn=rand()%10000;
-    for(int i=0;i<rn;i++)
+    for(int i=0; i<rn; i++)
     {
         std::string str=ssl->rand_bytes(rand()%10000);
-        if(str!=iUtils->Base64Decode(iUtils->Base64Encode(str)))
-        {
-            printf("base64 failed\n");
-            exit(1);
-        }
-        if(str!=iUtils->hex2bin(iUtils->bin2hex(str)))
-        {
-            printf("bin2hex failed\n");
-            exit(1);
-        }
+        ASSERT_EQ(str,iUtils->Base64Decode(iUtils->Base64Encode(str)));
     }
-    printf("!!!! bin2hex,base64 OK\n");
+    printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
 }
-void CTRTest::run()
+void TEST8()
+{
+    I_ssl *ssl=(I_ssl*)iUtils->queryIface(Ifaces::SSL);
+    int rn=rand()%10000;
+    for(int i=0; i<rn; i++)
+    {
+        std::string str=ssl->rand_bytes(rand()%10000);
+        ASSERT_EQ(str,iUtils->hex2bin(iUtils->bin2hex(str)));
+    }
+    printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
+}
+
+int CTRTest::run()
 {
 
-    logErr2("RUN TEST %s",__PRETTY_FUNCTION__);
+    printf(GREEN("RUN TEST %s"),__PRETTY_FUNCTION__);
 
+    TEST1();
+    TEST2();
+    TEST3();
+    TEST4();
+    TEST5();
+    TEST6();
+    TEST7();
+    TEST8();
+//    int argc=iUtils->argc();
+//    ::testing::InitGoogleTest(&argc, iUtils->argv());
 
-    testIoBuffer();
-    testEncoding();
-
+//    return RUN_ALL_TESTS();
+    return 0;
 
 
 }
@@ -330,7 +432,7 @@ void registerCTRTest(const char* pn)
     if(pn)
     {
 
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_TEST,ServiceEnum::CTRTest,"CTRTest");
+        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_TEST,ServiceEnum::CTRTest,"CTRTest",std::set<EVENT_id>());
 
     }
     else

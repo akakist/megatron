@@ -29,9 +29,9 @@ public:
     /// used in polled event handling, ex. in gui class
     virtual void poll()=0;
 
-    IObjectProxyPolled(UnknownBase* i)
+    IObjectProxyPolled()
     {
-        i->addClass(UnknownCast::IObjectProxyPolled,this);
+//        i->addClass(UnknownCast::IObjectProxyPolled,this);
     }
 
     virtual ~IObjectProxyPolled() {}
@@ -48,9 +48,8 @@ public:
     virtual void sendObjectRequest(const msockaddr_in & dstHost, const SERVICE_id & dstService, const REF_getter<Event::Base>& e)=0;
     virtual void sendObjectRequest(const SERVICE_id & dstService, const REF_getter<Event::Base>& e)=0;
 
-    IObjectProxyThreaded(UnknownBase* i)
+    IObjectProxyThreaded()
     {
-        i->addClass(UnknownCast::IObjectProxyThreaded,this);
     }
 
     virtual ~IObjectProxyThreaded() {}

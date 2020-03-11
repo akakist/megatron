@@ -3,7 +3,7 @@
 #include "pconfig.h"
 #if defined(WIN32)
 #define HAVE_SELECT
-#elif defined (__MACH__) || defined(__IOS__)
+#elif defined (__MACH__) || defined(__IOS__) || defined(__FreeBSD__)
 #define HAVE_KQUEUE
 #else
 #define HAVE_EPOLL

@@ -9,7 +9,7 @@ struct SEQ_id
     SEQ_id() {}
     std::string toString() const
     {
-        return iUtils->toString(container);
+        return std::to_string(container);
     }
 
 };

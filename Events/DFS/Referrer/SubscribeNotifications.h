@@ -1,5 +1,5 @@
-#ifndef _________dfsReferrerEvent_hSubscribeNotifications
-#define _________dfsReferrerEvent_hSubscribeNotifications
+#ifndef _________dfsReferrerEvent_hSubscribeNotificationsZ1
+#define _________dfsReferrerEvent_hSubscribeNotificationsZ1
 #include "___dfsReferrerEvent.h"
 
 namespace dfsReferrerEvent {
@@ -13,7 +13,7 @@ namespace dfsReferrerEvent {
             return new SubscribeNotifications(r);
         }
         SubscribeNotifications(const route_t& r)
-            :Base(dfsReferrerEventEnum::SubscribeNotifications,rpcChannel,"SubscribeNotifications",r) {}
+            :Base(dfsReferrerEventEnum::SubscribeNotifications,rpcChannel,r) {}
 
         void jdump(Json::Value &) const
         {

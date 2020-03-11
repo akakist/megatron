@@ -18,13 +18,6 @@ REF_getter<refbuffer> st_AES::decrypt(const REF_getter<refbuffer> &buf)
 
 
 
-//void st_AES::encrypt(unsigned char *buf, size_t size) {
-//    impl->encrypt(buf,size);
-//}
-//void st_AES::decrypt(unsigned char *buf, size_t size) {
-//    impl->decrypt(buf,size);
-//}
-
 std::string st_AES::generateRandomKey() {
     return impl->generateRandomKey();
 }
@@ -43,9 +36,19 @@ void st_rsa::generate_key(const int b) {
 void st_rsa::initFromPublicKey(const std::string &priv_key) {
     impl->initFromPublicKey(priv_key);
 }
+int st_rsa::initFromPublicKey_int(const std::string &priv_key) {
+    return impl->initFromPublicKey_int(priv_key);
+}
+
 void st_rsa::initFromPrivateKey(const std::string &priv_key) {
     impl->initFromPrivateKey(priv_key);
 }
+int st_rsa::initFromPrivateKey_int(const std::string &priv_key)
+{
+    return impl->initFromPrivateKey_int(priv_key);
+
+}
+
 std::string st_rsa::getPublicKey() {
     return impl->getPublicKey();
 }
@@ -55,14 +58,27 @@ std::string st_rsa::getPrivateKey() {
 std::string st_rsa::privateDecrypt(const std::string & m) {
     return impl->privateDecrypt(m);
 }
+
+int st_rsa::privateDecrypt(const std::string & m,std::string& out) {
+    return impl->privateDecrypt(m,out);
+}
 std::string st_rsa::publicDecrypt(const std::string & m) {
     return impl->publicDecrypt(m);
+}
+int st_rsa::publicDecrypt(const std::string & m,std::string& out) {
+    return impl->publicDecrypt(m,out);
 }
 std::string st_rsa::publicEncrypt(const std::string & m) {
     return impl->publicEncrypt(m);
 }
+int st_rsa::publicEncrypt(const std::string & m,std::string& out) {
+    return impl->publicEncrypt(m,out);
+}
 std::string st_rsa::privateEncrypt(const std::string & m) {
     return impl->privateEncrypt(m);
+}
+int st_rsa::privateEncrypt(const std::string & m,std::string& out) {
+    return impl->privateEncrypt(m,out);
 }
 int st_rsa::size() {
     return impl->size();

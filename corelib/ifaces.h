@@ -1,15 +1,13 @@
 #ifndef _________________ifaces___h
 #define _________________ifaces___h
+#include "SERVICE_id.h"
 namespace Ifaces
 {
 /// this class is used to create simple interfaces, shared between services
 
-enum
-    {
-        AV=1,
-        SSL=2,
-        GEOIP=3,
-    };
+    const SERVICE_id AV("AV");
+    const SERVICE_id SSL("SSL");
+    const SERVICE_id GEOIP("GEOIP");
     class Base
     {
     public:

@@ -1,17 +1,6 @@
 #include <stdint.h>
 #include "__crc16.h"
 /** CRC table for the CRC-16. The poly is 0x8005 (x^16 + x^15 + x^2 + 1) */
-/*unsigned short crc16(const unsigned char* data_p, unsigned char length){
-    unsigned char x;
-    unsigned short crc = 0xFFFF;
-
-    while (length--){
-        x = crc >> 8 ^ *data_p++;
-        x ^= x>>4;
-        crc = (crc << 8) ^ ((unsigned short)(x << 12)) ^ ((unsigned short)(x <<5)) ^ ((unsigned short)x);
-    }
-    return crc;
-}*/
 
 static uint16_t crc16_tab[256] = {
     0x0000, 0xc0c1, 0xc181, 0x0140, 0xc301, 0x03c0, 0x0280, 0xc241,

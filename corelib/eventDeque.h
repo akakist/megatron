@@ -27,6 +27,12 @@ public:
         m_isTerminating=true;
         m_cond.broadcast();
     }
+    void clear()
+    {
+        M_LOCKC(m_mutex);
+        container.clear();
+        m_cond.broadcast();
+    }
 };
 #endif
 

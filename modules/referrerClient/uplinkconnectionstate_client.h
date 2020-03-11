@@ -11,13 +11,14 @@ namespace referrerClient {
     {
 
         _uplinkConnectionState(const std::set<msockaddr_in> & _saCaps):
-            getServiceSent(false),
+//            getServiceSent(false),
             saCapsFromConfig(_saCaps),
             connectionEstablished(false),
             nodeLevelInHierarhy(0)
+
         {}
         _uplinkConnectionState():
-            getServiceSent(false),
+//            getServiceSent(false),
             connectionEstablished(false),
             nodeLevelInHierarhy(0)
         {
@@ -29,7 +30,7 @@ namespace referrerClient {
 
 
 
-        bool getServiceSent;
+//        bool getServiceSent;
         std::set<msockaddr_in> saCapsFromConfig;
 
 

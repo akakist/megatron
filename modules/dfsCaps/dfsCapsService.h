@@ -25,19 +25,19 @@
 #include "Events/Tools/webHandler/RequestIncoming.h"
 #include "Events/System/timer/TickAlarm.h"
 #include "Events/DFS/Caps/GetRefferrers.h"
-#include "Events/DFS/Caps/RegisterMyRefferrer.h"
+#include "Events/DFS/Caps/GetCloudRoots.h"
+#include "Events/DFS/Caps/RegisterMyRefferrerNode.h"
+#include "Events/DFS/Caps/RegisterCloudRoot.h"
 #include "Events/DFS/Referrer/ToplinkDeliver.h"
 #include "Events/DFS/Referrer/ToplinkDeliver.h"
 #include "Events/System/Net/rpc/IncomingOnAcceptor.h"
 #include "Events/System/Net/rpc/IncomingOnConnector.h"
 #include "DBH.h"
 #include "CapsAlgorithm.h"
-//#include "CapsGeoIP.h"
 #include "timerHelper.h"
 struct ServiceNode;
 
 #define GET_SERVICE_NODE_LIMIT 50
-#define IPDATA "ipdata.txt"
 
 
 
@@ -46,11 +46,10 @@ namespace dfsCaps
 
 
     class Service:
-        private UnknownBase,
-        private ListenerBuffered1Thread,
-        private Broadcaster,
+        public UnknownBase,
+        public ListenerBuffered1Thread,
+        public Broadcaster,
         public Mutexable,
-        public Logging,
         public TimerHelper
     {
         bool handleEvent(const REF_getter<Event::Base>& e);
@@ -60,17 +59,27 @@ namespace dfsCaps
         bool on_TickAlarm(const timerEvent::TickAlarm*);
         bool on_RequestIncoming(const webHandlerEvent::RequestIncoming*);
 
+        bool on_GetReferrersREQ(const dfsCapsEvent::GetReferrersREQ* e, const dfsReferrerEvent::ToplinkDeliverREQ *e_toplink);
+        bool on_RegisterMyRefferrerNodeREQ(const dfsCapsEvent::RegisterMyRefferrerNodeREQ* e);
 
+        bool on_GetCloudRootsREQ(const dfsCapsEvent::GetCloudRootsREQ* e, const dfsReferrerEvent::ToplinkDeliverREQ *e_toplink);
+        bool on_RegisterCloudRoot(const dfsCapsEvent::RegisterCloudRoot* e);
 
         IInstance* iInstance;
 
-        CapsAlgorithm algo;
+        CapsAlgorithm referrer_nodes;
+        CapsAlgorithm cloud_roots;
     public:
+        void deinit()
+        {
+            ListenerBuffered1Thread::denit();
+        }
+
         Service(const SERVICE_id &svs, const std::string&  nm,IInstance* _ifa);
         static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm, IInstance* _ifa);
         ~Service();
 
-        std::string dbname;
+//        std::string dbname;
     };
 }
 

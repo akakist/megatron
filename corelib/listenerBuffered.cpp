@@ -1,10 +1,13 @@
 #include "listenerBuffered.h"
 #include "mutexInspector.h"
 #include <pthread.h>
+#include "colorOutput.h"
 
-ListenerBuffered::ListenerBuffered(UnknownBase *i, const std::string& name, IConfigObj* obj, const SERVICE_id& sid, IInstance *ins)
-    :ListenerBase(i,name,sid),instance(ins),m_isTerminating_lb(false)
+ListenerBuffered::ListenerBuffered(const std::string& name, IConfigObj* obj, const SERVICE_id& sid, IInstance *ins)
+    :ListenerBase(name,sid),lb_instance(ins),m_isTerminating_lb(false)
 {
+    if(!obj)
+        throw CommonError("config==NULL %s %d",__FILE__,__LINE__);
     CFG_PUSH("ListenerBuffered",obj);
     m_maxThreads=obj->get_int64_t("MaxThreadsCount",10,"Max number of working threads");
 
@@ -16,11 +19,11 @@ void ListenerBuffered::processEvent(const REF_getter<Event::Base>&e)
         {
 
 
-            for(std::vector<std::pair<eventhandler,void*> >::iterator i=handlers.begin(); i!=handlers.end(); i++)
+            for(auto& i:handlers)
             {
-                if(i->first)
+                if(i.first)
                 {
-                    if(i->first(e.operator ->(),i->second))processed=true;
+                    if(i.first(e.operator ->(),i.second))processed=true;
                 }
             }
         }
@@ -45,12 +48,12 @@ void ListenerBuffered::processEvent(const REF_getter<Event::Base>&e)
     }
     catch(CommonError& e)
     {
-        logErr2("ListenerBuffered CommonError: %s %s",e.what(),_DMI().c_str());
+        logErr2("ListenerBuffered CommonError:" RED2(" %s %s"),e.what(),_DMI().c_str());
 
     }
     catch(std::exception &e)
     {
-        logErr2("ListenerBuffered std::exception: %s %s",e.what(),_DMI().c_str());
+        logErr2("ListenerBuffered std::exception:"  RED2("%s %s"),e.what(),_DMI().c_str());
     }
 
 
@@ -67,7 +70,7 @@ struct st_busy
 
         XTRY;
         M_LOCK(impl);
-        std::map<pthread_t, REF_getter<EventDeque> >::iterator i=impl->m_container.find(pthread_self());
+        auto i=impl->m_container.find(pthread_self());
         if(i==impl->m_container.end()) throw CommonError("cannot find element "+_DMI());
         {
             __ed=i->second;
@@ -77,10 +80,11 @@ struct st_busy
     }
     ~st_busy()
     {
-        XTRY;
-        M_LOCK(impl);
-        impl->m_container.insert(std::make_pair(pthread_self(),__ed));
-        XPASS;
+        try {
+            M_LOCK(impl);
+            impl->m_container.insert(std::make_pair(pthread_self(),__ed));
+        }
+        catch(...) {}
     }
 };
 
@@ -114,7 +118,7 @@ void* ListenerBuffered::worker(void*p)
 #ifdef __MACH__
     pthread_setname_np("ListenerBuffered");
 #else
-#ifndef _WIN32
+#if !defined _WIN32 && !defined __FreeBSD__
     pthread_setname_np(pthread_self(),"ListenerBuffered");
 #endif
 #endif
@@ -193,13 +197,12 @@ void ListenerBuffered::listenToEvent(const std::deque<REF_getter<Event::Base> >&
         M_LOCK(this);
         if(this->m_vector.size()<this->m_maxThreads)
         {
-            __ed=new EventDeque(listenerName,instance);
+            __ed=new EventDeque(listenerName,lb_instance);
             pthread_t __pt;
             if(pthread_create(&__pt,NULL,ListenerBuffered::worker,this))
                 throw CommonError("pthread_create: errno %d",errno);
 
             DBG(logErr2("pthread_create %s",listenerName.c_str()));
-            //iUtils->getIThreadNameController()->print_term(100);
             this->m_container.insert(std::make_pair(__pt,__ed));
             this->m_vector.push_back(std::make_pair(__pt,__ed));
         }
@@ -239,13 +242,12 @@ void ListenerBuffered::listenToEvent(const REF_getter<Event::Base>& e)
         if(this->m_vector.size()<this->m_maxThreads)
         {
 
-            __ed=new EventDeque(listenerName,instance);
+            __ed=new EventDeque(listenerName,lb_instance);
             pthread_t __pt;
             if(pthread_create(&__pt,NULL,ListenerBuffered::worker,this))
                 throw CommonError("pthread_create: errno %d",errno);
 
             DBG(logErr2("pthread_create %s",listenerName.c_str()));
-            //iUtils->getIThreadNameController()->print_term(100);
 
             this->m_container.insert(std::make_pair(__pt,__ed));
             this->m_vector.push_back(std::make_pair(__pt,__ed));
@@ -264,19 +266,31 @@ void ListenerBuffered::listenToEvent(const REF_getter<Event::Base>& e)
 }
 ListenerBuffered::~ListenerBuffered()
 {
+
+}
+void ListenerBuffered::denit()
+{
     m_isTerminating_lb=true;
+
     std::map<pthread_t, REF_getter<EventDeque> > m_evts;
     {
         M_LOCK(this);
         m_evts=m_container;
+        m_container.clear();
     }
-    for(std::map<pthread_t, REF_getter<EventDeque> >::iterator i=m_evts.begin(); i!=m_evts.end(); i++)
+    for(auto& i:m_evts)
     {
-        REF_getter<EventDeque> d(i->second);
+        REF_getter<EventDeque> d(i.second);
+        d->clear();
         d->push(NULL);
         d->deinit();
         d->m_cond.broadcast();
-        pthread_join(i->first,NULL);
+        int err=pthread_join(i.first,NULL);
+        if(err)
+        {
+            printf(RED("%s pthread_join: %s"),__PRETTY_FUNCTION__,strerror(errno));
+        }
+
     }
 
 }

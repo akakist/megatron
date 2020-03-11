@@ -2,21 +2,36 @@ cmake_minimum_required (VERSION 2.6)
 
 add_library(core-modules SHARED
 core-modules.cpp 
+
+
+
+../../modules/dfsCaps/CapsAlgorithm.cpp
+../../modules/dfsCaps/dfsCapsService.cpp
+../../modules/dfsReferrer/dfsReferrerService.cpp
+../../modules/dfsReferrer/uplinkconnectionstate.cpp
+../../modules/dfsReferrer/uriReferals.cpp
+../../modules/errorDispatcher/errorDispatcherService.cpp
+../../modules/geoip/CapsGeoIP.cpp
+../../modules/geoip/geoip_impl.cpp
+../../modules/geoip/geoip_reg.cpp
 ../../modules/http/httpService.cpp
 ../../modules/http/mime_types.cpp
-../../modules/rpc/rpcService.cpp
-../../modules/webHandler/webHandlerService.cpp
-../../modules/timer/timerService.cpp
 ../../modules/objectProxy/objectProxyService.cpp
-../../modules/errorDispatcher/errorDispatcherService.cpp
-../../modules/telnet/telnetService.cpp
-../../modules/logger/loggerService.cpp
-../../modules/socket/socketService.cpp
-../../modules/socket/socketsContainerForSocketIO.cpp
 ../../modules/oscar/oscarService.cpp
 ../../modules/oscarSecure/oscarSecureService.cpp
 ../../modules/oscarSecure/oscarSecureUser.cpp
+../../modules/referrerClient/referrerClientService.cpp
+../../modules/rpc/rpcService.cpp
+../../modules/rpc/upnp_tr.c
+../../modules/socket/socketService.cpp
+../../modules/socket/socketsContainerForSocketIO.cpp
+../../modules/ssl/ssl_reg.cpp
+../../modules/ssl/st_rsa_impl.cpp
+../../modules/telnet/telnetService.cpp
+../../modules/timer/timerService.cpp
+../../modules/webHandler/webHandlerService.cpp
+
 )
-target_link_libraries(core-modules megatron-core)
+target_link_libraries(core-modules megatron-core crypto)
 install(TARGETS core-modules DESTINATION ${PLUGIN_TARGET_DIR})
 

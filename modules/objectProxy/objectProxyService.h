@@ -1,18 +1,13 @@
 #ifndef ___________PP__SERVER__H
 #define ___________PP__SERVER__H
-#include "listenerBuffered.h"
-#include "listenerPolled.h"
-#include "listenerBuffered1Thread.h"
-#include "broadcaster.h"
-#include "REF.h"
-#include "SOCKET_id.h"
 
+#include <unknown.h>
+#include <broadcaster.h>
+#include <IObjectProxy.h>
+#include <listenerPolled.h>
+#include <Events/System/Run/startService.h>
+#include <listenerBuffered1Thread.h>
 
-#include "ioBuffer.h"
-#include "Events/System/Run/startService.h"
-#include "version_mega.h"
-#include "IObjectProxy.h"
-#include "logging.h"
 class ObjectHandler;
 
 namespace ObjectProxy
@@ -28,7 +23,7 @@ namespace ObjectProxy
         public IObjectProxyPolled,
         public ListenerPolled,
         public Base,
-        public Logging
+        public pollable
     {
     public:
 
@@ -42,6 +37,11 @@ namespace ObjectProxy
         void addObjectHandler(ObjectHandlerPolled* h);
         void removeObjectHandler(ObjectHandlerPolled* h);
 
+        void deinit()
+        {
+            ListenerPolled::deinit();
+        }
+
 
         bool on_startService(const systemEvent::startService*)
         {
@@ -51,10 +51,9 @@ namespace ObjectProxy
         Polled(const SERVICE_id &svs, const std::string& nm,IInstance* ifa):
             UnknownBase(nm),
             Broadcaster(ifa),
-            IObjectProxyPolled(this),
-            ListenerPolled(this,nm,ifa->getConfig(),svs),
-            Logging(this,ERROR_log,ifa)
+            ListenerPolled(nm,ifa->getConfig(),svs)
         {
+            iUtils->addPollable(this);
         }
 
         ~Polled()
@@ -77,8 +76,7 @@ namespace ObjectProxy
         public Broadcaster,
         public IObjectProxyThreaded,
         public ListenerBuffered1Thread,
-        public Base,
-        public Logging
+        public Base
     {
     public:
         Mutex __m_lock;
@@ -100,15 +98,18 @@ namespace ObjectProxy
 
         Threaded(const SERVICE_id &svs, const std::string& nm,IInstance* ifa):UnknownBase(nm),
             Broadcaster(ifa),
-            IObjectProxyThreaded(this),
-            ListenerBuffered1Thread(this,nm,ifa->getConfig(),svs,ifa),
-            Logging(this,ERROR_log,ifa)
+            ListenerBuffered1Thread(this,nm,ifa->getConfig(),svs,ifa)
         {
         }
 
         ~Threaded()
         {
         }
+        void deinit()
+        {
+            ListenerBuffered1Thread::denit();
+        }
+
         static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa)
         {
             XTRY;

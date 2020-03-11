@@ -1,11 +1,10 @@
 #include "st_rsa_impl.h"
 #include "configDB.h"
-#ifdef WIN32
+#ifdef _WIN32
 #include <malloc.h>
 #endif
 #include "mutexInspector.h"
 #include "st_rsa.h"
-#include "rsa-pub_512_1387663237.h"
 #include "st_malloc.h"
 
 #ifdef _MSC_VER
@@ -72,12 +71,26 @@ void st_rsa_impl::initFromPublicKey(const std::string &priv_key)
 
     XTRY;
     const unsigned char * p = ( const unsigned char *)priv_key.data();
-    rsa_xxx = d2i_RSA_PUBKEY(&rsa_xxx, &p, priv_key.size());
+    rsa_xxx = d2i_RSA_PUBKEY(&rsa_xxx, &p, static_cast<long>(priv_key.size()));
     if (!rsa_xxx)
     {
         throw CommonError("d2i_RSAPublicKey %s",_DMI().c_str());
     }
     XPASS;;
+}
+int st_rsa_impl::initFromPublicKey_int(const std::string &priv_key)
+{
+
+    XTRY;
+    const unsigned char * p = ( const unsigned char *)priv_key.data();
+    rsa_xxx = d2i_RSA_PUBKEY(&rsa_xxx, &p, static_cast<long>(priv_key.size()));
+    if (!rsa_xxx)
+    {
+        return 1;
+        throw CommonError("d2i_RSAPublicKey %s",_DMI().c_str());
+    }
+    XPASS;;
+    return 0;
 }
 
 
@@ -86,13 +99,28 @@ void st_rsa_impl::initFromPrivateKey(const std::string &priv_key)
 
     XTRY;
     const unsigned char *p = (const unsigned char *)priv_key.data();
-    rsa_xxx = d2i_RSAPrivateKey(NULL, &p, priv_key.size());
+    rsa_xxx = d2i_RSAPrivateKey(NULL, &p, static_cast<long>(priv_key.size()));
     if (!rsa_xxx)
     {
         throw CommonError("d2i_RSAPrivateKey"+_DMI());
     }
 
     XPASS;
+}
+int st_rsa_impl::initFromPrivateKey_int(const std::string &priv_key)
+{
+
+    XTRY;
+    const unsigned char *p = (const unsigned char *)priv_key.data();
+    rsa_xxx = d2i_RSAPrivateKey(NULL, &p, static_cast<long>(priv_key.size()));
+    if (!rsa_xxx)
+    {
+        return 1;
+        throw CommonError("d2i_RSAPrivateKey"+_DMI());
+    }
+
+    XPASS;
+    return 0;
 }
 
 std::string st_rsa_impl::getPublicKey()
@@ -156,6 +184,15 @@ std::string st_rsa_impl::privateDecrypt(const std::string & m)
     return decrypt(m, RSA_private_decrypt);
     XPASS;
 }
+int st_rsa_impl::privateDecrypt(const std::string & m,std::string& out)
+{
+
+    XTRY;
+
+    if (!rsa_xxx) throw CommonError("!rsa_xxx");
+    return decrypt(m,out, RSA_private_decrypt);
+    XPASS;
+}
 std::string st_rsa_impl::publicDecrypt(const std::string & m)
 {
 
@@ -163,6 +200,15 @@ std::string st_rsa_impl::publicDecrypt(const std::string & m)
 
     if (!rsa_xxx) throw CommonError("!rsa_xxx");
     return decrypt(m, RSA_public_decrypt);
+    XPASS;
+}
+int st_rsa_impl::publicDecrypt(const std::string & m,std::string& out)
+{
+
+    XTRY;
+
+    if (!rsa_xxx) throw CommonError("!rsa_xxx");
+    return decrypt(m,out, RSA_public_decrypt);
     XPASS;
 }
 
@@ -175,6 +221,15 @@ std::string st_rsa_impl::publicEncrypt(const std::string & m)
     return encrypt(m, RSA_public_encrypt);
     XPASS;
 }
+int st_rsa_impl::publicEncrypt(const std::string & m,std::string& out)
+{
+
+    XTRY;
+
+    if (!rsa_xxx) throw CommonError("!rsa_xxx");
+    return encrypt(m,out, RSA_public_encrypt);
+    XPASS;
+}
 
 std::string st_rsa_impl::privateEncrypt(const std::string & m)
 {
@@ -183,6 +238,15 @@ std::string st_rsa_impl::privateEncrypt(const std::string & m)
 
     if (!rsa_xxx) throw CommonError("!rsa_xxx");
     return encrypt(m, RSA_private_encrypt);
+    XPASS;
+}
+int st_rsa_impl::privateEncrypt(const std::string & m,std::string& out)
+{
+
+    XTRY;
+
+    if (!rsa_xxx) throw CommonError("!rsa_xxx");
+    return encrypt(m, out, RSA_private_encrypt);
     XPASS;
 }
 std::string st_rsa_impl::encrypt(const std::string & ms, int (*func) (int, const unsigned char *, unsigned char *, RSA *, int))
@@ -214,6 +278,37 @@ std::string st_rsa_impl::encrypt(const std::string & ms, int (*func) (int, const
     return out;
     XPASS;
 }
+int st_rsa_impl::encrypt(const std::string & ms,std::string&out, int (*func) (int, const unsigned char *, unsigned char *, RSA *, int))
+{
+
+    XTRY;
+
+    if (!rsa_xxx) throw CommonError("!rsa_xxx");
+    int rsize = size()-RSA_PKCS1_PADDING_SIZE;
+//    std::string out;
+    char  outBuf[size()];
+
+    size_t i=0;
+    for (i = 0; i < ms.size(); i += rsize)
+    {
+        char inBuf[size()];
+        size_t sz=rsize;
+        if (i+rsize>ms.size()) sz=ms.size()-i;
+        memcpy(inBuf, (unsigned char *) &ms.data()[i],sz);
+        int ret=func(sz, (unsigned char*)inBuf, (unsigned char*)outBuf, rsa_xxx, RSA_PKCS1_PADDING);
+        if (ret==-1)
+        {
+            char errbuf[1024];
+            ERR_error_string_n(ERR_get_error(),errbuf,sizeof(errbuf));
+            return 1;
+            throw CommonError("rsa error %s",errbuf);
+        }
+        out+=std::string((char*)outBuf,ret);
+    }
+//    return out;
+    return 0;
+    XPASS;
+}
 
 std::string st_rsa_impl::decrypt(const std::string & m, int (*func) (int, const unsigned char *, unsigned char *, RSA *, int))
 {
@@ -223,7 +318,8 @@ std::string st_rsa_impl::decrypt(const std::string & m, int (*func) (int, const 
     if (m.size()%size()!=0)  throw CommonError("rsa: invalid buffer size buffer size %d, rsa size %d %s",m.size(),this->size(),_DMI().c_str());
 
     int rsize = size();
-    char inBuf[size()],outBuf[size()];
+    char inBuf[size()];
+    char outBuf[size()];
     std::string out;
 
     size_t i=0;
@@ -235,16 +331,47 @@ std::string st_rsa_impl::decrypt(const std::string & m, int (*func) (int, const 
         {
             char errbuf[1024];
             ERR_error_string_n(ERR_get_error(),errbuf,sizeof(errbuf));
-            throw CommonError("rsa error %s %s",errbuf,_DMI().c_str());
+            throw CommonError("rsa error %s",errbuf);
         }
         out+=std::string((char*)outBuf,ret);
     }
     return out;
     XPASS;
 }
+int st_rsa_impl::decrypt(const std::string & m, std::string&out, int (*func) (int, const unsigned char *, unsigned char *, RSA *, int))
+{
+
+    XTRY;
+    if (!rsa_xxx) throw CommonError("!rsa_xxx");
+    if (m.size()%size()!=0)  throw CommonError("rsa: invalid buffer size buffer size %d, rsa size %d %s",m.size(),this->size(),_DMI().c_str());
+
+    int rsize = size();
+    char inBuf[size()];
+    char outBuf[size()];
+//    std::string out;
+
+    size_t i=0;
+    for (i = 0; i < m.size(); i += rsize)
+    {
+        memcpy(inBuf, (unsigned char *) &m.data()[i],rsize);
+        int ret=func(rsize, (unsigned char *)inBuf, (unsigned char *)outBuf, rsa_xxx, RSA_PKCS1_PADDING);
+        if (ret==-1)
+        {
+            char errbuf[1024];
+            ERR_error_string_n(ERR_get_error(),errbuf,sizeof(errbuf));
+            return 1;
+            throw CommonError("rsa error %s",errbuf);
+        }
+        out+=std::string((char*)outBuf,ret);
+    }
+//    return out;
+    return 0;
+    XPASS;
+}
+
 st_rsa_impl::st_rsa_impl()
 {
-    rsa_xxx = NULL;
+    rsa_xxx = nullptr;
 
 }
 st_rsa_impl::~st_rsa_impl()
@@ -277,7 +404,7 @@ void st_AES_impl::init(const std::string &key)
 {
 
     XTRY;
-    if(key.size()==0)
+    if(key.empty())
         throw CommonError("password size == 0");
     std::string keyBuff;
     while(keyBuff.size()<16)
@@ -292,12 +419,12 @@ void st_AES_impl::init(const std::string &key)
 }
 
 void _AES_ecb_encryptD(const unsigned char *in, unsigned char *out,
-                     const AES_KEY *key, const int enc)
+                       const AES_KEY *key, const int enc)
 {
     AES_ecb_encrypt(in,out, key, enc);
 }
 void _AES_ecb_encryptE(const unsigned char *in, unsigned char *out,
-                     const AES_KEY *key, const int enc)
+                       const AES_KEY *key, const int enc)
 {
     AES_ecb_encrypt(in,out, key, enc);
 }
@@ -312,7 +439,7 @@ REF_getter<refbuffer> st_AES_impl::encrypt(const REF_getter<refbuffer> &buf_)
     }
 
 
-    REF_getter<refbuffer> buf=buf_;
+    const REF_getter<refbuffer>& buf=buf_;
     int l=0x10;
     if (buf->size_%AES_BLOCK_SIZE!=0)
     {
@@ -333,6 +460,8 @@ REF_getter<refbuffer> st_AES_impl::encrypt(const REF_getter<refbuffer> &buf_)
 
     REF_getter<refbuffer> o=new refbuffer;
     o->buffer=(uint8_t*)malloc(buf->size_);
+    if(!o->buffer)
+        throw std::runtime_error("alloc error");
     o->size_=buf->size_;
     o->capacity=buf->size_;
     //st_malloc m(buf.size());
@@ -345,7 +474,6 @@ REF_getter<refbuffer> st_AES_impl::encrypt(const REF_getter<refbuffer> &buf_)
         _AES_ecb_encryptE(ib,ob,&keyenc,AES_ENCRYPT);
     }
     return o;
-//    return std::string((char*)m.buf,buf.size());
     XPASS;
 }
 
@@ -363,12 +491,13 @@ REF_getter<refbuffer> st_AES_impl::decrypt(const REF_getter<refbuffer> &buf)
 
 
     REF_getter<refbuffer> o=new refbuffer;
+
     o->buffer=(uint8_t*)malloc(buf->size_);
+    if(!o->buffer)
+        throw std::runtime_error("alloc error");
     o->size_=buf->size_;
     o->capacity=buf->size_;
 
-//    st_malloc m(buf.size());
-//    uint8_t *p=(uint8_t *) m.buf;
     for (unsigned i=0; i<buf->size_; i+=AES_BLOCK_SIZE)
     {
 
@@ -381,7 +510,6 @@ REF_getter<refbuffer> st_AES_impl::decrypt(const REF_getter<refbuffer> &buf)
 
         char n=o->buffer[o->size_-1];
         o->size_-=n;
-//        return std::string((char*)p,buf.size()-n);
         return o;
     }
     throw CommonError("empty AES buffer");

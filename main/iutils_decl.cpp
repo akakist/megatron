@@ -1,2 +1,2 @@
 #include "IUtils.h"
-IUtils *iUtils=NULL;
+IUtils *iUtils= nullptr;

@@ -1,25 +1,19 @@
 #ifndef _____HTTP___SERVICE______H
 #define _____HTTP___SERVICE______H
-#include "unknown.h"
-
-#include "broadcaster.h"
-#include "listenerBuffered1Thread.h"
-#include "SOCKET_id.h"
-
-#include "unknown.h"
-#include "mutexInspector.h"
-
-
+#include <REF.h>
+#include <route_t.h>
+#include <IUtils.h>
+#include <string>
+#include <broadcaster.h>
+#include <listenerBuffered1Thread.h>
+#include "event.h"
+#include <Events/System/Run/startService.h>
+#include <Events/System/Net/http/RequestIncoming.h>
 #include "Events/Tools/webHandler/RequestIncoming.h"
 #include "Events/Tools/webHandler/RegisterHandler.h"
 #include "Events/Tools/webHandler/RegisterDirectory.h"
-#include "Events/System/Run/startService.h"
-#include "Events/System/Net/http/DoListen.h"
-#include "Events/System/Net/http/RegisterProtocol.h"
-#include "Events/System/Net/http/GetBindPorts.h"
-#include "Events/System/Net/http/RequestIncoming.h"
+#include <Events/System/Net/http/GetBindPorts.h>
 
-#include "logging.h"
 namespace WebHandler
 {
 
@@ -108,7 +102,7 @@ namespace WebHandler
         REF_getter<Node> getChild(const std::string& _url)
         {
             M_LOCK(this);
-            std::map<std::string, REF_getter<Node> >::iterator i=children.find(_url);
+            auto i=children.find(_url);
             if(i!=children.end()) return i->second;
             return NULL;
 
@@ -116,7 +110,7 @@ namespace WebHandler
         void removeChild(const std::string& _url)
         {
             M_LOCK(this);
-            std::map<std::string, REF_getter<Node> > ::iterator  i=children.find(_url);
+            auto i=children.find(_url);
             if(i==children.end()) return;
             children.erase(_url);
         }
@@ -161,10 +155,9 @@ namespace WebHandler
     };
 
     class Service:
-        private UnknownBase,
-        private Broadcaster,
-        private ListenerBuffered1Thread,
-        public Logging
+        public UnknownBase,
+        public Broadcaster,
+        public ListenerBuffered1Thread
     {
 
         // config
@@ -184,11 +177,16 @@ namespace WebHandler
 
         IInstance *iInstance;
     public:
+        void deinit()
+        {
+            ListenerBuffered1Thread::denit();
+        }
+
         static UnknownBase*construct(const SERVICE_id&id, const std::string& nm,IInstance* ifa);
         Service(const SERVICE_id& id, const std::string& nm, IInstance *ifa);
         virtual ~Service();
-        bool init(IConfigObj*);
-        bool deinit();
+//        bool init(IConfigObj*);
+//        bool deinit();
     protected:
         bool handleEvent(const REF_getter<Event::Base>& e);
         bool on_startService(const systemEvent::startService*);

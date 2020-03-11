@@ -23,13 +23,12 @@ public:
     virtual bool handleEvent(const REF_getter<Event::Base>& e)=0;
 
     virtual ~ListenerPolled();
-    ListenerPolled(UnknownBase *i, const std::string& name,IConfigObj*, const SERVICE_id& sid);
+    ListenerPolled(const std::string& name, IConfigObj*, const SERVICE_id& sid);
 
     /// GUI class must call this method in onTimer
     void poll();
 
-//    bool init(IConfigObj* obj);
-//    bool deinit();
+    void deinit();
 
 };
 #endif

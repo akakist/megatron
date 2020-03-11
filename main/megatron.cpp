@@ -14,6 +14,7 @@
 #include "megatron.h"
 #include "CInstance.h"
 #include "CUtils.h"
+#include "configObj.h"
 #ifndef _MSC_VER
 #endif
 
@@ -190,50 +191,6 @@ bool megatron::findProcess(const char* _process)
 #ifdef _WIN32
 static bool win32Initialized=false;
 #endif
-#ifdef KALL
-void megatron::run_test( int argc, char* argv[])
-{
-#ifdef _WIN32
-    if(!win32Initialized)
-    {
-        win32Initialized=true;
-        WORD wVersionRequested;
-        WSADATA wsaData;
-        int err;
-        wVersionRequested = MAKEWORD(2, 2);
-        err = WSAStartup(wVersionRequested, &wsaData);
-        if (err != 0)
-        {
-            logErr2("WSAStartup failed\n");
-            return ;
-        }
-    }
-#endif
-
-
-    iUtils=new CUtils(argc,argv,"app_name");
-
-
-
-    std::set<std::string> sp;
-
-
-    sp.insert(PLUGIN_TARGET_DIR);
-
-    load_plugins_info(sp);
-
-
-    std::vector<itest_static_constructor> tests=iUtils->getAllITests();
-
-    for(auto z:tests)
-    {
-
-        ITests::Base *t=z();
-        t->run();
-        delete t;
-    }
-}
-#endif
 void megatron::run(
     int argc, char* argv[]
 )
@@ -295,7 +252,7 @@ void megatron::run(
 
         iUtils=new CUtils(argc,argv,app_name);
         //runned=true;
-        iInstance=iUtils->createNewInstance();
+        iInstance=iUtils->createNewInstance(app_name);
 
         {
 #if !defined __MOBILE__
@@ -346,7 +303,7 @@ void megatron::run(
 
         std::set<std::string> sp;
 
-        sp=config->get_stringset("PluginDir",PLUGIN_TARGET_DIR ,"Search paths of dfs plugins");
+        sp=config->get_stringset("PluginDir",PLUGIN_TARGET_DIR,"Search paths of dfs plugins");
         iUtils->load_plugins_info(sp);
 
         registerModules();

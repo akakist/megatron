@@ -3,7 +3,6 @@ add_definitions(-DWITH_IO)
 
 add_library(dfs-referrer SHARED
 
-../../corelib/sqlite3Wrapper.cpp
 dfsReferrer.cpp
 dfsReferrerService.cpp
 #neighbours.cpp
@@ -11,6 +10,10 @@ uplinkconnectionstate.cpp
 uriReferals.cpp
 
 )
-target_link_libraries(dfs-referrer megatron-core sqlite3 pthread)
+IF(ENABLE_QT_GUI)
+target_link_libraries(dfs-referrer megatron-core pthread ${Qt5Widgets_LIBRARIES})
+ELSE()
+target_link_libraries(dfs-referrer megatron-core pthread)
+ENDIF()
 install(TARGETS dfs-referrer DESTINATION ${PLUGIN_TARGET_DIR})
 

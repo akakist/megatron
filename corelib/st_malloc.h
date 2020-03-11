@@ -3,7 +3,7 @@
 #define ST_MALLOC_H
 #include <stdio.h>
 #include "commonError.h"
-#ifndef __MACH__
+#if !defined __MACH__ && !defined __FreeBSD__
 #include <malloc.h>
 #endif
 /// stacked malloc, automatically call free() on destructor

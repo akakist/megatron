@@ -1,5 +1,5 @@
-#ifndef ________UdateUpdateConfig__hREQ
-#define ________UdateUpdateConfig__hREQ
+#ifndef ________UdateUpdateConfig__hREQZ1
+#define ________UdateUpdateConfig__hREQZ1
 
 #include "___dfsReferrerEvent.h"
 
@@ -14,19 +14,19 @@ namespace dfsReferrerEvent {
             return new UpdateConfigREQ(r);
         }
         UpdateConfigREQ(const route_t& r)
-            :Base(dfsReferrerEventEnum::UpdateConfigREQ,rpcChannel,"UpdateConfigREQ",r) {}
+            :Base(dfsReferrerEventEnum::UpdateConfigREQ,rpcChannel,r) {}
         UpdateConfigREQ(const std::string &_body,  const route_t &r)
-            :Base(dfsReferrerEventEnum::UpdateConfigREQ,rpcChannel,"UpdateConfigREQ",r),
+            :Base(dfsReferrerEventEnum::UpdateConfigREQ,rpcChannel,r),
              body(_body) {}
         std::string body;
         void unpack(inBuffer& o)
         {
-            
+
             o>>body;
         }
         void pack(outBuffer&o) const
         {
-            
+
             o<<body;
         }
         void jdump(Json::Value &v) const
@@ -45,9 +45,9 @@ namespace dfsReferrerEvent {
             return new UpdateConfigRSP(r);
         }
         UpdateConfigRSP(const route_t& r)
-            :Base(dfsReferrerEventEnum::UpdateConfigRSP,rpcChannel,"UpdateConfigRSP",r) {}
+            :Base(dfsReferrerEventEnum::UpdateConfigRSP,rpcChannel,r) {}
         UpdateConfigRSP(const std::string &_body,  const route_t &r)
-            :Base(dfsReferrerEventEnum::UpdateConfigRSP,rpcChannel,"UpdateConfigRSP",r),
+            :Base(dfsReferrerEventEnum::UpdateConfigRSP,rpcChannel,r),
              body(_body) {}
         std::string body;
         void unpack(inBuffer& o)

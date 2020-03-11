@@ -8,36 +8,17 @@
 
 struct SERVICE_id
 {
-    enum
-    {
-        ID_INT,
-        ID_STRING,
-        ID_UNDEF
+private:
+    SERVICE_id(int i);
+public:
+    SERVICE_id(const std::string& i):s_id(i) {}
+    SERVICE_id() {}
 
-    };
-
-    SERVICE_id(size_t i):type(ID_INT),i_id(i) {}
-    SERVICE_id(const std::string& i):type(ID_STRING),s_id(i) {}
-    SERVICE_id():type(ID_UNDEF) {}
-
-    int getType() {
-        return type;
-    }
     std::string getSid() const
     {
-        if(type!=ID_STRING)
-            throw CommonError("SERVICE_id::getSid: if(type!=ID_STRING)");
         return s_id;
     }
-    size_t getIid() const
-    {
-        if(type!=ID_INT)
-            throw CommonError("SERVICE_id::getSid: if(type!=ID_INT)");
-        return i_id;
-    }
 private:
-    unsigned char type;
-    size_t i_id;
     std::string s_id;
 
     friend int operator<(const SERVICE_id&a, const SERVICE_id&b);
@@ -49,89 +30,30 @@ private:
 public:
     std::string dump() const
     {
-        char s[100];
-        if(type==ID_INT)
-        {
-            snprintf(s,sizeof(s),"i-%zu",i_id);
-            return s;
-        }
-        else
-        {
-            snprintf(s,sizeof(s),"s-%s",s_id.c_str());
-            return s;
-        }
+        return s_id;
     }
 };
 inline int operator<(const SERVICE_id&a, const SERVICE_id&b)
 {
-    if(a.type!=b.type)
-        return a.type<b.type;
-    if(a.type==SERVICE_id::ID_INT)
-        return a.i_id<b.i_id;
-    else if(a.type==SERVICE_id::ID_STRING)
-        return a.s_id<b.s_id;
-    else throw CommonError("INVALID CASE %s %d",__FILE__,__LINE__);
-
-    //return a.container<b.container;
+    return a.s_id<b.s_id;
 }
 inline int operator==(const SERVICE_id&a, const SERVICE_id&b)
 {
-    if(a.type==b.type)
-    {
-        if(a.type==SERVICE_id::ID_INT)
-            return a.i_id==b.i_id;
-        else if(a.type==SERVICE_id::ID_STRING)
-            return a.s_id==b.s_id;
-        else
-            throw CommonError("INVALID CASE %s %d",__FILE__,__LINE__);
-
-    }
-    else
-    {
-        // logErr2("compare SERVICE_id with different types");
-    }
-    return false;
+    return a.s_id==b.s_id;
 }
 
 inline outBuffer& operator<< (outBuffer& b,const SERVICE_id& s)
 {
-    b<<s.type;
-    if(s.type==SERVICE_id::ID_INT)
-        b<<s.i_id;
-    else if(s.type==SERVICE_id::ID_STRING)
-        b<<s.s_id;
-    else
-        throw CommonError("INVALID CASE %s %d",__FILE__,__LINE__);
-
+    b<<s.s_id;
     return b;
 }
 inline inBuffer& operator>> (inBuffer& b,  SERVICE_id& s)
 {
-
-    b>>s.type;
-    if(s.type==SERVICE_id::ID_INT)
-        b>>s.i_id;
-    else if(s.type==SERVICE_id::ID_STRING)
-        b>>s.s_id;
-    else
-        throw CommonError("INVALID CASE %s %d",__FILE__,__LINE__);
+    b>>s.s_id;
     return b;
 }
 inline int operator!=(const SERVICE_id&a, const SERVICE_id&b)
 {
-    if(a.type!=b.type)
-        return true;
-    if(a.type==SERVICE_id::ID_INT)
-    {
-        if(a.i_id!=b.i_id)
-            return true;
-    }
-    else
-    {
-        if(a.s_id!=b.s_id)
-            return true;
-
-    }
-    return false;
+    return a.s_id!=b.s_id;
 }
 #endif

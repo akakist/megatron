@@ -12,6 +12,19 @@ mainApp.cpp
 )
 include_directories(../../main)
 
-target_link_libraries(mt-main-${PORT}.exe megatron-main  megatron-core z dl pthread)
+if(ENABLE_QT_GUI)
+
+    IF(FreeBSD)
+        target_link_libraries(mt-main-${PORT}.exe megatron-main  megatron-core z  pthread ${Qt5Widgets_LIBRARIES})
+    ELSE()
+	target_link_libraries(mt-main-${PORT}.exe megatron-main  megatron-core z  pthread dl ${Qt5Widgets_LIBRARIES})
+    ENDIF()
+else()
+    IF(FreeBSD)
+        target_link_libraries(mt-main-${PORT}.exe megatron-main  megatron-core z  pthread)
+    ELSE()
+	target_link_libraries(mt-main-${PORT}.exe megatron-main  megatron-core z  pthread dl)
+    ENDIF()
+endif()
 install(TARGETS mt-main-${PORT}.exe DESTINATION ${BIN_TARGET_DIR})
 

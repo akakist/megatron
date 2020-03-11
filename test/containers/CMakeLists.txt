@@ -6,7 +6,7 @@ add_library(test-containers SHARED
 containers_test.cpp
 containers_test_service.cpp
 )
-target_link_libraries(test-containers megatron-main megatron-core miniupnpc z pthread dl)
+target_link_libraries(test-containers megatron-main megatron-core  z pthread ${DL})
 
 
 install(TARGETS test-containers DESTINATION ${PLUGIN_TARGET_DIR})

@@ -1,8 +1,4 @@
 #include <string>
-//..#include <map>
-//#include "SERVICE_id.h"
-//#include "systemEvent.h"
-//#include "mysqlService.h"
 #include "IUtils.h"
 IUtils *iUtils;
 void registerMysqlModule(const char*pn);

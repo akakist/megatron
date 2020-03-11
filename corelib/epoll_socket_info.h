@@ -1,18 +1,14 @@
 #ifndef __________EPOLL_SOCKET_INFO_____H
 #define __________EPOLL_SOCKET_INFO_____H
 
-#include "route_t.h"
-#include "msockaddr_in.h"
-#include "SOCKET_fd.h"
-#include "SOCKET_id.h"
-#include "mutexable.h"
+#include "networkMultiplexor.h"
+
+#include <deque>
 #include "REF.h"
-#include "IConfigObj.h"
-#include "json/json.h"
-#include "compat_win32.h"
+#include "SOCKET_fd.h"
 #include "webDumpable.h"
-#include "socketsContainer.h"
-#include <set>
+#include "SOCKET_id.h"
+#include "route_t.h"
 
 /**
 * Wrapper for socket selector
@@ -41,21 +37,19 @@ class epoll_socket_info;
 /**
 * Socket wrapper
 */
+struct NetworkMultiplexor;
+
 class epoll_socket_info:public Refcountable, public WebDumpable
 {
 
 public:
+    const int m_socketType; /// SOCK_STREAM, SOCK_DGRAM
     enum STREAMTYPE
     {
-        _ACCEPTED,
-        _CONNECTED,
-        _LISTENING,
-    };
-    enum CloseType
-    {
-        CONNECT_FAILED,
-        DISCONNECTED,
-        DIACCEPTED,
+        STREAMTYPE_ACCEPTED,
+        STREAMTYPE_CONNECTED,
+        STREAMTYPE_LISTENING,
+        STREAMTYPE_UDP_ASSOC
     };
 
     /// socket type   _ACCEPTED,  _CONNECTED,  _LISTENING,
@@ -76,32 +70,13 @@ public:
 
     bool closed();
 
-private:
-
-    bool m_closed;
-
-public:
-
     /// routing
     const route_t m_route;
 
     /// if true socket must be closed after flush data
     bool markedToDestroyOnSend;
 
-    struct _socketsContainers: public Mutexable
-    {
 
-    private:
-        std::map<SERVICE_id,REF_getter<SocketsContainerBase> > container;
-
-    public:
-        void add(const SERVICE_id& sid, const REF_getter<SocketsContainerBase> & S);
-        REF_getter<SocketsContainerBase> getOrNull(const SERVICE_id& sid);
-        std::map<SERVICE_id,REF_getter<SocketsContainerBase> > getContainer();
-        void clear();
-
-    };
-    _socketsContainers m_socketsContainers;
 
     /// out buffer
     socketBuffersOut m_outBuffer;
@@ -134,10 +109,12 @@ public:
     ///  used to check buffer available for processing
     bool (*bufferVerify)(const std::string& s);
 
+    REF_getter<NetworkMultiplexor> multiplexor;
 
-    epoll_socket_info(const STREAMTYPE &_strtype,const SOCKET_id& _id,const SOCKET_fd& _fd, const route_t& _route,
-                      const REF_getter<SocketsContainerBase> &__socks,
-                      const int64_t& _maxOutBufferSize, const std::string& _socketDescription,         bool (*__bufferVerify)(const std::string&));
+
+    epoll_socket_info(const int& socketType, const STREAMTYPE &_streamtype,const SOCKET_id& _id,const SOCKET_fd& _fd, const route_t& _route,
+                      const int64_t& _maxOutBufferSize, const std::string& _socketDescription,         bool (*__bufferVerify)(const std::string&),
+                      const REF_getter<NetworkMultiplexor>& _multiplexor);
 
     virtual ~epoll_socket_info();
 

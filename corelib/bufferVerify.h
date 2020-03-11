@@ -3,6 +3,7 @@
 
 #include <string>
 #include "ioBuffer.h"
+
 inline bool bufferVerify(const std::string& s)
 {
     inBuffer b(s);

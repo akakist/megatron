@@ -1,6 +1,7 @@
 #include "commonError.h"
 #include "mutexInspector.h"
-#ifndef __ANDROID__
+#if !defined __ANDROID__ && !defined __FreeBSD__
+
 #include <sys/timeb.h>
 #endif
 #ifndef _WIN32
@@ -10,7 +11,7 @@
 
 #ifdef __MACH__
 #ifndef __IOS__
-#ifdef QT_CORE_LIB
+#ifdef QT5
 #include <QStandardPaths>
 #include <QCoreApplication>
 #endif
@@ -22,11 +23,12 @@
 #include <stdarg.h>
 #include "megatron_config.h"
 
-#ifdef QT_CORE_LIB
+#ifdef QT5
 #include <QStandardPaths>
 #endif
+
 #if !defined __MOBILE__
-//static Mutex *__logLock=NULL;
+static Mutex *__logLock=nullptr;
 #endif
 bool prevLogUnlinked=false;
 CommonError::CommonError(const std::string& str):m_error(str)
@@ -35,7 +37,7 @@ CommonError::CommonError(const std::string& str):m_error(str)
     fprintf(stderr,"CommonError raised: %s %s\n",m_error.c_str(),_DMI().c_str());
 #endif
 }
-CommonError::CommonError(const char* fmt, ...):m_error(fmt)
+CommonError::CommonError(const char* fmt, ...) :m_error(fmt)
 {
 
     va_list ap;
@@ -49,9 +51,6 @@ CommonError::CommonError(const char* fmt, ...):m_error(fmt)
 #endif
 
 }
-CommonError::~CommonError() throw()
-{
-}
 
 #if !defined __MOBILE__
 
@@ -60,7 +59,7 @@ static std::string getLogName()
     if(!iUtils) return ".log";
     std::string fn=(std::string)iUtils->app_name()+".log";
     {
-#if defined(_WIN32) && defined(QT_CORE_LIB)
+#if defined(_WIN32) && defined(QT5)
         fn="data/"+fn;
 #else
         fn=iUtils->gLogDir()+"/"+fn;
@@ -78,14 +77,13 @@ static std::string getLogName()
 void logErr(const char* fmt, ...)
 {
 
-//#if !defined __MOBILE__
 
     {
         va_list ap,ap1;
         va_start(ap, fmt);
         va_start(ap1, fmt);
 #ifndef _WIN32
-        if(/* DISABLES CODE */ (0))
+        if((0))
         {
 #if !defined __ANDROID__
 
@@ -99,8 +97,8 @@ void logErr(const char* fmt, ...)
 #if !defined __MOBILE__
 
         if(1) {
-//            if(!__logLock) __logLock=new Mutex;
-//            M_LOCK(__logLock);
+            if(!__logLock) __logLock=new Mutex;
+            M_LOCK(__logLock);
             st_FILE f(getLogName(),"a+b");
             vfprintf(f.f,fmt,ap1);
             fprintf(f.f,"\n");
@@ -109,19 +107,17 @@ void logErr(const char* fmt, ...)
 
     }
 #ifndef _WIN32
-    if(/* DISABLES CODE */ (0)) {
-        va_list ap;
-        va_start(ap,fmt);
-        vsyslog(LOG_ERR,fmt,ap);
-    }
 #endif
-//#endif
 }
-time_t start=time(NULL);
-FILE * fd=NULL;
+time_t start=time(nullptr);
+FILE * fd=nullptr;
 void logErr2(const char* fmt, ...)
 {
-//#if !defined __MOBILE__
+
+#ifdef WITH_SLOG
+    auto prf=iUtils->getLogPrefix();
+    std::string s_prf=iUtils->join(" @ ",prf);
+#endif
 
     {
         va_list ap,ap1;
@@ -138,9 +134,11 @@ void logErr2(const char* fmt, ...)
             ftime(&tb);
             fprintf(stderr, "%ld.%d - ", tb.time,tb.millitm);
 #endif
-            if(iUtils->argc())
             {
-                fprintf(stderr,"%s: ",iUtils->argv()[0]);
+                fprintf(stderr,"%s: ",iUtils->app_name().c_str());
+#ifdef WITH_SLOG
+                fprintf(stderr," %s ",s_prf.c_str());
+#endif
             }
             vfprintf(stderr,fmt, ap);
             fprintf(stderr,"\n");
@@ -152,22 +150,33 @@ void logErr2(const char* fmt, ...)
 
         if(1)
         {
-//            if(!__logLock) __logLock=new Mutex;
-//            M_LOCK(__logLock);
-            if(fd==NULL)
+            if(!__logLock) __logLock=new Mutex;
+            M_LOCK(__logLock);
+            if(fd==nullptr)
             {
                 fd=fopen(getLogName().c_str(),"a+b");
             }
             if(fd) {
+#ifndef __FreeBSD__
                 timeb tb;
                 ftime(&tb);
-                time_t t=time(NULL);
+#endif
+                time_t t=time(nullptr);
                 struct tm tt=*localtime(&t);
 
+#ifdef __FreeBSD__
+                fprintf(fd,"%04d-%02d-%02d %02d:%02d:%02d ",
+                        tt.tm_year+1900,tt.tm_mon+1,tt.tm_mday, tt.tm_hour,tt.tm_min,tt.tm_sec
+                       );
+#else
                 fprintf(fd,"%04d.%03d %04d-%02d-%02d %02d:%02d:%02d ",
                         int(tb.time-start),tb.millitm,
                         tt.tm_year+1900,tt.tm_mon+1,tt.tm_mday, tt.tm_hour,tt.tm_min,tt.tm_sec
                        );
+#endif
+#ifdef WITH_SLOG
+                fprintf(fd," %s ",s_prf.c_str());
+#endif
                 vfprintf(fd,fmt,ap1);
                 fprintf(fd,"\n");
                 fflush(fd);
@@ -182,7 +191,6 @@ void logErr2(const char* fmt, ...)
         vsyslog(LOG_ERR,fmt,ap);
     }
 #endif
-//#endif
 }
 #if defined(__MACH__) && !defined __IOS__ && defined QT5
 #include <QStandardPaths>

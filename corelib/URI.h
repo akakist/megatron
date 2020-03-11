@@ -31,11 +31,11 @@ public:
     }
     std::string toString() const
     {
-        return iUtils->toString(CONTAINER(m_dbid));
+        return std::to_string(CONTAINER(m_dbid));
     }
     std::string toTmpJpgName() const
     {
-        return "/tmp/----------"+iUtils->toString(CONTAINER(m_dbid))+".jpg";
+        return "/tmp/----------"+std::to_string(CONTAINER(m_dbid))+".jpg";
     }
 };
 inline int operator<(const URI&a, const URI&b)

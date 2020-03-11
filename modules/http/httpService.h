@@ -1,5 +1,6 @@
 #ifndef _____HTTP___SERVICE______H
 #define _____HTTP___SERVICE______H
+
 #include "unknown.h"
 
 #include "broadcaster.h"
@@ -9,38 +10,40 @@
 
 #include "unknown.h"
 #include "mutexInspector.h"
+#include <Events/System/Net/socket/StreamRead.h>
+#include <Events/System/Net/socket/Accepted.h>
+#include <Events/System/Net/socket/Connected.h>
+#include <Events/System/Net/socket/NotifyBindAddress.h>
+#include <Events/System/Net/socket/Disaccepted.h>
+#include <Events/System/Net/socket/Disconnected.h>
+#include <Events/System/Net/http/DoListen.h>
+#include <Events/System/Net/http/RegisterProtocol.h>
+#include <Events/System/Net/socket/NotifyOutBufferEmpty.h>
+#include <Events/System/Net/http/GetBindPorts.h>
+#include <Events/System/Run/startService.h>
 
 
 
-#include "Events/System/Run/startService.h"
-#include "Events/System/Net/socket/Accepted.h"
-#include "Events/System/Net/socket/StreamRead.h"
-#include "Events/System/Net/socket/Connected.h"
-#include "Events/System/Net/socket/NotifyBindAddress.h"
-#include "Events/System/Net/socket/NotifyOutBufferEmpty.h"
-#include "Events/System/Net/http/DoListen.h"
-#include "Events/System/Net/http/RegisterProtocol.h"
-#include "Events/System/Net/http/GetBindPorts.h"
-#include "Events/System/Net/http/RequestIncoming.h"
-#include "logging.h"
-#include "socketsContainer.h"
 namespace HTTP
 {
 
-    class __http_stuff: public SocketsContainerBase
+    class __http_stuff : public Refcountable
+    /*: public SocketsContainerBase*/
     {
         Mutex m_lock;
         std::map<SOCKET_id,REF_getter<HTTP::Request> > container;
     public:
-        __http_stuff():SocketsContainerBase("__http_stuff") {}
+        __http_stuff()
+//            :SocketsContainerBase("__http_stuff")
+        {}
         REF_getter<HTTP::Request> getRequestOrNull(const SOCKET_id& id);
         void insert(const SOCKET_id& id,const REF_getter<HTTP::Request> &C);
         virtual ~__http_stuff() {}
         void on_delete(const REF_getter<epoll_socket_info>&esi, const std::string& reason);
-        void on_mod_write(const REF_getter<epoll_socket_info>&) {}
+//        void on_mod_write(const REF_getter<epoll_socket_info>&) {}
         void clear()
         {
-            SocketsContainerBase::clear();
+//            SocketsContainerBase::clear();
             {
                 M_LOCK(m_lock);
                 container.clear();
@@ -50,10 +53,9 @@ namespace HTTP
     };
 
     class Service:
-        private UnknownBase,
-        private Broadcaster,
-        private ListenerBuffered1Thread,
-        public Logging
+        public UnknownBase,
+        public Broadcaster,
+        public ListenerBuffered1Thread
     {
 
         // config
@@ -72,6 +74,8 @@ namespace HTTP
         bool on_Accepted(const socketEvent::Accepted* evt);
         bool on_Connected(const socketEvent::Connected*);
         bool on_NotifyBindAddress(const socketEvent::NotifyBindAddress*);
+        bool on_Disaccepted(const socketEvent::Disaccepted*);
+        bool on_Disconnected(const socketEvent::Disconnected*);
 
         bool on_DoListen(const httpEvent::DoListen*);
         bool on_RegisterProtocol(const httpEvent::RegisterProtocol*e)
@@ -91,6 +95,10 @@ namespace HTTP
 
 
     public:
+        void deinit()
+        {
+            ListenerBuffered1Thread::denit();
+        }
         static UnknownBase*construct(const SERVICE_id&id, const std::string&nm, IInstance *_if);
         Service(const SERVICE_id& id, const std::string& nm, IInstance *_if);
         ~Service() {

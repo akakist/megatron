@@ -9,7 +9,7 @@ class ListenerBuffered;
 
 /// multithreaded listener implementation
 
-class ListenerBuffered:protected ListenerBase, protected Mutexable
+class ListenerBuffered:public ListenerBase, public Mutexable
 {
     friend struct st_busy;
 
@@ -22,7 +22,7 @@ class ListenerBuffered:protected ListenerBase, protected Mutexable
     /// max thread number
     size_t m_maxThreads;
 
-    IInstance * instance;
+    IInstance * lb_instance;
 
     static void* worker(void*);
     void addDeque(pthread_t pt, const REF_getter<EventDeque>& d);
@@ -36,12 +36,13 @@ protected:
     void listenToEvent(const std::deque<REF_getter<Event::Base> >&);
 
 public:
+    void denit();
 
     /// call method in inherited class to process event
     virtual bool handleEvent(const REF_getter<Event::Base>& e)=0;
 
     virtual ~ListenerBuffered();
-    ListenerBuffered(UnknownBase *i, const std::string& name, IConfigObj* conf, const SERVICE_id& sid,IInstance *ins);
+    ListenerBuffered(const std::string& name, IConfigObj* conf, const SERVICE_id& sid, IInstance *ins);
 
     /// caller of handleEvent
     void processEvent(const REF_getter<Event::Base>&);

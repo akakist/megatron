@@ -1,15 +1,8 @@
 #ifndef ________________________BITSTREAM___H
 #define ________________________BITSTREAM___H
 
-#include <vector>
-#include <set>
-#include <deque>
+
 #include <string>
-#include <map>
-#include <list>
-#include <string.h>
-#include <sys/types.h>
-#include <stdint.h>
 
 struct BitsPosition
 {

@@ -39,10 +39,11 @@ add_library(megatron-core STATIC
             objectHandler.cpp
             route_t.cpp
             socketsContainer.cpp
-#            sqlite3Wrapper.cpp
+	    networkMultiplexor.cpp
             st_rsa.cpp
             unknown.cpp
             url.cpp
+            trashable.cpp
             webDumpable.cpp
             neighbours.cpp
             ../lib/jsoncpp-0.5.0/src/lib_json/json_reader.cpp

@@ -4,6 +4,7 @@
 #include "compat_win32.h"
 #endif
 #include "st_FILE.h"
+#include "url.h"
 
 void ConfigObj::appendLine(const std::string& key, const bool& val, const std::string& comment)
 {
@@ -12,16 +13,16 @@ void ConfigObj::appendLine(const std::string& key, const bool& val, const std::s
 }
 void ConfigObj::appendLine(const std::string& key, const real& val, const std::string& comment)
 {
-    appendLine(key,iUtils->toString(val),comment);
+    appendLine(key,std::to_string(val),comment);
 }
 void ConfigObj::appendLine(const std::string& key, const int64_t& val, const std::string& comment)
 {
-    appendLine(key,iUtils->toString(val),comment);
+    appendLine(key,std::to_string(val),comment);
 
 }
 void ConfigObj::appendLine(const std::string& key, const uint64_t& val, const std::string& comment)
 {
-    appendLine(key,iUtils->toString(val),comment);
+    appendLine(key,std::to_string(val),comment);
 
 }
 
@@ -54,11 +55,11 @@ void ConfigObj::printUnusedItems()
 {
 
     M_LOCK(this);
-    for(std::map<std::string,std::pair<std::string, bool> > ::iterator i=m_container.begin(); i!=m_container.end(); i++)
+    for(auto& i:m_container)
     {
-        if(!i->second.second)
+        if(!i.second.second)
         {
-            DBG(logErr2("config: unused item %s -> %s",i->first.c_str(),i->second.first.c_str()));
+            DBG(logErr2("config: unused item %s -> %s",i.first.c_str(),i.second.first.c_str()));
         }
     }
 }
@@ -75,19 +76,19 @@ void ConfigObj::load_from_file()
     {
         logErr2("exception on load file %s",m_filename.c_str());
     }
-    for(std::map<std::string,std::string>::iterator i=m.begin(); i!=m.end(); i++)
+    for(auto&  i:m)
     {
-        m_container[i->first]=std::make_pair(i->second,false);
+        m_container[i.first]=std::make_pair(i.second,false);
 
     }
 }
 void ConfigObj::load_from_buffer(const std::string& buf)
 {
     M_LOCK(this);
-    std::map<std::string,std::string> m=iUtils->loadStringMapFromBuffer(buf,"\r\n");
-    for(std::map<std::string,std::string>::iterator i=m.begin(); i!=m.end(); i++)
+    auto m=iUtils->loadStringMapFromBuffer(buf,"\r\n");
+    for(auto& i:m)
     {
-        m_container[i->first]=std::make_pair(i->second,false);
+        m_container[i.first]=std::make_pair(i.second,false);
 
     }
 }
@@ -97,10 +98,10 @@ void ConfigObj::m_initFromLine(const std::string& buf)
 #if !defined __MOBILE__
 
     M_LOCK(this);
-    std::map<std::string,std::string> m=iUtils->loadStringMapFromBuffer(buf,",");
-    for(std::map<std::string,std::string>::iterator i=m.begin(); i!=m.end(); i++)
+    auto m=iUtils->loadStringMapFromBuffer(buf,",");
+    for(auto& i:m)
     {
-        m_container[i->first]=std::make_pair(i->second,false);
+        m_container[i.first]=std::make_pair(i.second,false);
 
     }
 #endif
@@ -112,7 +113,7 @@ std::set<msockaddr_in>ConfigObj::get_tcpaddr(const std::string&_name, const std:
     M_LOCK(this);
     std::string val;
     std::string name=m_getPath(_name);
-    std::map<std::string,std::pair<std::string, bool> > ::iterator i=m_container.find(name);
+    auto i=m_container.find(name);
     if (i!=m_container.end())
     {
         val=i->second.first;
@@ -120,9 +121,7 @@ std::set<msockaddr_in>ConfigObj::get_tcpaddr(const std::string&_name, const std:
     }
     else
     {
-//#ifndef __MOBILE__
         logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str());
-//#endif
         val=defv;
         appendLine(name,defv,comment);
     }
@@ -135,23 +134,11 @@ std::set<msockaddr_in>ConfigObj::get_tcpaddr(const std::string&_name, const std:
         vz.pop_front();
         if(iUtils->strupper(v)=="NONE")
         {
-            //ret.insert(std::make_pair(m_bindAddr,false));
             continue;
         }
-        std::vector<std::string> _vv= iUtils->splitString(":",v);
-        std::string serviceAddr,servicePort;
-        if (_vv.size()!=2) throw CommonError("error in LISTEN task line must be ADDR:PORT %s",v.c_str());
-        if (_vv.size()>0)
-            serviceAddr=_vv[0];
-        if (_vv.size()>1) servicePort=_vv[1];
-        if (serviceAddr=="INADDR_ANY")
-        {
-            m_bindAddr.setPort(atoi(servicePort.c_str()));
-        }
-        else
-        {
-            m_bindAddr.init(serviceAddr.c_str(),atoi(servicePort.c_str()));
-        }
+        Url u;
+        u.parse(v);
+        m_bindAddr.init(u);
         ret.insert(m_bindAddr);
         continue;
     }
@@ -167,7 +154,7 @@ std::set<msockaddr_in>ConfigObj::get_tcpaddr2(const std::string&_name, const std
     M_LOCK(this);
     std::string val;
     std::string name=m_getPath2(_name);
-    std::map<std::string,std::pair<std::string, bool> > ::iterator i=m_container.find(name);
+    auto i=m_container.find(name);
     if (i!=m_container.end())
     {
         val=i->second.first;
@@ -175,9 +162,7 @@ std::set<msockaddr_in>ConfigObj::get_tcpaddr2(const std::string&_name, const std
     }
     else
     {
-//#ifndef __MOBILE__
         logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str());
-//#endif
         val=defv;
         appendLine(name,defv,comment);
     }
@@ -190,23 +175,11 @@ std::set<msockaddr_in>ConfigObj::get_tcpaddr2(const std::string&_name, const std
         vz.pop_front();
         if(iUtils->strupper(v)=="NONE")
         {
-            //ret.insert(std::make_pair(m_bindAddr,false));
             continue;
         }
-        std::vector<std::string> _vv= iUtils->splitString(":",v);
-        std::string serviceAddr,servicePort;
-        if (_vv.size()!=2) throw CommonError("error in LISTEN task line must be ADDR:PORT %s",v.c_str());
-        if (_vv.size()>0)
-            serviceAddr=_vv[0];
-        if (_vv.size()>1) servicePort=_vv[1];
-        if (serviceAddr=="INADDR_ANY")
-        {
-            m_bindAddr.setPort(atoi(servicePort.c_str()));
-        }
-        else
-        {
-            m_bindAddr.init(serviceAddr.c_str(),atoi(servicePort.c_str()));
-        }
+        Url u;
+        u.parse(v);
+        m_bindAddr.init(u);
         ret.insert(m_bindAddr);
         continue;
     }
@@ -221,7 +194,7 @@ std::string ConfigObj::get_string(const std::string& _name, const std::string& d
     M_LOCK(this);
     std::string v;
     std::string name=m_getPath(_name);
-    std::map<std::string,std::pair<std::string, bool> > ::iterator i=m_container.find(name);
+    auto i=m_container.find(name);
     if (i!=m_container.end())
     {
         v=i->second.first;
@@ -230,9 +203,7 @@ std::string ConfigObj::get_string(const std::string& _name, const std::string& d
     }
     else
     {
-//#ifndef __MOBILE__
         logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str());
-//#endif
         v=defv;
         appendLine(name,defv,comment);
     }
@@ -243,7 +214,7 @@ std::string ConfigObj::get_string2(const std::string& _name, const std::string& 
     M_LOCK(this);
     std::string v;
     std::string name=m_getPath2(_name);
-    std::map<std::string,std::pair<std::string, bool> > ::iterator i=m_container.find(name);
+    auto i=m_container.find(name);
     if (i!=m_container.end())
     {
         v=i->second.first;
@@ -252,9 +223,7 @@ std::string ConfigObj::get_string2(const std::string& _name, const std::string& 
     }
     else
     {
-//#ifndef __MOBILE__
         logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str());
-//#endif
         v=defv;
         appendLine(name,defv,comment);
     }
@@ -265,7 +234,7 @@ real ConfigObj::get_real(const std::string&_name, const real& defv, const std::s
     M_LOCK(this);
     real v;
     std::string name=m_getPath(_name);
-    std::map<std::string,std::pair<std::string, bool> > ::iterator i=m_container.find(name);
+    auto i=m_container.find(name);
     if (i!=m_container.end())
     {
         v=strtod(i->second.first.c_str(),NULL);
@@ -274,9 +243,7 @@ real ConfigObj::get_real(const std::string&_name, const real& defv, const std::s
     }
     else
     {
-//#ifndef __MOBILE__
         logErr2("%s: skipped param, using deflt %s=%f",m_filename.c_str(),name.c_str(),float(defv));
-//#endif
         v=defv;
         appendLine(name,defv,comment);
     }
@@ -288,7 +255,7 @@ real ConfigObj::get_real2(const std::string&_name, const real &defv, const std::
     M_LOCK(this);
     real v;
     std::string name=m_getPath2(_name);
-    std::map<std::string,std::pair<std::string, bool> > ::iterator i=m_container.find(name);
+    auto i=m_container.find(name);
     if (i!=m_container.end())
     {
         v=strtod(i->second.first.c_str(),NULL);
@@ -297,9 +264,7 @@ real ConfigObj::get_real2(const std::string&_name, const real &defv, const std::
     }
     else
     {
-//#ifndef __MOBILE__
         logErr2("%s: skipped param, using deflt %s=%f",m_filename.c_str(),name.c_str(),defv);
-//#endif
         v=defv;
         appendLine(name,defv,comment);
     }
@@ -313,7 +278,7 @@ std::set<std::string> ConfigObj::get_stringset(const std::string& _name, const s
     std::string name=m_getPath(_name);
 
     M_LOCK(this);
-    std::map<std::string,std::pair<std::string, bool> > ::iterator i=m_container.find(name);
+    auto i=m_container.find(name);
     if (i!=m_container.end())
     {
         std::vector<std::string> vv=iUtils->splitString(",|;",i->second.first);
@@ -327,9 +292,7 @@ std::set<std::string> ConfigObj::get_stringset(const std::string& _name, const s
     }
     else
     {
-//#ifndef __MOBILE__
         logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str());
-//#endif
         appendLine(name,defv,comment);
         std::vector<std::string> vv=iUtils->splitString(",|",defv);
         for (size_t i=0; i<vv.size(); i++)
@@ -347,10 +310,10 @@ std::set<std::string> ConfigObj::get_stringset2(const std::string& _name, const 
     M_LOCK(this);
     std::string name=m_getPath2(_name);
 
-    std::map<std::string,std::pair<std::string, bool> > ::iterator i=m_container.find(name);
+    auto i=m_container.find(name);
     if (i!=m_container.end())
     {
-        std::vector<std::string> vv=iUtils->splitString(",|;",i->second.first);
+        auto vv=iUtils->splitString(",|;",i->second.first);
         i->second.second=true;
 
         for (size_t i=0; i<vv.size(); i++)
@@ -361,9 +324,7 @@ std::set<std::string> ConfigObj::get_stringset2(const std::string& _name, const 
     }
     else
     {
-//#ifndef __MOBILE__
         logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str());
-//#endif
         appendLine(name,defv,comment);
         std::vector<std::string> vv=iUtils->splitString(",|",defv);
         for (size_t i=0; i<vv.size(); i++)
@@ -380,7 +341,7 @@ bool ConfigObj::get_bool(const std::string& _name, bool defv, const std::string&
     bool v;
     M_LOCK(this);
     std::string name=m_getPath(_name);
-    std::map<std::string,std::pair<std::string, bool> > ::iterator i=m_container.find(name);
+    auto i=m_container.find(name);
     if (i!=m_container.end())
     {
         v=i->second.first=="true";
@@ -389,9 +350,7 @@ bool ConfigObj::get_bool(const std::string& _name, bool defv, const std::string&
     }
     else
     {
-//#ifndef __MOBILE__
         logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv?"true":"false");
-//#endif
         v=defv;
         appendLine(name,defv,comment);
     }
@@ -402,7 +361,7 @@ bool ConfigObj::get_bool2(const std::string& _name, bool defv, const std::string
     bool v;
     M_LOCK(this);
     std::string name=m_getPath2(_name);
-    std::map<std::string,std::pair<std::string, bool> > ::iterator i=m_container.find(name);
+    auto i=m_container.find(name);
     if (i!=m_container.end())
     {
         v=i->second.first=="true";
@@ -411,19 +370,11 @@ bool ConfigObj::get_bool2(const std::string& _name, bool defv, const std::string
     }
     else
     {
-//#ifndef __MOBILE__
         logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv?"true":"false");
-//#endif
         v=defv;
         appendLine(name,defv,comment);
     }
     return v;
-}
-void ConfigObj::m_addItem(const std::string& _name, const std::string& v)
-{
-    std::string name=m_getPath(_name);
-    m_container[name]=std::make_pair(v,false);
-
 }
 
 int64_t ConfigObj::get_int64_t(const std::string&_name, int64_t defv, const std::string& comment)
@@ -431,7 +382,7 @@ int64_t ConfigObj::get_int64_t(const std::string&_name, int64_t defv, const std:
     int64_t v;
     M_LOCK(this);
     std::string name=m_getPath(_name);
-    std::map<std::string,std::pair<std::string, bool> > ::iterator i=m_container.find(name);
+    auto i=m_container.find(name);
     if (i!=m_container.end())
     {
 #ifdef _MSC_VER
@@ -444,9 +395,7 @@ int64_t ConfigObj::get_int64_t(const std::string&_name, int64_t defv, const std:
     }
     else
     {
-//#ifndef __MOBILE__
-        logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),iUtils->toString(defv).c_str());
-//#endif
+        logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),std::to_string(defv).c_str());
         v=defv;
         appendLine(name,defv,comment);
     }
@@ -457,7 +406,7 @@ int64_t ConfigObj::get_int64_t2(const std::string&_name, int64_t defv, const std
     int64_t v;
     M_LOCK(this);
     std::string name=m_getPath2(_name);
-    std::map<std::string,std::pair<std::string, bool> > ::iterator i=m_container.find(name);
+    auto i=m_container.find(name);
     if (i!=m_container.end())
     {
 #ifdef _MSC_VER
@@ -470,9 +419,7 @@ int64_t ConfigObj::get_int64_t2(const std::string&_name, int64_t defv, const std
     }
     else
     {
-//#ifndef __MOBILE__
-        logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),iUtils->toString(defv).c_str());
-//#endif
+        logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),std::to_string(defv).c_str());
         v=defv;
         appendLine(name,defv,comment);
     }
@@ -484,7 +431,7 @@ uint64_t ConfigObj::get_uint64_t(const std::string&_name, uint64_t defv, const s
     uint64_t v;
     M_LOCK(this);
     std::string name=m_getPath(_name);
-    std::map<std::string,std::pair<std::string, bool> > ::iterator i=m_container.find(name);
+    auto i=m_container.find(name);
     if (i!=m_container.end())
     {
 #ifdef _MSC_VER
@@ -496,9 +443,7 @@ uint64_t ConfigObj::get_uint64_t(const std::string&_name, uint64_t defv, const s
     }
     else
     {
-//#ifndef __MOBILE__
-        logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),iUtils->toString(defv).c_str());
-//#endif
+        logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),std::to_string(defv).c_str());
         v=defv;
         appendLine(name,defv,comment);
     }
@@ -508,7 +453,7 @@ uint64_t ConfigObj::get_uint64_t(const std::string&_name, uint64_t defv, const s
 std::string ConfigObj::m_getPath(const std::string&name) const
 {
     std::deque<std::string> d;
-    std::map<pthread_t,std::deque<std::string> >::const_iterator i=m_prefixes.find(pthread_self());
+    auto i=m_prefixes.find(pthread_self());
     if(i!=m_prefixes.end())d=i->second;
     d.push_back(name);
     return iUtils->join(".",d);

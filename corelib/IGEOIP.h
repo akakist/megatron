@@ -10,10 +10,12 @@
 #include "IInstance.h"
 /// interfaces/wrapper to access OpenGEOIP
 
+#define LOCATION_LATITUDE_UNDEF 100000
+#define LOCATION_LONGITUDE_UNDEF 100000
 struct geoNetRec
 {
     std::string startIp,endIp;
-    double lat,lon;
+    int64_t lat,lon;
 };
 inline outBuffer & operator<< (outBuffer& b,const geoNetRec &s)
 {
@@ -35,7 +37,8 @@ inline int operator<(const geoNetRec& a,const geoNetRec& b)
 class I_GEOIP: public Ifaces::Base
 {
 public:
-    virtual bool findNetRec(IInstance* instance,const std::string &ip, bool isV4, geoNetRec &result)=0;
+    virtual void init()=0;
+    virtual bool findNetRec(const std::string &ip, bool isV4, geoNetRec &result)=0;
 
 };
 

@@ -6,19 +6,19 @@
 #include "route_t.h"
 #include "listenerBase.h"
 #include "serviceEnum.h"
-#include "eventEnum.h"
+
 
 namespace ServiceEnum
 {
-    const SERVICE_id Telnet (_xs_Telnet);
+    const SERVICE_id Telnet ("Telnet");
 
 }
 namespace telnetEventEnum
 {
-    const EVENT_id RegisterType(_xe_telnetRegisterType);
-    const EVENT_id RegisterCommand(_xe_telnetRegisterCommand);
-    const EVENT_id Reply(_xe_telnetReply);
-    const EVENT_id CommandEntered(_xe_telnetCommandEntered);
+    const EVENT_id RegisterType("telnetRegisterType");
+    const EVENT_id RegisterCommand("telnetRegisterCommand");
+    const EVENT_id Reply("telnetReply");
+    const EVENT_id CommandEntered("telnetCommandEntered");
 }
 
 

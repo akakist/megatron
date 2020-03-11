@@ -6,16 +6,14 @@
 #include "mutexable.h"
 #include "msockaddr_in.h"
 #include "mutexInspector.h"
-#include"DBH.h"
 
 #include "st_FILE.h"
-class _neighbours: public Mutexable /// sosedi referrers
+class _neighbours
 {
 public:
-//#ifdef __ANDROID__
+    std::string dbName;
     std::set<msockaddr_in>sas;
-//#endif
-    _neighbours();
+    _neighbours(const std::string &dbName);
     void remove(const msockaddr_in& sa);
     std::vector<msockaddr_in> getAllAndClear();
     void add(const msockaddr_in &sa, int pingTime);

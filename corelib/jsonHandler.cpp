@@ -9,7 +9,6 @@
 #include "Events/System/Net/rpc/IncomingOnAcceptor.h"
 #include "Events/DFS/Referrer/UpdateConfig.h"
 #include "Events/DFS/Referrer/UpdateConfig.h"
-//void registerReferrerClientService(const char* pn);
 
 JsonHandler::JsonHandler(IInstance *ins):
     TimerHelper(ins),
@@ -21,10 +20,6 @@ JsonHandler::JsonHandler(IInstance *ins):
 #endif
     isConnected(false)
 {
-    //setTimerValue(T_START_CONNECT,0.5);
-
-    //setAlarm(T_START_CONNECT,NULL,NULL,this);
-    //  registerReferrerClientService(NULL);
     iUtils->registerEvent(jsonRefEvent::JsonREQ::construct);
     iUtils->registerEvent(jsonRefEvent::JsonRSP::construct);
     iUtils->registerEvent(dfsReferrerEvent::UpdateConfigRSP::construct);
@@ -35,15 +30,12 @@ JsonHandler::JsonHandler(IInstance *ins):
 
 bool JsonHandler::on_NotifyReferrerUplinkIsConnected(const dfsReferrerEvent::NotifyReferrerUplinkIsConnected *)
 {
-    //logErr2("on_NotifyReferrerUplinkIsConnected");
-    MUTEX_INSPECTOR;
     isConnected=true;
     signal_connected();
     return true;
 }
 bool JsonHandler::on_NotifyReferrerUplinkIsDisconnected(const dfsReferrerEvent::NotifyReferrerUplinkIsDisconnected *)
 {
-    MUTEX_INSPECTOR;
     isConnected=false;
     signal_disconnected();
     return true;
@@ -54,11 +46,13 @@ bool JsonHandler::on_ToplinkDeliverRSP(const dfsReferrerEvent::ToplinkDeliverRSP
     XTRY;
     MUTEX_INSPECTOR;
     REF_getter<Event::Base> z=e->getEvent();
+    if(!z.valid())
+        return false;
     passEvent(z);
     XPASS;
     return true;
 }
-bool JsonHandler::on_TickAlarm(const timerEvent::TickAlarm*e)
+bool JsonHandler::on_TickAlarm(const timerEvent::TickAlarm*)
 {
     return false;
 }
@@ -102,17 +96,13 @@ bool JsonHandler::OH_handleObjectEvent(const REF_getter<Event::Base>& e)
     {
 
         logErr2("exception %s",e.what());
-        JAVACOOKIE_id c;
-        CONTAINER(c)="BROADCAST";
-        push_err("Common Error",e.what(),c);
+        push_err("Common Error",e.what(),"BROADCAST");
     }
     catch(...)
     {
 
-        JAVACOOKIE_id c;
-        CONTAINER(c)="BROADCAST";
         logErr2("exception ...");
-        push_err("Unknown error","Unknown exception",c);
+        push_err("Unknown error","Unknown exception","BROADCAST");
     }
     XPASS;
     return false;
@@ -124,23 +114,21 @@ bool JsonHandler::OH_handleObjectEvent(const REF_getter<Event::Base>& e)
 
 
 
-void JsonHandler::push_msg(const Json::Value &s,const std::string& binData, const JAVACOOKIE_id &javaCookie)
+void JsonHandler::push_msg(const Json::Value &s,const std::string& binData, const std::string &javaCookie)
 {
-
+    (void) binData;
     M_LOCK(mx);
     Json::Value j;
     j["data"]=s;
     j["errcode"]="0";
-    j["javaCookie"]=CONTAINER(javaCookie);
-    //logErr2("JsonHandler::push_msg %s",j.toStyledString().c_str());
+    j["javaCookie"]=javaCookie;
 #ifdef __MOBILE__
     mx.java_msgs.push_back(std::make_pair(j.toStyledString(),binData));
 #else
-    //logErr2("msg: %s",j.toStyledString().c_str());
 #endif
 
 }
-void JsonHandler::push_err(const std::string & action,const std::string& s, const JAVACOOKIE_id& javaCookie)
+void JsonHandler::push_err(const std::string & action, const std::string& s, const std::string &javaCookie)
 {
 
     M_LOCK(mx);
@@ -148,11 +136,10 @@ void JsonHandler::push_err(const std::string & action,const std::string& s, cons
     j["data"]=s;
     j["action"]=action;
     j["errcode"]="1";
-    j["javaCookie"]=CONTAINER(javaCookie);
+    j["javaCookie"]=javaCookie;
 #ifdef __MOBILE__
     mx.java_msgs.push_back(std::make_pair(j.toStyledString(),""));
 #else
-    //logErr2("msg: %s",s.c_str());
 #endif
 
 }

@@ -82,19 +82,24 @@ void ObjectHandlerThreaded::sendEvent(const SERVICE_id & dstService, const REF_g
 }
 ObjectHandlerPolled::ObjectHandlerPolled(const std::string &name, IInstance* _if)
     :ObjectHandler(name,ObjectHandler::POLLED,_if),
-     objectProxy(static_cast<IObjectProxyPolled*>
-                 (_if->getServiceOrCreate(ServiceEnum::ObjectProxyPolled)->cast(UnknownCast::IObjectProxyPolled)))
+     objectProxy(dynamic_cast<IObjectProxyPolled*>
+                 (_if->getServiceOrCreate(ServiceEnum::ObjectProxyPolled)))
 {
     XTRY;
+
+    if(!objectProxy)
+        throw  CommonError("if(!objectProxy)");
     objectProxy->addObjectHandler(this);
     XPASS;
 }
 ObjectHandlerThreaded::ObjectHandlerThreaded(const std::string& name, IInstance *_if)
     :ObjectHandler(name,ObjectHandler::THREADED,_if),
-     objectProxy(static_cast<IObjectProxyThreaded*>
-                 (_if->getServiceOrCreate(ServiceEnum::ObjectProxyThreaded)->cast(UnknownCast::IObjectProxyThreaded)))
+     objectProxy(dynamic_cast<IObjectProxyThreaded*>
+                 (_if->getServiceOrCreate(ServiceEnum::ObjectProxyThreaded)))
 {
     XTRY;
+    if(!objectProxy)
+        throw  CommonError("if(!objectProxy)");
     objectProxy->addObjectHandler(this);
     XPASS;
 }
@@ -103,22 +108,17 @@ ObjectHandlerThreaded::ObjectHandlerThreaded(const std::string& name, IInstance 
 ObjectHandlerPolled::~ObjectHandlerPolled()
 {
 
-    XTRY;
     objectProxy->removeObjectHandler(this);
-    XPASS;
 }
 ObjectHandlerThreaded::~ObjectHandlerThreaded()
 {
-
-    XTRY;
     objectProxy->removeObjectHandler(this);
-    XPASS;
 }
 
 void ObjectHandler::passEvent(const REF_getter<Event::Base>& e)
 {
     XTRY;
-
+    logErr2("ObjectHandler::passEvent (%d) %s",__LINE__, e->dump().toStyledString().c_str());
     iInstance->passEvent(e);
     XPASS;
 }

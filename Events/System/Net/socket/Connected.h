@@ -4,24 +4,24 @@
 
 namespace socketEvent
 {
-class Connected: public Event::NoPacked
-{
-public:
-    static Base* construct(const route_t &)
+    class Connected: public Event::NoPacked
     {
-        return NULL;
-    }
-    Connected(const REF_getter<epoll_socket_info>  & __S,const route_t&r)
-        :NoPacked(socketEventEnum::Connected,"socketConnected",r),
-         esi(__S)
-    {
-    }
-    void jdump(Json::Value &) const
-    {
-    }
-    const REF_getter<epoll_socket_info>  esi;
+    public:
+        static Base* construct(const route_t &)
+        {
+            return NULL;
+        }
+        Connected(const REF_getter<epoll_socket_info>  & __S,const route_t&r)
+            :NoPacked(socketEventEnum::Connected,r),
+             esi(__S)
+        {
+        }
+        void jdump(Json::Value &) const
+        {
+        }
+        const REF_getter<epoll_socket_info>  esi;
 
-};
+    };
 }
 
 

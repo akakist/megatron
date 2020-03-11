@@ -97,7 +97,6 @@ public:
     inBuffer& operator>>(int64_t&);
     inBuffer& operator>>(std::string&);
     inBuffer& operator>>(bool&);
-//private:
     inBuffer& operator>>(double&);
     inBuffer& operator>>(float &);
 public:
@@ -176,7 +175,6 @@ public:
 #ifdef _WIN32
     outBuffer& operator<<(const long&);
 #endif
-//private:
     outBuffer& operator<<(const double&);
     outBuffer& operator<<(const float&);
 public:
@@ -187,7 +185,7 @@ template < class T > outBuffer & operator << (outBuffer& b,const std::vector < T
 {
     b << (unsigned int)v.size();
 #if !defined(_MSC_VER)
-    for (auto j = v.begin(); j != v.end(); j++) b << *j;
+    for (auto &j:v) b << j;
 #else
     for (std::vector < T >::const_iterator j = v.begin(); j != v.end(); j++) b << *j;
 #endif
@@ -202,7 +200,7 @@ template < class T > outBuffer & operator << (outBuffer& b,const std::list < T >
 #if defined(_MSC_VER)
     for (std::list<T>::const_iterator j = v.begin(); j != v.end(); j++) b << *j;
 #else
-    for (auto  j = v.begin(); j != v.end(); j++) b << *j;
+    for (auto  &j:v) b << j;
 #endif
     return b;
 }
@@ -214,7 +212,7 @@ template < class T > outBuffer & operator << (outBuffer& b,const std::deque < T 
 #if defined (_MSC_VER)
     for (std::deque<T>::const_iterator j = v.begin(); j != v.end(); j++) b << *j;
 #else
-    for (auto j = v.begin(); j != v.end(); j++) b << *j;
+    for (auto &j:v) b << j;
 #endif
     return b;
 }
@@ -225,7 +223,7 @@ template < class T > outBuffer & operator << (outBuffer& b,const std::set < T > 
 #ifdef _MSC_VER
     for (std::set < T > ::const_iterator j = v.begin(); j != v.end(); j++) b << *j;
 #else
-    for (auto j = v.begin(); j != v.end(); j++) b << *j;
+    for (auto &j: v) b << j;
 #endif
     return b;
 }
@@ -344,13 +342,11 @@ inline uint64_t inBuffer::get_PN()
     while (1)
     {
 
-//        printf("1NN: %llx\n",NN);
         unsigned char c=get_8();
         if (c<0x80)
         {
             NN<<=7;
             NN|=c;
-//            printf("2NN: %llx\n",NN);
             return NN;
         }
         else

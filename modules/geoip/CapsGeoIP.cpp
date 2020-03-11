@@ -3,7 +3,6 @@
 #include <fstream>
 #include <ios>
 #include <math.h>
-#include "sqlite3Wrapper.h"
 #include "mutexInspector.h"
 
 
@@ -24,7 +23,7 @@ std::pair<std::string,std::string> CapsGeoIP::getIpRange(const std::string& ipma
     {
         std::vector<std::string> vi=iUtils->splitString(".",ip);
         unsigned char ipBin[4];
-        for(int i=0;i<4;i++)
+        for(int i=0; i<4; i++)
         {
             ipBin[i]=atoi(vi[i].c_str());
         }
@@ -35,11 +34,23 @@ std::pair<std::string,std::string> CapsGeoIP::getIpRange(const std::string& ipma
     else
     {
         in6_addr addr;
-        int r=inet_pton(AF_INET6, ip.c_str(), &addr);
+        int r;
+#ifdef _WIN32
+#if (_WIN32_WINNT >= 0x0600)
+        r=inet_pton(AF_INET6, ip.c_str(), &addr);
+
+#else
+        throw CommonError("SDK version too small");
+#endif
+#else
+        r=inet_pton(AF_INET6, ip.c_str(), &addr);
+
+#endif
+//        r=inet_pton(AF_INET6, ip.c_str(), &addr);
         if(r<0)
             throw CommonError("Not in presentation format %s",ip.c_str());
         unsigned char ipBin[16];
-        for(int i=0;i<16;i++)
+        for(int i=0; i<16; i++)
         {
             ipBin[i]=addr.s6_addr[i];
         }
@@ -49,29 +60,11 @@ std::pair<std::string,std::string> CapsGeoIP::getIpRange(const std::string& ipma
     }
 }
 
-void CapsGeoIP::init(IInstance* instance1)
+void CapsGeoIP::init()
 {
     MUTEX_INSPECTOR;
     M_LOCK(this);
 
-//    {
-//        outBuffer o1;
-//        o1<<-1;
-//        logErr2("PINT (-1) size %d",o1.asString()->asString().size());
-//    }
-//    {
-//        outBuffer o1;
-//        o1<<1;
-//        logErr2("PINT (1) size %d",o1.asString()->asString().size());
-
-//    }
-
-//    double x=123.1234556;
-//    int64_t *xx=(int64_t *)&(x);
-//    logErr2("x %lf xx %lld",x,*xx);
-//    int exp=0;
-//    double zz=frexp(123.1234556,&exp);
-//    logErr2("123.1234556 zz %lf exp %d",zz,exp);
 
     logErr2("CapsGeoIP::init start");
 
@@ -112,8 +105,8 @@ void CapsGeoIP::init(IInstance* instance1)
                         geoNetRec n;
                         n.startIp=res.first;
                         n.endIp=res.second;
-                        n.lat=lat;
-                        n.lon=lon;
+                        n.lat=lat*10000;
+                        n.lon=lon*10000;
                         geoNets.push_back(n);
                     }
                 }
@@ -150,8 +143,8 @@ void CapsGeoIP::init(IInstance* instance1)
                         geoNetRec n;
                         n.startIp=res.first;
                         n.endIp=res.second;
-                        n.lat=lat;
-                        n.lon=lon;
+                        n.lat=lat*10000;
+                        n.lon=lon*10000;
                         geoNets.push_back(n);
                     }
                 }
@@ -165,7 +158,7 @@ void CapsGeoIP::init(IInstance* instance1)
         o<<geoNets;
         REF_getter<refbuffer> b=o.asString();
         FILE *f=fopen(fileName.c_str(),"wb");
-        int r=fwrite(b->buffer,1,b->size_,f);
+        size_t r=fwrite(b->buffer,1,b->size_,f);
         if(r!=b->size_)
             throw CommonError("if(r!=b->size_)");
         fclose(f);
@@ -193,16 +186,16 @@ bool CapsGeoIP::findNetRec(const std::string &ip, bool isV4,geoNetRec& result)
 
     std::string ipBin=getIpBin(ip,isV4);
 
-   geoNetRec sample;
-   sample.endIp=ipBin;
+    geoNetRec sample;
+    sample.endIp=ipBin;
 
-   auto it=std::lower_bound(geoNets.begin(),geoNets.end(),sample);
-   if(it!=geoNets.end())
-   {
-       result=*it;
-       return true;
-   }
-   return false;
+    auto it=std::lower_bound(geoNets.begin(),geoNets.end(),sample);
+    if(it!=geoNets.end())
+    {
+        result=*it;
+        return true;
+    }
+    return false;
 }
 
 std::string CapsGeoIP::setBits(unsigned char* _ip, int iplen, int netmask, bool value)
@@ -210,7 +203,7 @@ std::string CapsGeoIP::setBits(unsigned char* _ip, int iplen, int netmask, bool 
     MUTEX_INSPECTOR;
     unsigned char ip[iplen];
     memcpy(ip,_ip,iplen);
-    for(int i=netmask;i<iplen*8;i++)
+    for(int i=netmask; i<iplen*8; i++)
     {
         int nbyte=i/8;
         int nbit=i%8;
@@ -232,7 +225,7 @@ std::string CapsGeoIP::getIpBin(const std::string& ip,  bool isV4)
     {
         std::vector<std::string> vi=iUtils->splitString(".",ip);
         unsigned char ipBin[4];
-        for(int i=0;i<4;i++)
+        for(int i=0; i<4; i++)
         {
             ipBin[i]=atoi(vi[i].c_str());
         }
@@ -241,11 +234,22 @@ std::string CapsGeoIP::getIpBin(const std::string& ip,  bool isV4)
     else
     {
         in6_addr addr;
-        int r=inet_pton(AF_INET6, ip.c_str(), &addr);
+        int r;
+#ifdef _WIN32
+#if (_WIN32_WINNT >= 0x0600)
+        r=inet_pton(AF_INET6, ip.c_str(), &addr);
+#else
+        throw CommonError("SDK version too small");
+#endif
+#else
+        r=inet_pton(AF_INET6, ip.c_str(), &addr);
+#endif
+
+//        r=inet_pton(AF_INET6, ip.c_str(), &addr);
         if(r<0)
             throw CommonError("Not in presentation format %s",ip.c_str());
         unsigned char ipBin[16];
-        for(int i=0;i<16;i++)
+        for(int i=0; i<16; i++)
         {
             ipBin[i]=addr.s6_addr[i];
         }

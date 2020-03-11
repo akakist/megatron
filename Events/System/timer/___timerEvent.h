@@ -2,22 +2,22 @@
 #define _______________serviceTimerEvent$h
 #include "event.h"
 #include "SERVICE_id.h"
-#include "eventEnum.h"
+
 #include "serviceEnum.h"
 #include "Real.h"
 namespace ServiceEnum
 {
-    const SERVICE_id Timer(_xs_Timer);
+    const SERVICE_id Timer("0-Timer");
 }
 namespace timerEventEnum
 {
-    const EVENT_id SetTimer(_xe_timerSetTimer);
-    const EVENT_id SetAlarm(_xe_timerSetAlarm);
-    const EVENT_id ResetAlarm(_xe_timerResetAlarm);
-    const EVENT_id StopTimer(_xe_timerStopTimer);
-    const EVENT_id StopAlarm(_xe_timerStopAlarm);
-    const EVENT_id TickTimer(_xe_timerTickTimer);
-    const EVENT_id TickAlarm(_xe_timerTickAlarm);
+    const EVENT_id SetTimer("timerSetTimer");
+    const EVENT_id SetAlarm("timerSetAlarm");
+    const EVENT_id ResetAlarm("timerResetAlarm");
+    const EVENT_id StopTimer("timerStopTimer");
+    const EVENT_id StopAlarm("timerStopAlarm");
+    const EVENT_id TickTimer("timerTickTimer");
+    const EVENT_id TickAlarm("timerTickAlarm");
 }
 
 #endif

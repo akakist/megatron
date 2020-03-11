@@ -16,6 +16,11 @@ void Broadcaster::sendEvent(const std::set<msockaddr_in>& addr, const SERVICE_id
     XTRY;
     if(addr.size()>1)
     {
+        logErr2("event dump: %s",e->dump().toStyledString().c_str());
+        for(auto& z:addr)
+        {
+            logErr2("addr %s",z.dump().c_str());
+        }
         logErr2("FATAL: must remove void Broadcaster::sendEvent(const std::set<msockaddr_in>& addr, const SERVICE_id& svs, const REF_getter<Event::Base>&e)");
     }
     for(auto &i:addr)

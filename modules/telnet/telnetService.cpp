@@ -1,12 +1,13 @@
 #include <stdlib.h>
 #ifndef _WIN32
 #include <unistd.h>
+#include <version_mega.h>
+
 #endif
 #include "telnetService.h"
 #include "telnet.h"
 #include "telnet_keys.h"
 #include "mutexInspector.h"
-#include "epoll_socket_info.h"
 extern "C" {
 #include <regex.h>
 }
@@ -119,6 +120,7 @@ static size_t strmax(const std::string& a, const std::string &b)
 }
 static std::string getAutoAppendString(const std::vector<std::string> &v, const std::string& templ)
 {
+    MUTEX_INSPECTOR;
     std::vector<std::string> vm;
     for(size_t i=0; i<v.size(); i++)
     {
@@ -143,15 +145,12 @@ static std::string getAutoAppendString(const std::vector<std::string> &v, const 
 void Telnet::Service::doListen()
 {
     MUTEX_INSPECTOR;
-    //if(iInstance->no_bind())
-    //  throw CommonError("Telnet::Service::doListen %s",_DMI().c_str());
 
     XTRY;
     for(auto &i:m_bindAddr)
     {
         SOCKET_id sid=iUtils->getSocketId();
         msockaddr_in sa=i;
-        //sa.setSocketId(sid);
         sendEvent(ServiceEnum::Socket,new socketEvent::AddToListenTCP(sid,sa,"TELNET",false,NULL,ListenerBase::serviceId));
     }
     XPASS;
@@ -160,11 +159,10 @@ void Telnet::Service::doListen()
 Telnet::Service::Service(const SERVICE_id& id, const std::string& nm, IInstance* ifa):
     UnknownBase(nm),Broadcaster(ifa),
     ListenerBuffered1Thread(this,nm,ifa->getConfig(),id,ifa),
-    Logging(this,ERROR_log,ifa),stuff(new __telnet_stuff),iInstance(ifa)
+    stuff(new __telnet_stuff),iInstance(ifa)
 {
     XTRY;
 
-    MUTEX_INSPECTOR;
     cmdEntries.registerType("VLAN_ID","(409[0-5]|40[0-8][0-9]|[1-3][0-9]{3}|[1-9][0-9]{2}|[1-9][0-9]|[1-9])","Number in the range 1-4095");
     cmdEntries.registerType("AG_TIME","(409[0-5]|40[0-8][0-9]|[1-3][0-9]{3}|[1-9][0-9]{2}|[1-9][0-9]|[1-9])","Number in the range 1-4095");
     cmdEntries.registerType("IP_ADDR","(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))","IP address AAA.BBB.CCC.DDD where each part is in the range 0-255");
@@ -196,11 +194,6 @@ Telnet::Service::Service(const SERVICE_id& id, const std::string& nm, IInstance*
 }
 bool Telnet::Service::on_startService(const systemEvent::startService*)
 {
-    MUTEX_INSPECTOR;
-    //if(iInstance->no_bind())
-    //  return true;
-
-    //if(!m_disabled)
     {
         doListen();
     }
@@ -211,11 +204,10 @@ bool Telnet::Service::on_startService(const systemEvent::startService*)
 
 bool Telnet::Service::on_Accepted(const socketEvent::Accepted* evt)
 {
-    XTRY;
     MUTEX_INSPECTOR;
-    REF_getter<Telnet::Session> c=new Telnet::Session(cmdEntries.root());
+    XTRY;
+    REF_getter<Telnet::Session> c=new Telnet::Session(cmdEntries.root(),evt->esi);
     stuff->insert(evt->esi->m_id,c);
-    stuff->add(ServiceEnum::Telnet,evt->esi);
 
     evt->esi->write_("\377\375\042\377\373\001"+vt100::insert_mode());
 
@@ -233,6 +225,7 @@ bool Telnet::Service::on_Accepted(const socketEvent::Accepted* evt)
 
 void popprint2(std::deque<unsigned char>&chars)
 {
+    MUTEX_INSPECTOR;
     XTRY;
     if(!chars.empty())
     {
@@ -248,6 +241,7 @@ void popprint2(std::deque<unsigned char>&chars)
 }
 bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 {
+    MUTEX_INSPECTOR;
     XTRY;
     REF_getter<Telnet::Session> W=stuff->get(evt->esi->m_id);
     if (!W.valid())
@@ -902,15 +896,15 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 
         std::vector<std::string> commands;
 
-        for(std::map<std::deque<std::string>,REF_getter<_Command> > ::iterator i=_c.begin(); i!=_c.end(); i++)
+        for(auto& i:_c)
         {
-            std::string templ=iUtils->join(" ",i->first);
+            std::string templ=iUtils->join(" ",i.first);
             commands.push_back(templ);
         }
         std::map<std::string,REF_getter<Node> > _n=N->children();
-        for(std::map<std::string,REF_getter<Node> > ::iterator i=_n.begin(); i!=_n.end(); ++i)
+        for(auto& i:_n)
         {
-            commands.push_back(i->second->name);
+            commands.push_back(i.second->name);
         }
         std::string append=getAutoAppendString(commands,norm_cmdline);
 
@@ -938,7 +932,7 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
             case 9: // TAB
                 break;
             case 13: // ENTER
-                DBG(log(TRACE_log,"ENTER"));
+                DBG(logErr2("ENTER"));
                 processCommand(W,esi);
                 break;
             default:
@@ -1011,7 +1005,7 @@ bool Telnet::Service::paramMatch(const std::string & param, const std::string & 
         throw CommonError("regex '%s' %s",regexp.c_str(),erbuf);
         return false;
     }
-    if (!regexec(&re, exp.c_str() , 1, &pm, 0))
+    if (!regexec(&re, exp.c_str(), 1, &pm, 0))
     {
         if (pm.rm_so != -1)
         {
@@ -1019,12 +1013,12 @@ bool Telnet::Service::paramMatch(const std::string & param, const std::string & 
             if(matchlen==exp.size()) ok=true;
             else
             {
-                DBG(log(TRACE_log,"paramMatch: matchlen!= buffer.size"));
+                DBG(logErr2("paramMatch: matchlen!= buffer.size"));
             }
         }
     }
     regfree(&re);
-    DBG(log(TRACE_log,"paramMatch %s %s %d",param.c_str(),exp.c_str(),ok));
+    DBG(logErr2("paramMatch %s %s %d",param.c_str(),exp.c_str(),ok));
     return ok;
     return true;
 }
@@ -1034,6 +1028,7 @@ static std::string bright(const std::string &s)
 }
 void Telnet::Service::processCommand(const REF_getter<Telnet::Session>& W, const REF_getter<epoll_socket_info>&esi)
 {
+    MUTEX_INSPECTOR;
     esi->write_("\r\n");
     std::string cmd;
     {
@@ -1060,9 +1055,9 @@ void Telnet::Service::processCommand(const REF_getter<Telnet::Session>& W, const
                 {
                     std::map<std::string,std::string> m=cmdEntries.getHelpOnTypes();
                     esi->write_("Registered types \r\n\r\n");
-                    for(std::map<std::string,std::string> ::iterator i=m.begin(); i!=m.end(); i++)
+                    for(auto& i:m)
                     {
-                        esi->write_(bright(i->first)+" - "+i->second+"\r\n");
+                        esi->write_(bright(i.first)+" - "+i.second+"\r\n");
                     }
                     prompt(W,esi);
                     return;
@@ -1071,9 +1066,9 @@ void Telnet::Service::processCommand(const REF_getter<Telnet::Session>& W, const
                 {
                     std::map<std::string,std::string> m=cmdEntries.getHelpOnRe();
                     esi->write_("Templates of registered types \r\n\r\n");
-                    for(std::map<std::string,std::string> ::iterator i=m.begin(); i!=m.end(); i++)
+                    for(auto& i:m)
                     {
-                        esi->write_(bright(i->first)+" - "+i->second+"\r\n");
+                        esi->write_(bright(i.first)+" - "+i.second+"\r\n");
                     }
                     prompt(W,esi);
                     return;
@@ -1089,18 +1084,18 @@ void Telnet::Service::processCommand(const REF_getter<Telnet::Session>& W, const
             esi->write_(bright("quit")+" - quit console\r\n");
             esi->write_(bright("..")+" - go to parent directory\r\n");
 
-            std::map<std::string,REF_getter<Node> > children=W->defaultNode()->children();
-            std::map<std::deque<std::string>,REF_getter<_Command> > commands=W->defaultNode()->commands();
-            for(std::map<std::string,REF_getter<Node> >::iterator i=children.begin(); i!=children.end(); ++i)
+            auto children=W->defaultNode()->children();
+            auto commands=W->defaultNode()->commands();
+            for(auto& i:children)
             {
-                esi->write_(bright(i->second->name)+" - "+i->second->help+"\r\n");
+                esi->write_(bright(i.second->name)+" - "+i.second->help+"\r\n");
             }
-            for(std::map<std::deque<std::string>,REF_getter<_Command> >::iterator i=commands.begin(); i!=commands.end(); i++)
+            for(auto& i:commands)
             {
-                if(i->second->params.size())
-                    esi->write_(bright(iUtils->join(" ",i->second->cmd)+" ["+iUtils->join(" ",i->second->params)+"]")+" - "+i->second->help+"\r\n");
+                if(i.second->params.size())
+                    esi->write_(bright(iUtils->join(" ",i.second->cmd)+" ["+iUtils->join(" ",i.second->params)+"]")+" - "+i.second->help+"\r\n");
                 else
-                    esi->write_(bright(iUtils->join(" ",i->second->cmd))+" - "+i->second->help+"\r\n");
+                    esi->write_(bright(iUtils->join(" ",i.second->cmd))+" - "+i.second->help+"\r\n");
             }
             prompt(W,esi);
             return;
@@ -1147,21 +1142,21 @@ void Telnet::Service::processCommand(const REF_getter<Telnet::Session>& W, const
 
 
             std::map<std::deque<std::string>,REF_getter<_Command> > commands=W->defaultNode()->commands();
-            for(std::map<std::deque<std::string>,REF_getter<_Command> >::iterator i=commands.begin(); i!=commands.end(); i++)
+            for(auto& i:commands)
             {
-                Telnet::_Command *c=i->second.___ptr;
+                Telnet::_Command *c=i.second.___ptr;
                 if(tokens.size()==c->cmd.size()+c->params.size())
                 {
-                    DBG(log(TRACE_log,"if(tokens.size()==c->cmd.size()+c->params.size())"));
+                    DBG(logErr2("if(tokens.size()==c->cmd.size()+c->params.size())"));
                     bool ok=true;
-                    if(tokens.size()>=i->second->cmd.size())
+                    if(tokens.size()>=i.second->cmd.size())
                     {
                         for(size_t j=0; j<c->cmd.size(); j++)
                         {
                             if(tokens[j]!=c->cmd[j])
                             {
                                 ok=false;
-                                DBG(log(TRACE_log,"if(tokens[j]!=c->cmd[j]) OK=false"));
+                                DBG(logErr2("if(tokens[j]!=c->cmd[j]) OK=false"));
                             }
 
                         }
@@ -1199,6 +1194,7 @@ void Telnet::Service::processCommand(const REF_getter<Telnet::Session>& W, const
 
 void Telnet::Service::__telnet_stuff::erase(const SOCKET_id& id)
 {
+    MUTEX_INSPECTOR;
     XTRY;
     M_LOCK(m_lock);
     sessions.erase(id);
@@ -1206,15 +1202,17 @@ void Telnet::Service::__telnet_stuff::erase(const SOCKET_id& id)
 }
 REF_getter<Telnet::Session> Telnet::Service::__telnet_stuff::get(const SOCKET_id& id)
 {
+    MUTEX_INSPECTOR;
     XTRY;
     M_LOCK(m_lock);
-    std::map<SOCKET_id,REF_getter<Telnet::Session> >::iterator i=sessions.find(id);
+    auto i=sessions.find(id);
     if (i!=sessions.end()) return i->second;
     XPASS;
     return NULL;
 }
 void Telnet::Service::__telnet_stuff::insert(const SOCKET_id& id,const REF_getter<Telnet::Session> &C)
 {
+    MUTEX_INSPECTOR;
     XTRY;
     M_LOCK(m_lock);
     sessions.insert(std::make_pair(id,C));
@@ -1222,14 +1220,15 @@ void Telnet::Service::__telnet_stuff::insert(const SOCKET_id& id,const REF_gette
 }
 std::map<SOCKET_id,REF_getter<Telnet::Session> > Telnet::Service::__telnet_stuff::getContainer()
 {
+    MUTEX_INSPECTOR;
     XTRY;
     M_LOCK(m_lock);
     return sessions;
     XPASS;
 }
 
-Telnet::Session::Session(const REF_getter<Node> &N)
-    :mx_defaultNode(N),curpos(0),command_history_pos(0), insertMode(1),width(80),height(25)
+Telnet::Session::Session(const REF_getter<Node> &N, const REF_getter<epoll_socket_info> &_esi)
+    :mx_defaultNode(N),curpos(0),command_history_pos(0), insertMode(1),width(80),height(25),esi(_esi)
 {
 }
 bool Telnet::Service::on_RegisterType(const telnetEvent::RegisterType* e)
@@ -1240,6 +1239,7 @@ bool Telnet::Service::on_RegisterType(const telnetEvent::RegisterType* e)
 }
 bool Telnet::Service::on_RegisterCommand(const telnetEvent::RegisterCommand* e)
 {
+    MUTEX_INSPECTOR;
     std::deque<std::string> d=iUtils->splitStringDQ("/",e->directory);
     std::deque<std::string> dbase;
     std::string dname;
@@ -1255,8 +1255,10 @@ bool Telnet::Service::on_RegisterCommand(const telnetEvent::RegisterCommand* e)
 }
 bool Telnet::Service::on_Reply(const telnetEvent::Reply* e)
 {
+    MUTEX_INSPECTOR;
     REF_getter<Telnet::Session> W=stuff->get(e->socketId);
-    REF_getter<epoll_socket_info> esi=stuff->getOrNull(e->socketId);
+//    REF_getter<epoll_socket_info> esi=stuff->getOrNull(e->socketId);
+    REF_getter<epoll_socket_info>esi=W->esi;
     if (!W.valid() || !esi.valid())
     {
         logErr2("telnetReply user not found");
@@ -1278,6 +1280,7 @@ bool Telnet::Service::on_Reply(const telnetEvent::Reply* e)
 
 Json::Value Telnet::Session::jdump()
 {
+    MUTEX_INSPECTOR;
     Json::Value ret;
     ret["defaulNode"]=mx_defaultNode->name;
     {
@@ -1325,7 +1328,7 @@ Json::Value Telnet::_Command::jdump()
 REF_getter<Telnet::Node> Telnet::Node::getSubDir(const std::string& dir)
 {
     M_LOCK(this);
-    std::map<std::string,REF_getter<Node> >::iterator i=m_children.find(dir);
+    auto i=m_children.find(dir);
     if(i==m_children.end())
         return NULL;
     return i->second;
@@ -1375,13 +1378,13 @@ Json::Value Telnet::Node::jdump()
     r["help"]=help;
     std::map<std::string,REF_getter<Node> > _children=children();
     std::map<std::deque<std::string>,REF_getter<_Command> >_commands=commands();
-    for(std::map<std::string,REF_getter<Node> >::iterator i=_children.begin(); i!=_children.end(); i++)
+    for(auto& i:_children)
     {
-        r["children"].append(i->second->jdump());
+        r["children"].append(i.second->jdump());
     }
-    for(std::map<std::deque<std::string>,REF_getter<_Command> >::iterator i=_commands.begin(); i!=_commands.end(); i++)
+    for(auto& i:_commands)
     {
-        r["commands"].append(i->second->jdump());
+        r["commands"].append(i.second->jdump());
     }
     return r;
 }
@@ -1427,10 +1430,10 @@ void Telnet::CommandEntries::registerCommand(const std::deque<std::string> &d, c
         }
     }
     REF_getter<Node> n(root());
-    for(size_t i=0; i<d.size(); i++)
+    for(const auto & i : d)
     {
-        n=n->getSubDir(d[i]);
-        if(!n.valid()) throw CommonError("cannot find subdir '%s'",d[i].c_str());
+        n=n->getSubDir(i);
+        if(!n.valid()) throw CommonError("cannot find subdir '%s'",i.c_str());
     }
     route_t r=dst;
     r.pop_front();
@@ -1455,9 +1458,9 @@ std::map<std::string,std::string> Telnet::CommandEntries::getHelpOnTypes()
 {
     std::map<std::string,std::string> m;
     M_LOCK(this);
-    for(std::map<std::string/*name*/,std::pair<std::string/*pattern*/,std::string/*help*/> > ::iterator i=mx_types.begin(); i!=mx_types.end(); i++)
+    for(auto& i:mx_types)
     {
-        m[i->first]=i->second.second;
+        m[i.first]=i.second.second;
     }
     return m;
 }
@@ -1465,9 +1468,9 @@ std::map<std::string,std::string> Telnet::CommandEntries::getHelpOnRe()
 {
     std::map<std::string,std::string> m;
     M_LOCK(this);
-    for(std::map<std::string/*name*/,std::pair<std::string/*pattern*/,std::string/*help*/> > ::iterator i=mx_types.begin(); i!=mx_types.end(); i++)
+    for(auto& i:mx_types)
     {
-        m[i->first]=i->second.first;
+        m[i.first]=i.second.first;
     }
     return m;
 }
@@ -1479,7 +1482,7 @@ bool Telnet::Service::on_NotifyBindAddress(const socketEvent::NotifyBindAddress*
     socklen_t len=e->esi->local_name.maxAddrLen();
     if(getsockname(CONTAINER(e->esi->get_fd()),e->esi->local_name.addr(),&len))
     {
-        log(ERROR_log,"getsockname: errno %d",errno);
+        logErr2("getsockname: errno %d %s",errno,strerror(errno));
         return true;
     }
     return true;
@@ -1490,12 +1493,12 @@ Json::Value Telnet::CommandEntries::jdump()
     v["root"]=m_root->jdump();
     {
         M_LOCK(this);
-        for(std::map<std::string/*name*/,std::pair<std::string/*pattern*/,std::string/*help*/> >::iterator i=mx_types.begin(); i!=mx_types.end(); i++)
+        for(auto& i:mx_types)
         {
             Json::Value t;
-            t["name"]=i->first;
-            t["pattern"]=i->second.first;
-            t["help"]=i->second.second;
+            t["name"]=i.first;
+            t["pattern"]=i.second.first;
+            t["help"]=i.second.second;
             v["types"].append(t);
         }
 
@@ -1506,7 +1509,7 @@ void registerTelnetService(const char* pn)
 {
     if(pn)
     {
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::Telnet,"Telnet");
+        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::Telnet,"Telnet",getEvents_telnet());
     }
     else
     {
@@ -1525,6 +1528,10 @@ bool Telnet::Service::handleEvent(const REF_getter<Event::Base>& e)
 {
     auto& ID=e->id;
     XTRY;
+    if( socketEventEnum::Disaccepted==ID)
+        return on_Disaccepted((const socketEvent::Disaccepted*)e.operator->());
+    if( socketEventEnum::Disconnected==ID)
+        return on_Disconnected((const socketEvent::Disconnected*)e.operator->());
     if( socketEventEnum::Accepted==ID)
         return on_Accepted((const socketEvent::Accepted*)e.operator->());
     if( socketEventEnum::StreamRead==ID)
@@ -1543,4 +1550,14 @@ bool Telnet::Service::handleEvent(const REF_getter<Event::Base>& e)
     XPASS;
     return false;
 
+}
+bool Telnet::Service::on_Disaccepted(const socketEvent::Disaccepted*e)
+{
+    stuff->on_delete(e->esi,e->reason);
+    return true;
+}
+bool Telnet::Service::on_Disconnected(const socketEvent::Disconnected*e)
+{
+    stuff->on_delete(e->esi,e->reason);
+    return true;
 }

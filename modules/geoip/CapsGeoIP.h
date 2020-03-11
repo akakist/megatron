@@ -12,7 +12,7 @@ class CapsGeoIP: public Mutexable
 {
 public:
     CapsGeoIP();
-    void init(IInstance *instance1);
+    void init();
 
 
     std::vector<geoNetRec> geoNets;

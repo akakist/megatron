@@ -1,11 +1,13 @@
 #define _FILE_OFFSET_BITS 64
+#ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
+#endif
 #include "commonError.h"
 #include <sys/stat.h>
 #include <stdlib.h>
 #include "CUtils.h"
 #include <dirent.h>
-#ifndef __ANDROID__
+#if !defined __ANDROID__ && !defined __FreeBSD__
 #include <sys/timeb.h>
 #endif
 #include <unistd.h>
@@ -24,9 +26,13 @@
 #include <fcntl.h>
 #include "st_FILE.h"
 #include "epoll_socket_info.h"
-
+#ifdef _WIN32
+#include <lib/regex/regex.h>
+#else
 #include <regex.h>
+#endif
 #include <zlib.h>
+#include <version_mega.h>
 #include "megatron_config.h"
 #if defined(QT5)
 #include <QFile>
@@ -34,6 +40,8 @@
 #include <QStandardPaths>
 #endif
 #include "CInstance.h"
+#include "threadNameCtl.h"
+
 std::map<std::string,std::string> CUtils::loadStringMapFromBuffer(const std::string &body, const char *linedelim)
 {
     std::string section;
@@ -74,7 +82,6 @@ std::map<std::string,std::string> CUtils::loadStringMapFromBuffer(const std::str
         if (pz==std::string::npos)
         {
             throw CommonError("--Error: syntax error in line %d ",i);
-            //continue;
         }
         std::string key;
         if (section.size())key=section+"_"+theString.substr(0,pz);
@@ -129,7 +136,6 @@ std::map<std::string,std::string> CUtils::loadStringMapFromFile(const std::strin
         if (pz==std::string::npos)
         {
             throw CommonError("--Error: syntax error in file %s line %d ",fn.c_str(),i);
-            // continue;
         }
         std::string key;
         if (section.size())key=section+"_"+theString.substr(0,pz);
@@ -206,9 +212,9 @@ std::string CUtils::join(const char *pattern, const std::set < std::string> &st)
 
     std::string ret;
     std::vector<std::string> arr;
-    for (std::set < std::string>::const_iterator j=st.begin(); j!=st.end(); ++j)
+    for (auto& j:st)
     {
-        arr.push_back(*j);
+        arr.push_back(j);
     }
     return join(pattern,arr);
 }
@@ -270,158 +276,11 @@ std::string CUtils::trim(const std::string &s)
         ret+=d[i];
     return ret;
 }
-std::string CUtils::toString(real i)
-{
-    char ss[200];
-    std::string s;
-    ::snprintf(ss, sizeof(ss) - 1, "%f", i);
-    s = ss;
-    return s;
 
-}
-std::string CUtils::toString(const std::pair<int64_t,int64_t> &i)
-{
-//    char ss[200];
-    std::string s;
-    return toString(i.first)+"/"+toString(i.second);
-
-
-}
-
-std::string CUtils::toString(int64_t i)
-{
-
-    char ss[200];
-    std::string s;
-#if defined(_MSC_VER)
-    ::_snprintf(ss, sizeof(ss) - 1, "%d" , i);
-#elif defined (__ANDROID__)
-#if  __WORDSIZE==64
-    ::snprintf(ss, sizeof(ss) - 1, "%ld", i);
-#else
-    ::snprintf(ss, sizeof(ss) - 1, "%lld", i);
-#endif
-#else
-    ::snprintf(ss, sizeof(ss) - 1, "%" PRId64, i);
-#endif
-    s = ss;
-    return s;
-
-}
-#ifdef __MACH__
-std::string CUtils::toString(size_t i)
-{
-    char ss[200];
-    std::string s;
-    ::snprintf(ss, sizeof(ss) - 1, "%zu", i);
-    s = ss;
-    return s;
-
-}
-#endif
-
-std::string CUtils::toString(uint64_t i)
-{
-
-    char ss[200];
-    std::string s;
-#if defined(_MSC_VER)
-    ::_snprintf(ss, sizeof(ss) - 1, "%d" , i);
-#elif defined (__ANDROID__)
-#if __WORDSIZE==32
-    ::snprintf(ss, sizeof(ss) - 1, "%llu", i);
-#else
-    ::snprintf(ss, sizeof(ss) - 1, "%lu", i);
-#endif
-#else
-    ::snprintf(ss, sizeof(ss) - 1, "%" PRIu64, i);
-#endif
-    s = ss;
-    return s;
-
-}
-std::string CUtils::toString(int32_t i)
-{
-
-    char ss[200];
-    std::string s;
-    ::snprintf(ss, sizeof(ss) - 1, "%d", i);
-    s = ss;
-    return s;
-
-}
-std::string CUtils::toString(uint32_t i)
-{
-    char ss[200];
-    std::string s;
-    ::snprintf(ss, sizeof(ss) - 1, "%u", i);
-    s = ss;
-    return s;
-}
-
-std::string CUtils::toString(int16_t i)
-{
-
-    char ss[200];
-    std::string s;
-    ::snprintf(ss, sizeof(ss) - 1, "%d", i);
-    s = ss;
-    return s;
-
-}
-std::string CUtils::toString(uint16_t i)
-{
-
-    char ss[200];
-    std::string s;
-    ::snprintf(ss, sizeof(ss) - 1, "%u", i);
-    s = ss;
-    return s;
-
-}
-#ifdef __MACH__
-#endif
-
-#ifdef _WIN32___
-std::string CUtils::toString(long int i)
-{
-    char ss[200];
-    std::string s;
-    ::_snprintf(ss, sizeof(ss) - 1, "%ld", i);
-    s = ss;
-    return s;
-
-}
-#endif
-
-std::string CUtils::toString(int8_t i)
-{
-
-    char ss[200];
-    std::string s;
-    ::snprintf(ss, sizeof(ss) - 1, "%d", i);
-    s = ss;
-    return s;
-
-}
-#ifndef _LP64
-#ifndef _WIN32
-#endif
-#endif
-std::string CUtils::toString(uint8_t i)
-{
-
-    char ss[200];
-    std::string s;
-    ::snprintf(ss, sizeof(ss) - 1, "%u", i);
-    s = ss;
-    return s;
-
-}
 
 static unsigned char l_table[] =
 {
-    /*
+    /**
     lowercase table
     */
     0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd,
@@ -450,7 +309,7 @@ static unsigned char l_table[] =
 
 static unsigned char u_table[] =
 {
-    /*
+    /**
     uppercase table
     */
     0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd,
@@ -493,7 +352,7 @@ std::string CUtils::strupper(const std::string &s)
 std::string CUtils::strlower(const std::string & s)
 {
 
-    /*
+    /**
     convert std::string to lowercase
     */
     std::string a;
@@ -517,7 +376,7 @@ static char    six2pr[64] =
 static unsigned char pr2six[256];
 
 
-/*--- function HTUU_encode -----------------------------------------------
+/** --- function HTUU_encode -----------------------------------------------
  *
  *   Encode a single line of binary data to a standard format that
  *   uses only printing ASCII characters (but takes up 33% more bytes).
@@ -541,7 +400,7 @@ static int
 Ns_HtuuEncode(unsigned char *bufin, unsigned int nbytes, char * bufcoded)
 {
 
-    /* ENC is the basic 1 character encoding function to make a char printing */
+    /** ENC is the basic 1 character encoding function to make a char printing */
 #define ENC(c) six2pr[c]
 
     char  *outptr = bufcoded;
@@ -549,30 +408,30 @@ Ns_HtuuEncode(unsigned char *bufin, unsigned int nbytes, char * bufcoded)
 
     for (i = 0; i < nbytes; i += 3)
     {
-        /* c1 */
+        /** c1 */
         *(outptr++) = ENC(*bufin >> 2);
-        /* c2 */
+        /** c2 */
         *(outptr++) = ENC(((*bufin << 4) & 060) | ((bufin[1] >> 4) & 017));
-        /* c3 */
+        /** c3 */
         *(outptr++) = ENC(((bufin[1] << 2) & 074) | ((bufin[2] >> 6) & 03));
-        /* c4 */
+        /** c4 */
         *(outptr++) = ENC(bufin[2] & 077);
 
         bufin += 3;
     }
 
-    /*
+    /**
      * If nbytes was not a multiple of 3, then we have encoded too many
      * characters.  Adjust appropriately.
      */
     if (i == nbytes + 1)
     {
-        /* There were only 2 bytes in that last group */
+        /** There were only 2 bytes in that last group */
         outptr[-1] = '=';
     }
     else if (i == nbytes + 2)
     {
-        /* There was only 1 byte in that last group */
+        /** There was only 1 byte in that last group */
         outptr[-1] = '=';
         outptr[-2] = '=';
     }
@@ -580,7 +439,7 @@ Ns_HtuuEncode(unsigned char *bufin, unsigned int nbytes, char * bufcoded)
     return (outptr - bufcoded);
 }
 
-/*--- function HTUU_decode ------------------------------------------------
+/** --- function HTUU_decode ------------------------------------------------
  *
  *  Decode an ASCII-encoded buffer back to its original binary form.
  *
@@ -603,7 +462,7 @@ static int
 Ns_HtuuDecode(char * bufcoded, unsigned char * bufplain, int outbufsize)
 {
 
-    /* single character decode */
+    /** single character decode */
 #define DEC(c) pr2six[(int)c]
 #define MAXVAL 63
 
@@ -614,7 +473,7 @@ Ns_HtuuDecode(char * bufcoded, unsigned char * bufplain, int outbufsize)
     unsigned char *bufout = bufplain;
     int    nprbytes;
 
-    /*
+    /**
      * If this is the first call, initialize the mapping table. This code
      * should work even on non-ASCII machines.
      */
@@ -628,12 +487,12 @@ Ns_HtuuDecode(char * bufcoded, unsigned char * bufplain, int outbufsize)
             pr2six[(int) six2pr[j]] = (unsigned char) j;
     }
 
-    /* Strip leading whitespace. */
+    /** Strip leading whitespace. */
 
     while (*bufcoded == ' ' || *bufcoded == '\t')
         bufcoded++;
 
-    /*
+    /**
      * Figure out how many characters are in the input buffer. If this would
      * decode into more bytes than would fit into the output buffer, adjust
      * the number of input bytes downwards.
@@ -677,6 +536,8 @@ std::string CUtils::Base64Encode(const std::string &str)
 {
     size_t len=str.size()*2;
     char *out=(char*)malloc(len+10);
+    if(!out)
+        throw std::runtime_error("alloc error");
     ::memset(out,0,len+2);
     int outlen=Ns_HtuuEncode((unsigned char*)str.data(),str.size(),out);
     std::string ret(out,outlen);
@@ -712,24 +573,6 @@ std::string CUtils::hex2bin(const std::string &s)
     }
     return out;
 }
-//std::string CUtils::bin2escaped(const std::string & in)
-//{
-//    std::string out = "";
-//    const unsigned char *p = (unsigned char *)in.data();
-//    for (unsigned int i = 0; i < in.size(); i++)
-//    {
-//        if(in[i]<0x20)
-//        {
-//            char s[40];
-//            ::snprintf(s, sizeof(s) - 1, "\\x%02x", p[i]);
-//            out += s;
-//        }
-//        else out+=in[i];
-
-//    }
-//    return out;
-
-//}
 
 std::string CUtils::bin2hex(const std::string & in)
 {
@@ -747,7 +590,6 @@ std::string CUtils::bin2hex(const std::string & in)
     XPASS;
     return out;
 }
-//#ifndef __ANDROID__
 long CUtils::load_file_from_disk(std::string & res, const std::string & fn)
 {
     XTRY;
@@ -784,12 +626,6 @@ long CUtils::load_file_from_disk(std::string & res, const std::string & fn)
     st_FILE f(fn, "rb");
     {
         st_malloc b(st.st_size);
-        //unsigned char *b=(unsigned char *) malloc(st.st_size);
-        /*if (b==NULL)
-        {
-            fclose(f);
-            throw CommonError("b==NULL");
-        }*/
         if ((off_t)fread(b.buf,1,st.st_size,f.f)!=st.st_size)
         {
             throw CommonError("if(fread(b,1,st.st_size,f)!=st.st_size)  %s",fn.c_str());
@@ -803,13 +639,11 @@ long CUtils::load_file_from_disk(std::string & res, const std::string & fn)
     XPASS;
 
 }
-//#endif
-//#ifndef __ANDROID__
 std::string CUtils::load_file(const std::string & fn)
 {
     XTRY;
     std::string res;
-    int r=load_file_from_disk(res,fn);
+    long r=load_file_from_disk(res,fn);
     if(r<0)
     {
         throw CommonError("cannot stat file %s",fn.c_str());
@@ -822,7 +656,7 @@ std::string CUtils::load_file_no_throw(const std::string & fn)
     XTRY;
     std::string res;
 
-    try{
+    try {
         int r=load_file_from_disk(res,fn);
 
         if(r<0)
@@ -831,7 +665,7 @@ std::string CUtils::load_file_no_throw(const std::string & fn)
             return "";
         }
         return res;
-    }catch(...)
+    } catch(...)
     {
         return "";
     }
@@ -993,7 +827,7 @@ int CUtils::getHostByName(const char* hostname,unsigned int &out)
 {
     {
         M_LOCK(hostnames);
-        std::map<std::string, unsigned int>  ::iterator i=hostnames.cache.find(hostname);
+        auto i=hostnames.cache.find(hostname);
         if(i!=hostnames.cache.end())
         {
             out=i->second;
@@ -1018,45 +852,45 @@ int CUtils::getHostByName(const char* hostname,unsigned int &out)
 std::string CUtils::dump(const std::set<msockaddr_in> &s)
 {
     std::vector<std::string> v;
-    for(std::set<msockaddr_in> ::const_iterator i=s.begin(); i!=s.end(); i++)
+    for(auto& i:s)
     {
-        v.push_back(i->dump());
+        v.push_back(i.dump());
     }
     return join(",",v);
 }
 std::string CUtils::dump(const std::deque<msockaddr_in> &s)
 {
     std::vector<std::string> v;
-    for(std::deque<msockaddr_in> ::const_iterator i=s.begin(); i!=s.end(); i++)
+    for(auto& i:s)
     {
-        v.push_back(i->dump());
+        v.push_back(i.dump());
     }
     return join(",",v);
 }
 std::string CUtils::dump(const std::vector<msockaddr_in> &s)
 {
     std::vector<std::string> v;
-    for(std::vector<msockaddr_in> ::const_iterator i=s.begin(); i!=s.end(); i++)
+    for(auto& i: s)
     {
-        v.push_back(i->dump());
+        v.push_back(i.dump());
     }
     return join(",",v);
 }
 std::string CUtils::dump(const std::set<std::pair<msockaddr_in,std::string> > &s)
 {
     std::vector<std::string> v;
-    for(std::set<std::pair<msockaddr_in,std::string> > ::const_iterator i=s.begin(); i!=s.end(); i++)
+    for(auto& i: s)
     {
-        v.push_back(i->first.dump()+":"+bin2hex(i->second));
+        v.push_back(i.first.dump()+":"+bin2hex(i.second));
     }
     return join(",",v);
 }
 std::string CUtils::dump(const std::map<SERVICE_id,std::set<msockaddr_in> > &s)
 {
     std::vector<std::string> v;
-    for(std::map<SERVICE_id,std::set<msockaddr_in> > ::const_iterator i=s.begin(); i!=s.end(); i++)
+    for(auto& i:s)
     {
-        v.push_back(iUtils->serviceName(i->first)+"#"+dump(i->second));
+        v.push_back(iUtils->serviceName(i.first)+"#"+dump(i.second));
     }
     return join(",",v);
 }
@@ -1064,20 +898,19 @@ std::string CUtils::dump(const std::map<SERVICE_id,std::set<msockaddr_in> > &s)
 std::string CUtils::dump(const std::map<msockaddr_in,std::set<SERVICE_id> > &s)
 {
     std::vector<std::string> v;
-    for(std::map<msockaddr_in,std::set<SERVICE_id> > ::const_iterator i=s.begin(); i!=s.end(); i++)
+    for(auto& i:s)
     {
         std::vector<std::string> vs;
-        for(std::set<SERVICE_id> ::const_iterator j=i->second.begin(); j!=i->second.end(); j++)
+        for(auto& j:i.second)
         {
-            vs.push_back(iUtils->serviceName(*j));
+            vs.push_back(iUtils->serviceName(j));
         }
-        v.push_back(i->first.dump()+"#"+join(",",vs));
+        v.push_back(i.first.dump()+"#"+join(",",vs));
     }
     return join(";",v);
 }
 
 
-//#ifndef __ANDROID__
 int64_t CUtils::calcFileSize(const std::string & fn)
 {
 #if defined( _WIN32) && defined(QT5)
@@ -1102,7 +935,7 @@ int64_t CUtils::calcFileSize(const std::string & fn)
         return -1;
     }
     st_FD fd(_fd);
-#ifdef __MACH__
+#if defined __MACH__ || defined __FreeBSD__
     int64_t size=lseek(fd.fd,0,SEEK_END);
 #else
     int64_t size=lseek64(fd.fd,0,SEEK_END);
@@ -1125,11 +958,8 @@ bool is_file_exists(const std::string &pathname)
     }
     return true;
 }
-//#endif
-//#ifndef __ANDROID__
 int CUtils::checkPath(const std::string & _pathname)
 {
-    //printf("checkPath: %s %s\n",_pathname.c_str(),_DMI().c_str());
     struct stat st;
     if(!stat(_pathname.c_str(),&st)) return 0;
     std::string pathname=_pathname;
@@ -1164,7 +994,6 @@ int CUtils::checkPath(const std::string & _pathname)
     }
     return 0;
 }
-//#endif
 bool CUtils::writeable_fd(const REF_getter<epoll_socket_info>& esi, int timeout_sec, int timeout_usec)
 {
     int iii;
@@ -1216,7 +1045,6 @@ bool CUtils::readable_fd(const REF_getter<epoll_socket_info>& esi,int sec, int u
     return false;
 
 }
-//#ifndef __ANDROID__
 std::string CUtils::findExecutable(const std::string& _fn)
 {
     std::string fn=_fn;;
@@ -1249,8 +1077,6 @@ std::string CUtils::findExecutable(const std::string& _fn)
         searchPath.push_back((std::string)pf2+"\\VideoLAN\\VLC\\");
     }
 #else
-    //searchPath.push_back(APP_INSTALL_PREFIX "/");
-    //searchPath.push_back(APP_INSTALL_PREFIX "/bin/");
     searchPath.push_back("/usr/bin/");
     searchPath.push_back("/usr/local/bin/");
 #endif
@@ -1263,7 +1089,6 @@ std::string CUtils::findExecutable(const std::string& _fn)
     }
     return "";
 }
-//#endif
 void CUtils::rxfind(std::vector < rxfind_data > &res, const char *regexp, const char *buffer)
 {
 
@@ -1293,10 +1118,6 @@ void CUtils::rxfind(std::vector < rxfind_data > &res, const char *regexp, const 
                 size_t matchlen = pm[i].rm_eo - pm[i].rm_so;
 
                 XTRY;
-//                logErr2("matchlen %d",matchlen);
-
-
-                //if(matchlen>0)
                 std::string fs(&s[pm[i].rm_so], matchlen);
                 XTRY;
                 rxfind_data fd;
@@ -1401,6 +1222,8 @@ REF_getter<refbuffer>  CUtils::zcompress(const REF_getter<refbuffer>& data)
         return data;
     uLongf olen=data->size_*2;
     Bytef *obuf=(Bytef*) malloc(olen);
+    if(obuf==NULL)
+        throw std::runtime_error("alloc error");
     compress(obuf,&olen,(Bytef*)data->buffer,data->size_);
     std::string ret=std::string((char*)obuf,olen);
     free(obuf);
@@ -1413,20 +1236,22 @@ REF_getter<refbuffer>  CUtils::zexpand(const REF_getter<refbuffer>& data)
     if(!data.valid())
         return data;
     inBuffer in(data);
-    logErr2("remains %d",in.remains());
+//    logErr2("remains %d",in.remains());
     int64_t expanded_size=in.get_PN();
-    logErr2("remains %d after extract expanded_size",in.remains());
-    logErr2("expanded size %ld",expanded_size);
+//    logErr2("remains %d after extract expanded_size",in.remains());
+//    logErr2("expanded size %ld",expanded_size);
     std::string buf=in.get_PSTR();
-    logErr2("packed buf size %d",buf.size());
+//    logErr2("packed buf size %d",buf.size());
     uLongf olen=expanded_size;
     Bytef *obuf=(Bytef*) malloc(olen);
+    if(obuf==NULL)
+        throw std::runtime_error("alloc error");
+
     uncompress(obuf,&olen,(Bytef*)buf.data(),buf.size());
     REF_getter<refbuffer> ret=new refbuffer;//(std::string((char*)obuf,olen);
     ret->buffer=obuf;
     ret->size_=olen;
     ret->capacity=olen;
-    //free(obuf);
     return ret;
 }
 #endif
@@ -1434,7 +1259,7 @@ std::string CUtils::replace_vals(std::map<std::string,std::string> &p, const std
 {
     if(!p.size())return src;
     std::string s;
-    std::map<std::string,std::string>::const_iterator it=p.begin();
+    auto it=p.begin();
     s+=it->first;
     it++;
     /*SER: ERROR zdes mozhet byt esli map pustoj*/
@@ -1450,7 +1275,7 @@ std::string CUtils::replace_vals(std::map<std::string,std::string> &p, const std
         a+=p[r[i].str];
         lpz=r[i].eo;
     }
-    a+=src.substr(lpz,src.size()-lpz);
+    a+=src.substr(static_cast<unsigned int>(lpz), src.size() - lpz);
     return a;
 }
 std::string CUtils::rus_datetime(const time_t& t)
@@ -1513,9 +1338,10 @@ std::string CUtils::en_datetime(const time_t& t)
 }
 std::string CUtils::en_date(const time_t& t)
 {
-    struct tm tt=*localtime(&t);
+    struct tm _tm;
+    struct tm *tt=localtime_r(&t, &_tm);
     char buf[30];
-    snprintf(buf,sizeof(buf),"%04d.%02d.%02d",tt.tm_year+1900,tt.tm_mon+1,tt.tm_mday);
+    snprintf(buf,sizeof(buf),"%04d.%02d.%02d",tt->tm_year+1900,tt->tm_mon+1,tt->tm_mday);
     return buf;
 }
 time_t CUtils::from_en_datetime(const std::string& s)
@@ -1548,19 +1374,12 @@ SOCKET_id CUtils::getSocketId()
 {
     return sockIdGen.get();
 }
-void CUtils::ungetSocketId(const SOCKET_id& s)
-{
-    sockIdGen.unget(s);
-}
-size_t CUtils::getSocketCount()
-{
-    return sockIdGen.size();
-}
+
 
 
 Ifaces::Base* CUtils::queryIface(const SERVICE_id &id)
 {
-    //auto locals=M_Utils
+    if(m_isTerminating) throw CommonError("terminating");
     {
         M_LOCK(local.ifaces);
         auto i=local.ifaces.container.find(id);
@@ -1600,7 +1419,6 @@ std::string CUtils::expand_homedir(const std::string& base)
 {
     char *home=getenv("HOME");
     std::string _base;
-    //if(home)
     {
         for(size_t i=0; i<base.size(); i++)
         {
@@ -1614,7 +1432,6 @@ std::string CUtils::expand_homedir(const std::string& base)
             else _base+=base[i];
         }
     }
-    //base=_base;
     return _base;
 }
 std::string CUtils::gLogDir()
@@ -1624,13 +1441,11 @@ std::string CUtils::gLogDir()
         throw CommonError("gLogDir: if(m_files_dir.size()==0)");
     return m_files_dir;
 #endif
-#ifdef QT_CORE_LIB
+#ifdef QT5
     std::string cachedir=QStandardPaths::writableLocation(QStandardPaths::CacheLocation).toStdString();
     iUtils->checkPath(cachedir);
     return cachedir;
 #else
-    //char* h=getenv("HOME");
-    //if(h)
     {
         std::string cachedir=expand_homedir(LOG_TARGET_DIR);
         iUtils->checkPath(cachedir);
@@ -1647,13 +1462,11 @@ std::string CUtils::gCacheDir()
         throw CommonError("gCacheDir: if(m_files_dir.size()==0)");
     return m_files_dir;
 #endif
-#ifdef QT_CORE_LIB
+#ifdef QT5
     std::string cachedir=QStandardPaths::writableLocation(QStandardPaths::CacheLocation).toStdString();
     iUtils->checkPath(cachedir);
     return cachedir;
 #else
-    //char* h=getenv("HOME");
-    //if(h)
     {
         std::string cachedir=expand_homedir(CACHE_TARGET_DIR);
         iUtils->checkPath(cachedir);
@@ -1670,23 +1483,18 @@ std::string CUtils::gConfigDir()
     return m_files_dir;
 #endif
 
-#ifdef QT_CORE_LIB
+#ifdef QT5
     std::string cachedir=QStandardPaths::writableLocation(QStandardPaths::ConfigLocation).toStdString();
     iUtils->checkPath(cachedir);
     return cachedir;
 #else
-    //char* h=getenv("HOME");
-    //if(h)
-    //{
     std::string cachedir=expand_homedir(CONFIG_TARGET_DIR);
     iUtils->checkPath(cachedir);
     return cachedir;
-    //}
     return ".";
 
 #endif
 }
-//#ifdef __MOBILE__
 std::string CUtils::filesDir()
 {
     return m_files_dir;
@@ -1695,12 +1503,11 @@ void CUtils::setFilesDir(const std::string& s)
 {
     m_files_dir=s;
 }
-//std::string m_files_dir;
-//#endif
 
 
 void CUtils::registerPluginDLL(const std::string& pn)
 {
+    if(m_isTerminating)return;
 #ifdef _WIN32
     HMODULE h=LoadLibraryA(pn.c_str());
 #else
@@ -1709,7 +1516,7 @@ void CUtils::registerPluginDLL(const std::string& pn)
 #endif
     if (!h)
     {
-        logErr2("cannot load plugin %s",pn.c_str());
+        printf(RED("cannot load plugin %s"),pn.c_str());
     }
     if (h)
     {
@@ -1747,9 +1554,10 @@ void CUtils::registerPluginDLL(const std::string& pn)
 
     }
 }
-void CUtils::registerPlugingInfo(const VERSION_id& version,const char* pluginFileName, PluginType pt, const SERVICE_id& id, const char* name)
+void CUtils::registerPlugingInfo(const VERSION_id& version, const char* pluginFileName, PluginType pt, const SERVICE_id& id, const char* name, const std::set<EVENT_id> &evts)
 {
-//    logErr2("pluginFileName %s ",pluginFileName);
+    if(m_isTerminating)return;
+
     if(CONTAINER(version)>>8!=COREVERSION>>8)
     {
         logErr2("if(version!=COREVERSION) in registerPlugingInfo");
@@ -1759,16 +1567,21 @@ void CUtils::registerPlugingInfo(const VERSION_id& version,const char* pluginFil
         M_LOCK(local.pluginInfo);
         switch (pt) {
         case IUtils::PLUGIN_TYPE_IFACE:
-            DBG(logErr2("added iface %s %s -> %s",id.dump().c_str(),name,pluginFileName));
+            DBG(printf(BLUE("added iface info %s %s -> %s"),id.dump().c_str(),name,pluginFileName));
             local.pluginInfo.ifaces[id]=pluginFileName;
             break;
         case IUtils::PLUGIN_TYPE_SERVICE:
-            DBG(logErr2("added service %s %s -> %s",id.dump().c_str(),name,pluginFileName));
+            DBG(printf(BLUE("added service info %s %s -> %s"),id.dump().c_str(),name,pluginFileName));
             local.pluginInfo.services[id]=pluginFileName;
+            for(auto& z:evts)
+            {
+                local.pluginInfo.events[z].insert(pluginFileName);
+            }
+
 
             break;
         case IUtils::PLUGIN_TYPE_TEST:
-            DBG(logErr2("added iTest %s %s -> %s",id.dump().c_str(),name,pluginFileName));
+            DBG(printf(BLUE("added iTest info %s %s -> %s"),id.dump().c_str(),name,pluginFileName));
             local.pluginInfo.itests[id]=pluginFileName;
             break;
 
@@ -1786,26 +1599,27 @@ void CUtils::registerPlugingInfo(const VERSION_id& version,const char* pluginFil
 }
 void CUtils::registerService(const VERSION_id& vid, const SERVICE_id& id, unknown_static_constructor cs, const std::string& literalName)
 {
-    logErr2("registerService %s",literalName.c_str());
+    if(m_isTerminating)return;
+
+    DBG(printf(BLUE("registerService %s"),literalName.c_str()));
     VERSION_id curv=COREVERSION;
     if(CONTAINER(vid)>>8 != CONTAINER(curv)>>8)
     {
-        logErr2("registerService: invalid service version %x current version %x name %s",CONTAINER(vid), CONTAINER(curv), literalName.c_str());
+        logErr2(RED("registerService: invalid service version %x current version %x name %s"),CONTAINER(vid), CONTAINER(curv), literalName.c_str());
         return;
     }
 
-    //if(isTerminating()) return ;
     XTRY;
     {
         M_LOCK(local.service_constructors);
         if(local.service_constructors.container.count(id))
         {
-            DBG(logErr2("Service '%s' already registered",literalName.c_str()));
+            DBG(printf(BLUE("Service '%s' already registered"),literalName.c_str()));
         }
         else
         {
             local.service_constructors.container.insert(std::make_pair(id,cs));
-            DBG(logErr2("Service '%s' registered",literalName.c_str()));
+            DBG(printf(BLUE("Service '%s' registered"),literalName.c_str()));
         }
 
     }
@@ -1819,23 +1633,33 @@ void CUtils::registerService(const VERSION_id& vid, const SERVICE_id& id, unknow
 
 REF_getter<Event::Base> CUtils::unpackEvent(inBuffer&b)
 {
+    if(m_isTerminating) return nullptr;
     MUTEX_INSPECTOR;
     XTRY;
-    M_LOCK(local.event_constructors);
     EVENT_id id;
     b>>id;
     route_t r;
     b>>r;
 
-    std::map<EVENT_id,std::pair<event_static_constructor,std::string> > ::iterator i=local.event_constructors.container.find(id);
-    if(i==local.event_constructors.container.end())
+
+    event_static_constructor esc=nullptr;
+
+    {
+        M_LOCK(local.event_constructors);
+        auto i=local.event_constructors.container.find(id);
+        if(i!=local.event_constructors.container.end())
+        {
+            esc=i->second;
+        }
+
+    }
+    if(esc==NULL)
     {
         MUTEX_INSPECTOR;
-        DBG(logErr2("1cannot find event unpacker for eventId %s try to load service %s", id.dump().c_str(),_DMI().c_str()));
+        logErr2("1cannot find event unpacker for eventId %s try to load service %s", id.dump().c_str(),_DMI().c_str());
         {
-            M_UNLOCK(local.event_constructors);
             M_LOCK(local.pluginInfo);
-            auto j=local.pluginInfo.events.find(EVENT_id(id));
+            auto j=local.pluginInfo.events.find(id);
             if(j!=local.pluginInfo.events.end())
             {
 
@@ -1843,7 +1667,7 @@ REF_getter<Event::Base> CUtils::unpackEvent(inBuffer&b)
                 {
                     std::string pluginFileName=*j->second.begin();
                     M_UNLOCK(local.pluginInfo);
-                    DBG(logErr2("load service %s",pluginFileName.c_str()));
+                    logErr2("load service %s",pluginFileName.c_str());
                     registerPluginDLL(pluginFileName);
                 }
             }
@@ -1852,21 +1676,20 @@ REF_getter<Event::Base> CUtils::unpackEvent(inBuffer&b)
                 logErr2("event not binded to module %s",id.dump().c_str());
             }
         }
-    }
-    i=local.event_constructors.container.find(id);
-    if(i==local.event_constructors.container.end())
-    {
-        for(auto &z: local.event_constructors.container)
         {
-            logErr2("ev constr %s",z.first.dump().c_str());
+
+            M_LOCK(local.event_constructors);
+            auto i=local.event_constructors.container.find(id);
+            if(i!=local.event_constructors.container.end())
+            {
+                esc=i->second;
+            }
         }
-        throw CommonError("2cannot find event unpacker for eventId %s", id.dump().c_str());
     }
-    event_static_constructor esc=i->second.first;
     {
         MUTEX_INSPECTOR;
-        if(esc==NULL)
-            throw CommonError("if(esc==NULL) %s",_DMI().c_str());
+        if(esc==nullptr)
+            throw CommonError("Event constructor not found for %s",id.dump().c_str());
 
         Event::Base *e=esc(r);
         {
@@ -1875,7 +1698,7 @@ REF_getter<Event::Base> CUtils::unpackEvent(inBuffer&b)
         }
         return e;
     }
-    return NULL;
+    return nullptr;
     XPASS;
 }
 void CUtils::packEvent(outBuffer &b, const REF_getter<Event::Base> &e)const
@@ -1890,23 +1713,24 @@ std::string CUtils::serviceName(const SERVICE_id& id) const
 {
     XTRY;
     M_LOCK(local.service_names);
-    std::map<SERVICE_id,std::string> ::const_iterator i=local.service_names.id2name.find(id);
+    auto i=local.service_names.id2name.find(id);
     if(i!=local.service_names.id2name.end())
         return i->second;
-    return "Undefined service name "+id.dump();
+    return "jc:"+id.dump();
     XPASS;
 
 }
 SERVICE_id CUtils::serviceIdByName(const std::string& name)const
 {
+    MUTEX_INSPECTOR;
     XTRY;
     M_LOCK(local.service_names);
-    std::map<std::string,SERVICE_id> ::const_iterator i=local.service_names.name2id.find(name);
+    auto i=local.service_names.name2id.find(name);
     if(i!=local.service_names.name2id.end())
         return i->second;
 
     logErr2("serviceIdByName: NOT FOUND %s",name.c_str());
-    throw CommonError ("Service name %s not found",name.c_str());
+    throw CommonError ("Service name not found  %s %s",name.c_str(),_DMI().c_str());
     XPASS;
 }
 
@@ -1926,7 +1750,7 @@ void CUtils::removeWebDumpableHandler(WebDumpable *h)
 std::string CUtils::dumpWebDumpable(WebDumpable *h)
 {
     M_LOCK(webDumping);
-    std::set<WebDumpable*>::iterator i=webDumping.container.find(h);
+    auto i=webDumping.container.find(h);
     if(i!=webDumping.container.end())
     {
         return   "<h1>"+h->wname()+"</h1>\n"
@@ -1940,25 +1764,17 @@ std::string CUtils::dumpWebDumpable(WebDumpable *h)
 
 void CUtils::registerEvent(event_static_constructor ec)
 {
+    if(m_isTerminating)return;
+
     XTRY;
     route_t r;
     REF_getter<Event::Base> e=ec(r);
     if(!e.valid())
     {
-        //logErr2("skipped registerEvent for %s",_literalName);
         return;
     }
     M_LOCK(local.event_constructors);
-    std::map<EVENT_id,std::pair<event_static_constructor,std::string> >::iterator it=local.event_constructors.container.find(e->id);
-    if(it!=local.event_constructors.container.end())
-    {
-        if(it->second.second!=e->name)
-            logErr2("registerEvent: event 0x%x '%s' already registered oldname %s",e->id.dump().c_str(),e->name,it->second.second.c_str());
-    }
-    else
-    {
-        local.event_constructors.container.insert(std::make_pair(e->id,std::make_pair(ec,e->name)));
-    }
+    local.event_constructors.container.insert(std::make_pair(e->id,ec));
 
     XPASS;
 
@@ -2003,7 +1819,7 @@ void CUtils::registerIface(const VERSION_id& vid,const SERVICE_id& id, Ifaces::B
 }
 void CUtils::registerITest(const VERSION_id& vid,const SERVICE_id& id, itest_static_constructor p)
 {
-    logErr2("registerITest %p",p);
+    DBG(printf(BLUE("registerITest %p"),p));
     VERSION_id curv=COREVERSION;
     if(CONTAINER(vid)>>8 != CONTAINER(curv)>>8)
     {
@@ -2012,19 +1828,11 @@ void CUtils::registerITest(const VERSION_id& vid,const SERVICE_id& id, itest_sta
     }
 
 
-    M_LOCK(local.itests);
-    auto i=local.itests.container.find(id);
-    if(i!=local.itests.container.end())
-    {
-        logErr2("register ITest, already registered %s",id.dump().c_str());
-        return;
-    }
-    local.itests.container.insert(std::make_pair(id,p));
+    local.itests.insert(id,p);
 }
-std::vector<itest_static_constructor> CUtils::getAllITests()
+std::map<SERVICE_id,itest_static_constructor>CUtils::getAllITests()
 {
-    logErr2("%s",__PRETTY_FUNCTION__);
-    std::vector<itest_static_constructor> ret;
+    if(m_isTerminating) throw CommonError("if(m_isTerminating)");
     std::map<SERVICE_id,std::string> m;
     {
         M_LOCK(local.pluginInfo);
@@ -2032,18 +1840,10 @@ std::vector<itest_static_constructor> CUtils::getAllITests()
     }
     for(auto& z: m)
     {
-        logErr2("registerPlugin %s %s",z.first.dump().c_str(),z.second.c_str());
+        DBG(printf(BLUE("registerPlugin %s %s"),z.first.dump().c_str(),z.second.c_str()));
         registerPluginDLL(z.second);
     }
-    {
-        M_UNLOCK(local.itests);
-        for(auto &z: local.itests.container)
-        {
-            logErr2("itests.container %s",z.first.dump().c_str());
-            ret.push_back(z.second);
-        }
-    }
-    return ret;
+    return local.itests.getContainer();
 
 }
 Utils_local *CUtils::getLocals()
@@ -2052,11 +1852,13 @@ Utils_local *CUtils::getLocals()
 }
 std::set<IInstance *> CUtils::getInstances()
 {
+    if(m_isTerminating) throw CommonError("if(m_isTerminating)");
     M_LOCK (instances);
     return instances.container;
 }
 void CUtils::registerInstance(IInstance *i)
 {
+    if(m_isTerminating)return;
     M_LOCK (instances);
     instances.container.insert(i);
 }
@@ -2066,9 +1868,10 @@ void CUtils::unregisterInstance(IInstance *i)
     M_LOCK (instances);
     instances.container.erase(i);
 }
-IInstance* CUtils::createNewInstance()
+IInstance* CUtils::createNewInstance(const std::string& nm)
 {
-    IInstance *ins=new CInstance(this);
+    if(m_isTerminating) return NULL;
+    IInstance *ins=new CInstance(this,nm);
     {
         M_LOCK (instances);
         instances.container.insert(ins);
@@ -2078,10 +1881,6 @@ IInstance* CUtils::createNewInstance()
 void CUtils::setTerminate()
 {
     m_isTerminating=true;
-    //delete this;
-
-
-//TODO
 }
 bool CUtils::isTerminating()
 {
@@ -2090,45 +1889,24 @@ bool CUtils::isTerminating()
 }
 CUtils::~CUtils()
 {
+    MUTEX_INSPECTOR;
+
     m_isTerminating=true;
-    std::set<IInstance*> ins;
-    {
-        M_LOCK (instances);
-        ins=instances.container;
-        instances.container.clear();
-    }
-    for(auto z: ins)
-    {
-        unregisterInstance(z);
 
-    }
-    std::map<SERVICE_id,Ifaces::Base*> ifaces;
-    {
-        M_LOCK(local.ifaces);
-        ifaces=local.ifaces.container;
-    }
-    for(auto & z: ifaces)
-    {
-        delete z.second;
-    }
+    clearPollable();
+
+    instances.clear();
+
+
+    local.clear();
+
+
+
     m_addrInfos=NULL;
-    //local.ifaces.container
 
 
-            {
-                M_LOCK(registered_dlls);
-                for(auto h: registered_dlls.registered_dlls)
-                {
-#ifdef _WIN32
-                    FreeLibrary(h);
-#else
-                    dlclose(h);
-#endif
 
-                }
-                registered_dlls.registered_dlls.clear();
-            }
-
+    registered_dlls.clear();
 
 
 }
@@ -2136,15 +1914,14 @@ CUtils::~CUtils()
 void CUtils::load_plugins_info(const std::set<std::string>& bases)
 {
 #ifndef _MSC_VER
-    for (std::set<std::string>::const_iterator I=bases.begin(); I!=bases.end(); ++I)
+    for (auto& I:bases)
     {
-        std::string base=iUtils->expand_homedir(*I);
+        std::string base=iUtils->expand_homedir(I);
 
 
         DIR * dir=opendir(base.c_str());
         if (!dir)
         {
-            //fprintf(stderr,"warn: cannot opendir %s\n",base.c_str());
             continue;
         }
         struct dirent* de;
@@ -2159,22 +1936,21 @@ void CUtils::load_plugins_info(const std::set<std::string>& bases)
             if (ok)
             {
                 std::string pn;
-                //if(home)
                 pn=(std::string)base+"/"+(std::string)de->d_name;
 
                 ss.insert(pn);
-                DBG(logErr2("plugin %s",pn.c_str()));
+                DBG(printf(BLUE("plugin %s"),pn.c_str()));
             }
         }
-        for (std::set<std::string>::iterator i=ss.begin(); i!=ss.end(); ++i)
+        for (auto& i:ss)
         {
-            std::string pn=*i;
+            std::string pn=i;
             struct stat st;
             if (stat(pn.c_str(),&st))
             {
-                logErr2("cannot load plugin %s",pn.c_str());
+                printf(RED("cannot load plugin %s"),pn.c_str());
             }
-            logErr2("load plugin %s",pn.c_str());
+            DBG(printf(BLUE("load plugin %s"),pn.c_str()));
             if (!stat(pn.c_str(),&st))
             {
 #ifdef _WIN32
@@ -2184,7 +1960,7 @@ void CUtils::load_plugins_info(const std::set<std::string>& bases)
 #endif
                 if (!h)
                 {
-                    logErr2("cannot load plugin %s",pn.c_str());
+                    printf(RED("cannot load plugin %s"),pn.c_str());
                 }
 
                 if (h)
@@ -2201,7 +1977,7 @@ void CUtils::load_plugins_info(const std::set<std::string>& bases)
 #endif
                     if (f)
                     {
-                        f(iUtils,i->c_str());
+                        f(iUtils,i.c_str());
                     }
 #ifdef _WIN32
                     FreeLibrary(h);
@@ -2215,4 +1991,8 @@ void CUtils::load_plugins_info(const std::set<std::string>& bases)
         closedir(dir);
     }
 #endif
+
 }
+
+
+

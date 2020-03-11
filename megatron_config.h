@@ -8,8 +8,8 @@
 #define CACHE_TARGET_DIR "~/bin-10100/cache"
 
 #define LOG_TARGET_DIR "~/bin-10100/log"
-#define CAPS_ADDRESS "127.0.0.1:10100"
-#define CLIENT_ADDRESS "127.0.0.1:10101"
+#define CAPS_ADDRESS "testquant.com:10100"
+#define CLIENT_ADDRESS "testquant.com:10101"
 #define CAPS_PORT "10100"
-#define CAPS_IP "127.0.0.1"
+#define CAPS_IP "testquant.com"
 #endif

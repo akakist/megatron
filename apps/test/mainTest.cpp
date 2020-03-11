@@ -16,10 +16,11 @@
 #include "IThreadNameController.h"
 #include "megatron.h"
 #include "megatron_config.h"
+#include "trashable.h"
+#include "colorOutput.h"
+
 void onterm(int signum);
 
-
-//IUtils *iUtils=NULL;
 void registerDFSCapsService(const char* pn);
 void registerDFSReferrerService(const char*pn);
 void registerErrorDispatcherService(const char* pn);
@@ -42,9 +43,9 @@ void registerWebHandlerModule(const char* pn);
 static void load_plugins_info(const std::set<std::string>& bases)
 {
 #ifndef _MSC_VER
-    for (std::set<std::string>::const_iterator I=bases.begin(); I!=bases.end(); ++I)
+    for (auto& I:bases)
     {
-        std::string base=iUtils->expand_homedir(*I);
+        std::string base=iUtils->expand_homedir(I);
 
 
         DIR * dir=opendir(base.c_str());
@@ -73,9 +74,9 @@ static void load_plugins_info(const std::set<std::string>& bases)
                 DBG(logErr2("plugin %s",pn.c_str()));
             }
         }
-        for (std::set<std::string>::iterator i=ss.begin(); i!=ss.end(); ++i)
+        for (auto& i:ss)
         {
-            std::string pn=*i;
+            std::string pn=i;
             struct stat st;
             if (stat(pn.c_str(),&st))
             {
@@ -126,6 +127,11 @@ static void load_plugins_info(const std::set<std::string>& bases)
 #endif
 int main(int argc, char* argv[])
 {
+    std::string testName;
+    if(argc==2)
+    {
+        testName=argv[1];
+    }
     try
     {
 
@@ -164,52 +170,79 @@ int main(int argc, char* argv[])
 #endif
 
 
-        iUtils=new CUtils(argc,argv,"app_name");
+//        Trash trash;
 
-
-
-        std::set<std::string> sp;
-
-registerDFSCapsService(NULL);
-registerDFSReferrerService(NULL);
-registerErrorDispatcherService(NULL);
-registerHTTPModule(NULL);
-registerObjectProxyModule(NULL);
-registerOscarModule(NULL);
-registerOscarSecureModule(NULL);
-registerReferrerClientService(NULL);
-registerRPCService(NULL);
-registerSocketModule(NULL);
-registerSSL(NULL);
-registerTelnetService(NULL);
-registerTimerService(NULL);
-registerWebHandlerModule(NULL);
-
-
-        sp.insert(PLUGIN_TARGET_DIR);
-
-        iUtils->load_plugins_info(sp);
-
-
-        std::vector<itest_static_constructor> tests=iUtils->getAllITests();
-
-        for(auto z:tests)
+        std::set<SERVICE_id> worked;
+        bool done=false;
+        while(!done)
         {
+            iUtils=new CUtils(argc,argv,"Test");
+            std::set<std::string> sp;
+            registerDFSCapsService(NULL);
+            registerDFSReferrerService(NULL);
+            registerErrorDispatcherService(NULL);
+            registerHTTPModule(NULL);
+            registerObjectProxyModule(NULL);
+            registerOscarModule(NULL);
+            registerOscarSecureModule(NULL);
+            registerReferrerClientService(NULL);
+            registerRPCService(NULL);
+            registerSocketModule(NULL);
+            registerSSL(NULL);
+            registerTelnetService(NULL);
+            registerTimerService(NULL);
+            registerWebHandlerModule(NULL);
 
-            ITests::Base *t=z();
-            t->run();
-            delete t;
+
+            sp.insert(PLUGIN_TARGET_DIR);
+
+            iUtils->load_plugins_info(sp);
+            std::map<SERVICE_id,itest_static_constructor > tests=iUtils->getAllITests();
+
+            for(auto z:tests)
+            {
+                if(worked.size()==tests.size())
+                {
+                    done=true;
+                    break;
+                }
+                if(worked.count(z.first))
+                    continue;
+
+                worked.insert(z.first);
+
+                ITests::Base *t=z.second();
+                iUtils->set_app_name(t->getName());
+
+                if(testName.size()==0 || testName==t->getName())
+                {
+                    int res=t->run();
+
+                    delete t;
+                    if(res) {
+                        logErr2("delete iUtils;");
+                        delete iUtils;
+                        iUtils=NULL;
+                        return res;
+                    }
+                }
+                else
+                {
+                    printf(YELLOW2("skipped '%s'"),t->getName().c_str());
+                }
+                break;
+            }
+            if(iUtils)
+            {
+                delete iUtils;
+                iUtils=NULL;
+            }
         }
-	delete iUtils;
-
-
-
-
-//    megatron::run_test(argc,argv);
-
-
-//    registerModules();
-//        factory->initServices();
+        if(iUtils)
+        {
+            delete iUtils;
+            iUtils=NULL;
+        }
     }
 
 
@@ -233,13 +266,17 @@ void onterm(int signum)
 {
     static std::string ss;
     char s[200];
-    snprintf(s,sizeof(s),"Terminating on SIGNAL %d\n",signum);
+    snprintf(s,sizeof(s),RED("Terminating on SIGNAL %d"),signum);
     if(ss!=s)
     {
         printf("%s",s);
         ss=s;
     }
-
+    if(!iUtils)
+        return;
+    auto tc=iUtils->getIThreadNameController();
+    if(!tc)
+        return;
     try
     {
         if (!ex)
@@ -247,17 +284,17 @@ void onterm(int signum)
 #ifndef WIN32
             if(signum==SIGHUP)
             {
-                iUtils->getIThreadNameController()->print_term(signum);
+                tc->print_term(signum);
                 return;
             }
 #endif
             ex=true;
-            iUtils->getIThreadNameController()->print_term(signum);
-	    delete iUtils;
+            tc->print_term(signum);
+            delete iUtils;
 //            mega.stop();
             exit(0);
 
-            printf("Terminating on SIGNAL %d\n",signum);
+            printf(RED("Terminating on SIGNAL %d"),signum);
         }
     }
     catch(std::exception e)

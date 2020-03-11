@@ -7,18 +7,18 @@
 #include "route_t.h"
 #include "json/json.h"
 #include "serviceEnum.h"
-#include "eventEnum.h"
+
 namespace ServiceEnum
 {
-    const SERVICE_id HTTP(_xs_HTTP);
+    const SERVICE_id HTTP("HTTP");
 }
 namespace httpEventEnum
 {
-    const EVENT_id DoListen(_xe_httpDoListen);
-    const EVENT_id RegisterProtocol(_xe_httpRegisterProtocol);
-    const EVENT_id GetBindPortsREQ(_xe_GetBindPortsREQ);
-    const EVENT_id RequestIncoming(_xe_httpRequestIncoming);
-    const EVENT_id GetBindPortsRSP(_xe_GetBindPortsRSP);
+    const EVENT_id DoListen("httpDoListen");
+    const EVENT_id RegisterProtocol("httpRegisterProtocol");
+    const EVENT_id GetBindPortsREQ("GetBindPortsREQ");
+    const EVENT_id RequestIncoming("httpRequestIncoming");
+    const EVENT_id GetBindPortsRSP("GetBindPortsRSP");
 }
 
 #endif

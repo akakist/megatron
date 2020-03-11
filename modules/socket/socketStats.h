@@ -1,6 +1,8 @@
 #ifndef _______________SOCKETSTATS_H
 #define _______________SOCKETSTATS_H
-
+#include "REF.h"
+#include "IUtils.h"
+#include "epoll_socket_info.h"
 namespace SocketIO
 {
 
@@ -22,7 +24,7 @@ namespace SocketIO
             {
                 inSpeed.erase(inSpeed.begin());
             }
-            std::map<time_t,int64_t>::iterator i=inSpeed.find(lastAccess);
+            auto i=inSpeed.find(lastAccess);
             if(i==inSpeed.end()) inSpeed[lastAccess]=val;
             else inSpeed[lastAccess]+=val;
         }
@@ -35,28 +37,28 @@ namespace SocketIO
             {
                 outSpeed.erase(outSpeed.begin());
             }
-            std::map<time_t,int64_t>::iterator i=outSpeed.find(lastAccess);
+            auto i=outSpeed.find(lastAccess);
             if(i==outSpeed.end()) outSpeed[lastAccess]=val;
             else outSpeed[lastAccess]+=val;
         }
         std::string dump()
         {
             std::string o;
-            o+="IN:"+iUtils->toString(in)+"<br>";
-            o+="OUT:"+iUtils->toString(out)+"<br>";
+            o+="IN:"+std::to_string(in)+"<br>";
+            o+="OUT:"+std::to_string(out)+"<br>";
             std::vector<std::string> spin,spout;
             time_t t=time(NULL);
             for(time_t I=t-enHistoryTimeout; I!=t; I++)
             {
                 {
-                    std::map<time_t,int64_t>::iterator i=inSpeed.find(I);
+                    auto i=inSpeed.find(I);
                     if(i==inSpeed.end())spin.push_back("0");
-                    else spin.push_back(iUtils->toString(i->second));
+                    else spin.push_back(std::to_string(i->second));
                 }
                 {
-                    std::map<time_t,int64_t>::iterator i=outSpeed.find(I);
+                    auto i=outSpeed.find(I);
                     if(i==outSpeed.end())spout.push_back("0");
-                    else spout.push_back(iUtils->toString(i->second));
+                    else spout.push_back(std::to_string(i->second));
                 }
             }
             o+="InSpeed: "+iUtils->join(",",spin)+"<br>";
@@ -82,7 +84,7 @@ namespace SocketIO
             REF_getter<StatElement> S(NULL);
             {
                 M_LOCK(this);
-                std::map<std::pair<std::string,std::string>, REF_getter<StatElement> > ::iterator i=container.find(std::make_pair(esi->local_name.getStringAddr(),esi->remote_name.getStringAddr()));
+                auto i=container.find(std::make_pair(esi->local_name.getStringAddr(),esi->remote_name.getStringAddr()));
 
                 if(i!=container.end()) S=i->second;
                 else
@@ -114,12 +116,12 @@ namespace SocketIO
         std::string dump()
         {
             std::string o;
-            o+="accepted:"+iUtils->toString(accepted)+"<p>";
+            o+="accepted:"+std::to_string(accepted)+"<p>";
             o+="<h1>Total</h1><br>"+totalStats->dump()+"<p>";
-            std::map<std::pair<std::string,std::string>, REF_getter<StatElement> > c=getContainer();
-            for(std::map<std::pair<std::string,std::string>, REF_getter<StatElement> >::iterator i=c.begin(); i!=c.end(); i++)
+            auto c=getContainer();
+            for(auto& i:c)
             {
-                o+=(std::string)"<b>"+i->first.first+":"+i->first.second+"</b><br>"+i->second->dump();
+                o+=(std::string)"<b>"+i.first.first+":"+i.first.second+"</b><br>"+i.second->dump();
             }
 
             return o;

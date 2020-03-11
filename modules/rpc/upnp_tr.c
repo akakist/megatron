@@ -18,8 +18,9 @@
 #endif
 #include <string.h>
 #include <stdio.h>
-#include "miniupnpc/miniupnpc.h"
-#include "miniupnpc/upnpcommands.h"
+
+#include "miniupnp/miniupnpc/miniupnpc.h"
+#include "miniupnp/miniupnpc/upnpcommands.h"
 
 #include <stdlib.h>
 
@@ -122,6 +123,22 @@ tr_upnpPulse( struct tr_upnp * handle,
     {
         struct UPNPDev * devlist;
         errno = 0;
+        /*
+         * old
+         * LIBSPEC struct UPNPDev *
+upnpDiscover(int delay, const char * multicastif,
+             const char * minissdpdsock, int sameport,
+             int ipv6,
+             int * error);
+
+
+* new
+         *
+upnpDiscover(int delay, const char * multicastif,
+             const char * minissdpdsock, int localport,
+             int ipv6, unsigned char ttl,
+             int * error);
+*/
         devlist = upnpDiscover( 2000, NULL, NULL, 0,0,NULL);
         if( devlist == NULL )
         {
@@ -175,6 +192,33 @@ tr_upnpPulse( struct tr_upnp * handle,
         */
         char enabled[100];
         char leasedur[100];
+
+        /*
+         * old:
+         * LIBSPEC int
+UPNP_GetSpecificPortMappingEntry(const char * controlURL,
+                                 const char * servicetype,
+                                 const char * extPort,
+                                 const char * proto,
+                                 char * intClient,
+                                 char * intPort,
+                                 char * desc,
+                                 char * enabled,
+                                 char * leaseDuration);
+         * new:
+MINIUPNP_LIBSPEC int
+UPNP_GetSpecificPortMappingEntry(const char * controlURL,
+                                 const char * servicetype,
+                                 const char * extPort,
+                                 const char * proto,
+                                 const char * remoteHost,
+                                 char * intClient,
+                                 char * intPort,
+                                 char * desc,
+                                 char * enabled,
+                                 char * leaseDuration);
+
+*/
         if( UPNP_GetSpecificPortMappingEntry( handle->urls.controlURL, handle->data.first.servicetype,
                                               portStr, "TCP", intClient, intPort,"PROJECT_PREFIX" ,enabled,leasedur ) != UPNPCOMMAND_SUCCESS  ||
                 UPNP_GetSpecificPortMappingEntry( handle->urls.controlURL, handle->data.first.servicetype,

@@ -23,28 +23,19 @@
 #include "Events/Tools/webHandler/RegisterDirectory.h"
 #include "Events/System/Net/rpc/IncomingOnConnector.h"
 #include "Events/System/timer/TickTimer.h"
-#include "sqlite3Wrapper.h"
 
 #include "events_dfsCaps.hpp"
 #include "megatron_config.h"
 
 #define CAPS_DBNAME "caps"
-//using namespace std;
 dfsCaps::Service::Service(const SERVICE_id &svs, const std::string&  nm, IInstance *_ifa):
     UnknownBase(nm),
     ListenerBuffered1Thread(this,nm,_ifa->getConfig(),svs,_ifa),
     Broadcaster(_ifa),
 
-    Logging(this,
-#ifdef DEBUG
-            TRACE_log
-#else
-            INFO_log
-#endif
-    ,_ifa       ),TimerHelper(_ifa),iInstance(_ifa)
+    TimerHelper(_ifa),iInstance(_ifa)
 {
     MUTEX_INSPECTOR;
-    dbname=_ifa->getConfig()->get_string("dbname","capsDb","db caps name");
 }
 dfsCaps::Service::~Service() {
 
@@ -57,82 +48,185 @@ void registerDFSCapsService(const char* pn)
 {
     if(pn)
     {
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::DFSCaps,"DFSCaps");
+        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::DFSCaps,"DFSCaps",getEvents_dfsCaps());
     }
     else
     {
-        
+
         iUtils->registerService(COREVERSION,ServiceEnum::DFSCaps,dfsCaps::Service::construct,"DFSCaps");
         regEvents_dfsCaps();
     }
 }
+bool dfsCaps::Service::on_GetCloudRootsREQ(const dfsCapsEvent::GetCloudRootsREQ* e, const dfsReferrerEvent::ToplinkDeliverREQ *e_toplink)
+{
+    MUTEX_INSPECTOR;
+    if(e->externalListenAddr.size()==0)
+    {
+        logErr2("if(E->externalListenAddr.size()==0) %s",__func__);
+        return false;
+    }
+    geoNetRec res;
+    I_GEOIP *geoip=(I_GEOIP*)iUtils->queryIface(Ifaces::GEOIP);
+    std::vector<msockaddr_in> sv;
+    for(auto& z: e->externalListenAddr)
+    {
+        if(geoip->findNetRec(z.getStringAddr(),z.family()==AF_INET,res))
+        {
+            auto ret=cloud_roots.findReferrers(res.lat,res.lon,z.family());
+            for(auto &x:ret)
+            {
+                sv.push_back(x->sa);
+            }
+
+        }
+        else
+        {
+            auto ret=cloud_roots.findReferrers(LOCATION_LATITUDE_UNDEF,LOCATION_LONGITUDE_UNDEF,z.family());
+            for(auto &x:ret)
+            {
+                sv.push_back(x->sa);
+            }
+        }
+
+    }
+    REF_getter<Event::Base> re=new dfsReferrerEvent::ToplinkDeliverRSP(new dfsCapsEvent::GetCloudRootsRSP(sv,e->route),poppedFrontRoute(e_toplink->route));
+//    logErr2("@@@pass %s",re->dump().toStyledString().c_str());
+    passEvent(re);
+    return true;
+
+}
+
+bool dfsCaps::Service::on_GetReferrersREQ(const dfsCapsEvent::GetReferrersREQ* E_getReferrersReq,const dfsReferrerEvent::ToplinkDeliverREQ* e_toplink)
+{
+
+    MUTEX_INSPECTOR;
+    if(E_getReferrersReq->externalListenAddr.size()==0)
+    {
+        logErr2("if(E->externalListenAddr.size()==0) %s",__func__);
+        return false;
+    }
+    geoNetRec res;
+    I_GEOIP *geoip=(I_GEOIP*)iUtils->queryIface(Ifaces::GEOIP);
+    std::vector<msockaddr_in> sv;
+    for(auto& z: E_getReferrersReq->externalListenAddr)
+    {
+        if(geoip->findNetRec(z.getStringAddr(),z.family()==AF_INET,res))
+        {
+            auto ret=referrer_nodes.findReferrers(res.lat,res.lon,z.family());
+            for(auto &x:ret)
+            {
+                sv.push_back(x->sa);
+            }
+
+        }
+        else
+        {
+            auto ret=referrer_nodes.findReferrers(LOCATION_LATITUDE_UNDEF,LOCATION_LONGITUDE_UNDEF,z.family());
+            for(auto &x:ret)
+            {
+                sv.push_back(x->sa);
+            }
+        }
+
+    }
+    std::set<msockaddr_in> alreadySK;
+    std::vector<msockaddr_in> sv1;
+
+    for(auto& z: sv)
+    {
+        if(!alreadySK.count(z))
+        {
+            sv1.push_back(z);
+            alreadySK.insert(z);
+        }
+
+    }
+    passEvent(new dfsReferrerEvent::ToplinkDeliverRSP(new dfsCapsEvent::GetReferrersRSP(sv1,E_getReferrersReq->route),poppedFrontRoute(e_toplink->route)));
+    return true;
+
+}
+bool dfsCaps::Service::on_RegisterMyRefferrerNodeREQ(const dfsCapsEvent::RegisterMyRefferrerNodeREQ* e)
+{
+    MUTEX_INSPECTOR;
+    const dfsCapsEvent::RegisterMyRefferrerNodeREQ * e_RegisterMyRefferrerNodeREQ=e;//(const dfsCapsEvent::RegisterMyRefferrerNodeREQ *)z.operator ->();
+    if(e_RegisterMyRefferrerNodeREQ->externalListenAddr.size())
+    {
+        for(auto z:e_RegisterMyRefferrerNodeREQ->externalListenAddr)
+        {
+            I_GEOIP *geoip=(I_GEOIP*)iUtils->queryIface(Ifaces::GEOIP);
+            geoNetRec res;
+            if(geoip->findNetRec(z.getStringAddr(),z.family()==AF_INET,res))
+            {
+                referrer_nodes.addReferrer(res.lat,res.lon,z,e_RegisterMyRefferrerNodeREQ->downlinkCount,e_RegisterMyRefferrerNodeREQ->uplink);
+            }
+            else
+            {
+                /// undefined net
+                referrer_nodes.addReferrer(LOCATION_LATITUDE_UNDEF,LOCATION_LONGITUDE_UNDEF,z,e_RegisterMyRefferrerNodeREQ->downlinkCount,e_RegisterMyRefferrerNodeREQ->uplink);
+            }
+        }
+
+    }
+
+
+    return true;
+
+}
+bool dfsCaps::Service::on_RegisterCloudRoot(const dfsCapsEvent::RegisterCloudRoot* e)
+{
+    MUTEX_INSPECTOR;
+    S_LOG("on_RegisterCloudRoot");
+    if(e->externalListenAddr.size())
+    {
+        for(auto z:e->externalListenAddr)
+        {
+            logErr2("addr %s",z.dump().c_str());
+            I_GEOIP *geoip=(I_GEOIP*)iUtils->queryIface(Ifaces::GEOIP);
+            geoNetRec res;
+            if(geoip->findNetRec(z.getStringAddr(),z.family()==AF_INET,res))
+            {
+                cloud_roots.addReferrer(res.lat,res.lon,z,0,e->uplink);
+            }
+            else
+            {
+                /// undefined net
+                cloud_roots.addReferrer(LOCATION_LATITUDE_UNDEF,LOCATION_LONGITUDE_UNDEF,z,0,e->uplink);
+            }
+        }
+
+    }
+
+
+    return true;
+
+}
 
 bool dfsCaps::Service::on_ToplinkDeliverREQ(const dfsReferrerEvent::ToplinkDeliverREQ* e_toplink)
 {
+    MUTEX_INSPECTOR;
     S_LOG("on_ToplinkDeliverREQ");
     REF_getter<Event::Base> z=e_toplink->getEvent();
-    if(z->id==dfsCapsEventEnum::GetReferrersREQ)
-    {
-        const dfsCapsEvent::GetReferrersREQ * E_getReferrersReq=(const dfsCapsEvent::GetReferrersREQ *)z.operator ->();
-        if(E_getReferrersReq->externalListenAddr.size()==0)
-        {
-            logErr2("if(E->externalListenAddr.size()==0) %s",__func__);
-            return false;
-        }
-        geoNetRec res;
-        I_GEOIP *geoip=(I_GEOIP*)iUtils->queryIface(Ifaces::GEOIP);
-        std::vector<msockaddr_in> sv;
-        for(auto& z: E_getReferrersReq->externalListenAddr)
-        {
-            if(geoip->findNetRec(iInstance,z.getStringAddr(),z.family()==AF_INET,res))
-            {
-                auto ret=algo.findReferrers(res.lat,res.lon);
-                for(auto &x:ret)
-                {
-                    sv.push_back(x->sa);
-                }
-
-                passEvent(new dfsReferrerEvent::ToplinkDeliverRSP(new dfsCapsEvent::GetReferrersRSP(sv,E_getReferrersReq->route),poppedFrontRoute(e_toplink->route)));
-                return true;
-
-                return true;
-            }
-
-        }
+    if(!z.valid())
         return false;
-    }
-    if(z->id==dfsCapsEventEnum::RegisterMyRefferrerREQ)
-    {
 
-//        S_LOG("dfsCapsEventEnum::RegisterMyRefferrerREQ");
-
-        const dfsCapsEvent::RegisterMyRefferrerREQ * e_RegisterMyRefferrerREQ=(const dfsCapsEvent::RegisterMyRefferrerREQ *)z.operator ->();
-        if(e_RegisterMyRefferrerREQ->externalListenAddr.size())
-        {
-            for(auto z:e_RegisterMyRefferrerREQ->externalListenAddr)
-            {
-                I_GEOIP *geoip=(I_GEOIP*)iUtils->queryIface(Ifaces::GEOIP);
-                geoNetRec res;
-                if(geoip->findNetRec(iInstance,z.getStringAddr(),z.family()==AF_INET,res))
-                {
-                    algo.addReferrer(res.lat,res.lon,z,e_RegisterMyRefferrerREQ->downlinkCount);
-                }
-            }
-
-        }
-
-
-        return true;
-    }
+    if(z->id==dfsCapsEventEnum::GetReferrersREQ)
+        return on_GetReferrersREQ((const dfsCapsEvent::GetReferrersREQ *)z.operator ->(),e_toplink);
+    if(z->id==dfsCapsEventEnum::RegisterMyRefferrerNodeREQ)
+        return on_RegisterMyRefferrerNodeREQ((const dfsCapsEvent::RegisterMyRefferrerNodeREQ *)z.operator ->());
+    if(z->id==dfsCapsEventEnum::RegisterCloudRoot)
+        return on_RegisterCloudRoot((const dfsCapsEvent::RegisterCloudRoot *)z.operator ->());
+    if(z->id==dfsCapsEventEnum::GetCloudRootsREQ)
+        return on_GetCloudRootsREQ((const dfsCapsEvent::GetCloudRootsREQ *)z.operator ->(),e_toplink);
 
     return true;
 }
 
 bool dfsCaps::Service::handleEvent(const REF_getter<Event::Base>& e)
 {
-    S_LOG("dfsCaps::handleEvent");
-    MUTEX_INSPECTOR;
     XTRY;
+    MUTEX_INSPECTOR;
+    S_LOG("dfsCaps::handleEvent");
+
     auto & ID=e->id;
     if(timerEventEnum::TickAlarm==ID)
         return on_TickAlarm((const timerEvent::TickAlarm*)e.operator->());
@@ -140,6 +234,8 @@ bool dfsCaps::Service::handleEvent(const REF_getter<Event::Base>& e)
         return on_RequestIncoming((const webHandlerEvent::RequestIncoming*)e.operator->());
     if(systemEventEnum::startService==ID)
         return on_startService((const systemEvent::startService*)e.operator->());
+    if(dfsReferrerEventEnum::ToplinkDeliverREQ==ID)
+        return on_ToplinkDeliverREQ((const dfsReferrerEvent::ToplinkDeliverREQ*)e.operator ->());
     if( rpcEventEnum::IncomingOnConnector==ID)
     {
         S_LOG("rpcEventEnum::IncomingOnConnector");
@@ -148,7 +244,7 @@ bool dfsCaps::Service::handleEvent(const REF_getter<Event::Base>& e)
         if(dfsReferrerEventEnum::ToplinkDeliverREQ==IDC)
             return on_ToplinkDeliverREQ((const dfsReferrerEvent::ToplinkDeliverREQ*)E->e.operator ->());
 
-        log(ERROR_log,"unhandled event %s %s %d",E->e->name,__func__,__LINE__);
+        logErr2("unhandled IncomingOnConnector event %s %s %d",E->e->id.dump().c_str(),__func__,__LINE__);
     }
     if( rpcEventEnum::IncomingOnAcceptor==ID)
     {
@@ -158,32 +254,15 @@ bool dfsCaps::Service::handleEvent(const REF_getter<Event::Base>& e)
         if(dfsReferrerEventEnum::ToplinkDeliverREQ==IDA)
             return on_ToplinkDeliverREQ((const dfsReferrerEvent::ToplinkDeliverREQ*)E->e.operator ->());
 
-        log(ERROR_log,"unhandled event %s %s %d",E->e->name,__func__,__LINE__);
+        logErr2("unhandled IncomingOnAcceptor event %s %s %d",E->e->id.dump().c_str(),__func__,__LINE__);
     }
 
-    if(dfsReferrerEventEnum::ToplinkDeliverREQ==ID)
-        return on_ToplinkDeliverREQ((const dfsReferrerEvent::ToplinkDeliverREQ*)e.operator->());
 
-    log(ERROR_log,"unhandled event %s %s %d",e->name,__FILE__,__LINE__);
+    logErr2("unhandled event %s %s %d",e->id.dump().c_str(),__FILE__,__LINE__);
     XPASS;
     return false;
 }
 
-static std::string cvt(const std::string& s)
-{
-    std::string out;
-    for(size_t i=0; i<s.size()-1; i++)
-    {
-        if(s[i]==',' && (s[i+1]==','||s[i+1]=='\n'||s[i+1]=='\r'))
-        {
-            out+=",0";
-            continue;
-        }
-        else
-            out+=s[i];
-    }
-    return out;
-}
 bool  dfsCaps::Service::on_startService(const systemEvent::startService*)
 {
     S_LOG("on_startService");
@@ -196,57 +275,6 @@ bool  dfsCaps::Service::on_startService(const systemEvent::startService*)
         sendEvent(ServiceEnum::WebHandler, new webHandlerEvent::RegisterDirectory("dfs","DFS"));
         sendEvent(ServiceEnum::WebHandler, new webHandlerEvent::RegisterHandler("dfs/Caps","Capabilities",ListenerBase::serviceId));
     }
-//    Sqlite3Wrapper d(dbname);
-//    std::vector<std::string> v=d.select_1_column((QUERY)"SELECT * FROM sqlite_master");
-//    std::set<std::string> s;
-//    for(auto z:v)s.insert(z);
-//    if(!s.count("city_block4"))
-//    {
-//        d.execSimple((QUERY)""
-//                     "create table if not exists city_block4"
-//                     "("
-//                         "network blob,"
-//                         "geoname_id blob,"
-//                        " registered_country_geoname_id blob,"
-//                         "represented_country_geoname_id blob,"
-//                         "is_anonymous_proxy blob,"
-//                         "is_satellite_provider blob,"
-//                         "postal_code blob,"
-//                         "latitude blob,"
-//                         "longitude blob,"
-//                         "accuracy_radius blob"
-//                     ")"
-//                     );
-//    }
-//    logErr2(".tables ->");
-//    for(auto z:v)
-//    {
-//        logErr2(".tables -> %s",z.c_str());
-
-//    }
-/*
-drop table if exists city_block4;
-create table if not exists city_block4
-(
-    network blob,
-    geoname_id blob,
-    registered_country_geoname_id blob,
-    represented_country_geoname_id blob,
-    is_anonymous_proxy blob,
-    is_satellite_provider blob,
-    postal_code blob,
-    latitude blob,
-    longitude blob,
-    accuracy_radius blob
-);
-.mode csv
-.separator ','
-.import /Users/s.belyalov/Downloads/GeoLite2-City-CSV_20180605/GeoLite2-City-Blocks-IPv4.csv city_block4;
-alter table city_block4 add column start_ip blob;
-alter table city_block4 add column end_ip blob;
-CREATE INDEX IF NOT EXISTS start_ip_idx ON city_block4(start_ip) ;
-CREATE INDEX IF NOT EXISTS end_ip_idx ON city_block4(end_ip) ;
-*/
 
     XPASS;
     return true;

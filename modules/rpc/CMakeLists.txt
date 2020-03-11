@@ -7,7 +7,7 @@ add_library(core-rpc SHARED
     upnp_tr.c
 )
 
-target_link_libraries(core-rpc megatron-core miniupnpc pthread)
+target_link_libraries(core-rpc megatron-core pthread)
 
 install(TARGETS core-rpc DESTINATION ${PLUGIN_TARGET_DIR})
 

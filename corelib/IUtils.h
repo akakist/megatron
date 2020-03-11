@@ -1,5 +1,7 @@
 #ifndef _________________UTILS____H_HHH
 #define _________________UTILS____H_HHH
+
+#include "pconfig.h"
 #include <vector>
 #include <string>
 #include <map>
@@ -21,6 +23,7 @@
 #include "webDumpable.h"
 #include "event.h"
 #include "ITests.h"
+#include "pollable.h"
 class epoll_socket_info;
 struct Utils_local;
 
@@ -83,26 +86,6 @@ public:
     /// удалить пробелы с краев
     virtual std::string trim(const std::string &s)=0;
 
-    virtual std::string toString(real i)=0;
-
-    virtual std::string toString(int64_t i)=0;
-    virtual std::string toString(uint64_t i)=0;
-    virtual std::string toString(int32_t i)=0;
-    virtual std::string toString(uint32_t i)=0;
-    virtual std::string toString(int16_t i)=0;
-    virtual std::string toString(uint16_t i)=0;
-    virtual std::string toString(int8_t i)=0;
-    virtual std::string toString(uint8_t i)=0;
-#ifndef _LP64
-    //virtual std::string toString(time_t i)=0;
-#endif
-    virtual std::string toString(const std::pair<int64_t,int64_t> &i)=0;
-#ifdef __MACH__
-    virtual std::string toString(size_t i)=0;
-#endif
-#ifdef _WIN32
-//    virtual std::string toString(long int i)=0;
-#endif
     virtual void rxfind(std::vector < rxfind_data > &res, const char *regexp, const char *buffer)=0;
 
 
@@ -127,7 +110,6 @@ public:
     /// раскодировать из HEX
     virtual std::string bin2hex(const std::string & in)=0;
     /// раскодировать из escaped
-//    virtual std::string bin2escaped(const std::string & in)=0;
 
 
     virtual std::string uriEncode(const std::string & sSrc)=0;
@@ -145,7 +127,9 @@ public:
     virtual int get_param_int(std::deque<std::string> &tokens, const std::string& name)=0;
     virtual int64_t get_param_int64_t(std::deque<std::string> &tokens, const std::string& name)=0;
 
+    /// get Time in microseconds (1/million part of second)
     virtual Integer getNow()=0;
+
     virtual std::string getPercent(const real& numerator, const real& denumerator)=0;
 
     virtual int getHostByName(const char* hostname, unsigned int& outHostname)=0; // 0 - no error, -1 error
@@ -183,11 +167,8 @@ public:
     /// получить новый ИД сокета
     virtual SOCKET_id getSocketId()=0;
 
-    /// пометить сокет ИД как ненужный
-    virtual void ungetSocketId(const SOCKET_id& s)=0;
 
     /// получить число аллокированных сокетов
-    virtual size_t getSocketCount()=0;
     virtual IThreadNameController* getIThreadNameController()=0;
 
 
@@ -195,19 +176,18 @@ public:
     virtual Ifaces::Base* queryIface(const SERVICE_id& id)=0;
 
     virtual void registerITest(const VERSION_id& vid,const SERVICE_id& id, itest_static_constructor p)=0;
-    //virtual itest_static_constructor queryITest(const SERVICE_id& id)=0;
-    virtual std::vector<itest_static_constructor> getAllITests()=0;
+    virtual std::map<SERVICE_id,itest_static_constructor> getAllITests()=0;
+
 
 
     virtual const std::string app_name()=0;
+    virtual void set_app_name(const std::string& an)=0;
 
     virtual std::string gCacheDir()=0;
     virtual std::string gLogDir()=0;
     virtual std::string gConfigDir()=0;
-//#ifdef __MOBILE__
     virtual void setFilesDir(const std::string& s)=0;
     virtual std::string filesDir()=0;
-//#endif
 
     virtual int argc()=0;
     virtual char **argv()=0;
@@ -218,7 +198,7 @@ public:
         PLUGIN_TYPE_SERVICE,
         PLUGIN_TYPE_TEST,
     };
-    virtual void registerPlugingInfo(const VERSION_id& version, const char* pluginFileName, PluginType pt, const SERVICE_id &id, const char* name)=0;
+    virtual void registerPlugingInfo(const VERSION_id& version, const char* pluginFileName, PluginType pt, const SERVICE_id &id, const char* name, const std::set<EVENT_id> &evts)=0;
     virtual void registerPluginDLL(const std::string& pn)=0;
 
     /// зарегистрировать сервис
@@ -245,17 +225,23 @@ public:
 
     virtual Utils_local *getLocals()=0;
 
-    //virtual int64_t getEmailKey()=0;
-    //virtual void setEmailKey(int64_t)=0;
     virtual std::set<IInstance*> getInstances()=0;
     virtual void registerInstance(IInstance *i)=0;
     virtual void unregisterInstance(IInstance *i)=0;
-    virtual IInstance* createNewInstance()=0;
+    virtual IInstance* createNewInstance(const std::string& name)=0;
     virtual void setTerminate()=0;
     virtual bool isTerminating()=0;
     virtual  void load_plugins_info(const std::set<std::string>& bases)=0;
 
     virtual REF_getter<_addrInfos> getAddrInfos()=0;
+
+    virtual void poll()=0;
+    virtual void addPollable(pollable* p)=0;
+    virtual void removePollable(pollable* p)=0;
+
+    virtual void pushLogPrefix(const std::string& l)=0;
+    virtual void popLogPrefix()=0;
+    virtual std::deque<std::string> getLogPrefix()=0;
 
 };
 extern IUtils * iUtils;

@@ -6,7 +6,7 @@ add_library(test-rpc SHARED
     rpc_test.cpp
     rpc_test_service.cpp
 )
-target_link_libraries(test-rpc megatron-main megatron-core miniupnpc z pthread dl)
+target_link_libraries(test-rpc megatron-main megatron-core  z pthread)
 
 
 install(TARGETS test-rpc DESTINATION ${PLUGIN_TARGET_DIR})

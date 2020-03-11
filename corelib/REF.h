@@ -1,11 +1,7 @@
 #ifndef ______REF__H
 #define ______REF__H
-#include <string>
 #include "mutexable.h"
-#include "commonError.h"
-#include <stdio.h>
-#include <map>
-#include <list>
+
 #ifdef _MSC_VER
 #include <time.h>
 #endif

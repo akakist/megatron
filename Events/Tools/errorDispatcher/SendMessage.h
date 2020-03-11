@@ -3,37 +3,37 @@
 #include "___errorDispatcherEvent.h"
 namespace errorDispatcherEvent
 {
-class SendMessage: public Event::Base
-{
-    enum {rpcChannel=CHANNEL_100};
+    class SendMessage: public Event::Base
+    {
+        enum {rpcChannel=CHANNEL_100};
 
 
-public:
-    static Base* construct(const route_t &r)
-    {
-        return new SendMessage(r);
-    }
-    SendMessage(const std::string &_opcode, const std::string& _msg)
-        :Base(errorDispatcherEventEnum::SendMessage,rpcChannel,"errorDispatcherSendMessage"),opcode(_opcode),msg(_msg) {}
-    SendMessage(const route_t&r)
-        :Base(errorDispatcherEventEnum::SendMessage,rpcChannel,"errorDispatcherSendMessage",r) {}
-    std::string opcode;
-    std::string msg;
-    void unpack(inBuffer& o)
-    {
-        o>>opcode>>msg;
-    }
-    void pack(outBuffer&o) const
-    {
-        o<<opcode<<msg;
-    }
-    void jdump(Json::Value &v) const
-    {
-        v["opcode"]=opcode;
-        v["msg"]=msg;
-    }
+    public:
+        static Base* construct(const route_t &r)
+        {
+            return new SendMessage(r);
+        }
+        SendMessage(const std::string &_opcode, const std::string& _msg)
+            :Base(errorDispatcherEventEnum::SendMessage,rpcChannel),opcode(_opcode),msg(_msg) {}
+        SendMessage(const route_t&r)
+            :Base(errorDispatcherEventEnum::SendMessage,rpcChannel,r) {}
+        std::string opcode;
+        std::string msg;
+        void unpack(inBuffer& o)
+        {
+            o>>opcode>>msg;
+        }
+        void pack(outBuffer&o) const
+        {
+            o<<opcode<<msg;
+        }
+        void jdump(Json::Value &v) const
+        {
+            v["opcode"]=opcode;
+            v["msg"]=msg;
+        }
 
-};
+    };
 
 
 }

@@ -22,7 +22,7 @@ struct mysqlConf
 class DBH_postgres:public DBH
 {
 public:
-    virtual void execSimple(const QUERY &query);
+    virtual void exec(const QUERY &query);
     virtual REF_getter<QueryResult> exec(const QUERY &);
     virtual std::string escape(const std::string&);
 
@@ -31,7 +31,7 @@ public:
     time_t getLastQueryTime();
 
 
-    void execSimple(const std::string &);
+    void exec(const std::string &);
     REF_getter<QueryResult> exec(const std::string &);
 
     void makeConnection();

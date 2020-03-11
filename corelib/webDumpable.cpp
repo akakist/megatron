@@ -18,5 +18,5 @@ std::string WebDumpable::getWebDumpableLink(const int64_t& vname)
 {
     WebDumpable* p=this;
     std::string s((char*)&p,sizeof(p));
-    return "<a href='/webdump?p="+iUtils->bin2hex(s)+"'>"+iUtils->toString(vname)+"</a>";
+    return "<a href='/webdump?p="+iUtils->bin2hex(s)+"'>"+std::to_string(vname)+"</a>";
 }

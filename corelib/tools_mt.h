@@ -20,9 +20,9 @@
 inline unsigned short getRpcExternalListenPortMain(IInstance* iInstance)
 {
 
-    UnknownBase* unk=iInstance->getServiceOrCreate(ServiceEnum::RPC);
+    auto unk=iInstance->getServiceOrCreate(ServiceEnum::RPC);
     if(!unk) throw CommonError("!if(!unk)"+_DMI());
-    IRPC* rpc=static_cast<IRPC*>(unk->cast(UnknownCast::IRPC));
+    IRPC* rpc=dynamic_cast<IRPC*>(unk);
     if(!rpc) throw CommonError("!rpc"+_DMI());
     unsigned short port=rpc->getExternalListenPortMain();
 #ifndef __MOBILE__
@@ -35,9 +35,9 @@ inline unsigned short getRpcExternalListenPortMain(IInstance* iInstance)
 
 inline std::set<msockaddr_in> getRpcInternalListenAddrs(IInstance* iInstance)
 {
-    UnknownBase* unk=iInstance->getServiceOrCreate(ServiceEnum::RPC);
+    auto unk=iInstance->getServiceOrCreate(ServiceEnum::RPC);
     if(!unk) throw CommonError("!if(!unk)"+_DMI());
-    IRPC* irpc=static_cast<IRPC*>(unk->cast(UnknownCast::IRPC));
+    IRPC* irpc=dynamic_cast<IRPC*>(unk);
     if(!irpc) throw CommonError("if(!irpc) "+_DMI());
 
     return irpc->getInternalListenAddrs();
@@ -45,18 +45,18 @@ inline std::set<msockaddr_in> getRpcInternalListenAddrs(IInstance* iInstance)
 inline std::string dump(const std::set<unsigned short> listenPort)
 {
     std::vector<std::string> v;
-    for(std::set<unsigned short>::const_iterator i=listenPort.begin(); i!=listenPort.end(); i++)
+    for(auto& i:listenPort)
     {
-        v.push_back(iUtils->toString(ntohs(*i)));
+        v.push_back(std::to_string(ntohs(i)));
     }
     return iUtils->join(",",v);
 }
 inline std::string dump(const std::set<msockaddr_in> listenPort)
 {
     std::vector<std::string> v;
-    for(std::set<msockaddr_in>::const_iterator i=listenPort.begin(); i!=listenPort.end(); i++)
+    for(auto& i:listenPort)
     {
-        v.push_back(i->dump());
+        v.push_back(i.dump());
     }
     return iUtils->join(",",v);
 }
@@ -65,9 +65,9 @@ inline std::string dump(const std::set<msockaddr_in> listenPort)
 inline std::vector<std::string> conv_s2v(const std::set<std::string>&v)
 {
     std::vector<std::string> out;
-    for(std::set<std::string>::const_iterator i=v.begin(); i!=v.end(); i++)
+    for(auto& i:v)
     {
-        out.push_back(*i);
+        out.push_back(i);
     }
     return out;
 }
@@ -157,4 +157,14 @@ inline std::string jFastWrite(const Json::Value& j)
     return w.write(j);
 }
 
+inline std::string sqlDbName(const std::string& nm)
+{
+    std::string n;
+    for(size_t i=0; i<nm.size(); i++)
+    {
+        if(isalnum(nm[i]))
+            n+=nm[i];
+    }
+    return iUtils->gCacheDir()+"/"+n+".db";
+}
 #endif

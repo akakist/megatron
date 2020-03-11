@@ -24,10 +24,8 @@ public:
     /// name of listener
     const std::string listenerName;
 
-    /// casting tool for Unknown
-    static ListenerBase* cast(UnknownBase *c);
 
-    ListenerBase(UnknownBase* i, const std::string& nm, const SERVICE_id& sid);
+    ListenerBase(const std::string& nm, const SERVICE_id& sid);
     virtual ~ListenerBase() {}
 
     const SERVICE_id serviceId;

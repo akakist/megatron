@@ -1,60 +1,34 @@
 #ifndef ___________RPC__SERVER__H
 #define ___________RPC__SERVER__H
-#include "listenerBuffered1Thread.h"
-#include "broadcaster.h"
-#include "REF.h"
-#include "SOCKET_id.h"
-#include "ioBuffer.h"
-#include "route_t.h"
-#include "CHUNK_id.h"
-#include "msockaddr_in.h"
-#include "neighbours.h"
-#include "logging.h"
-#include "GlobalCookie_id.h"
-#include "linkinfo.h"
-#include "uplinkconnectionstate.h"
-#include "ISSL.h"
-#include "uriReferals.h"
-#include "timerHelper.h"
-#include "url.h"
-#include "configDB.h"
-#include "Events/System/Run/startService.h"
-#include "Events/Tools/webHandler/RequestIncoming.h"
-#include "Events/Tools/telnet/CommandEntered.h"
-#include "Events/System/Net/rpc/IncomingOnConnector.h"
-#include "Events/System/Net/rpc/IncomingOnAcceptor.h"
-#include "Events/System/Net/rpc/Disconnected.h"
-#include "Events/System/Net/rpc/Disaccepted.h"
-#include "Events/System/Net/rpc/Accepted.h"
-#include "Events/System/Net/rpc/UpnpResult.h"
-#include "Events/System/Net/rpc/Connected.h"
-#include "Events/System/Net/rpc/ConnectFailed.h"
-#include "Events/System/Net/rpc/Binded.h"
-#include "Events/System/timer/TickTimer.h"
-#include "Events/System/timer/TickAlarm.h"
-#include "Events/DFS/Referrer/Elloh.h"
-#include "Events/DFS/Referrer/Hello.h"
-#include "Events/DFS/Referrer/NotifyReferrer.h"
-#include "Events/DFS/Referrer/NotifyReferrer.h"
-#include "Events/DFS/Referrer/NotifyReferrer.h"
-#include "Events/DFS/Referrer/NotifyReferrer.h"
-#include "Events/DFS/Referrer/Ping.h"
-#include "Events/DFS/Referrer/Pong.h"
-#include "Events/DFS/Referrer/UpdateConfig.h"
-#include "Events/DFS/Referrer/UpdateConfig.h"
-#include "Events/DFS/Referrer/SubscribeNotifications.h"
-#include "Events/DFS/Referrer/ToplinkBroadcastByBackroute.h"
 
-#include "Events/DFS/Caps/RegisterMyRefferrer.h"
+#include "event.h"
+#include <IInstance.h>
+#include <listenerBuffered1Thread.h>
+#include <broadcaster.h>
+#include <timerHelper.h>
+#include <Events/System/Run/startService.h>
+#include <Events/Tools/telnet/CommandEntered.h>
+#include <Events/System/Net/rpc/ConnectFailed.h>
+#include <Events/System/Net/rpc/Disconnected.h>
+#include <Events/System/Net/rpc/Disaccepted.h>
+#include <Events/System/Net/rpc/Connected.h>
+#include <Events/System/Net/rpc/IncomingOnConnector.h>
+#include <Events/System/Net/rpc/IncomingOnAcceptor.h>
+#include <Events/System/Net/rpc/Accepted.h>
+#include <Events/System/Net/rpc/Binded.h>
+#include <Events/System/timer/TickTimer.h>
+#include <Events/System/timer/TickAlarm.h>
+#include <Events/Tools/webHandler/RequestIncoming.h>
+#include <Events/DFS/Referrer/UpdateConfig.h>
+#include <Events/DFS/Referrer/SubscribeNotifications.h>
+#include <Events/DFS/Referrer/ToplinkDeliver.h>
+#include <Events/DFS/Referrer/Ping.h>
+#include <Events/DFS/Referrer/Hello.h>
+#include "Events/System/Net/rpc/UpnpResult.h"
+#include "Events/DFS/Caps/RegisterMyRefferrerNode.h"
 #include "Events/DFS/Caps/GetRefferrers.h"
-#include "Events/System/Net/rpc/SubscribeNotifications.h"
-#include "Events/System/Net/rpc/UpnpPortMap.h"
-#include "Events/Tools/telnet/RegisterCommand.h"
-#include "Events/Tools/telnet/Reply.h"
-#include "Events/Tools/webHandler/RegisterDirectory.h"
-#include "Events/Tools/webHandler/RegisterHandler.h"
-#include "Events/DFS/Referrer/ToplinkDeliver.h"
-#include "Events/DFS/Referrer/ToplinkDeliver.h"
+#include "uriReferals.h"
+#include "uplinkconnectionstate.h"
 
 #define T_CAPS "caps"
 
@@ -82,17 +56,18 @@ using namespace  refTimer;
 #define CLOSE_DOWNLINKS
 
 
-struct _referrerData
+struct _dfsReferrerData
 {
-    _referrerData():uplinkConnectionState(NULL),
+    _dfsReferrerData(IInstance* instance):uplinkConnectionState(NULL),
         urirefs(new dfsReferrer::_uriReferals()),
         d2_start_time(0),externalAccessIsPossible(false)
-    #if !defined(WITHOUT_UPNP)
+#if !defined(WITHOUT_UPNP)
         ,m_upnpExecuted(false),
         m_upnpInRequesting(false)
-     #endif
-      ,
-          connection_sequence_id(0)
+#endif
+        ,
+        connection_sequence_id(0),
+        neighbours(instance->getName())
     {}
     REF_getter<dfsReferrer::_uplinkConnectionState> uplinkConnectionState;
     REF_getter<dfsReferrer::_uriReferals> urirefs;
@@ -100,44 +75,44 @@ struct _referrerData
     std::set<route_t> m_readyNotificationBackroutes;
     bool externalAccessIsPossible;
 #if !defined(WITHOUT_UPNP)
-        bool m_upnpExecuted;
-        bool m_upnpInRequesting;
+    bool m_upnpExecuted;
+    bool m_upnpInRequesting;
 #endif
-        std::string config_body;
-        int connection_sequence_id;
-        _neighbours neighbours;
-        enum _stage
-        {
-            /*
-                Кэшем не пользуемся, поскольку реферреров не будет много.
-                ^STATE_D2_PING_NEIGHBOURS
-                Взводим таймер - T_001_common_connect_failed
-                Сначала пингуем капсы из конфига. Взводим referrers_timed_out
-                Первый понг от капса - посылаем ему getReferres.
-                ^STATE_D3_GET_GEFERRERS
-                Пингуем полученные рефферы.
-                Первый понг от реферрера ^STATE_D5_CHECK_EXTERNAL - посылаем CHECK_EXTERNAL_CONNECTION взводим CHECK_EXTERNAL_CONNECTION_TIMED_OUT
-                Сработал referrers_timed_out ^STATE_D5_CHECK_EXTERNAL посылаем на понговый капс CHECK_EXTERNAL_CONNECTION взводим CHECK_EXTERNAL_CONNECTION_TIMED_OUT
+    std::string config_body;
+    int connection_sequence_id;
+    _neighbours neighbours;
+    enum _stage
+    {
+        /*
+            Кэшем не пользуемся, поскольку реферреров не будет много.
+            ^STATE_D2_PING_NEIGHBOURS
+            Взводим таймер - T_001_common_connect_failed
+            Сначала пингуем капсы из конфига. Взводим referrers_timed_out
+            Первый понг от капса - посылаем ему getReferres.
+            ^STATE_D3_GET_GEFERRERS
+            Пингуем полученные рефферы.
+            Первый понг от реферрера ^STATE_D5_CHECK_EXTERNAL - посылаем CHECK_EXTERNAL_CONNECTION взводим CHECK_EXTERNAL_CONNECTION_TIMED_OUT
+            Сработал referrers_timed_out ^STATE_D5_CHECK_EXTERNAL посылаем на понговый капс CHECK_EXTERNAL_CONNECTION взводим CHECK_EXTERNAL_CONNECTION_TIMED_OUT
 
-                CHECK_EXTERNAL_CONNECTION_TIMED_OUT - exception невозможно стартовать реферрер.
+            CHECK_EXTERNAL_CONNECTION_TIMED_OUT - exception невозможно стартовать реферрер.
 
-                EXTERNAL_CONNECTION_CHECKED - запускаем ^STATE_D6_MAINTAIN_CONNECTION
+            EXTERNAL_CONNECTION_CHECKED - запускаем ^STATE_D6_MAINTAIN_CONNECTION
 
-                MAINTAIN_CONNECTION fail - ^STATE_D2_PING_NEIGHBOURS
+            MAINTAIN_CONNECTION fail - ^STATE_D2_PING_NEIGHBOURS
 
-                T_001_common_connect_failed - ^STATE_D2_PING_NEIGHBOURS
+            T_001_common_connect_failed - ^STATE_D2_PING_NEIGHBOURS
 
-            */
-            STAGE_D2_PING_NEIGHBOURS,
-            STAGE_D21_PING_CAPS,
-            STAGE_D3_GET_GEFERRERS,
-            STAGE_D3_1_SEND_PING_TO_RESPONDED_REFERRERS,
-            STAGE_D4_MAINTAIN_CONNECTION,
-            STAGE_D5_CHECK_EXTERNAL,
-            STAGE_D6_MAINTAIN_CONNECTION,
+        */
+        STAGE_D2_PING_NEIGHBOURS,
+        STAGE_D21_PING_CAPS,
+        STAGE_D3_GET_GEFERRERS,
+        STAGE_D3_1_SEND_PING_TO_RESPONDED_REFERRERS,
+        STAGE_D4_MAINTAIN_CONNECTION,
+        STAGE_D5_CHECK_EXTERNAL,
+        STAGE_D6_MAINTAIN_CONNECTION,
 
-        };
-        _stage stage;
+    };
+    _stage stage;
 
 };
 
@@ -146,20 +121,23 @@ namespace dfsReferrer
 
 
     class Service:
-        private UnknownBase,
-        private ListenerBuffered1Thread,
+        public UnknownBase,
+        public ListenerBuffered1Thread,
         public Broadcaster,
-        public Logging,
         public TimerHelper
     {
 
-        _referrerData rd;
+        _dfsReferrerData rd;
+#if !defined(WITHOUT_UPNP)
+        bool m_enableUpnp;
+#endif
+        bool m_enableExternalCheckConnection;
         msockaddr_in getUL();
         bool hasUL();
 
         bool on_startService(const systemEvent::startService*);
     public:
-        void on_Disaccepted(const SOCKET_id& sockId);
+//        void on_Disaccepted(const SOCKET_id& sockId);
         bool handleEvent(const REF_getter<Event::Base>& e);
 
         bool on_CommandEntered(const telnetEvent::CommandEntered*e);
@@ -219,8 +197,8 @@ namespace dfsReferrer
 
         /// maintain connection with caps
         void d6_start(const msockaddr_in& sa);
-        bool d6_on_pong_PT_CAPS_SHORT(const msockaddr_in&visible_name_of_pinger, const REF_getter<epoll_socket_info>&);
-        bool d6_on_pong_PT_CAPS_LONG(const msockaddr_in&visible_name_of_pinger, const REF_getter<epoll_socket_info>&);
+        bool d6_on_pong_PT_CAPS_SHORT(const REF_getter<epoll_socket_info>&);
+        bool d6_on_pong_PT_CAPS_LONG(const REF_getter<epoll_socket_info>&);
         void d6_on_T_011_resend_ping_PT_CAPS_LONG(const msockaddr_in& remote_addr);
         void d6_on_T_012_pong_timed_out_PT_CAPS_LONG(const msockaddr_in& remote_addr);
         void d6_on_disconnected(const msockaddr_in& remote_addr);
@@ -234,7 +212,6 @@ namespace dfsReferrer
 
         bool on_ToplinkDeliverREQ(const dfsReferrerEvent::ToplinkDeliverREQ *e, const rpcEvent::IncomingOnAcceptor* acc);
         bool on_ToplinkDeliverRSP(const dfsReferrerEvent::ToplinkDeliverRSP *e);
-        bool on_ToplinkDeliverRSP2Node(const dfsReferrerEvent::ToplinkDeliverRSP2Node *e);
 
         bool on_Pong(const dfsReferrerEvent::Pong* e,  const REF_getter<epoll_socket_info>& esi);
 
@@ -250,11 +227,16 @@ namespace dfsReferrer
 
         void registerReferrer(const msockaddr_in &destination);
 
-        bool isCaps(const msockaddr_in& sa);
+        bool isTopServer(const msockaddr_in& sa);
 
     public:
         Service(const SERVICE_id &svs, const std::string&  nm,IInstance* ifa);
         static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa);
+        void deinit()
+        {
+            ListenerBuffered1Thread::denit();
+        }
+
         ~Service();
 
         IInstance *iInstance;

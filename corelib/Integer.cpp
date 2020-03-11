@@ -34,7 +34,7 @@ Integer& Integer::operator+=(const int64_t & a)
 }
 std::string Integer::dump() const
 {
-    return iUtils->toString(value);
+    return std::to_string(value);
 }
 int Integer::operator<(const Integer& a) const
 {

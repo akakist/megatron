@@ -1,23 +1,23 @@
 #ifndef ___RPC_EV1_H2
 #define ___RPC_EV1_H2
 #include "___rpcEvent.h"
-namespace rpcEvent{
+namespace rpcEvent {
 
-class Binded: public Event::NoPacked
-{
-public:
-    static Base* construct(const route_t &)
+    class Binded: public Event::NoPacked
     {
-        return NULL;
-    }
-    Binded(const REF_getter<epoll_socket_info>& _esi)
-        :NoPacked(rpcEventEnum::Binded,"rpcBinded"),
-         esi(_esi) {}
-    const REF_getter<epoll_socket_info>  esi;
-    void jdump(Json::Value &) const
-    {
+    public:
+        static Base* construct(const route_t &)
+        {
+            return NULL;
+        }
+        Binded(const REF_getter<epoll_socket_info>& _esi)
+            :NoPacked(rpcEventEnum::Binded),
+             esi(_esi) {}
+        const REF_getter<epoll_socket_info>  esi;
+        void jdump(Json::Value &) const
+        {
 
-    }
-};
+        }
+    };
 }
 #endif

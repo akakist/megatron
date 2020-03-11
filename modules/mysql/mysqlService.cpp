@@ -73,7 +73,6 @@ REF_getter<QueryResult> DBH_mysql::exec(const std::string &query)
 //    logErr2("result %s",result.c_str());
     REF_getter<QueryResult> rr(new QueryResult);
     XTRY;
-    //logErr2("query: %s",query.c_str());
     m_lastQueryTime=time(NULL);
     int status=mysql_real_query(dbh, query.data(), (unsigned long)query.size());
     if (status)  	//query error
@@ -129,9 +128,6 @@ REF_getter<QueryResult> DBH_mysql::exec(const std::string &query)
         {
             if (mysql_field_count(dbh) == 0)
             {
-#ifdef DEBUG
-                //logErr2("%d rows affected", mysql_affected_rows(dbh));
-#endif
             }
             else
             {
@@ -170,7 +166,6 @@ std::string DBH_mysql::escape(const std::string& s)
 }
 void DBH_mysql::makeConnection(const mysqlConf& conf)
 {
-    //logErr2("void DBH_mysql::makeConnection");
     dbh=new MYSQL;
     mysql_init(dbh);
     MYSQL* r=mysql_real_connect(dbh,
@@ -201,7 +196,6 @@ void DBH_mysql::makeConnection(const mysqlConf& conf)
 DBH_mysql::~DBH_mysql()
 {
 
-    //logErr2("DBH_mysql::~DBH_mysql()");
     if (dbh)
     {
         //  logErr2("mysql_close(dbh);");
@@ -219,8 +213,7 @@ DBH_mysql::DBH_mysql()
 }
 DBH_source_mysql::DBH_source_mysql(const SERVICE_id& _id, const std::string&  nm,IInstance* ifa)
     : UnknownBase(nm),
-      ListenerSimple(this,nm,ifa->getConfig(),_id),
-      DBH_source(this),
+      ListenerSimple(nm,ifa->getConfig(),_id),
       max_connections(10)
 {
 
@@ -229,7 +222,7 @@ DBH_source_mysql::DBH_source_mysql(const SERVICE_id& _id, const std::string&  nm
     cfg.host=conf->get_string2("mysql.host","NULL","");
     cfg.user=conf->get_string2("mysql.user","root","");
     cfg.passwd=conf->get_string2("mysql.passwd","NULL","");
-    cfg.database=conf->get_string2("mysql.database","md" ,"");
+    cfg.database=conf->get_string2("mysql.database","md","");
     cfg.start_code=conf->get_string2("mysql.start_code","SET NAMES utf8","");
     cfg.port=conf->get_int64_t2("mysql.port",0,"");
     cfg.sock=conf->get_string2("mysql.sock","NULL","");
@@ -326,7 +319,8 @@ void registerMysqlModule(const char*pn)
     XTRY;
     if(pn)
     {
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::Mysql,"mysql");
+        std::set<EVENT_id>evts;
+        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::Mysql,"mysql",evts);
     }
     else
     {

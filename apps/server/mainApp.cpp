@@ -14,6 +14,7 @@
 #include "IInstance.h"
 #include "IThreadNameController.h"
 #include "megatron.h"
+#include "colorOutput.h"
 void onterm(int signum);
 #ifdef _LINK_BASE
 void registerSocketModule();
@@ -49,6 +50,8 @@ void registerDFSFileUploaderService();
 
 
 megatron mega;
+static bool ex=false;
+static time_t exTime=0;
 
 int main(int argc, char* argv[])
 {
@@ -83,11 +86,19 @@ int main(int argc, char* argv[])
 #endif
         }
         mega.run(argc,argv);
-        while(!iUtils->isTerminating())
+        time_t startT=time(NULL);
+        while(!ex)
         {
             //logErr2("waiting term %d",iUtils->isTerminating() );
             usleep(100000);
+            if(time(NULL)-startT>2)
+            {
+//        	return 0;
+            }
+
         }
+        delete iUtils;
+        iUtils=NULL;
 
 
     }
@@ -106,35 +117,53 @@ int main(int argc, char* argv[])
 
 }
 
-static bool ex=false;
 void onterm(int signum)
 {
+    printf("\n@@ %s\n",__FUNCTION__);
     static std::string ss;
     char s[200];
-    snprintf(s,sizeof(s),"Terminating on SIGNAL %d\n",signum);
+    snprintf(s,sizeof(s),RED("Terminating on SIGNAL %d"),signum);
     if(ss!=s)
     {
-        printf("%s",s);
+        logErr2("%s",s);
         ss=s;
     }
 
+    //printf("ex %d \n",ex);
     try
     {
-        if (!ex)
+
+        if (!ex || time(NULL)-exTime>2)
         {
+//    	    exTime=time(NULL);
 #ifndef WIN32
+
+            if(!iUtils)
+                return;
+            auto tc=iUtils->getIThreadNameController();
+            if(!tc)
+                return;
             if(signum==SIGHUP)
             {
-                iUtils->getIThreadNameController()->print_term(signum);
+                tc->print_term(signum);
                 return;
             }
 #endif
+
+            exTime=time(NULL);
             ex=true;
-            iUtils->getIThreadNameController()->print_term(signum);
             iUtils->setTerminate();
+
+            tc->print_term(signum);
+//            if(iUtils)
+//                delete iUtils;
+
+
 //            mega.stop();
 
-            printf("Terminating on SIGNAL %d\n",signum);
+
+            printf(RED("Terminating on SIGNAL %d"),signum);
+//            exit(1);
         }
     }
     catch(std::exception e)

@@ -1,13 +1,8 @@
 #ifndef __________________CONFIG_DB__HH____
 #define __________________CONFIG_DB__HH____
-#include <map>
-#include <deque>
-#include <string>
-#include <set>
-#include <stdio.h>
-#include "mutexable.h"
 #include "msockaddr_in.h"
-#ifdef QT_CORE_LIB
+
+#ifdef QT5
 #include <QString>
 #include <QStandardPaths>
 #endif
@@ -23,7 +18,7 @@ class ConfigDB
 
     std::string val(const std::string& key) const;
     ConfigDB(bool shared);
-#if defined(QT_CORE_LIB)
+#if defined(QT5)
     QString fileName(const QString &k) const;
 #else
     std::string fileName(const std::string &k) const;

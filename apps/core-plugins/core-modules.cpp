@@ -1,10 +1,8 @@
-//#include "httpService.h"
 #include "IUtils.h"
 #include <string>
 #include <map>
 void registerHTTPModule(const char*);
 void registerHTTPModule(const char*);
-void registerLoggerService(const char*);
 void registerObjectProxyModule(const char*);
 void registerOscarModule(const char*);
 void registerOscarSecureModule(const char*);
@@ -15,7 +13,7 @@ void registerTelnetService(const char*);
 void registerTimerService(const char*);
 void registerWebHandlerModule(const char*);
 void registerErrorDispatcherService(const char*);
-//void registerSSL(const char*);
+void registerSSL(const char*);
 
 IUtils *iUtils;
 void aaa();
@@ -30,7 +28,7 @@ registerModule
 
     iUtils=f;
     registerHTTPModule(pn);
-    registerLoggerService(pn);
+//    registerLoggerService(pn);
     registerObjectProxyModule(pn);
     registerOscarModule(pn);
     registerOscarSecureModule(pn);
@@ -40,7 +38,7 @@ registerModule
     registerTimerService(pn);
     registerWebHandlerModule(pn);
     registerErrorDispatcherService(pn);
-//    registerSSL(pn);
+    registerSSL(pn);
 
 }
 

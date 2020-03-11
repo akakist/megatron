@@ -1,12 +1,8 @@
 #ifndef __________________CONFIG_OBJ__HH____
 #define __________________CONFIG_OBJ__HH____
-#include <map>
-#include <deque>
-#include <string>
-#include <set>
-#include <stdio.h>
-#include "mutexable.h"
-#include "IConfigObj.h"
+
+#include <IConfigObj.h>
+#include "Real.h"
 class ConfigObj:public IConfigObj, public Mutexable
 {
     friend class st_configObjPrefix;
@@ -16,7 +12,6 @@ class ConfigObj:public IConfigObj, public Mutexable
     std::string m_getPath(const std::string&name) const;
     std::string m_getPath2(const std::string&name) const;
 
-    void m_addItem(const std::string& _name, const std::string& v);
     void m_initFromLine(const std::string& buf);
     void appendLine(const std::string& key, const std::string& val, const std::string& comment);
     void appendLine(const std::string& key, const bool& val, const std::string& comment);
@@ -46,7 +41,6 @@ public:
     int64_t get_int64_t(const std::string&name, int64_t defv, const std::string& comment);
     int64_t get_int64_t2(const std::string&name, int64_t defv, const std::string& comment);
     uint64_t get_uint64_t(const std::string&name, uint64_t defv, const std::string& comment);
-    //int64_t get_flaggable_int(const std::string&name, const std::string& defv, const std::string& flagset,const std::string& comment);
 
     real get_real(const std::string&name, const real &defv, const std::string& comment);
     real get_real2(const std::string&name, const real& defv, const std::string& comment);

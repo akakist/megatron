@@ -22,13 +22,14 @@ void SocketRoute::unpack(inBuffer&o)
 {
     o>>CONTAINER(id);
 }
+
 void SocketRoute::pack(outBuffer&o) const
 {
     o<<(int)type<<CONTAINER(id);
 }
 std::string SocketRoute::dump() const
 {
-    return "socket:"+iUtils->toString(CONTAINER(id));
+    return "socket:"+std::to_string(CONTAINER(id));
 }
 
 void LocalServiceRoute::pack(outBuffer&o) const
@@ -89,7 +90,7 @@ void RemoteAddrRoute::unpack(inBuffer&o)
 }
 std::string RemoteAddrRoute::dump() const
 {
-    return "remote:"+iUtils->toString(CONTAINER(addr));
+    return "remote:"+std::to_string(CONTAINER(addr));
 }
 
 inBuffer& operator >> (inBuffer&b,route_t & r)
@@ -125,6 +126,21 @@ route_t::route_t(ObjectHandlerThreaded* id)
 
     m_container.push_front(new ObjectHandlerRouteThreaded(s));
 }
+route_t::route_t(const std::string &javaCookie,ObjectHandlerPolled* id)
+{
+    m_container.push_front(new LocalServiceRoute(javaCookie));
+    std::string s((char*)&id,sizeof(id));
+    m_container.push_front(new ObjectHandlerRoutePolled(s));
+
+}
+route_t::route_t(const std::string &javaCookie,ObjectHandlerThreaded* id)
+{
+    m_container.push_front(new LocalServiceRoute(javaCookie));
+    std::string s((char*)&id,sizeof(id));
+    m_container.push_front(new ObjectHandlerRouteThreaded(s));
+
+}
+
 
 void route_t::push_front(const REF_getter<Route>& v)
 {
@@ -133,6 +149,13 @@ void route_t::push_front(const REF_getter<Route>& v)
     m_container.push_front(v);
     XPASS;
 }
+void route_t::push_front(const route_t& r)
+{
+    if(r.m_container.size()!=1)
+        throw CommonError("if(r.m_container.size()!=1)");
+    m_container.push_front(r.m_container[0]);
+}
+
 REF_getter<Route> route_t::pop_front()
 {
 
@@ -314,4 +337,21 @@ bool route_t::operator==(const route_t& a) const
     }
     XPASS;
     return true;
+}
+std::string route_t::getLastJavaCookie() const
+{
+    if(m_container.size()!=1)
+        throw CommonError("if(m_container.size()!=1)");
+    auto r=m_container[0];
+    if(r.valid())
+    {
+        if(r->type==Route::LOCALSERVICE)
+        {
+            LocalServiceRoute* lrt=(LocalServiceRoute* )r.operator ->();
+            return lrt->id.getSid();
+        }
+
+    }
+    throw CommonError("invalid case %s %d",__FILE__,__LINE__);
+
 }

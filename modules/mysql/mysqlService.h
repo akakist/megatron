@@ -59,10 +59,12 @@ public:
     REF_getter<DBH> get();
     void unget(const REF_getter<DBH>&);
     static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa);
-    DBH_source_mysql(const SERVICE_id& _id, const std::string& , IInstance* ifa);
+    DBH_source_mysql(const SERVICE_id& _id, const std::string&, IInstance* ifa);
     ~DBH_source_mysql();
 
     bool  handleEvent(const REF_getter<Event::Base>&e);
+    void deinit() {}
+
 
     std::deque<REF_getter<DBH> > container_MX;
 

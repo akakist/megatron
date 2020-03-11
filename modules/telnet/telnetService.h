@@ -1,26 +1,22 @@
 #ifndef _____telnet___SERVICE______H
 #define _____telnet___SERVICE______H
-#include "unknown.h"
-#include "SOCKET_id.h"
 
-
-#include "broadcaster.h"
-#include "listenerBuffered1Thread.h"
-
-#include "version_mega.h"
-
-#include "logging.h"
-#include "socketsContainer.h"
+#include <REF.h>
+#include <epoll_socket_info.h>
+#include <string>
+#include <unknown.h>
+#include <listenerBuffered1Thread.h>
+#include <broadcaster.h>
+#include "event.h"
+#include <Events/System/Net/socket/StreamRead.h>
+#include <Events/System/Net/socket/Accepted.h>
+#include <Events/System/Net/socket/NotifyBindAddress.h>
+#include <Events/System/Net/socket/Disaccepted.h>
+#include <Events/System/Net/socket/Disconnected.h>
+#include <Events/System/Run/startService.h>
 #include "Events/Tools/telnet/RegisterCommand.h"
 #include "Events/Tools/telnet/RegisterType.h"
 #include "Events/Tools/telnet/Reply.h"
-#include "Events/System/Run/startService.h"
-#include "Events/System/Net/socket/Connected.h"
-#include "Events/System/Net/socket/StreamRead.h"
-#include "Events/System/Net/socket/Accepted.h"
-#include "Events/System/Net/socket/NotifyBindAddress.h"
-
-
 
 namespace Telnet
 {
@@ -31,7 +27,7 @@ namespace Telnet
 
 
     public:
-        Session(const REF_getter<Node> &N);
+        Session(const REF_getter<Node> &N,const REF_getter<epoll_socket_info>& _esi);
 
         REF_getter<Node> mx_defaultNode;
         std::string mx_current_command_line;
@@ -40,6 +36,7 @@ namespace Telnet
         int command_history_pos;
         bool insertMode;
         int width,height;
+        REF_getter<epoll_socket_info> esi;
         Json::Value jdump();
         REF_getter<Node> defaultNode()
         {
@@ -108,27 +105,27 @@ namespace Telnet
     };
 
     class Service:
-        private UnknownBase,
-        Broadcaster,
-        private ListenerBuffered1Thread,
-        public Mutexable,
-        Logging
+        public UnknownBase,
+        public Broadcaster,
+        public ListenerBuffered1Thread,
+        public Mutexable
     {
-        class __telnet_stuff: public SocketsContainerBase
+        class __telnet_stuff: public Refcountable//SocketsContainerBase
         {
             Mutex m_lock;
             std::map<SOCKET_id,REF_getter<Telnet::Session> > sessions;
         public:
-            __telnet_stuff(): SocketsContainerBase("__telnet_stuff") {}
+            __telnet_stuff()
+//                : SocketsContainerBase("__telnet_stuff")
+            {}
             void erase(const SOCKET_id& id);
             REF_getter<Telnet::Session> get(const SOCKET_id& id);
             void insert(const SOCKET_id& id,const REF_getter<Telnet::Session> &C);
             std::map<SOCKET_id,REF_getter<Telnet::Session> > getContainer();
             void on_delete(const REF_getter<epoll_socket_info>&esi, const std::string& reason);
-            void on_mod_write(const REF_getter<epoll_socket_info>&) {}
             void clear()
             {
-                SocketsContainerBase::clear();
+//                SocketsContainerBase::clear();
                 {
                     M_LOCK(m_lock);
                     sessions.clear();
@@ -148,6 +145,8 @@ namespace Telnet
         bool on_StreamRead(const socketEvent::StreamRead* evt);
         bool on_Accepted(const socketEvent::Accepted* evt);
         bool on_NotifyBindAddress(const socketEvent::NotifyBindAddress*);
+        bool on_Disaccepted(const socketEvent::Disaccepted*);
+        bool on_Disconnected(const socketEvent::Disconnected*);
 
         bool on_startService(const systemEvent::startService*);
 
@@ -164,6 +163,11 @@ namespace Telnet
         std::string m_deviceName;
         //bool m_disabled;
     public:
+        void deinit()
+        {
+            ListenerBuffered1Thread::denit();
+        }
+
         static UnknownBase* construct(const SERVICE_id &id, const std::string& nm,IInstance* ifa)
         {
             XTRY;

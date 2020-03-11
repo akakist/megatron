@@ -10,14 +10,14 @@
 #else
 #include <dlfcn.h>
 #endif
-//#include "megatron_config.h"
 #include "megatronClient.h"
 #include "CInstance.h"
 #include "CUtils.h"
 #include "IObjectProxy.h"
 #include "serviceEnum.h"
+#include "megatron_config.h"
 #include "Events/System/Net/rpc/SendPacket.h"
-
+#include "configObj.h"
 
 //IUtils *iUtils=NULL;
 
@@ -39,6 +39,7 @@ void registerTimerService(const char*);
 void registerReferrerClientService(const char* pn);
 static void registerModules()
 {
+    logErr2("static void registerModules()");
     char *pn=NULL;
     {
 #if !defined __MOBILE__
@@ -59,30 +60,46 @@ static void registerModules()
     registerSSL(pn);
 }
 
-IUtils *Megatron::initMegatron(int argc, char** argv)
+IUtils *Megatron::initMegatron(int argc, char** argv, const std::string &filesDir)
 {
-    iUtils=new CUtils(argc,argv,"app_name");
+    std::string appName="app_name";
+    if(argc>0)
+    {
+        appName.clear();
+        for(int i=0; i<strlen(argv[0]); i++)
+        {
+            if(isalnum(argv[0][i]))
+                appName+=argv[0][i];
+
+        }
+    }
+    iUtils=new CUtils(argc,argv,appName);
+#ifndef QT_CORE_LIB
+//    if(filesDir.size()==0)
+//        throw CommonError("if(filesDir.size()==0) %s",__PRETTY_FUNCTION__);
+#endif
+//    printf("Megatron::setFilesDir %s",filesDir.c_str());
+#ifdef QT_CORE_LIB
+    iUtils->setFilesDir(CACHE_TARGET_DIR);
+#else
+    iUtils->setFilesDir(filesDir);
+#endif
+
+
+
     registerModules();
+//    iUtils->regi
     return iUtils;
 }
 IInstance *Megatron::createInstance(const std::string& config)
 {
-    IInstance *instance=iUtils->createNewInstance();
+    IInstance *instance=iUtils->createNewInstance("Megatron::createInstance");
     ConfigObj *cnf1=new ConfigObj("client",config);
     instance->setConfig(cnf1);
     instance->initServices();
     return instance;
 }
-void Megatron::setFilesDir(IUtils* iu,const std::string &fdir)
-{
-    iu->setFilesDir(fdir);
-}
+//void Megatron::setFilesDir(IUtils* iu,const std::string &fdir)
+//{
+//}
 
-void Megatron::poll(IInstance* instance)
-{
-    if(!instance)return;
-    IObjectProxyPolled* op=static_cast<IObjectProxyPolled*>
-                           (instance->getServiceOrCreate(ServiceEnum::ObjectProxyPolled)->cast(UnknownCast::IObjectProxyPolled));
-    op->poll();
-
-}

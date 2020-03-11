@@ -4,21 +4,24 @@
 
 namespace socketEvent
 {
-class ConnectFailed: public Event::NoPacked
-{
-public:
-    static Base* construct(const route_t &)
+    class ConnectFailed: public Event::NoPacked
     {
-        return NULL;
-    }
-    ConnectFailed(const msockaddr_in  &_addr,const route_t & r):
-        NoPacked(socketEventEnum::ConnectFailed,"SocketConnectFailed",r),
-        addr(_addr) {}
-    const msockaddr_in  addr;
-    void jdump(Json::Value &) const
-    {
-    }
-};
+    public:
+        static Base* construct(const route_t &)
+        {
+            return NULL;
+        }
+        ConnectFailed(const REF_getter<epoll_socket_info>& _esi,const msockaddr_in  &_addr,int _errno_,const route_t & r):
+            NoPacked(socketEventEnum::ConnectFailed,r),
+            esi(_esi),
+            addr(_addr),_errno(_errno_) {}
+        REF_getter<epoll_socket_info> esi;
+        const msockaddr_in  addr;
+        int _errno;
+        void jdump(Json::Value &) const
+        {
+        }
+    };
 
 }
 

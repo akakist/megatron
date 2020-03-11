@@ -13,9 +13,8 @@ class ListenerBuffered1Thread;
 class ListenerBuffered1Thread:public ListenerBase
 {
 
-    EventDeque m_container;
+    REF_getter<EventDeque> m_container;
     pthread_t m_pt;
-    IInstance *instance;
     bool m_isTerminating;
     static void* worker(void*);
 protected:
@@ -24,6 +23,7 @@ protected:
     void listenToEvent(const REF_getter<Event::Base>&e);
     void listenToEvent(const std::deque<REF_getter<Event::Base> >&);
 public:
+    void denit();
 
     /// call method in inherited class to process event
     virtual bool handleEvent(const REF_getter<Event::Base>& e)=0;

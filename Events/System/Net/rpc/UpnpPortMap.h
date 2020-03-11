@@ -2,22 +2,22 @@
 #define ___RPC_EV1_H4aa
 #include "___rpcEvent.h"
 
-namespace rpcEvent{
+namespace rpcEvent {
 
-class UpnpPortMap: public Event::NoPacked
-{
-public:
-    static Base* construct(const route_t &)
+    class UpnpPortMap: public Event::NoPacked
     {
-        return NULL;
-    }
-    std::string cookie;
-    UpnpPortMap(const std::string& _cookie, const route_t& r)
-        :NoPacked(rpcEventEnum::UpnpPortMap,"UpnpPortMap",r), cookie(_cookie) {}
-    void jdump(Json::Value &) const
-    {
+    public:
+        static Base* construct(const route_t &)
+        {
+            return NULL;
+        }
+        std::string cookie;
+        UpnpPortMap(const std::string& _cookie, const route_t& r)
+            :NoPacked(rpcEventEnum::UpnpPortMap,r), cookie(_cookie) {}
+        void jdump(Json::Value &) const
+        {
 
-    }
-};
+        }
+    };
 }
 #endif

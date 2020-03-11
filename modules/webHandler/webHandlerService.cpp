@@ -1,8 +1,11 @@
 #include <stdlib.h>
+
 #ifndef _WIN32
 #endif
 #include "webHandlerService.h"
 
+#include <Events/System/Net/http/DoListen.h>
+#include "mutexInspector.h"
 #include "version_mega.h"
 #include "events_webHandler.hpp"
 
@@ -21,7 +24,6 @@ WebHandler::Service::Service(const SERVICE_id& id, const std::string& nm,IInstan
     UnknownBase(nm),
     Broadcaster(ifa),
     ListenerBuffered1Thread(this,nm,ifa->getConfig(),id,ifa),
-    Logging(this,ERROR_log,ifa),
     root(new WebHandler::Node(NULL,"","Home")),iInstance(ifa)
 {
     XTRY;
@@ -49,7 +51,7 @@ bool WebHandler::Service::on_RegisterHandler(const webHandlerEvent::RegisterHand
     std::vector<std::string> v=iUtils->splitString("/",e->url);
     REF_getter<WebHandler::Node> n=root->getByPathParentDir(e->url);
     if(!n.valid()) throw CommonError("base dir for url %s not defined",e->url.c_str());
-    DBG(log(TRACE_log,"on_RegisterHandler parent %s node %s",n->path().c_str(),e->url.c_str()));
+    DBG(logErr2("on_RegisterHandler parent %s node %s",n->path().c_str(),e->url.c_str()));
     n->addChild(new WebHandler::Node(n,v[v.size()-1],e->displayName,e->route));
     return true;
 }
@@ -59,14 +61,14 @@ bool WebHandler::Service::on_RegisterDirectory(const webHandlerEvent::RegisterDi
     std::vector<std::string> v=iUtils->splitString("/",e->url);
     REF_getter<WebHandler::Node> n=root->getByPathParentDir(e->url);
     if(!n.valid()) throw CommonError("base dir for url %s not defined",e->url.c_str());
-    DBG(log(TRACE_log,"on_RegisterDirectory parent %s node %s",n->path().c_str(),e->url.c_str()));
+    DBG(logErr2("on_RegisterDirectory parent %s node %s",n->path().c_str(),e->url.c_str()));
     n->addChild(new WebHandler::Node(n,v[v.size()-1],e->displayName));
     return true;
 }
 
 bool WebHandler::Service::on_RequestIncoming(const httpEvent::RequestIncoming* e)
 {
-    DBG(log(TRACE_log,"%s",e->req->url.c_str()));
+    DBG(logErr2("%s",e->req->url.c_str()));
     if(e->req->url=="/webdump")
     {
         std::string ps=iUtils->hex2bin(e->req->params["p"]);
@@ -83,7 +85,7 @@ bool WebHandler::Service::on_RequestIncoming(const httpEvent::RequestIncoming* e
     REF_getter<WebHandler::Node> N=root->getByPath(e->req->url);
     if(!N.valid())
     {
-        DBG(log(TRACE_log,"!N valid"));
+        DBG(logErr2("!N valid"));
         HTTP::Response cc;
         {
             std::string url;
@@ -101,16 +103,16 @@ bool WebHandler::Service::on_RequestIncoming(const httpEvent::RequestIncoming* e
     }
     if(N->nodeType==WebHandler::Node::NT_handler)
     {
-        DBG(log(TRACE_log,"N->nodeType==WebHandler::Node::NT_handler"));
+        DBG(logErr2("N->nodeType==WebHandler::Node::NT_handler"));
         route_t r=N->route;
         r.pop_front();
-        DBG(log(TRACE_log,"route %s",r.dump().c_str()));
-        DBG(log(TRACE_log,"WebHandler::Node::NT_handler route %s",r.dump().c_str()));
+        DBG(logErr2("route %s",r.dump().c_str()));
+        DBG(logErr2("WebHandler::Node::NT_handler route %s",r.dump().c_str()));
         passEvent(new webHandlerEvent::RequestIncoming(e->req,e->esi,r));
     }
     else if(N->nodeType==WebHandler::Node::NT_directory)
     {
-        DBG(log(TRACE_log,"N->nodeType==WebHandler::Node::NT_directory"));
+        DBG(logErr2("N->nodeType==WebHandler::Node::NT_directory"));
         HTTP::Response cc;
         cc.content+="<h1>"+N->displayName+"</h1><p>";
         std::map<std::string, REF_getter<Node> > c=N->getChildren();
@@ -131,6 +133,7 @@ bool WebHandler::Service::on_RequestIncoming(const httpEvent::RequestIncoming* e
 
 bool WebHandler::Service::handleEvent(const REF_getter<Event::Base>& e)
 {
+    MUTEX_INSPECTOR;
     XTRY;
     auto &ID=e->id;
     if( webHandlerEventEnum::RegisterHandler==ID)
@@ -153,7 +156,7 @@ void registerWebHandlerModule(const char* pn)
 {
     if(pn)
     {
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::WebHandler,"WebHandler");
+        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::WebHandler,"WebHandler",getEvents_webHandler());
     }
     else
     {

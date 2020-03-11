@@ -3,9 +3,13 @@ cmake_minimum_required (VERSION 2.6)
 project (dfsCoreModules)
 
 
+
 ADD_SUBDIRECTORY(errorDispatcher)
 ADD_SUBDIRECTORY(http)
-ADD_SUBDIRECTORY(mysql)
+#ADD_SUBDIRECTORY(sqlite)
+IF(ENABLE_MYSQL)
+    ADD_SUBDIRECTORY(mysql)
+ENDIF()
 ADD_SUBDIRECTORY(objectProxy)
 ADD_SUBDIRECTORY(oscar)
 ADD_SUBDIRECTORY(oscarSecure)
