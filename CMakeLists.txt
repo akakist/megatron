@@ -1,3 +1,17 @@
+include_directories(local
+			lib/jsoncpp-0.5.0/include 
+			.
+			corelib
+			lib
+			lib/miniupnp
+			/usr/local/include
+
+)
+link_directories( /usr/local/lib)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14  ")
+
+add_definitions( -DWITHOUT_UPNP)
 
 ADD_SUBDIRECTORY(corelib)
 ADD_SUBDIRECTORY(main)
