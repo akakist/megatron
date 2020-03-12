@@ -5,6 +5,6 @@ project (dfsCoreModules)
 ADD_SUBDIRECTORY(rpc)
 ADD_SUBDIRECTORY(udp)
 
-IF(ENABLE_GTEST)
+#IF(ENABLE_GTEST)
     ADD_SUBDIRECTORY(containers)
-ENDIF()
+#ENDIF()
