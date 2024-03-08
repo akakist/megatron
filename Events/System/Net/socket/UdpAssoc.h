@@ -16,7 +16,7 @@ namespace socketEvent
             const SOCKET_id& _socketId6,
             const msockaddr_in  &_addr4,
             const msockaddr_in  &_addr6,
-            const std::string& _socketDescription, const route_t & r):
+            const char* _socketDescription, const route_t & r):
             NoPacked(socketEventEnum::UdpAssoc,r),
             socketId4(_socketId4),
             socketId6(_socketId6),
@@ -27,7 +27,7 @@ namespace socketEvent
         const SOCKET_id socketId6;
         const msockaddr_in  addr4;
         const msockaddr_in  addr6;
-        const std::string socketDescription;
+        const char* socketDescription;
         void jdump(Json::Value &j) const
         {
             j["socketId4"]=std::to_string(CONTAINER(socketId4));

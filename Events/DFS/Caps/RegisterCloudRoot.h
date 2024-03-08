@@ -3,7 +3,7 @@
 #include "___dfsCapsEvent.h"
 #include <set>
 #include "msockaddr_in.h"
-#include "event.h"
+#include "event_mt.h"
 namespace dfsCapsEvent {
     class RegisterCloudRoot: public Event::Base
     {
@@ -18,13 +18,13 @@ namespace dfsCapsEvent {
         }
 
         RegisterCloudRoot(const std::set<msockaddr_in> &my_sas, const msockaddr_in& _uplink,  const route_t& r)
-            :Base(dfsCapsEventEnum::RegisterCloudRoot,rpcChannel,r), externalListenAddr(my_sas), uplink(_uplink)
+            :Base(dfsCapsEventEnum::RegisterCloudRoot,r), externalListenAddr(my_sas), uplink(_uplink)
         {
 
         }
 
         RegisterCloudRoot(const route_t& r)
-            :Base(dfsCapsEventEnum::RegisterCloudRoot,rpcChannel,r)
+            :Base(dfsCapsEventEnum::RegisterCloudRoot,r)
         {
 
         }

@@ -1,8 +1,8 @@
-cmake_minimum_required (VERSION 2.6)
+#cmake_minimum_required (VERSION 2.6)
 
 
 
-#include_directories(../local ../lib/jsoncpp-0.5.0/include /usr/local/include .. . )
+
 
 add_library(zsingle STATIC
 ../dfsCaps/CapsAlgorithm.cpp
@@ -22,13 +22,17 @@ add_library(zsingle STATIC
 ../referrerClient/referrerClientService.cpp
 ../rpc/rpcService.cpp
 ../rpc/upnp_tr.c
-../socket/socketsContainerForSocketIO.cpp
 ../socket/socketService.cpp
 ../ssl/ssl_reg.cpp
 ../ssl/st_rsa_impl.cpp
 ../telnet/telnetService.cpp
 ../timer/timerService.cpp
 ../webHandler/webHandlerService.cpp
+
+../geoip/CapsGeoIP.cpp
+../geoip/geoip_impl.cpp
+../geoip/geoip_reg.cpp
+
 
 
 )

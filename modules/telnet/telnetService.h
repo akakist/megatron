@@ -7,7 +7,7 @@
 #include <unknown.h>
 #include <listenerBuffered1Thread.h>
 #include <broadcaster.h>
-#include "event.h"
+#include "event_mt.h"
 #include <Events/System/Net/socket/StreamRead.h>
 #include <Events/System/Net/socket/Accepted.h>
 #include <Events/System/Net/socket/NotifyBindAddress.h>
@@ -165,7 +165,7 @@ namespace Telnet
     public:
         void deinit()
         {
-            ListenerBuffered1Thread::denit();
+            ListenerBuffered1Thread::deinit();
         }
 
         static UnknownBase* construct(const SERVICE_id &id, const std::string& nm,IInstance* ifa)

@@ -1,6 +1,6 @@
 #ifndef _______________serviceTimerEvent$h
 #define _______________serviceTimerEvent$h
-#include "event.h"
+#include "event_mt.h"
 #include "SERVICE_id.h"
 
 #include "serviceEnum.h"

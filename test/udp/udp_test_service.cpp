@@ -33,7 +33,7 @@ public:
     I_ssl *ssl;
     void deinit()
     {
-        ListenerBuffered::denit();
+        ListenerBuffered::deinit();
     }
 
     static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa)
@@ -98,7 +98,7 @@ public:
     int udpSock;
     void deinit()
     {
-        ListenerBuffered::denit();
+        ListenerBuffered::deinit();
     }
 
     static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa)

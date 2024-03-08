@@ -53,4 +53,20 @@ inline REF_getter<refbuffer> toRef(const std::string&s)
     REF_getter<refbuffer> r=new refbuffer;
     return r;
 }
+inline REF_getter<refbuffer> toRef(const uint8_t* buf, int size)
+{
+    if(size)
+    {
+        REF_getter<refbuffer> r=new refbuffer;
+        r->capacity=size+0x20;
+        r->buffer=(uint8_t*) malloc(r->capacity);
+        if(!r->buffer) throw CommonError("alloc error for size %d",r->capacity);
+        r->size_=size;
+        memcpy(r->buffer,buf,size);
+        return r;
+    }
+    REF_getter<refbuffer> r=new refbuffer;
+    return r;
+}
+
 #endif // REFSTRING_H

@@ -1,6 +1,6 @@
 #ifndef _______GUI_HANDLER______H
 #define _______GUI_HANDLER______H
-#include "event.h"
+#include "event_mt.h"
 #include "SERVICE_id.h"
 #include "epoll_socket_info.h"
 #include "IObjectProxy.h"

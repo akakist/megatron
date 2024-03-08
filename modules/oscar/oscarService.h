@@ -5,9 +5,9 @@
 #include <SOCKET_id.h>
 #include <epoll_socket_info.h>
 #include <unknown.h>
-#include <listenerBuffered.h>
+#include <listenerSimple.h>
 #include <broadcaster.h>
-#include "event.h"
+#include "event_mt.h"
 #include <Events/System/Net/oscar/Connect.h>
 #include <Events/System/Net/oscar/SendPacket.h>
 #include <Events/System/Net/oscar/AddToListenTCP.h>
@@ -38,45 +38,6 @@ namespace Oscar
 namespace Oscar
 {
 
-    class __users: public Refcountable
-//            : public SocketsContainerBase
-    {
-    private:
-        Mutex m_lock;
-        std::map<SOCKET_id,bool > m_isServers;
-        std::map<SOCKET_id,REF_getter<epoll_socket_info> > m_users;
-    public:
-        __users()
-//            : SocketsContainerBase("oscarServiceUsers")
-        {}
-        REF_getter<epoll_socket_info> getOrNull(const SOCKET_id& socketId)
-        {
-            M_LOCK(m_lock);
-            auto i=m_users.find(socketId);
-            if(i==m_users.end())
-                return NULL;
-            return i->second;
-        }
-        void add(const REF_getter<epoll_socket_info>& esi)
-        {
-            M_LOCK(m_lock);
-            m_users.insert(std::make_pair(esi->m_id,esi));
-        }
-        void user_insert(const REF_getter<epoll_socket_info>& bi, const bool& isServer);
-
-        void on_delete(const REF_getter<epoll_socket_info>&esi, const std::string& reason);
-        bool isServer(const SOCKET_id&);
-
-        Json::Value jdump();
-        void clear()
-        {
-//            SocketsContainerBase::clear();
-            {
-                M_LOCK(m_lock);
-                m_isServers.clear();
-            }
-        }
-    };
 
     enum
     {
@@ -84,13 +45,13 @@ namespace Oscar
     };
     class Service:
         public UnknownBase,
-        public ListenerBuffered,
+        public ListenerSimple,
         public Broadcaster
     {
-        size_t m_maxPacketSize;
+//        size_t m_maxPacketSize;
 
-        REF_getter<__users> __m_users;
 
+        ListenerBase* socketListener;
         bool on_Connect(const oscarEvent::Connect* e);
         bool on_SendPacket(const oscarEvent::SendPacket* e);
         bool on_AddToListenTCP(const oscarEvent::AddToListenTCP* e);
@@ -116,7 +77,7 @@ namespace Oscar
         void processRequest(const SOCKET_id&  socketId, const std::string& buf,const route_t & route);
         Json::Value jdump()
         {
-            Json::Value v=__m_users->jdump();
+            Json::Value v;
             return v;
         }
     public:
@@ -124,13 +85,13 @@ namespace Oscar
     public:
         void deinit()
         {
-ListenerBuffered:
-            deinit();
+            ListenerSimple::deinit();
         }
 
         Service(const SERVICE_id &svs, const std::string&  nm,IInstance* ifa);
         static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa);
         ~Service();
+        IInstance* iInstance;
     };
 }
 #endif

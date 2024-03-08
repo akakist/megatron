@@ -1,10 +1,10 @@
 #ifndef _______________MUTEXABLE___H
 #define _______________MUTEXABLE___H
-#include "pthread.h"
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
 #include "mtimespec.h"
+#include <pthread.h>
 #ifdef _WIN32
 #include <windows.h>
 #endif
@@ -152,4 +152,77 @@ public:
     void timedwait(const mtimespec& ts) const;
 
 };
+
+//pthread_rwlock_t lock_rw = PTHREAD_RWLOCK_INITIALIZER;
+class RWLock
+{
+    RWLock(const RWLock&); // protect from usage
+    RWLock& operator=(const RWLock&); // protect from usage
+    mutable pthread_rwlock_t lock_rw;
+public:
+    explicit RWLock()
+    {
+        lock_rw=PTHREAD_RWLOCK_INITIALIZER;
+    }
+    void wrlock() const
+    {
+        int err=pthread_rwlock_wrlock(&lock_rw);
+        if(err!=0)
+            throw CommonError("pthread_rwlock_wrlock: %s",strerror((errno)));
+    }
+    void rdlock() const
+    {
+        int err=pthread_rwlock_rdlock(&lock_rw);
+        if(err!=0)
+            throw CommonError("pthread_rwlock_rdlock: %s",strerror((errno)));
+    }
+    void unlock() const
+    {
+        int err=pthread_rwlock_unlock(&lock_rw);
+        if(err!=0)
+            throw CommonError("pthread_rwlock_unlock: %s",strerror((errno)));
+
+    }
+    ~RWLock()
+    {
+    }
+
+};
+class RLocker
+{
+private:
+    const  RWLock* m_lock;
+public:
+    explicit RLocker(const RWLock& m):m_lock(&m)
+    {
+        m_lock->rdlock();
+    }
+    explicit RLocker(const RWLock* m):m_lock(m)
+    {
+        m_lock->rdlock();
+    }
+    ~RLocker()
+    {
+        m_lock->unlock();
+    }
+};
+class WLocker
+{
+private:
+    const  RWLock* m_lock;
+public:
+    explicit WLocker(const RWLock& m):m_lock(&m)
+    {
+        m_lock->wrlock();
+    }
+    explicit WLocker(const RWLock* m):m_lock(m)
+    {
+        m_lock->wrlock();
+    }
+    ~WLocker()
+    {
+        m_lock->unlock();
+    }
+};
+
 #endif

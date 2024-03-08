@@ -1,10 +1,13 @@
-cmake_minimum_required (VERSION 2.6)
+#cmake_minimum_required (VERSION 2.6)
 
 
 link_directories(/usr/local/mysql/lib)
 
 add_library(core-mysql SHARED
     mysql.cpp
+    mysqlService.cpp
+)
+add_library(zmysql STATIC
     mysqlService.cpp
 )
 

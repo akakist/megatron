@@ -12,14 +12,13 @@ namespace socketEvent
         {
             return NULL;
         }
-        AddToListenTCP(const SOCKET_id& _socketId,const msockaddr_in  &_addr,const std::string &_socketDescription,const bool& _rebind,bool (*_bufferVerify)(const std::string& s),const route_t & r):
+        AddToListenTCP(const SOCKET_id& _socketId,const msockaddr_in  &_addr,const char* _socketDescription,const bool& _rebind,const route_t & r):
             NoPacked(socketEventEnum::AddToListenTCP,r),
-            socketId(_socketId),addr(_addr),socketDescription(_socketDescription),rebind(_rebind),bufferVerify(_bufferVerify) {}
+            socketId(_socketId),addr(_addr),socketDescription(_socketDescription),rebind(_rebind) {}
         const SOCKET_id socketId;
         const msockaddr_in  addr;
-        const std::string socketDescription;
+        const char* socketDescription;
         const bool rebind;
-        bool (*bufferVerify)(const std::string& s);
         void jdump(Json::Value &) const
         {
         }

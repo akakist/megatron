@@ -147,7 +147,7 @@ outBuffer &msockaddr_in::pack(outBuffer &b) const
         char str[100];
 #ifdef _WIN32
 #if (_WIN32_WINNT >= 0x0600)
-        InetNtop(u.sa6.sin6_family,& u.sa6.sin6_addr,str,sizeof(str));
+        InetNtopA(u.sa6.sin6_family,& u.sa6.sin6_addr,str,sizeof(str));
 #else
         throw CommonError("windows version too old");
 #endif

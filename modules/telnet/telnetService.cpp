@@ -8,6 +8,7 @@
 #include "telnet.h"
 #include "telnet_keys.h"
 #include "mutexInspector.h"
+#include "Events/System/Net/socket/Write.h"
 extern "C" {
 #include <regex.h>
 }
@@ -151,7 +152,7 @@ void Telnet::Service::doListen()
     {
         SOCKET_id sid=iUtils->getSocketId();
         msockaddr_in sa=i;
-        sendEvent(ServiceEnum::Socket,new socketEvent::AddToListenTCP(sid,sa,"TELNET",false,NULL,ListenerBase::serviceId));
+        sendEvent(ServiceEnum::Socket,new socketEvent::AddToListenTCP(sid,sa,"TELNET",false,ListenerBase::serviceId));
     }
     XPASS;
 }
@@ -211,9 +212,11 @@ bool Telnet::Service::on_Accepted(const socketEvent::Accepted* evt)
 
     evt->esi->write_("\377\375\042\377\373\001"+vt100::insert_mode());
 
+
     char s[100];
     snprintf(s,sizeof(s),"%c%c%c",IAC,DO,TELOPT_NAWS);
     evt->esi->write_(s);
+
     prompt(c,evt->esi);
     XPASS;
     return true;
@@ -744,8 +747,10 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         W->insertMode=!W->insertMode;
         mode=W->insertMode;
 
-        if(mode)  esi->write_(vt100::insert_mode());
-        else  esi->write_(vt100::replace_mode());
+        if(mode)
+            esi->write_(vt100::insert_mode());
+        else
+            esi->write_(vt100::replace_mode());
     }
     else if(out==TKEY_BS1 || out==TKEY_BS2)
     {
@@ -799,6 +804,7 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
             {
 
                 esi->write_(vt100::cursor_up()+vt100::cursor_forward(W->width-1));
+
             }
             else
             {
@@ -824,10 +830,14 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         if(ok)
         {
             if(cp%w==0)
+            {
 
                 esi->write_(vt100::cursor_down()+vt100::cursor_back(w-1));
+            }
             else
+            {
                 esi->write_(out);
+            }
         }
     }
     else if(out==TKEY_UP || out==TKEY_DOWN)
@@ -986,7 +996,7 @@ std::string Telnet::Service::promptString(const REF_getter<Telnet::Session>& W)
 }
 void Telnet::Service::prompt(const REF_getter<Telnet::Session>& W, const REF_getter<epoll_socket_info>&esi)
 {
-    esi->write_(promptString(W));
+    esi->write_(toRef(promptString(W)));
 }
 bool Telnet::Service::paramMatch(const std::string & param, const std::string & exp)
 {
@@ -1479,12 +1489,12 @@ bool Telnet::Service::on_NotifyBindAddress(const socketEvent::NotifyBindAddress*
     //if(iInstance->no_bind())
     //  throw CommonError("Telnet::Service::on_NotifyBindAddress %s",_DMI().c_str());
 
-    socklen_t len=e->esi->local_name.maxAddrLen();
-    if(getsockname(CONTAINER(e->esi->get_fd()),e->esi->local_name.addr(),&len))
-    {
-        logErr2("getsockname: errno %d %s",errno,strerror(errno));
-        return true;
-    }
+//    socklen_t len=e->esi->local_name.maxAddrLen();
+//    if(getsockname(CONTAINER(e->esi->get_fd()),e->esi->local_name.addr(),&len))
+//    {
+//        logErr2("getsockname: errno %d %s",errno,strerror(errno));
+//        return true;
+//    }
     return true;
 }
 Json::Value Telnet::CommandEntries::jdump()

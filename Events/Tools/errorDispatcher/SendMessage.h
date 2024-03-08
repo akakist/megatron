@@ -5,7 +5,7 @@ namespace errorDispatcherEvent
 {
     class SendMessage: public Event::Base
     {
-        enum {rpcChannel=CHANNEL_100};
+
 
 
     public:
@@ -14,9 +14,9 @@ namespace errorDispatcherEvent
             return new SendMessage(r);
         }
         SendMessage(const std::string &_opcode, const std::string& _msg)
-            :Base(errorDispatcherEventEnum::SendMessage,rpcChannel),opcode(_opcode),msg(_msg) {}
+            :Base(errorDispatcherEventEnum::SendMessage),opcode(_opcode),msg(_msg) {}
         SendMessage(const route_t&r)
-            :Base(errorDispatcherEventEnum::SendMessage,rpcChannel,r) {}
+            :Base(errorDispatcherEventEnum::SendMessage,r) {}
         std::string opcode;
         std::string msg;
         void unpack(inBuffer& o)

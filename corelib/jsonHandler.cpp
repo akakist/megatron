@@ -84,8 +84,7 @@ bool JsonHandler::OH_handleObjectEvent(const REF_getter<Event::Base>& e)
             if(dfsReferrerEventEnum::UpdateConfigRSP==IDC)
             {
                 const dfsReferrerEvent::UpdateConfigRSP*xe=(const dfsReferrerEvent::UpdateConfigRSP*)ze->e.operator ->();
-                config_body=xe->body;
-                logErr2("JsonHandler: if(dfsReferrerEventEnum::UpdateConfigRSP==IDC) %s",config_body.c_str());
+                config_bod=xe->bod;
                 return true;
             }
 

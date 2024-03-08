@@ -19,13 +19,13 @@ void ListenerBuffered::processEvent(const REF_getter<Event::Base>&e)
         {
 
 
-            for(auto& i:handlers)
-            {
-                if(i.first)
-                {
-                    if(i.first(e.operator ->(),i.second))processed=true;
-                }
-            }
+//            for(auto& i:handlers)
+//            {
+//                if(i.first)
+//                {
+//                    if(i.first(e.operator ->(),i.second))processed=true;
+//                }
+//            }
         }
         if(!e.valid()) throw CommonError("!.valid()"+_DMI());
         if(!processed)
@@ -178,46 +178,6 @@ int rrand()
 {
     return rnd+=213231+rnd*rnd;
 }
-void ListenerBuffered::listenToEvent(const std::deque<REF_getter<Event::Base> >&D)
-{
-    XTRY;
-    REF_getter<EventDeque> __ed(NULL);
-    {
-        XTRY;
-        M_LOCK(this);
-        if(this->m_container.size())
-        {
-            __ed=this->m_container.begin()->second;
-        }
-        XPASS;
-    }
-    if(!__ed.valid())
-    {
-        XTRY;
-        M_LOCK(this);
-        if(this->m_vector.size()<this->m_maxThreads)
-        {
-            __ed=new EventDeque(listenerName,lb_instance);
-            pthread_t __pt;
-            if(pthread_create(&__pt,NULL,ListenerBuffered::worker,this))
-                throw CommonError("pthread_create: errno %d",errno);
-
-            DBG(logErr2("pthread_create %s",listenerName.c_str()));
-            this->m_container.insert(std::make_pair(__pt,__ed));
-            this->m_vector.push_back(std::make_pair(__pt,__ed));
-        }
-        else
-        {
-            __ed=this->m_vector[rrand()%this->m_vector.size()].second;
-        }
-        XPASS;
-    }
-    if(!__ed.valid()) throw CommonError("cannot find event deque " +_DMI());
-
-    for(size_t i=0; i<D.size(); i++)
-        __ed->push(D[i]);
-    XPASS;
-}
 
 void ListenerBuffered::listenToEvent(const REF_getter<Event::Base>& e)
 {
@@ -268,7 +228,7 @@ ListenerBuffered::~ListenerBuffered()
 {
 
 }
-void ListenerBuffered::denit()
+void ListenerBuffered::deinit()
 {
     m_isTerminating_lb=true;
 

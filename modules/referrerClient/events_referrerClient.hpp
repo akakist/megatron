@@ -25,7 +25,6 @@ inline std::set<EVENT_id> getEvents_referrerClient()
 	out.insert(systemEventEnum::startService);
 	out.insert(telnetEventEnum::CommandEntered);
 	out.insert(telnetEventEnum::RegisterCommand);
-	out.insert(telnetEventEnum::Reply);
 	out.insert(timerEventEnum::TickAlarm);
 	out.insert(timerEventEnum::TickTimer);
 	out.insert(webHandlerEventEnum::RegisterDirectory);
@@ -56,7 +55,6 @@ inline void regEvents_referrerClient()
 	iUtils->registerEvent(systemEvent::startService::construct);
 	iUtils->registerEvent(telnetEvent::CommandEntered::construct);
 	iUtils->registerEvent(telnetEvent::RegisterCommand::construct);
-	iUtils->registerEvent(telnetEvent::Reply::construct);
 	iUtils->registerEvent(timerEvent::TickAlarm::construct);
 	iUtils->registerEvent(timerEvent::TickTimer::construct);
 	iUtils->registerEvent(webHandlerEvent::RegisterDirectory::construct);

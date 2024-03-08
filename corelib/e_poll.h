@@ -1,29 +1,20 @@
 #ifndef ______E_POLL_H
 #define ______E_POLL_H
 #include "pconfig.h"
+#ifdef __linux__
+#include <sys/epoll.h>
+#endif
+
 #if defined(WIN32)
 #define HAVE_SELECT
 #elif defined (__MACH__) || defined(__IOS__) || defined(__FreeBSD__)
 #define HAVE_KQUEUE
-#else
+#elif __linux__
 #define HAVE_EPOLL
+#else
+#error "invalid def"
 #endif
 
-#ifdef HAVE_EPOLL
-struct e_poll
-{
-    e_poll()
-        :
-        m_epollFd(-1),size(10),timeout_millisec(10)
-    {
-    }
-    int m_epollFd;
-
-    // conf vars
-    int size;
-    int timeout_millisec;
-};
-#endif
 
 
 #endif // E_POLL_H

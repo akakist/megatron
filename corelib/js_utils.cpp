@@ -21,7 +21,7 @@ std::string JoinArrayToString(const Json::Value &v)
     std::string out;
     if(v.isArray())
     {
-        for(size_t i=0; i<v.size(); i++)
+        for(Json::UInt i=0; i<v.size(); i++)
         {
             if(!v[i].isString())
                 throw CommonError("if(!v[i].isString())"+_DMI());

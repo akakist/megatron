@@ -39,19 +39,18 @@ enum timers
 namespace testEvent {
     class testREQ: public Event::Base
     {
-        enum {rpcChannel=CHANNEL_100};
     public:
         static Base* construct(const route_t &r)
         {
             return new testREQ(r);
         }
         testREQ(int session_,int _seq,const std::string &_buf, const std::string& _md5, const route_t& r)
-            :Base(testEventEnum::testREQ,rpcChannel,r),
+            :Base(testEventEnum::testREQ,r),
              session(session_), seq(_seq),buf(_buf),md5(_md5)
         {
         }
         testREQ(const route_t& r)
-            :Base(testEventEnum::testREQ,rpcChannel,r)
+            :Base(testEventEnum::testREQ,r)
         {
         }
         int session;
@@ -73,15 +72,14 @@ namespace testEvent {
     };
     class testRSP: public Event::Base
     {
-        enum {rpcChannel=CHANNEL_70};
     public:
         static Base* construct(const route_t &r)
         {
             return new testRSP(r);
         }
         testRSP(int session_,int _seq,const std::string &_buf, const std::string& _md5, const route_t& r)
-            :Base(testEventEnum::testRSP,rpcChannel,r), session(session_),seq(_seq),buf(_buf),md5(_md5) {}
-        testRSP(const route_t& r):Base(testEventEnum::testRSP,rpcChannel,r) {}
+            :Base(testEventEnum::testRSP,r), session(session_),seq(_seq),buf(_buf),md5(_md5) {}
+        testRSP(const route_t& r):Base(testEventEnum::testRSP,r) {}
 
         int session;
         int seq;
@@ -109,7 +107,7 @@ public:
     I_ssl *ssl;
     void deinit()
     {
-        ListenerBuffered::denit();
+        ListenerBuffered::deinit();
     }
 
     static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa)
@@ -230,7 +228,7 @@ public:
     I_ssl *ssl;
     void deinit()
     {
-        ListenerBuffered::denit();
+        ListenerBuffered::deinit();
     }
 
     static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa)

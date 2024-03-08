@@ -9,8 +9,6 @@ inline std::set<EVENT_id> getEvents_dfsReferrer()
 	out.insert(dfsCapsEventEnum::GetReferrersREQ);
 	out.insert(dfsCapsEventEnum::GetReferrersRSP);
 	out.insert(dfsCapsEventEnum::RegisterMyRefferrerNodeREQ);
-	out.insert(dfsReferrerEventEnum::Elloh);
-	out.insert(dfsReferrerEventEnum::Hello);
 	out.insert(dfsReferrerEventEnum::NotifyReferrerDownlinkDisconnected);
 	out.insert(dfsReferrerEventEnum::NotifyReferrerUplinkIsConnected);
 	out.insert(dfsReferrerEventEnum::NotifyReferrerUplinkIsDisconnected);
@@ -30,8 +28,6 @@ inline std::set<EVENT_id> getEvents_dfsReferrer()
 	out.insert(rpcEventEnum::IncomingOnAcceptor);
 	out.insert(rpcEventEnum::IncomingOnConnector);
 	out.insert(rpcEventEnum::SubscribeNotifications);
-	out.insert(rpcEventEnum::UpnpPortMap);
-	out.insert(rpcEventEnum::UpnpResult);
 	out.insert(systemEventEnum::startService);
 	out.insert(telnetEventEnum::CommandEntered);
 	out.insert(telnetEventEnum::RegisterCommand);
@@ -50,8 +46,6 @@ inline void regEvents_dfsReferrer()
 	iUtils->registerEvent(dfsCapsEvent::GetReferrersREQ::construct);
 	iUtils->registerEvent(dfsCapsEvent::GetReferrersRSP::construct);
 	iUtils->registerEvent(dfsCapsEvent::RegisterMyRefferrerNodeREQ::construct);
-	iUtils->registerEvent(dfsReferrerEvent::Elloh::construct);
-	iUtils->registerEvent(dfsReferrerEvent::Hello::construct);
 	iUtils->registerEvent(dfsReferrerEvent::NotifyReferrerDownlinkDisconnected::construct);
 	iUtils->registerEvent(dfsReferrerEvent::NotifyReferrerUplinkIsConnected::construct);
 	iUtils->registerEvent(dfsReferrerEvent::NotifyReferrerUplinkIsDisconnected::construct);
@@ -71,8 +65,6 @@ inline void regEvents_dfsReferrer()
 	iUtils->registerEvent(rpcEvent::IncomingOnAcceptor::construct);
 	iUtils->registerEvent(rpcEvent::IncomingOnConnector::construct);
 	iUtils->registerEvent(rpcEvent::SubscribeNotifications::construct);
-	iUtils->registerEvent(rpcEvent::UpnpPortMap::construct);
-	iUtils->registerEvent(rpcEvent::UpnpResult::construct);
 	iUtils->registerEvent(systemEvent::startService::construct);
 	iUtils->registerEvent(telnetEvent::CommandEntered::construct);
 	iUtils->registerEvent(telnetEvent::RegisterCommand::construct);

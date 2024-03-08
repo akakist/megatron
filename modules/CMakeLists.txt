@@ -1,10 +1,10 @@
 
-cmake_minimum_required (VERSION 2.6)
+#cmake_minimum_required (VERSION 2.6)
 project (dfsCoreModules)
 
 
 
-ADD_SUBDIRECTORY(errorDispatcher)
+#ADD_SUBDIRECTORY(errorDispatcher)
 ADD_SUBDIRECTORY(http)
 #ADD_SUBDIRECTORY(sqlite)
 IF(ENABLE_MYSQL)

@@ -3,7 +3,7 @@
 #include "___dfsCapsEvent.h"
 #include <set>
 #include "msockaddr_in.h"
-#include "event.h"
+#include "event_mt.h"
 namespace dfsCapsEvent {
     class GetReferrersREQ: public Event::Base
     {
@@ -18,13 +18,13 @@ namespace dfsCapsEvent {
         }
 
         GetReferrersREQ(const std::set<msockaddr_in> &sas, const route_t& r)
-            :Base(dfsCapsEventEnum::GetReferrersREQ,rpcChannel,r), externalListenAddr(sas)
+            :Base(dfsCapsEventEnum::GetReferrersREQ,r), externalListenAddr(sas)
         {
 
         }
 
         GetReferrersREQ(const route_t& r)
-            :Base(dfsCapsEventEnum::GetReferrersREQ,rpcChannel,r)
+            :Base(dfsCapsEventEnum::GetReferrersREQ,r)
         {
 
         }
@@ -58,13 +58,13 @@ namespace dfsCapsEvent {
         }
 
         GetReferrersRSP(const std::vector<msockaddr_in> &sas, const route_t& r)
-            :Base(dfsCapsEventEnum::GetReferrersRSP,rpcChannel,r), referrer_addresses(sas)
+            :Base(dfsCapsEventEnum::GetReferrersRSP,r), referrer_addresses(sas)
         {
 
         }
 
         GetReferrersRSP(const route_t& r)
-            :Base(dfsCapsEventEnum::GetReferrersRSP,rpcChannel,r)
+            :Base(dfsCapsEventEnum::GetReferrersRSP,r)
         {
 
         }

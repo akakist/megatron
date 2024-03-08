@@ -5,7 +5,7 @@
 #include <unknown.h>
 #include <listenerBuffered1Thread.h>
 #include <broadcaster.h>
-#include "event.h"
+#include "event_mt.h"
 #include <Events/System/Net/oscar/SendPacket.h>
 #include <Events/System/Net/oscar/AddToListenTCP.h>
 #include <Events/System/Net/oscar/Connect.h>
@@ -20,7 +20,7 @@
 #include <Events/System/Run/startService.h>
 #include <Events/System/Net/socket/Disconnected.h>
 #include "oscarSecureUser.h"
-
+#include "st_rsa.h"
 namespace OscarSecure
 {
     enum StartByte
@@ -36,6 +36,11 @@ namespace OscarSecure
     }
 }
 
+struct OscarSecureData:public Refcountable
+{
+    st_rsa rsa;
+    st_AES aes;
+};
 namespace OscarSecure
 {
 
@@ -80,11 +85,9 @@ namespace OscarSecure
         void sendPacketPlain(const OscarSecure::StartByte& startByte, const REF_getter<epoll_socket_info>& esi, const REF_getter<refbuffer> &o);
 
     public:
-        REF_getter<__users> __m_users;
         Json::Value jdump()
         {
             Json::Value v;
-            v["users"]=__m_users->jdump();
             v["RSA_keysize"]=(int)RSA_keysize;
             v["max_packet_size"]=std::to_string((int64_t)m_maxPacketSize);
             return v;
@@ -92,12 +95,14 @@ namespace OscarSecure
     public:
         void deinit()
         {
-            ListenerBuffered1Thread::denit();
+            ListenerBuffered1Thread::deinit();
         }
 
         static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa);
         ~Service();
         I_ssl * const ssl;
+        IInstance* iInstance;
+        OscarSecureData* getData(epoll_socket_info* esi);
 
     };
 }

@@ -3,7 +3,7 @@
 #include "___dfsCapsEvent.h"
 #include <set>
 #include "msockaddr_in.h"
-#include "event.h"
+#include "event_mt.h"
 namespace dfsCapsEvent {
     class RegisterMyRefferrerNodeREQ: public Event::Base
     {
@@ -18,13 +18,13 @@ namespace dfsCapsEvent {
         }
 
         RegisterMyRefferrerNodeREQ(const std::set<msockaddr_in> &my_sas, const msockaddr_in& _uplink, int _downlinkCount, const route_t& r)
-            :Base(dfsCapsEventEnum::RegisterMyRefferrerNodeREQ,rpcChannel,r), externalListenAddr(my_sas),uplink(_uplink),downlinkCount(_downlinkCount)
+            :Base(dfsCapsEventEnum::RegisterMyRefferrerNodeREQ,r), externalListenAddr(my_sas),uplink(_uplink),downlinkCount(_downlinkCount)
         {
 
         }
 
         RegisterMyRefferrerNodeREQ(const route_t& r)
-            :Base(dfsCapsEventEnum::RegisterMyRefferrerNodeREQ,rpcChannel,r)
+            :Base(dfsCapsEventEnum::RegisterMyRefferrerNodeREQ,r)
         {
 
         }

@@ -1,5 +1,6 @@
-cmake_minimum_required (VERSION 2.6)
-add_definitions(-DWITH_IO)
+#cmake_minimum_required (VERSION 2.6)
+
+ADD_SUBDIRECTORY(test)
 
 add_library(dfs-referrer SHARED
 
@@ -10,10 +11,7 @@ uplinkconnectionstate.cpp
 uriReferals.cpp
 
 )
-IF(ENABLE_QT_GUI)
-target_link_libraries(dfs-referrer megatron-core pthread ${Qt5Widgets_LIBRARIES})
-ELSE()
 target_link_libraries(dfs-referrer megatron-core pthread)
-ENDIF()
+
 install(TARGETS dfs-referrer DESTINATION ${PLUGIN_TARGET_DIR})
 

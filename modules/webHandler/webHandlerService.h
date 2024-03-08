@@ -6,7 +6,7 @@
 #include <string>
 #include <broadcaster.h>
 #include <listenerBuffered1Thread.h>
-#include "event.h"
+#include "event_mt.h"
 #include <Events/System/Run/startService.h>
 #include <Events/System/Net/http/RequestIncoming.h>
 #include "Events/Tools/webHandler/RequestIncoming.h"
@@ -179,7 +179,7 @@ namespace WebHandler
     public:
         void deinit()
         {
-            ListenerBuffered1Thread::denit();
+            ListenerBuffered1Thread::deinit();
         }
 
         static UnknownBase*construct(const SERVICE_id&id, const std::string& nm,IInstance* ifa);

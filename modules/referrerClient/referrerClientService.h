@@ -25,15 +25,11 @@
 #include "Events/System/Net/rpc/Disconnected.h"
 #include "Events/System/Net/rpc/Disaccepted.h"
 #include "Events/System/Net/rpc/Accepted.h"
-#if !defined(WITHOUT_UPNP)
-#include "Events/System/Net/rpc/UpnpResult.h"
-#endif
 #include "Events/System/Net/rpc/Connected.h"
 #include "Events/System/Net/rpc/ConnectFailed.h"
 #include "Events/System/Net/rpc/Binded.h"
 #include "Events/System/timer/TickTimer.h"
 #include "Events/System/timer/TickAlarm.h"
-#include "Events/DFS/Referrer/Hello.h"
 #include "Events/DFS/Referrer/NotifyReferrer.h"
 #include "Events/DFS/Referrer/NotifyReferrer.h"
 #include "Events/DFS/Referrer/NotifyReferrer.h"
@@ -45,9 +41,6 @@
 #include "Events/DFS/Caps/RegisterMyRefferrerNode.h"
 #include "Events/DFS/Caps/GetRefferrers.h"
 #include "Events/System/Net/rpc/SubscribeNotifications.h"
-#if !defined(WITHOUT_UPNP)
-#include "Events/System/Net/rpc/UpnpPortMap.h"
-#endif
 #include "Events/Tools/telnet/RegisterCommand.h"
 #include "Events/Tools/telnet/Reply.h"
 #include "Events/Tools/webHandler/RegisterDirectory.h"
@@ -179,7 +172,7 @@ namespace referrerClient
     public:
         void deinit()
         {
-            ListenerBuffered1Thread::denit();
+            ListenerBuffered1Thread::deinit();
         }
 
         Service(const SERVICE_id &svs, const std::string&  nm,IInstance* ifa);
@@ -188,9 +181,6 @@ namespace referrerClient
 
         IInstance *iInstance;
         ////
-        bool m_upnpExecuted;
-        bool m_upnpInRequesting;
-        bool externalAccessIsPossible;
         enum _stage
         {
             STAGE_D2_PING_NEIGHBOURS,
@@ -208,7 +198,7 @@ namespace referrerClient
         _neighbours neighbours;
 
 
-        std::string config_body;
+        std::string config_bod;
     };
 
 }

@@ -126,19 +126,19 @@ tr_upnpPulse( struct tr_upnp * handle,
         /*
          * old
          * LIBSPEC struct UPNPDev *
-upnpDiscover(int delay, const char * multicastif,
+        upnpDiscover(int delay, const char * multicastif,
              const char * minissdpdsock, int sameport,
              int ipv6,
              int * error);
 
 
-* new
+        * new
          *
-upnpDiscover(int delay, const char * multicastif,
+        upnpDiscover(int delay, const char * multicastif,
              const char * minissdpdsock, int localport,
              int ipv6, unsigned char ttl,
              int * error);
-*/
+        */
         devlist = upnpDiscover( 2000, NULL, NULL, 0,0,NULL);
         if( devlist == NULL )
         {
@@ -151,7 +151,7 @@ upnpDiscover(int delay, const char * multicastif,
                               handle->lanaddr, sizeof( handle->lanaddr ) ) == UPNP_IGD_VALID_CONNECTED )
         {
             printf("Found Internet Gateway Device \"%s\"\n",handle->urls.controlURL );
-            printf("Local Address is \"%s\"\n" , handle->lanaddr );
+            printf("Local Address is \"%s\"\n", handle->lanaddr );
             handle->state = TR_UPNP_IDLE;
             handle->hasDiscovered = 1;
         }
@@ -196,7 +196,7 @@ upnpDiscover(int delay, const char * multicastif,
         /*
          * old:
          * LIBSPEC int
-UPNP_GetSpecificPortMappingEntry(const char * controlURL,
+        UPNP_GetSpecificPortMappingEntry(const char * controlURL,
                                  const char * servicetype,
                                  const char * extPort,
                                  const char * proto,
@@ -206,8 +206,8 @@ UPNP_GetSpecificPortMappingEntry(const char * controlURL,
                                  char * enabled,
                                  char * leaseDuration);
          * new:
-MINIUPNP_LIBSPEC int
-UPNP_GetSpecificPortMappingEntry(const char * controlURL,
+        MINIUPNP_LIBSPEC int
+        UPNP_GetSpecificPortMappingEntry(const char * controlURL,
                                  const char * servicetype,
                                  const char * extPort,
                                  const char * proto,
@@ -218,13 +218,13 @@ UPNP_GetSpecificPortMappingEntry(const char * controlURL,
                                  char * enabled,
                                  char * leaseDuration);
 
-*/
+        */
         if( UPNP_GetSpecificPortMappingEntry( handle->urls.controlURL, handle->data.first.servicetype,
-                                              portStr, "TCP", intClient, intPort,"PROJECT_PREFIX" ,enabled,leasedur ) != UPNPCOMMAND_SUCCESS  ||
+                                              portStr, "TCP", intClient, intPort,"PROJECT_PREFIX",enabled,leasedur ) != UPNPCOMMAND_SUCCESS  ||
                 UPNP_GetSpecificPortMappingEntry( handle->urls.controlURL, handle->data.first.servicetype,
-                        portStr, "UDP", intClient, intPort,"PROJECT_PREFIX" ,enabled,leasedur ) != UPNPCOMMAND_SUCCESS )
+                        portStr, "UDP", intClient, intPort,"PROJECT_PREFIX",enabled,leasedur ) != UPNPCOMMAND_SUCCESS )
         {
-            printf( "Port %d isn't forwarded\n" , handle->port );
+            printf( "Port %d isn't forwarded\n", handle->port );
             handle->isMapped = false;
         }
     }
@@ -241,7 +241,7 @@ UPNP_GetSpecificPortMappingEntry(const char * controlURL,
         UPNP_DeletePortMapping( handle->urls.controlURL,
                                 handle->data.first.servicetype,
                                 portStr, "UDP", NULL );
-        printf( "Stopping port forwarding through \"%s\", service \"%s\"\n" ,handle->urls.controlURL, handle->data.first.servicetype );
+        printf( "Stopping port forwarding through \"%s\", service \"%s\"\n",handle->urls.controlURL, handle->data.first.servicetype );
         handle->isMapped = 0;
         handle->state = TR_UPNP_IDLE;
         handle->port = -1;

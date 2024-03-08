@@ -1,10 +1,9 @@
-cmake_minimum_required (VERSION 2.6)
+#cmake_minimum_required (VERSION 2.6)
 
 #project(dfsCore)
 
+#ADD_SUBDIRECTORY(test)
 
-#include_directories(../local ../lib/jsoncpp-0.5.0/include /usr/local/include .. . )
-#add_definitions(-std=gnu++0x)
 
 add_library(megatron-core STATIC
             DBH.cpp
@@ -19,7 +18,7 @@ add_library(megatron-core STATIC
             commonError.cpp
             configDB.cpp
             epoll_socket_info.cpp
-            event.cpp
+            event_mt.cpp
             eventDeque.cpp
             httpConnection.cpp
             ioBuffer.cpp

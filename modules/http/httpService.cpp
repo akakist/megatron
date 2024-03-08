@@ -2,7 +2,7 @@
 #define _LARGEFILE64_SOURCE
 
 #include <stdlib.h>
-#ifndef _WIN32
+//#ifndef _WIN32
 #include <unistd.h>
 #include <string>
 #include <unknown.h>
@@ -18,7 +18,7 @@
 #include <st_malloc.h>
 #include <logging.h>
 
-#endif
+//#endif
 #include <stdlib.h>
 #include <fcntl.h>
 #include <time.h>
@@ -40,8 +40,9 @@ UnknownBase* HTTP::Service::construct(const SERVICE_id &id, const std::string& n
 
 HTTP::Service::Service(const SERVICE_id& id, const std::string&nm, IInstance* _if):
     UnknownBase(nm),Broadcaster(_if),
-    ListenerBuffered1Thread(this,nm,_if->getConfig(),id,_if),
-    _stuff(new __http_stuff)
+    ListenerSimple(nm,_if->getConfig(),id),
+//    _stuff(new __http_stuff),
+    iInstance(_if)
 {
     m_maxPost= static_cast<size_t>(_if->getConfig()->get_int64_t("max_post", 1000000, ""));
     {
@@ -51,14 +52,14 @@ HTTP::Service::Service(const SERVICE_id& id, const std::string&nm, IInstance* _i
             mx.documentRoot=_if->getConfig()->get_string("document_root","./www","");
         }
         try {
-            std::string body;
-            body=std::string(mime_types, static_cast<unsigned int>(mime_types_sz));
+            std::string bod;
+            bod=std::string(mime_types, static_cast<unsigned int>(mime_types_sz));
 
             {
                 M_LOCK(mx);
                 mx.mime_types.clear();
             }
-            std::vector<std::string> v=iUtils->splitString("\r\n",body);
+            std::vector<std::string> v=iUtils->splitString("\r\n",bod);
             for (size_t i=0; i<v.size(); i++)
             {
                 if (v[i].size())
@@ -88,14 +89,17 @@ HTTP::Service::Service(const SERVICE_id& id, const std::string&nm, IInstance* _i
 
 bool HTTP::Service::on_Connected(const socketEvent::Connected*)
 {
+    MUTEX_INSPECTOR;
+
     return true;
 
 }
 bool HTTP::Service::on_NotifyBindAddress(const socketEvent::NotifyBindAddress*e)
 {
     MUTEX_INSPECTOR;
+
     M_LOCK(mx);
-    mx.bind_addrs.insert(e->esi->local_name);
+    mx.bind_addrs.insert(e->addr);
     return true;
 }
 
@@ -106,15 +110,18 @@ bool HTTP::Service::on_DoListen(const httpEvent::DoListen* e)
 
     SOCKET_id newid=iUtils->getSocketId();
     msockaddr_in sa=e->addr;
-    //sa.setSocketId(newid);
     DBG(logErr2("on_DoListen %s",e->route.dump().c_str()));
-    sendEvent(ServiceEnum::Socket,new socketEvent::AddToListenTCP(newid,sa,"HTTP",false,NULL,e->route));
+    sendEvent(socketListener,new socketEvent::AddToListenTCP(newid,sa,"HTTP",false,e->route));
 
     return true;
 }
 
 bool HTTP::Service::on_startService(const systemEvent::startService*)
 {
+    MUTEX_INSPECTOR;
+    socketListener=dynamic_cast<ListenerBase*>(iInstance->getServiceOrCreate(ServiceEnum::Socket));
+    if(!socketListener)
+        throw CommonError("if(!socketListener)");
     return true;
 }
 bool HTTP::Service::on_GetBindPortsREQ(const httpEvent::GetBindPortsREQ *e)
@@ -156,10 +163,12 @@ bool HTTP::Service::handleEvent(const REF_getter<Event::Base>& evt)
         return on_startService((const systemEvent::startService*)evt.operator->());
     if( rpcEventEnum::IncomingOnAcceptor==ID)
     {
+        MUTEX_INSPECTOR;
         rpcEvent::IncomingOnAcceptor *E=(rpcEvent::IncomingOnAcceptor *)evt.operator ->();
         auto IDA=E->e->id;
         if(httpEventEnum::GetBindPortsREQ==IDA)
         {
+            MUTEX_INSPECTOR;
             const httpEvent::GetBindPortsREQ *e=(const httpEvent::GetBindPortsREQ *)E->e.operator ->();
             M_LOCK(mx);
             passEvent(new httpEvent::GetBindPortsRSP(mx.bind_addrs,poppedFrontRoute(e->route)));
@@ -174,24 +183,15 @@ bool HTTP::Service::handleEvent(const REF_getter<Event::Base>& evt)
 bool HTTP::Service::on_Accepted(const socketEvent::Accepted* evt)
 {
     MUTEX_INSPECTOR;
-    _stuff->insert(evt->esi->m_id,new HTTP::Request());
-//    _stuff->add(ServiceEnum::HTTP,evt->esi);
     return true;
 }
 bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 {
     MUTEX_INSPECTOR;
-    REF_getter<HTTP::Request> W=_stuff->getRequestOrNull(evt->esi->m_id);
-    if (!W.valid())
-    {
-        _stuff->insert(evt->esi->m_id,new HTTP::Request());
-//        _stuff->add(ServiceEnum::HTTP,evt->esi);
-        W=_stuff->getRequestOrNull(evt->esi->m_id);
-        if(!W.valid())
-        {
-            throw CommonError("invalid behaviour %s %d",__FILE__,__LINE__);
-        }
-    }
+
+
+    REF_getter<HTTP::Request> W=getData(evt->esi.operator->());
+
 
     W->m_last_io_time=time(NULL);
     if (W->parse_state.count(1)==0)
@@ -431,111 +431,24 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
     {
         if(iUtils->strlower(W->headers["CONNECTION"])=="keep-alive")
         {
-            W->fileresponse->isKeepAlive=true;
+            W->isKeepAlive=true;
         }
         else
         {
-            W->fileresponse->isKeepAlive=false;
+            W->isKeepAlive=false;
         }
     }
     else
     {
     }
 
-    std::set<std::string> docUrls;
-    std::string documentRoot;
-    std::map<std::string,HTTP::IoProtocol> protocols;
+
+    if(!W->sendRequestIncomingIsSent)
     {
-        M_LOCK(mx);
-        docUrls=mx.docUrls;
-        documentRoot=mx.documentRoot;
-        protocols=mx.protocols;
+        W->sendRequestIncomingIsSent=true;
+        passEvent(new httpEvent::RequestIncoming(W,evt->esi,evt->route));
+        clearData(evt->esi.operator->());
     }
-    for (auto& i: docUrls)
-    {
-
-        if (W->url.substr(0, i.size()) == i)
-        {
-
-
-            {
-                std::string fn=documentRoot + W->url;
-                std::string ext = iUtils->extractFileExt(fn);
-                W->fileresponse->fileName=fn;
-                W->fileresponse->extension=ext;
-                send_other_from_disk_ext(evt->esi, W, fn, ext);
-                return true;
-            }
-        }
-
-    }
-#ifdef KALL
-    if(W->url.substr(0,7)=="/files/")
-    {
-        IDFSContent *fc=static_cast<IDFSContent*>(iInstance->getServiceOrCreate(ServiceEnum::DFSContent)->cast(UnknownCast::IDFSContent));
-        std::string body;
-        if(fc->vf_get_http_file(W,body))
-        {
-            std::string exten = iUtils->extractFileExt(W->url);
-            std::string out;
-            out+="HTTP/1.1 200 OK\r\n";
-            out+="Server: nginx/1.2.6 (Ubuntu)\r\n";
-            {
-                M_LOCK(mx);
-                auto i=mx.mime_types.find(exten);
-                if(i!=mx.mime_types.end())
-                    out+="Content-Type: "+i->second+"\r\n";
-                else
-                    out+="Content-Type: text/plain\r\n";
-            }
-            out+="Date: "+datef(time(NULL))+"\r\n";
-            out+="Content-Length: "+std::to_string(int64_t(body.size()))+"\r\n";
-            out+="Accept-Ranges: bytes\r\n";
-            out+="Connection: close\r\n";
-            out+="\r\n";
-            out+=body;
-            evt->esi->write_(out);
-            return true;
-        }
-        else
-        {
-            std::string a("HTTP/1.1 404 Not Found\r\n");
-            a.append("Server: nginx/1.2.6 (Ubuntu)\r\n");
-            a.append("Connection: close\r\n");
-            a.append("\r\n");
-            evt->esi->write_(a);
-            return true;
-        }
-    }
-#endif
-
-    for(auto& i:protocols)
-    {
-        if (W->url.substr(0, i.first.size()) == i.first)
-        {
-            std::string dfsUrl=W->url.substr(i.first.size(),W->url.size()-i.first.size());
-
-
-            std::string::size_type pz = dfsUrl.rfind(".", dfsUrl.size());
-            std::string ext;
-            std::string fn;
-            if (pz != std::string::npos)
-            {
-                ext=dfsUrl.substr(pz + 1, dfsUrl.size() - pz - 1);
-                dfsUrl=dfsUrl.substr(0, pz);
-
-            }
-
-            dfsUrl=iUtils->hex2bin(dfsUrl);
-            W->fileresponse->fileName=dfsUrl;
-            W->fileresponse->extension=ext;
-            W->fileresponse->io_protocol=i.second;
-            send_other_from_disk_ext(evt->esi, W, dfsUrl, ext);
-            return true;
-        }
-
-    }
-    passEvent(new httpEvent::RequestIncoming(W,evt->esi,evt->route));
     return  true;
 }
 
@@ -547,47 +460,14 @@ std::string HTTP::Service::get_mime_type(const std::string& mime) const
     if (i==mx.mime_types.end()) return "";
     else return i->second;
 }
-void HTTP::__http_stuff::on_delete(const REF_getter<epoll_socket_info>&esi, const std::string& )
-{
-    MUTEX_INSPECTOR;
-
-    M_LOCK(m_lock);
-    auto i=container.find(esi->m_id);
-    if (i==container.end())
-    {
-        return;
-        throw CommonError("__http_stuff::on_delete: not found %s %d",__FILE__,__LINE__);
-    }
-    container.erase(esi->m_id);
-}
-
-REF_getter<HTTP::Request> HTTP::__http_stuff::getRequestOrNull(const SOCKET_id& id)
-{
-    MUTEX_INSPECTOR;
-
-    M_LOCK(m_lock);
-    auto i=container.find(id);
-    if (i!=container.end()) return i->second;
-    return NULL;
-}
-void HTTP::__http_stuff::insert(const SOCKET_id& id,const REF_getter<HTTP::Request> &C)
-{
-    MUTEX_INSPECTOR;
-
-    {
-        M_LOCK(m_lock);
-        container.insert(std::make_pair(id,C));
-    }
-
-}
 bool HTTP::Service::on_NotifyOutBufferEmpty(const socketEvent::NotifyOutBufferEmpty* e)
 {
     MUTEX_INSPECTOR;
 
+    return true;
     S_LOG("on_NotifyOutBufferEmpty");
-    DBG(logErr2("on_NotifyOutBufferEmpty %s",e->route.dump().c_str()));
 
-    REF_getter<HTTP::Request> W=_stuff->getRequestOrNull(e->esi->m_id);
+    REF_getter<HTTP::Request> W=getData(e->esi.operator->());
     if(!W.valid())
     {
 
@@ -595,15 +475,16 @@ bool HTTP::Service::on_NotifyOutBufferEmpty(const socketEvent::NotifyOutBufferEm
         return true;
     }
     REF_getter<HTTP::Request::_fileresponse> F=W->fileresponse;
-    if(!F.valid()) throw CommonError("if(!F.valid()) %s %d",__FILE__,__LINE__);
+    if(!F.valid())
+        return true;
     if(F->fileSize==0)
     {
-        e->esi->close("HTTPService: on_NotifyOutBufferEmpty: F->fileSize==0");
+        e->esi->close("HTTPService: on_NotifyOutBufferEmpty: F->fileSize==0 @1");
         return true;
     }
     if(F->fileSize==-1)
     {
-        e->esi->close("HTTPService: on_NotifyOutBufferEmpty: F->fileSize==-1");
+        e->esi->close("HTTPService: on_NotifyOutBufferEmpty: F->fileSize==-1 @2");
         return true;
     }
     if(F->contentLength<=F->written_bytes)
@@ -654,7 +535,7 @@ bool HTTP::Service::on_NotifyOutBufferEmpty(const socketEvent::NotifyOutBufferEm
                 return true;
             }
 
-            e->esi->write_((char*)buf.buf,res);
+            e->esi->write_(toRef((uint8_t*)buf.buf,res));
             F->written_bytes+=res;
             return true;
         }
@@ -700,6 +581,11 @@ std::string datef(const time_t &__t)
     W->m_last_io_time=time(NULL);
 
     REF_getter<HTTP::Request::_fileresponse> F=W->fileresponse;
+    if(F.valid())
+    {
+        W->fileresponse=new HTTP::Request::_fileresponse;
+        F=W->fileresponse;
+    }
     F->fileName=fn;
     F->extension=exten;
 
@@ -718,7 +604,7 @@ std::string datef(const time_t &__t)
             a.append("Server: nginx/1.2.6 (Ubuntu)\r\n");
             a.append("Connection: close\r\n");
             a.append("\r\n");
-            esi->write_(a);
+            esi->write_(toRef(a));
             return -1;
         }
 
@@ -843,7 +729,7 @@ std::string datef(const time_t &__t)
 
     out.push_back("Last-Modified: "+datef(last_modified)+"\r\n");
 
-    if(F->isKeepAlive)
+    if(W->isKeepAlive)
         out.push_back("Connection: keep-alive\r\n");
     else
         out.push_back("Connection: close\r\n");
@@ -896,12 +782,40 @@ std::string datef(const time_t &__t)
 bool HTTP::Service::on_Disaccepted(const socketEvent::Disaccepted*e)
 {
     MUTEX_INSPECTOR;
-    _stuff->on_delete(e->esi,e->reason);
+    clearData(e->esi.operator->());
     return true;
 }
 bool HTTP::Service::on_Disconnected(const socketEvent::Disconnected*e)
 {
     MUTEX_INSPECTOR;
-    _stuff->on_delete(e->esi,e->reason);
+    clearData(e->esi.operator->());
     return true;
+}
+
+
+REF_getter<HTTP::Request> HTTP::Service::getData(epoll_socket_info* esi)
+{
+
+    auto it=esi->additions.find('http');
+    if(it==esi->additions.end())
+    {
+        REF_getter<Refcountable> p=new HTTP::Request;
+        esi->additions.insert(std::make_pair('http',p));
+        it=esi->additions.find('http');
+    }
+    auto ret=dynamic_cast<HTTP::Request*>(it->second.operator->());
+    if(ret==NULL)
+        throw CommonError("if(ret==NULL)");
+    return ret;
+
+}
+void HTTP::Service::setData(epoll_socket_info* esi, const REF_getter<HTTP::Request> & p)
+{
+    esi->additions.insert(std::make_pair('http',p.operator->()));
+
+}
+void HTTP::Service::clearData(epoll_socket_info* esi)
+{
+    esi->additions.erase('http');
+
 }

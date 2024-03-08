@@ -9,6 +9,7 @@
 #endif
 #include <string>
 #include "httpConnection.h"
+#include "Events/System/Net/socket/Write.h"
 
 
 std::string HTTP::get_name_of_http_code(int code)
@@ -165,6 +166,46 @@ std::string HTTP::Response::build_html_response()
     return ret;
 }
 
+std::string HTTP::Response::build_html_response_wo_content_length()
+{
+    std::string ret;
+    ret += "HTTP/1.1 " + std::to_string(http_code) + " " + HTTP::get_name_of_http_code(http_code) + "\r\n";
+    if (http_content_type != "")
+    {
+        std::string r = http_content_type;
+        if (http_charset.size())
+            r += "; charset: " + http_charset;
+        http_header_out["Content-Type"] = r;
+    }
+    if (http_header_out.find("Connection") == http_header_out.end())
+        http_header_out["Connection"] = "close";
+
+    http_header_out["Server"] = "Web Server";
+//    http_header_out["Content-Length"] = std::to_string(content.size());
+
+    for (auto& i: http_header_out)
+    {
+        ret += i.first + ": " + i.second + "\r\n";
+    }
+    if (out_cookies.size())
+    {
+        for (auto& i: out_cookies)
+        {
+            std::string r;
+            r += "Set-Cookie: "+i.first;
+            r += "=";
+            r += i.second;
+            r += "; path=/\r\n";
+            ret+=r;
+
+        }
+    }
+
+    ret += "\r\n";
+    ret += content;
+    return ret;
+}
+
 void HTTP::Response::redirect(const std::string &url)
 {
     http_code=302;
@@ -185,11 +226,14 @@ static std::map<int,std::string> dfs_fd_2_url;
 HTTP::Request::Request()
     :
     m_last_io_time(time(NULL)),
-    fileresponse(new _fileresponse)
+    fileresponse(NULL)
+    ,isKeepAlive(false),
+    sendRequestIncomingIsSent(false)
+//  , isPersistent(false)
 {
 }
-HTTP::Response::Response()
-    :http_code(200),http_content_type("text/html"),allow_build_response(true)
+HTTP::Response::Response(IInstance* _ins)
+    :http_code(200),http_content_type("text/html"),allow_build_response(true),iInstance(_ins)
 {
 }
 
@@ -197,8 +241,16 @@ HTTP::Response::Response()
 void HTTP::Response::makeResponse(const REF_getter<epoll_socket_info>& esi)
 {
     std::string out = build_html_response();
-    esi->write_(out);
     esi->markedToDestroyOnSend=true;
+    esi->write_(out);
+//    iInstance->sendEvent(ServiceEnum::Socket, new socketEvent::Write(esi,toRef(out)));
+
+}
+void HTTP::Response::makeResponsePersistent(const REF_getter<epoll_socket_info> &esi)
+{
+    std::string out = build_html_response_wo_content_length();
+    esi->write_(out);
+//  iInstance->sendEvent(ServiceEnum::Socket, new socketEvent::Write(esi,toRef(out)));
 }
 
 bool HTTP::Request::__gets$(std::string& dst,const std::string& delim, std::string& data)

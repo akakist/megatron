@@ -72,7 +72,7 @@ namespace dfsCaps
     public:
         void deinit()
         {
-            ListenerBuffered1Thread::denit();
+            ListenerBuffered1Thread::deinit();
         }
 
         Service(const SERVICE_id &svs, const std::string&  nm,IInstance* _ifa);

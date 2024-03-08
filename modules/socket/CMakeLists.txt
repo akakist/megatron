@@ -1,10 +1,9 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 3.0)
 
 add_library(core-socket SHARED
-    socket.cpp
-    socketService.cpp
-    socketsContainerForSocketIO.cpp
-)
+            socket.cpp
+            socketService.cpp
+           )
 
 target_link_libraries(core-socket megatron-core pthread)
 

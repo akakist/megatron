@@ -35,7 +35,7 @@ namespace dfsReferrer
         void eraseFromDownlinks(const SOCKET_id & id)
         {
             m_downlinks.erase(id);
-            DBG(logErr2("downlinks_mx erase %d %s",CONTAINER(id),_DMI().c_str()));
+//            DBG(logErr2("downlinks_mx erase %d %s",CONTAINER(id),_DMI().c_str()));
         }
         size_t countInDownlinks(const SOCKET_id & id)
         {

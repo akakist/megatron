@@ -2,10 +2,6 @@
 #define __________________CONFIG_DB__HH____
 #include "msockaddr_in.h"
 
-#ifdef QT5
-#include <QString>
-#include <QStandardPaths>
-#endif
 
 /// simple config store
 
@@ -18,11 +14,7 @@ class ConfigDB
 
     std::string val(const std::string& key) const;
     ConfigDB(bool shared);
-#if defined(QT5)
-    QString fileName(const QString &k) const;
-#else
     std::string fileName(const std::string &k) const;
-#endif
 
 public:
 

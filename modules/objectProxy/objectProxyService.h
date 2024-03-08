@@ -107,7 +107,7 @@ namespace ObjectProxy
         }
         void deinit()
         {
-            ListenerBuffered1Thread::denit();
+            ListenerBuffered1Thread::deinit();
         }
 
         static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa)

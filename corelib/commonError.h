@@ -9,7 +9,7 @@
 * Common exception
 */
 
-class CommonError: public std::exception
+class CommonError
 {
 private:
     std::string m_error;
@@ -21,7 +21,7 @@ public:
     explicit CommonError(const std::string& str);
     explicit CommonError(const char* fmt, ...);
     virtual ~CommonError() {}
-    const char* what() const throw()
+    const char* what() const
     {
         return m_error.c_str();
     };

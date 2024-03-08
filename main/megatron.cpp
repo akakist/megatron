@@ -18,9 +18,6 @@
 #ifndef _MSC_VER
 #endif
 
-#if defined(_WIN32) && defined(QT5)
-#include <QProcess>
-#endif
 
 //IInstance* iInstance=NULL;
 //

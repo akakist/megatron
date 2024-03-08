@@ -3,6 +3,7 @@
 #include <logging.h>
 #include <colorOutput.h>
 #include "mutexInspector.h"
+#include <Events/System/Net/socket/Write.h>
 #include <Events/System/Net/oscar/PacketOnAcceptor.h>
 #include <Events/System/Net/oscar/PacketOnConnector.h>
 #include <Events/System/Net/oscar/Connected.h>
@@ -20,7 +21,6 @@
 
 OscarSecure::Service::~Service()
 {
-    __m_users->clear();
 }
 OscarSecure::Service::Service(const SERVICE_id &svs, const std::string&  nm,IInstance* ifa)
     : UnknownBase(nm),
@@ -28,8 +28,9 @@ OscarSecure::Service::Service(const SERVICE_id &svs, const std::string&  nm,IIns
       Broadcaster(ifa),
       RSA_keysize(256),
       m_maxPacketSize(32*1024*1024),
-      __m_users(new __users),
-      ssl((I_ssl*)iUtils->queryIface(Ifaces::SSL))
+      ssl((I_ssl*)iUtils->queryIface(Ifaces::SSL)),
+      iInstance(ifa)
+
 {
 
     try
@@ -142,9 +143,9 @@ bool OscarSecure::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                 case OscarSecure::SB_SINGLEPACKET_AES:
                 {
                     MUTEX_INSPECTOR;
-                    REF_getter<User> u=__m_users->find_throw(evt->esi->m_id);
-                    REF_getter<refbuffer> buf=u->aes.decrypt(toRef(req));
-                    if(u->esi->m_streamType==epoll_socket_info::STREAMTYPE_ACCEPTED)
+                    OscarSecureData* od=getData(evt->esi.operator->());
+                    REF_getter<refbuffer> buf=od->aes.decrypt(toRef(req));
+                    if(evt->esi->m_streamType==epoll_socket_info::STREAMTYPE_ACCEPTED)
                     {
                         passEvent(new oscarEvent::PacketOnAcceptor(evt->esi,buf,evt->route));
 
@@ -160,40 +161,29 @@ bool OscarSecure::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                 {
                     MUTEX_INSPECTOR;
                     inBuffer b(req.data(),req.size());
-                    REF_getter<User> u=__m_users->findOrCreateAndFind(evt->esi);
-                    if(u.valid())
+                    OscarSecureData* od=getData(evt->esi.operator->());
+
                     {
-                        u->aes.init(u->rsa.privateDecrypt(b.get_PSTR()));
+                        od->aes.init(od->rsa.privateDecrypt(b.get_PSTR()));
 
                         {
-                            if(u->esi->m_streamType!=epoll_socket_info::STREAMTYPE_ACCEPTED)
+                            if(evt->esi->m_streamType!=epoll_socket_info::STREAMTYPE_ACCEPTED)
                                 throw CommonError("!isServer");
                             outBuffer o;
                             sendPacketPlain(SB_HELLO_SSL2_S2C,evt->esi,o);
-                            u->inited=true;
+//                            u->inited=true;
 
                         }
 
                         continue;
-                    }
-                    else
-                    {
-                        logErr2("SB_SET_AES_KEY invalid user");
                     }
                 }
                 break;
                 case OscarSecure::SB_HELLO_SSL2_S2C:
                 {
                     MUTEX_INSPECTOR;
-                    REF_getter<User> u=__m_users->findOrCreateAndFind(evt->esi);
-                    if(u.valid())
                     {
-                        u->inited=true;
                         passEvent(new oscarEvent::Connected(evt->esi,evt->route));
-                    }
-                    else
-                    {
-                        evt->esi->close("SB_HELLO_SSL2: invalied user");
                     }
                 }
                 break;
@@ -211,26 +201,21 @@ bool OscarSecure::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                         evt->esi->close("oscarSecure: invalid peer version");
                         return true;
                     }
-                    REF_getter<User> u=__m_users->findOrCreateAndFind(evt->esi);
-                    if(!u.valid())
-                    {
-                        logErr2(RED("SB_HELLO_SSL invalied user %d"),CONTAINER(evt->esi->m_id));
-                    }
+                    OscarSecureData* od=getData(evt->esi.operator->());
 
-                    if(u.valid())
                     {
                         XTRY;
                         XTRY;
-                        u->rsa.initFromPublicKey(pubkey);
+                        od->rsa.initFromPublicKey(pubkey);
                         XPASS;
                         std::string aes_key;
                         XTRY;
-                        aes_key=u->aes.generateRandomKey();
-                        u->aes.init(aes_key);
+                        aes_key=od->aes.generateRandomKey();
+                        od->aes.init(aes_key);
                         XPASS;
                         outBuffer out;
                         XTRY;
-                        out<<u->rsa.publicEncrypt(aes_key);
+                        out<<od->rsa.publicEncrypt(aes_key);
 
 
                         sendPacketPlain(SB_SET_AES_KEY_C2S,evt->esi,out);
@@ -275,7 +260,7 @@ bool OscarSecure::Service::on_NotifyOutBufferEmpty(const socketEvent::NotifyOutB
 bool OscarSecure::Service::on_NotifyBindAddress(const socketEvent::NotifyBindAddress *e)
 {
     MUTEX_INSPECTOR;
-    passEvent(new oscarEvent::NotifyBindAddress(e->esi,e->socketDescription,e->rebind,e->route));
+    passEvent(new oscarEvent::NotifyBindAddress(e->addr,e->socketDescription,e->rebind,e->route));
     return true;
 }
 
@@ -294,7 +279,8 @@ void OscarSecure::Service::sendPacketPlain(const OscarSecure::StartByte& startBy
     outBuffer O2;
     O2.put_8(startByte);
     O2<<o.asString();
-    esi->write_(O2.asString()->asString());
+    esi->write_(O2.asString());
+
     XPASS;
 }
 void OscarSecure::Service::sendPacketPlain(const OscarSecure::StartByte& startByte, const REF_getter<epoll_socket_info>& esi, const REF_getter<refbuffer> &o)
@@ -304,7 +290,7 @@ void OscarSecure::Service::sendPacketPlain(const OscarSecure::StartByte& startBy
     outBuffer O2;
     O2.put_8(startByte);
     O2<<o;
-    esi->write_(O2.asString()->asString());
+    esi->write_(O2.asString());
     XPASS;
 }
 
@@ -313,30 +299,8 @@ bool OscarSecure::Service::on_SendPacket(const oscarEvent::SendPacket* e)
 
     MUTEX_INSPECTOR;
 
-    if(CONTAINER(e->socketId)==-1)
-    {
-        return true;
-    }
-    REF_getter<User> u=__m_users->find_throw(e->socketId);
-
-    if(u.valid())
-    {
-        {
-            if(u->inited)
-            {
-                sendPacketPlain(OscarSecure::SB_SINGLEPACKET_AES,u->esi,u->aes.encrypt(e->buf));
-            }
-            else
-            {
-                throw CommonError("!if(u->inited) %s %d",__FILE__,__LINE__);
-
-            }
-        }
-    }
-    else
-    {
-        throw CommonError("!if(u.valid()) %s %d",__FILE__,__LINE__);
-    }
+    OscarSecureData* data=getData(e->esi.operator->());
+    sendPacketPlain(OscarSecure::SB_SINGLEPACKET_AES,e->esi,data->aes.encrypt(e->buf));
     return true;
 }
 bool OscarSecure::Service::on_Connect(const oscarEvent::Connect*e)
@@ -346,7 +310,7 @@ bool OscarSecure::Service::on_Connect(const oscarEvent::Connect*e)
 
 #ifndef __MOBILE__
 #endif
-    sendEvent(ServiceEnum::Socket,new socketEvent::AddToConnectTCP(e->socketId,e->addr,e->socketDescription,bufferVerify,e->route));
+    sendEvent(ServiceEnum::Socket,new socketEvent::AddToConnectTCP(e->socketId,e->addr,e->socketDescription,e->route));
     return true;
 }
 bool OscarSecure::Service::on_AddToListenTCP(const oscarEvent::AddToListenTCP*e)
@@ -354,19 +318,19 @@ bool OscarSecure::Service::on_AddToListenTCP(const oscarEvent::AddToListenTCP*e)
 
     MUTEX_INSPECTOR;
 
-    sendEvent(ServiceEnum::Socket,new socketEvent::AddToListenTCP(e->socketId,e->addr,e->socketDescription,false,bufferVerify, e->route));
+    sendEvent(ServiceEnum::Socket,new socketEvent::AddToListenTCP(e->socketId,e->addr,e->socketDescription,false, e->route));
     return true;
 }
 bool OscarSecure::Service::on_Accepted(const socketEvent::Accepted*e)
 {
     MUTEX_INSPECTOR;
     XTRY;
-    REF_getter<User> u=new User(e->esi);
-    u->rsa.generate_key(RSA_keysize);
+    OscarSecureData* od=getData(e->esi.operator->());
+
+    od->rsa.generate_key(RSA_keysize);
     outBuffer o;
-    o<<u->rsa.getPublicKey();
+    o<<od->rsa.getPublicKey();
     o<<COREVERSION;
-    __m_users->insert(u);
 
     sendPacketPlain(SB_HELLO_SSL_S2C,e->esi,o);
     XPASS;
@@ -379,7 +343,6 @@ bool OscarSecure::Service::on_Connected(const socketEvent::Connected*e)
 #ifndef __MOBILE__
     DBG(logErr2("Service::on_Connected %s %d",__FILE__,__LINE__));
 #endif
-    __m_users->insert(new User(e->esi));
     return true;
 }
 bool OscarSecure::Service::on_startService(const systemEvent::startService* )
@@ -452,7 +415,7 @@ bool OscarSecure::Service::on_RequestIncoming(const webHandlerEvent::RequestInco
 {
 
     MUTEX_INSPECTOR;
-    HTTP::Response cc;
+    HTTP::Response cc(iInstance);
     cc.content+="<h1>OscarSecure report</h1><p>";
 
     Json::Value v=jdump();
@@ -478,4 +441,20 @@ bool OscarSecure::Service::on_Disconnected(const socketEvent::Disconnected*e)
     MUTEX_INSPECTOR;
     passEvent(new oscarEvent::Disconnected(e->esi,e->reason,e->route));
     return true;
+}
+OscarSecureData* OscarSecure::Service::getData(epoll_socket_info* esi)
+{
+
+    auto it=esi->additions.find('osca');
+    if(it==esi->additions.end())
+    {
+        REF_getter<Refcountable> p=new OscarSecureData;
+        esi->additions.insert(std::make_pair('osca',p));
+        it=esi->additions.find('osca');
+    }
+    auto ret=dynamic_cast<OscarSecureData*>(it->second.operator->());
+    if(ret==NULL)
+        throw CommonError("if(ret==NULL)");
+    return ret;
+
 }

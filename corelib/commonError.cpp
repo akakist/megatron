@@ -11,10 +11,6 @@
 
 #ifdef __MACH__
 #ifndef __IOS__
-#ifdef QT5
-#include <QStandardPaths>
-#include <QCoreApplication>
-#endif
 #endif
 #endif
 #ifdef __ANDROID__
@@ -23,9 +19,6 @@
 #include <stdarg.h>
 #include "megatron_config.h"
 
-#ifdef QT5
-#include <QStandardPaths>
-#endif
 
 #if !defined __MOBILE__
 static Mutex *__logLock=nullptr;
@@ -59,11 +52,7 @@ static std::string getLogName()
     if(!iUtils) return ".log";
     std::string fn=(std::string)iUtils->app_name()+".log";
     {
-#if defined(_WIN32) && defined(QT5)
-        fn="data/"+fn;
-#else
         fn=iUtils->gLogDir()+"/"+fn;
-#endif
     }
     if(!prevLogUnlinked)
     {
@@ -192,8 +181,5 @@ void logErr2(const char* fmt, ...)
     }
 #endif
 }
-#if defined(__MACH__) && !defined __IOS__ && defined QT5
-#include <QStandardPaths>
-#endif
 
 

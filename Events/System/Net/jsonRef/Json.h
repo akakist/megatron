@@ -9,7 +9,7 @@ namespace jsonRefEvent
 
     class JsonREQ: public Event::Base
     {
-        enum {channel=CHANNEL_100};
+
 
 
     public:
@@ -20,10 +20,10 @@ namespace jsonRefEvent
         }
         JsonREQ(const std::string& _action, const std::string &_json, const std::string& _binData,
                 const route_t&r)
-            :Base(jsonRefEventEnum::JsonREQ,channel,r),action(_action),json(_json),binData(_binData)
+            :Base(jsonRefEventEnum::JsonREQ,r),action(_action),json(_json),binData(_binData)
         {}
         JsonREQ(const route_t&r)
-            :Base(jsonRefEventEnum::JsonREQ,channel,r) {}
+            :Base(jsonRefEventEnum::JsonREQ,r) {}
         std::string action;
         std::string json;
         std::string binData;
@@ -44,7 +44,7 @@ namespace jsonRefEvent
     };
     class JsonRSP: public Event::Base
     {
-        enum {channel=CHANNEL_100};
+
 
 
     public:
@@ -54,10 +54,10 @@ namespace jsonRefEvent
         }
         JsonRSP(int _errCode, const std::string& _action,const std::string &_json,const std::string &_binData,
                 const route_t&r)
-            :Base(jsonRefEventEnum::JsonRSP,channel,r),errcode(_errCode),action(_action),json(_json), binData(_binData)
+            :Base(jsonRefEventEnum::JsonRSP,r),errcode(_errCode),action(_action),json(_json), binData(_binData)
         {}
         JsonRSP(const route_t&r)
-            :Base(jsonRefEventEnum::JsonRSP,channel,r) {}
+            :Base(jsonRefEventEnum::JsonRSP,r) {}
         int errcode;
         std::string action;
         std::string json;

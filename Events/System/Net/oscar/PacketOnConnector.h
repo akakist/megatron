@@ -1,7 +1,7 @@
 #ifndef ______OSCAR_EVENT___Ha
 #define ______OSCAR_EVENT___Ha
 #include "___oscarEvent.h"
-#include "event.h"
+#include "event_mt.h"
 namespace oscarEvent
 {
 

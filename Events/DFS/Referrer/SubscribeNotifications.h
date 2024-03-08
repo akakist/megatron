@@ -13,7 +13,7 @@ namespace dfsReferrerEvent {
             return new SubscribeNotifications(r);
         }
         SubscribeNotifications(const route_t& r)
-            :Base(dfsReferrerEventEnum::SubscribeNotifications,rpcChannel,r) {}
+            :Base(dfsReferrerEventEnum::SubscribeNotifications,r) {}
 
         void jdump(Json::Value &) const
         {

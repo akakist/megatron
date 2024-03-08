@@ -15,7 +15,6 @@ namespace socketEventEnum
 
     const EVENT_id AddToListenTCP("socket.AddToListenTCP");
     const EVENT_id AddToConnectTCP("socket.AddToConnectTCP");
-    const EVENT_id Write("socket.Write");
     const EVENT_id Accepted("socket.Accepted");
     const EVENT_id StreamRead("socket.StreamRead");
     const EVENT_id Connected("socket.Connected");
@@ -27,6 +26,7 @@ namespace socketEventEnum
     const EVENT_id UdpAssoc("socket.UdpAssoc");
     const EVENT_id UdpAssocRSP("socket.UdpAssocRSP");
     const EVENT_id UdpPacketIncoming("socket.UdpPacketIncoming");
+    const EVENT_id Write("socket.Write");
 }
 
 

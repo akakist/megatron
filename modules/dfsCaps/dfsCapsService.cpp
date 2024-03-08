@@ -90,7 +90,6 @@ bool dfsCaps::Service::on_GetCloudRootsREQ(const dfsCapsEvent::GetCloudRootsREQ*
 
     }
     REF_getter<Event::Base> re=new dfsReferrerEvent::ToplinkDeliverRSP(new dfsCapsEvent::GetCloudRootsRSP(sv,e->route),poppedFrontRoute(e_toplink->route));
-//    logErr2("@@@pass %s",re->dump().toStyledString().c_str());
     passEvent(re);
     return true;
 
@@ -284,7 +283,7 @@ bool  dfsCaps::Service::on_startService(const systemEvent::startService*)
 bool dfsCaps::Service::on_RequestIncoming(const webHandlerEvent::RequestIncoming* e)
 {
     MUTEX_INSPECTOR;
-    HTTP::Response cc;
+    HTTP::Response cc(iInstance);
     cc.content+="<h1>DFS Caps report</h1><p>";
 
     Json::Value v;

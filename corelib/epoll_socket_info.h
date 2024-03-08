@@ -14,24 +14,32 @@
 * Wrapper for socket selector
 */
 
-
-struct socketBufferOut: public Refcountable, public Mutexable
+struct P_msockaddr_in: public Refcountable
 {
-    char *buffer;
-    size_t curpos;
-    size_t size;
-    ~socketBufferOut();
-    socketBufferOut(const char* data, size_t sz);
-    int sendSocket(const SOCKET_fd &fd);
+    msockaddr_in addr;
+    P_msockaddr_in(const msockaddr_in& sa)
+        : addr(sa)
+    {
+
+    }
 };
+//struct socketBufferOut: public Refcountable, public Mutexable
+//{
+//    char *buffer;
+//    size_t curpos;
+//    size_t size;
+//    ~socketBufferOut();
+//    socketBufferOut(const char* data, size_t sz);
+//    int sendSocket(const SOCKET_fd &fd);
+//};
 
 class   socketBuffersOut: public Mutexable
 {
-    std::deque<REF_getter<socketBufferOut> > container;
+    std::string container;
 public:
-    void append(const char* data, size_t sz);
+    void append(epoll_socket_info *esi, const char* data, size_t sz);
     size_t size();
-    int send(const SOCKET_fd &fd);
+    int send(const SOCKET_fd &fd, epoll_socket_info *esi);
 };
 class epoll_socket_info;
 /**
@@ -59,14 +67,14 @@ public:
     SOCKET_id m_id;
 
 private:
-    /// filedescriptor
-    SOCKET_fd m_fd;
 
 public:
-    SOCKET_fd get_fd()
-    {
-        return m_fd;
-    }
+    /// filedescriptor
+    SOCKET_fd m_fd;
+//    SOCKET_fd get_fd()
+//    {
+//        return m_fd;
+//    }
 
     bool closed();
 
@@ -95,25 +103,28 @@ public:
     bool inConnection;
 
     /// remote peer name
-    msockaddr_in remote_name;
+    ///
+    ///
+    REF_getter<P_msockaddr_in> request_for_connect;
+    REF_getter<P_msockaddr_in> local_name;
+    REF_getter<P_msockaddr_in> remote_name;
 
     /// local peer name
-    msockaddr_in local_name;
+//    msockaddr_in local_name;
 
     /// m_outBuffer max size
-    const unsigned int maxOutBufferSize;
+//    const unsigned int maxOutBufferSize;
 
     /// any text of socket for debugging
-    const std::string socketDescription;
+    const char* socketDescription;
 
     ///  used to check buffer available for processing
-    bool (*bufferVerify)(const std::string& s);
 
     REF_getter<NetworkMultiplexor> multiplexor;
 
 
     epoll_socket_info(const int& socketType, const STREAMTYPE &_streamtype,const SOCKET_id& _id,const SOCKET_fd& _fd, const route_t& _route,
-                      const int64_t& _maxOutBufferSize, const std::string& _socketDescription,         bool (*__bufferVerify)(const std::string&),
+                      const char* _socketDescription,
                       const REF_getter<NetworkMultiplexor>& _multiplexor);
 
     virtual ~epoll_socket_info();
@@ -127,10 +138,22 @@ public:
     /// write buffer
     void write_(const char *s, const size_t &sz);
     void write_(const std::string&s);
+    void write_(const REF_getter<refbuffer>&s);
 
     void close(const std::string & reason);
 
     Json::Value __jdump();
+    std::map<int,REF_getter<Refcountable> > additions;
+#ifdef HAVE_KQUEUE
+    bool ev_read_added;
+    bool ev_write_added;
+#elif defined(HAVE_EPOLL)
+    bool ev_added;
+#elif defined(HAVE_SELECT)
+
+#else
+#error "HAVE iundef22"
+#endif
 };
 
 

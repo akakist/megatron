@@ -5,6 +5,12 @@ void Broadcaster::sendEvent(const SERVICE_id& svs, const REF_getter<Event::Base>
     __BRD$ifa->sendEvent(svs,e);
     XPASS;
 }
+void Broadcaster::sendEvent( ListenerBase* svs, const REF_getter<Event::Base>&e)
+{
+    XTRY;
+    __BRD$ifa->sendEvent(svs,e);
+    XPASS;
+}
 void Broadcaster::sendEvent(const msockaddr_in& addr, const SERVICE_id& svs, const REF_getter<Event::Base>&e)
 {
     XTRY;
@@ -39,7 +45,6 @@ void Broadcaster::sendEvent(const std::string& addr, const SERVICE_id& svs, cons
 
 void Broadcaster::passEvent(const REF_getter<Event::Base>&e)
 {
-
     XTRY;
     __BRD$ifa->passEvent(e);
     XPASS;

@@ -24,7 +24,6 @@ namespace dfsReferrerEventEnum
 
 
     const EVENT_id Pong("DFSReferrer.Pong");
-    const EVENT_id Elloh("DFSReferrer.Elloh");
     const EVENT_id NotifyReferrerUplinkIsConnected("DFSReferrer.NotifyReferrerUplinkIsConnected");
     const EVENT_id NotifyReferrerUplinkIsDisconnected("DFSReferrer.NotifyReferrerUplinkIsDisconnected");
     const EVENT_id NotifyReferrerDownlinkDisconnected("DFSReferrer.NotifyReferrerDownlinkDisconnected");

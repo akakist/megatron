@@ -91,7 +91,6 @@ namespace HTTP
             {
                 return m_fd;
             }
-            bool isKeepAlive;
             int64_t fileSize;
             IoProtocol io_protocol;
 
@@ -105,17 +104,21 @@ namespace HTTP
             }
 
             _fileresponse():hasRange(false),headerSent(false),written_bytes(0),startb(0),endb(0),contentLength(0),
-                m_fd(-1),m_closed(false),isKeepAlive(false),fileSize(-1LL) {}
+                m_fd(-1),m_closed(false),fileSize(-1LL) {}
             ~_fileresponse();
         };
         REF_getter<_fileresponse> fileresponse;
+        bool isKeepAlive;
+        bool sendRequestIncomingIsSent;
 
     private:
     };
     class Response
     {
     public:
+        Response(IInstance* _ins);
         void makeResponse(const REF_getter<epoll_socket_info>& esi);
+        void makeResponsePersistent(const REF_getter<epoll_socket_info>& esi);
         int http_code;
         std::string http_content_type;
         std::string content;
@@ -124,12 +127,16 @@ namespace HTTP
         std::map<std::string,std::string> out_cookies;
         bool allow_build_response;
         std::string build_html_response();
+        std::string build_html_response_wo_content_length();
+
         void redirect(const std::string &url);
 
 
         void makePersistent();
-        Response();
+//    Response();
         virtual ~Response();
+
+        IInstance *iInstance;
     };
 };
 

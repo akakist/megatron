@@ -34,18 +34,13 @@
 #include <zlib.h>
 #include <version_mega.h>
 #include "megatron_config.h"
-#if defined(QT5)
-#include <QFile>
-#include <QIODevice>
-#include <QStandardPaths>
-#endif
 #include "CInstance.h"
 #include "threadNameCtl.h"
 
-std::map<std::string,std::string> CUtils::loadStringMapFromBuffer(const std::string &body, const char *linedelim)
+std::map<std::string,std::string> CUtils::loadStringMapFromBuffer(const std::string &bod, const char *linedelim)
 {
     std::string section;
-    std::vector<std::string> v=splitString(linedelim,body);
+    std::vector<std::string> v=splitString(linedelim,bod);
     std::map<std::string,std::string>m;
     for (size_t i=0; i<v.size(); i++)
     {
@@ -96,11 +91,11 @@ std::map<std::string,std::string> CUtils::loadStringMapFromFile(const std::strin
 {
     XTRY;
     std::map<std::string,std::string>m;
-    std::string body;
+    std::string bod;
     std::string section;
-    long res=load_file_from_disk(body,fn);
+    long res=load_file_from_disk(bod,fn);
     if(res<0) return m;
-    std::vector<std::string> v=splitString("\r\n",body);
+    std::vector<std::string> v=splitString("\r\n",bod);
     for (size_t i=0; i<v.size(); i++)
     {
         std::string theString=v[i];
@@ -593,20 +588,6 @@ std::string CUtils::bin2hex(const std::string & in)
 long CUtils::load_file_from_disk(std::string & res, const std::string & fn)
 {
     XTRY;
-#if defined(QT5)
-    QFile file(fn.c_str());
-
-    if(!file.open(QIODevice::ReadOnly))
-    {
-        logErr2("cannot open %s",fn.c_str());
-        return -1;
-    }
-    file.setTextModeEnabled(false);
-    QByteArray arr=file.readAll();
-    res=std::string(arr.data(),arr.size());
-    file.close();
-    return arr.size();
-#else
 
 #ifdef _MSC_VER
     struct _stat  st;
@@ -635,7 +616,6 @@ long CUtils::load_file_from_disk(std::string & res, const std::string & fn)
         return st.st_size;
     }
     return -1;
-#endif
     XPASS;
 
 }
@@ -913,21 +893,6 @@ std::string CUtils::dump(const std::map<msockaddr_in,std::set<SERVICE_id> > &s)
 
 int64_t CUtils::calcFileSize(const std::string & fn)
 {
-#if defined( _WIN32) && defined(QT5)
-    QFile file(fn.c_str());
-    if(!file.open(QIODevice::ReadOnly))
-    {
-        logErr2("cannot open %s",fn.c_str());
-        return -1;
-    }
-    file.setTextModeEnabled(false);
-    if(file.isTextModeEnabled()) throw CommonError("if(file.isTextModeEnabled()) ");
-
-    int64_t sz=file.size();
-    file.close();
-    return sz;
-
-#else
     int _fd=::open(fn.c_str(),O_RDONLY);
     if(_fd==-1)
     {
@@ -946,7 +911,6 @@ int64_t CUtils::calcFileSize(const std::string & fn)
         return -1;
     }
     return size;
-#endif
 }
 
 bool is_file_exists(const std::string &pathname)
@@ -993,57 +957,6 @@ int CUtils::checkPath(const std::string & _pathname)
         }
     }
     return 0;
-}
-bool CUtils::writeable_fd(const REF_getter<epoll_socket_info>& esi, int timeout_sec, int timeout_usec)
-{
-    int iii;
-    {
-
-        if(esi->closed())return false;
-        fd_set  wrfs;
-        FD_ZERO(&wrfs);
-        FD_SET(CONTAINER(esi->get_fd()), &wrfs);
-        struct timeval tv;
-        tv.tv_sec = timeout_sec;
-        tv.tv_usec = timeout_usec;
-
-        iii = select(CONTAINER(esi->get_fd()) + 1, NULL, &wrfs, NULL, &tv);
-        if(iii!=-1 && CONTAINER(esi->get_fd())!=-1)
-            return FD_ISSET(CONTAINER(esi->get_fd()), &wrfs);
-    }
-    if (iii == -1) {
-        esi->close("select writeable");
-        return false;
-    }
-    return false;
-
-
-}
-
-bool CUtils::readable_fd(const REF_getter<epoll_socket_info>& esi,int sec, int usec)
-{
-
-    int iii;
-    {
-        MUTEX_INSPECTORS("select");
-        if(esi->closed())return false;
-        fd_set rdfs;    /*for select */
-        FD_ZERO(&rdfs);
-        FD_SET(CONTAINER(esi->get_fd()), &rdfs);
-        struct timeval tv;
-        tv.tv_sec = sec;
-        tv.tv_usec = usec;
-
-        iii = select(CONTAINER(esi->get_fd()) + 1, &rdfs, NULL, NULL, &tv);
-        if(iii!=-1 && CONTAINER(esi->get_fd())!=-1)
-            return FD_ISSET(CONTAINER(esi->get_fd()), &rdfs);
-    }
-    if (iii == -1) {
-        esi->close("select readable");
-        return false;
-    }
-    return false;
-
 }
 std::string CUtils::findExecutable(const std::string& _fn)
 {
@@ -1236,19 +1149,15 @@ REF_getter<refbuffer>  CUtils::zexpand(const REF_getter<refbuffer>& data)
     if(!data.valid())
         return data;
     inBuffer in(data);
-//    logErr2("remains %d",in.remains());
     int64_t expanded_size=in.get_PN();
-//    logErr2("remains %d after extract expanded_size",in.remains());
-//    logErr2("expanded size %ld",expanded_size);
     std::string buf=in.get_PSTR();
-//    logErr2("packed buf size %d",buf.size());
     uLongf olen=expanded_size;
     Bytef *obuf=(Bytef*) malloc(olen);
     if(obuf==NULL)
         throw std::runtime_error("alloc error");
 
     uncompress(obuf,&olen,(Bytef*)buf.data(),buf.size());
-    REF_getter<refbuffer> ret=new refbuffer;//(std::string((char*)obuf,olen);
+    REF_getter<refbuffer> ret=new refbuffer;
     ret->buffer=obuf;
     ret->size_=olen;
     ret->capacity=olen;
@@ -1339,9 +1248,9 @@ std::string CUtils::en_datetime(const time_t& t)
 std::string CUtils::en_date(const time_t& t)
 {
     struct tm _tm;
-    struct tm *tt=localtime_r(&t, &_tm);
+    struct tm tt=*localtime(&t);
     char buf[30];
-    snprintf(buf,sizeof(buf),"%04d.%02d.%02d",tt->tm_year+1900,tt->tm_mon+1,tt->tm_mday);
+    snprintf(buf,sizeof(buf),"%04d.%02d.%02d",tt.tm_year+1900,tt.tm_mon+1,tt.tm_mday);
     return buf;
 }
 time_t CUtils::from_en_datetime(const std::string& s)
@@ -1441,18 +1350,12 @@ std::string CUtils::gLogDir()
         throw CommonError("gLogDir: if(m_files_dir.size()==0)");
     return m_files_dir;
 #endif
-#ifdef QT5
-    std::string cachedir=QStandardPaths::writableLocation(QStandardPaths::CacheLocation).toStdString();
-    iUtils->checkPath(cachedir);
-    return cachedir;
-#else
     {
         std::string cachedir=expand_homedir(LOG_TARGET_DIR);
         iUtils->checkPath(cachedir);
         return cachedir;
     }
     return ".";
-#endif
 }
 
 std::string CUtils::gCacheDir()
@@ -1462,18 +1365,12 @@ std::string CUtils::gCacheDir()
         throw CommonError("gCacheDir: if(m_files_dir.size()==0)");
     return m_files_dir;
 #endif
-#ifdef QT5
-    std::string cachedir=QStandardPaths::writableLocation(QStandardPaths::CacheLocation).toStdString();
-    iUtils->checkPath(cachedir);
-    return cachedir;
-#else
     {
         std::string cachedir=expand_homedir(CACHE_TARGET_DIR);
         iUtils->checkPath(cachedir);
         return cachedir;
     }
     return ".";
-#endif
 }
 std::string CUtils::gConfigDir()
 {
@@ -1483,17 +1380,10 @@ std::string CUtils::gConfigDir()
     return m_files_dir;
 #endif
 
-#ifdef QT5
-    std::string cachedir=QStandardPaths::writableLocation(QStandardPaths::ConfigLocation).toStdString();
-    iUtils->checkPath(cachedir);
-    return cachedir;
-#else
     std::string cachedir=expand_homedir(CONFIG_TARGET_DIR);
     iUtils->checkPath(cachedir);
     return cachedir;
     return ".";
-
-#endif
 }
 std::string CUtils::filesDir()
 {
@@ -1656,7 +1546,7 @@ REF_getter<Event::Base> CUtils::unpackEvent(inBuffer&b)
     if(esc==NULL)
     {
         MUTEX_INSPECTOR;
-        logErr2("1cannot find event unpacker for eventId %s try to load service %s", id.dump().c_str(),_DMI().c_str());
+//        logErr2("1cannot find event unpacker for eventId %s try to load service %s", id.dump().c_str(),_DMI().c_str());
         {
             M_LOCK(local.pluginInfo);
             auto j=local.pluginInfo.events.find(id);
@@ -1815,6 +1705,7 @@ void CUtils::registerIface(const VERSION_id& vid,const SERVICE_id& id, Ifaces::B
         logErr2("register iface, already registered %s",id.dump().c_str());
         return;
     }
+//    logErr2("RegisterIFACE %s",id.dump().c_str());
     local.ifaces.container.insert(std::make_pair(id,p));
 }
 void CUtils::registerITest(const VERSION_id& vid,const SERVICE_id& id, itest_static_constructor p)

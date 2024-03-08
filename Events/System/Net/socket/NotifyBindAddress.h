@@ -2,7 +2,7 @@
 #define ____EVT_SOCKET_OPEN__H___NBA
 
 #include "_________socketEvent.h"
-
+#include "event_mt.h"
 namespace socketEvent
 {
     class NotifyBindAddress: public Event::NoPacked
@@ -12,18 +12,18 @@ namespace socketEvent
         {
             return NULL;
         }
-        NotifyBindAddress(const REF_getter<epoll_socket_info> & __S,const std::string _socketDescription,bool _rebind,const route_t&r)
+        NotifyBindAddress(const msockaddr_in & __S,const char* _socketDescription,bool _rebind,const route_t&r)
             :NoPacked(socketEventEnum::NotifyBindAddress,r),
-             esi(__S),socketDescription(_socketDescription),rebind(_rebind)
+             addr(__S),socketDescription(_socketDescription),rebind(_rebind)
         {
         }
         void jdump(Json::Value &j) const
         {
-            j["local_name"]=esi->local_name.jdump();
+//            j["local_name"]=esi->local_name.jdump();
             j["socketDescription"]=socketDescription;
         }
-        const REF_getter<epoll_socket_info>  esi;
-        const std::string socketDescription;
+        const msockaddr_in  addr;
+        const char* socketDescription;
         const bool rebind;
     };
 }

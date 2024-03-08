@@ -99,7 +99,7 @@ std::string ThreadNameController::dump_mutex_inspectors()
         }
         char s[200];
 #ifdef _WIN32
-        snprintf(s,sizeof(s)-1,"---THREAD REPORT %ld (0x%lX) %s  \n", (long)i.first, (long)i.first,getName(i->first).c_str());
+        snprintf(s,sizeof(s)-1,"---THREAD REPORT %ld (0x%lX) %s  \n", (long)i.first, (long)i.first,getName(i.first).c_str());
 #else
         snprintf(s,sizeof(s)-1,"---THREAD REPORT %ld (0x%lX) %s \n", (long)i.first, (long)i.first,getName(i.first).c_str());
 #endif

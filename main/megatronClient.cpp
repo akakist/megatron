@@ -39,7 +39,8 @@ void registerTimerService(const char*);
 void registerReferrerClientService(const char* pn);
 static void registerModules()
 {
-    logErr2("static void registerModules()");
+    MUTEX_INSPECTOR;
+    logErr2("static void registerModules() %s",_DMI().c_str());
     char *pn=NULL;
     {
 #if !defined __MOBILE__

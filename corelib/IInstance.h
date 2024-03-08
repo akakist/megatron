@@ -1,7 +1,7 @@
 #ifndef _____________IFACTORY_____H
 #define _____________IFACTORY_____H
 #include <string>
-#include "event.h"
+#include "event_mt.h"
 #include "SERVICE_id.h"
 #include "unknown.h"
 #include "IUtils.h"
@@ -14,6 +14,7 @@
 
 ///       Service sandbox management
 
+class ListenerBase;
 class IInstance
 {
 public:
@@ -28,6 +29,7 @@ public:
     /// dipatch event into remote service over RPC
     virtual void sendEvent(const msockaddr_in& addr, const SERVICE_id& svs,  const REF_getter<Event::Base>&e)=0;
     virtual void sendEvent(const std::string& addr, const SERVICE_id& svs,  const REF_getter<Event::Base>&e)=0;
+    virtual void sendEvent(ListenerBase *l,  const REF_getter<Event::Base>&e)=0;
 
 
     /// send "back" event (ex: server response)

@@ -25,18 +25,18 @@ namespace dfsReferrerEvent {
         int connection_sequence_id;
         int clientType;
         Ping(const int& _type, const GlobalCookie_id& _globalCookie, unsigned short _externalListenPort, const std::set<msockaddr_in>& _internalListenAddr, int64_t _ping_time, int _connection_sequence_id, int _clientType,const route_t &r)
-            :Base(dfsReferrerEventEnum::Ping,rpcChannel,r),
+            :Base(dfsReferrerEventEnum::Ping,r),
              pingType(_type),globalCookieOfSender(_globalCookie),externalListenPort(_externalListenPort),internalListenAddr(_internalListenAddr),ping_time(_ping_time),connection_sequence_id(_connection_sequence_id),clientType(_clientType)
         {}
 
         Ping(const int& _type, const GlobalCookie_id& _globalCookie,
              int64_t _ping_time, int _connection_sequence_id, int _clientType,const route_t &r)
-            :Base(dfsReferrerEventEnum::Ping,rpcChannel,r),
+            :Base(dfsReferrerEventEnum::Ping,r),
              pingType(_type),globalCookieOfSender(_globalCookie),externalListenPort(0),ping_time(_ping_time),connection_sequence_id(_connection_sequence_id),clientType(_clientType)
         {}
 
         Ping(const route_t& r)
-            :Base(dfsReferrerEventEnum::Ping,rpcChannel,r) {}
+            :Base(dfsReferrerEventEnum::Ping,r) {}
         void unpack(inBuffer& o)
         {
 
@@ -95,12 +95,12 @@ namespace dfsReferrerEvent {
         int64_t ping_time;
         int connection_sequence_id;
         Pong(const int& _type,const msockaddr_in& _visible_name_of_pinger,const GlobalCookie_id& _globalCookieOfResponder, const int& nodeLevelInHierarhy_, int64_t _ping_time, int _connection_sequence_id,const route_t& r)
-            :Base(dfsReferrerEventEnum::Pong,rpcChannel,r),
+            :Base(dfsReferrerEventEnum::Pong,r),
              pingType(_type),visible_name_of_pinger(_visible_name_of_pinger),globalCookieOfResponder(_globalCookieOfResponder),
              nodeLevelInHierarhy(nodeLevelInHierarhy_),ping_time(_ping_time),connection_sequence_id(_connection_sequence_id)
         {}
         Pong(const route_t& r)
-            :Base(dfsReferrerEventEnum::Pong,rpcChannel,r) {}
+            :Base(dfsReferrerEventEnum::Pong,r) {}
         void unpack(inBuffer& o)
         {
 

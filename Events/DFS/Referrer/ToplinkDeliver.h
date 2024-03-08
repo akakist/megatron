@@ -18,7 +18,7 @@ namespace dfsReferrerEvent {
             return new ToplinkDeliverREQ(r);
         }
         ToplinkDeliverREQ(const SERVICE_id& _destinationService, const REF_getter<Event::Base>& e, const route_t& r)
-            :Base(dfsReferrerEventEnum::ToplinkDeliverREQ,rpcChannel,r),
+            :Base(dfsReferrerEventEnum::ToplinkDeliverREQ,r),
              destinationService(_destinationService),eventData(NULL)
         {
             outBuffer o;
@@ -26,7 +26,7 @@ namespace dfsReferrerEvent {
             eventData=o.asString();
         }
         ToplinkDeliverREQ(const route_t& r)
-            :Base(dfsReferrerEventEnum::ToplinkDeliverREQ,rpcChannel,r),eventData(NULL)
+            :Base(dfsReferrerEventEnum::ToplinkDeliverREQ,r),eventData(NULL)
         {
             if(!eventData.valid())
                 eventData=new refbuffer;
@@ -70,7 +70,7 @@ namespace dfsReferrerEvent {
             return new ToplinkDeliverRSP(r);
         }
         ToplinkDeliverRSP(const REF_getter<Event::Base>& _e,const route_t& r)
-            :Base(dfsReferrerEventEnum::ToplinkDeliverRSP,rpcChannel,r),
+            :Base(dfsReferrerEventEnum::ToplinkDeliverRSP,r),
              eventData(NULL)
         {
             outBuffer o;
@@ -79,7 +79,7 @@ namespace dfsReferrerEvent {
 
         }
         ToplinkDeliverRSP(const route_t& r)
-            :Base(dfsReferrerEventEnum::ToplinkDeliverRSP,rpcChannel,r),eventData(NULL)
+            :Base(dfsReferrerEventEnum::ToplinkDeliverRSP,r),eventData(NULL)
         {
             if(!eventData.valid())
                 eventData=new refbuffer;

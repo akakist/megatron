@@ -1,32 +1,39 @@
-include_directories(local
-			lib/jsoncpp-0.5.0/include 
-			.
-			corelib
-			lib
-			lib/miniupnp
-			/usr/local/include
+cmake_minimum_required (VERSION 3.16)
 
-)
-link_directories( /usr/local/lib)
-SET(PORT 2000)
+project (megatron)
 
-SET(PROJECT_BASE_DIR ~/bin-${PORT})
-SET(PLUGIN_TARGET_DIR ${PROJECT_BASE_DIR}/plugin)
-SET(BIN_TARGET_DIR ${PROJECT_BASE_DIR}/bin)
-SET(LIB_TARGET_DIR ${PROJECT_BASE_DIR}/lib)
-SET(LOG_TARGET_DIR ${PROJECT_BASE_DIR}/log)
-SET(DATA_TARGET_DIR ${PROJECT_BASE_DIR}/data)
-SET(CONFIG_TARGET_DIR ${PROJECT_BASE_DIR}/conf)
-SET(CACHE_TARGET_DIR ${PROJECT_BASE_DIR}/cache)
+if(UNIX AND NOT APPLE)
+SET(LINUX true)
+endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14  ")
+if(LINUX)
+#    set(CMAKE_PREFIX_PATH $ENV{HOME}/Qt/5.15.2/gcc_64)
+    set(CMAKE_PREFIX_PATH /usr/lib/qt5/bin)
+    set(CMAKE_SHARED_LINKER_FLAGS "-Xlinker --export-dynamic -Xlinker -zdefs")
+else()
+    set(CMAKE_PREFIX_PATH $ENV{HOME}/Qt/5.15.2/clang_64)
+endif()
 
-CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/megatron_config.h.in"
-                "${PROJECT_SOURCE_DIR}/megatron_config.h"
-                NEWLINE_STYLE UNIX )
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/)
 
+include(CTest)
 
-add_definitions( -DWITHOUT_UPNP)
+include(FetchContent)
+
+FetchContent_Declare(
+        OpenSSL
+            GIT_REPOSITORY 
+            https://github.com/openssl/openssl
+            GIT_TAG        master
+            USES_TERMINAL_DOWNLOAD TRUE)
+FetchContent_MakeAvailable(OpenSSL)
+#FIND_PACKAGE(OpenSSL )
+# find_package(OpenSSL REQUIRED)
+
+include_directories(${OPENSSL_INCLUDE_DIR} local)
+
 
 ADD_SUBDIRECTORY(corelib)
 ADD_SUBDIRECTORY(main)
@@ -37,7 +44,4 @@ ADD_SUBDIRECTORY(lib)
 ADD_SUBDIRECTORY(test)
 ADD_SUBDIRECTORY(modules)
 
-IF(ENABLE_QT_GUI)
-#ADD_SUBDIRECTORY(tools/updateConfig)
-ENDIF()
 

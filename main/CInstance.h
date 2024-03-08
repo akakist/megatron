@@ -63,8 +63,9 @@ private:
     IConfigObj* config_z;
     IUtils *m_utils;
 
-    struct __services: public Mutexable
+    struct __services
     {
+        RWLock m_lock;
         std::map<SERVICE_id,UnknownBase* > container;
     };
     __services services;

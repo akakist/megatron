@@ -9,49 +9,48 @@
 #include <sys/event.h>
 #include <sys/time.h>
 #endif
+#ifdef __linux__
+#include <sys/epoll.h>
+#endif
+
 #ifdef __MACH__
 #include <sys/select.h>
 #include <sys/event.h>
 #endif
 #include "REF.h"
+#include "commonError.h"
 class epoll_socket_info;
-#if defined(HAVE_EPOLL) || defined(HAVE_SELECT) || defined(HAVE_KQUEUE)
-#else
-#error you must specify HAVE_EPOLL or HAVE_SELECT
-#endif
 
-struct NetworkMultiplexor: public Refcountable, public Mutexable
+struct NetworkMultiplexor: public Refcountable
 {
-#ifdef HAVE_EPOLL
-    e_poll m_epoll;
-#endif
+    int m_handle;
 private:
-#ifdef HAVE_KQUEUE
-    int m_kqueue;
-    std::vector<struct kevent> evSet;
+
 public:
     NetworkMultiplexor()
     {
-        m_kqueue=kqueue();
-        if(m_kqueue==-1)
+#ifdef  HAVE_KQUEUE
+        m_handle=kqueue();
+        if(m_handle==-1)
             throw CommonError("kqueue(): errno %d",errno);
+#elif defined(HAVE_EPOLL)
+        m_handle=epoll_create(100);
+        if(m_handle==-1)
+            throw CommonError("epoll_create(): errno %d",errno);
+#elif defined (HAVE_SELECT)
+#else
+#error "asdfasfdasfasdasd"
+#endif
     }
-#endif
+
 public:
-#ifdef HAVE_KQUEUE
-    void clear();
-    void addEvent(const struct kevent& k);
-    size_t size();
-    std::vector<struct kevent> extractEvents();
-    int getKqueue();
-#endif
-#ifdef     HAVE_EPOLL
-#endif
 
     ~NetworkMultiplexor();
 
     void sockAddReadOnNew(epoll_socket_info *esi);
-
+    void sockStartWrite(epoll_socket_info* esi);
+    void sockStopWrite(epoll_socket_info* esi);
+    void sockAddRWOnNew(epoll_socket_info* esi);
 
 
 };

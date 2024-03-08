@@ -2,7 +2,7 @@
 #include "IInstance.h"
 #include "objectHandler.h"
 #include "mutexInspector.h"
-
+#include "listenerBase.h"
 
 std::string route_t::dump() const
 {
@@ -46,6 +46,36 @@ std::string LocalServiceRoute::dump() const
     snprintf(s,sizeof(s),"local:%s",iUtils->serviceName(id).c_str());
     return s;
 }
+void ListenerRoute::pack(outBuffer&o) const
+{
+    throw CommonError("try to pack ListenerRoute");
+}
+void ListenerRoute::unpack(inBuffer&o)
+{
+    throw CommonError("try to unpack ListenerRoute");
+}
+std::string ListenerRoute::dump() const
+{
+    char s[100];
+    snprintf(s,sizeof(s),"listener:%s",id->listenerName.c_str());
+    return s;
+}
+void ThreadRoute::pack(outBuffer&o) const
+{
+    o<<(int)type<<id;
+}
+void ThreadRoute::unpack(inBuffer&o)
+{
+    o>>id;
+}
+std::string ThreadRoute::dump() const
+{
+    char s[100];
+    snprintf(s,sizeof(s),"thread:%d",id);
+    return s;
+}
+
+
 void ObjectHandlerRoutePolled::pack(outBuffer&o) const
 {
     o<<(int)type<<addr;
@@ -111,6 +141,11 @@ route_t::route_t(const SERVICE_id& id)
 {
 
     m_container.push_front(new LocalServiceRoute(id));
+}
+route_t::route_t(ListenerBase* id)
+{
+
+    m_container.push_front(new ListenerRoute(id));
 }
 route_t::route_t(ObjectHandlerPolled* id)
 {
@@ -206,10 +241,22 @@ void route_t::unpack(inBuffer&o)
         }
         switch(type)
         {
+        case Route::LISTENER:
+            throw CommonError("route unpack for listener");
+            break;
         case Route::LOCALSERVICE:
         {
             XTRY;
             Route *r=new LocalServiceRoute();
+            r->unpack(o);
+            m_container.push_back(r);
+            XPASS;
+        }
+        break;
+        case Route::THREAD:
+        {
+            XTRY;
+            Route *r=new ThreadRoute();
             r->unpack(o);
             m_container.push_back(r);
             XPASS;
@@ -268,32 +315,47 @@ int route_t::operator<(const route_t& a) const
     for(size_t i=0; i<m_container.size(); i++)
     {
         if(a.m_container[i]->type!=m_container[i]->type) return a.m_container[i]->type < m_container[i]->type;
-        if(a.m_container[i]->type==Route::LOCALSERVICE)
+        switch(a.m_container[i]->type)
+        {
+        case Route::LOCALSERVICE:
         {
             if(static_cast<const LocalServiceRoute*>(a.m_container[i].operator->())->id != static_cast<const LocalServiceRoute*>(m_container[i].operator->())->id)
                 return static_cast<const LocalServiceRoute*>(a.m_container[i].operator->())->id < static_cast<const LocalServiceRoute*>(m_container[i].operator->())->id;
         }
-        else if(a.m_container[i]->type==Route::REMOTEADDR)
+        break;
+        case Route::THREAD:
+        {
+            if(static_cast<const ThreadRoute*>(a.m_container[i].operator->())->id != static_cast<const ThreadRoute*>(m_container[i].operator->())->id)
+                return static_cast<const ThreadRoute*>(a.m_container[i].operator->())->id < static_cast<const ThreadRoute*>(m_container[i].operator->())->id;
+        }
+        break;
+        case Route::REMOTEADDR:
         {
             if(CONTAINER(static_cast<const RemoteAddrRoute*>(a.m_container[i].operator->())->addr) != CONTAINER(static_cast<const RemoteAddrRoute*>(m_container[i].operator->())->addr))
                 return CONTAINER(static_cast<const RemoteAddrRoute*>(a.m_container[i].operator->())->addr) < CONTAINER(static_cast<const RemoteAddrRoute*>(m_container[i].operator->())->addr);
         }
-        else if(a.m_container[i]->type==Route::OBJECTHANDLER_POLLED)
+        break;
+        case Route::OBJECTHANDLER_POLLED:
         {
             if(static_cast<const ObjectHandlerRoutePolled*>(a.m_container[i].operator->())->addr != static_cast<const ObjectHandlerRoutePolled*>(m_container[i].operator->())->addr)
                 return static_cast<const ObjectHandlerRoutePolled*>(a.m_container[i].operator->())->addr < static_cast<const ObjectHandlerRoutePolled*>(m_container[i].operator->())->addr;
         }
-        else if(a.m_container[i]->type==Route::OBJECTHANDLER_THREADED)
+        break;
+        case Route::OBJECTHANDLER_THREADED:
         {
             if(static_cast<const ObjectHandlerRouteThreaded*>(a.m_container[i].operator->())->addr != static_cast<const ObjectHandlerRouteThreaded*>(m_container[i].operator->())->addr)
                 return static_cast<const ObjectHandlerRouteThreaded*>(a.m_container[i].operator->())->addr < static_cast<const ObjectHandlerRouteThreaded*>(m_container[i].operator->())->addr;
         }
-        else if(a.m_container[i]->type==Route::SOCKETROUTE)
+        break;
+        case Route::SOCKETROUTE:
         {
             if(CONTAINER(static_cast<const SocketRoute*>(a.m_container[i].operator->())->id) != CONTAINER(static_cast<const SocketRoute*>(m_container[i].operator->())->id))
                 return CONTAINER(static_cast<const SocketRoute*>(a.m_container[i].operator->())->id) < CONTAINER(static_cast<const SocketRoute*>(m_container[i].operator->())->id);
         }
-        else throw CommonError("invalid route type %d",a.m_container[i]->type);
+        break;
+        default:
+            throw CommonError("invalid route type %d",a.m_container[i]->type);
+        }
     }
     XPASS;
     return 0;
@@ -307,33 +369,49 @@ bool route_t::operator==(const route_t& a) const
     if(a.m_container.size()!=m_container.size()) return false;
     for(size_t i=0; i<m_container.size(); i++)
     {
-        if(a.m_container[i]->type!=m_container[i]->type) return false;
-        if(a.m_container[i]->type==Route::LOCALSERVICE)
+        auto at=a.m_container[i]->type;
+        if(at!=m_container[i]->type) return false;
+        switch(at)
+        {
+        case Route::LOCALSERVICE:
         {
             if(static_cast<const LocalServiceRoute*>(a.m_container[i].operator->())->id != static_cast<const LocalServiceRoute*>(m_container[i].operator->())->id)
                 return false;
         }
-        else if(a.m_container[i]->type==Route::REMOTEADDR)
+        break;
+        case Route::THREAD:
+        {
+            if(static_cast<const ThreadRoute*>(a.m_container[i].operator->())->id != static_cast<const ThreadRoute*>(m_container[i].operator->())->id)
+                return false;
+        }
+        break;
+        case Route::REMOTEADDR:
         {
             if(CONTAINER(static_cast<const RemoteAddrRoute*>(a.m_container[i].operator->())->addr) != CONTAINER(static_cast<const RemoteAddrRoute*>(m_container[i].operator->())->addr))
                 return false;
         }
-        else if(a.m_container[i]->type==Route::OBJECTHANDLER_POLLED)
+        break;
+        case Route::OBJECTHANDLER_POLLED:
         {
             if(static_cast<const ObjectHandlerRoutePolled*>(a.m_container[i].operator->())->addr != static_cast<const ObjectHandlerRoutePolled*>(m_container[i].operator->())->addr)
                 return false;
         }
-        else if(a.m_container[i]->type==Route::OBJECTHANDLER_THREADED)
+        break;
+        case Route::OBJECTHANDLER_THREADED:
         {
             if(static_cast<const ObjectHandlerRouteThreaded*>(a.m_container[i].operator->())->addr != static_cast<const ObjectHandlerRouteThreaded*>(m_container[i].operator->())->addr)
                 return false;
         }
-        else if(a.m_container[i]->type==Route::SOCKETROUTE)
+        break;
+        case Route::SOCKETROUTE:
         {
             if(CONTAINER(static_cast<const SocketRoute*>(a.m_container[i].operator->())->id) != CONTAINER(static_cast<const SocketRoute*>(m_container[i].operator->())->id))
                 return false;
         }
-        else throw CommonError("invalid route type %d",a.m_container[i]->type);
+        break;
+        default:
+            throw CommonError("invalid route type %d",at);
+        }
     }
     XPASS;
     return true;
@@ -341,7 +419,7 @@ bool route_t::operator==(const route_t& a) const
 std::string route_t::getLastJavaCookie() const
 {
     if(m_container.size()!=1)
-        throw CommonError("if(m_container.size()!=1)");
+        throw CommonError("route_t: if(m_container.size()!=1)");
     auto r=m_container[0];
     if(r.valid())
     {

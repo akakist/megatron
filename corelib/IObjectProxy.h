@@ -4,7 +4,7 @@
 #include "msockaddr_in.h"
 #include "SERVICE_id.h"
 #include "REF.h"
-#include "event.h"
+#include "event_mt.h"
 #include "unknown.h"
 #include "unknownCastDef.h"
 class ObjectHandlerPolled;
@@ -31,7 +31,6 @@ public:
 
     IObjectProxyPolled()
     {
-//        i->addClass(UnknownCast::IObjectProxyPolled,this);
     }
 
     virtual ~IObjectProxyPolled() {}

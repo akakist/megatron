@@ -11,6 +11,7 @@ public:
     Broadcaster(IInstance* _if):__BRD$ifa(_if) {}
     /// послать евент в сервис
     void sendEvent(const SERVICE_id& svs, const REF_getter<Event::Base>&e);
+    void sendEvent(ListenerBase *svs, const REF_getter<Event::Base>&e);
     /// послать евент в удаленный сервис по RPC
     void sendEvent(const msockaddr_in& addr, const SERVICE_id& svs, const REF_getter<Event::Base>&e);
     void sendEvent(const std::set<msockaddr_in>& addr, const SERVICE_id& svs, const REF_getter<Event::Base>&e);

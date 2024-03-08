@@ -29,10 +29,10 @@ void ListenerPolled::poll()
             try {
                 bool processed=false;
 
-                for(auto& i:handlers)
-                {
-                    if(i.first(d[n].operator ->(),i.second))processed=true;
-                }
+//                for(auto& i:handlers)
+//                {
+//                    if(i.first(d[n].operator ->(),i.second))processed=true;
+//                }
 
                 if(!processed)
                 {
@@ -64,15 +64,6 @@ void ListenerPolled::poll()
     }
 
     return;
-}
-void ListenerPolled::listenToEvent(const std::deque<REF_getter<Event::Base> >&e)
-{
-    M_LOCK(this);
-    for(size_t i=0; i<e.size(); i++)
-    {
-        m_container_.push_back(e[i]);
-    }
-
 }
 
 void ListenerPolled::listenToEvent(const REF_getter<Event::Base>& e)

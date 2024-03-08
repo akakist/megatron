@@ -3,7 +3,7 @@
 #include "___dfsCapsEvent.h"
 #include <set>
 #include "msockaddr_in.h"
-#include "event.h"
+#include "event_mt.h"
 namespace dfsCapsEvent {
     class GetCloudRootsREQ: public Event::Base
     {
@@ -18,13 +18,13 @@ namespace dfsCapsEvent {
         }
 
         GetCloudRootsREQ(const std::set<msockaddr_in> &sas, const route_t& r)
-            :Base(dfsCapsEventEnum::GetCloudRootsREQ,rpcChannel,r), externalListenAddr(sas)
+            :Base(dfsCapsEventEnum::GetCloudRootsREQ,r), externalListenAddr(sas)
         {
 
         }
 
         GetCloudRootsREQ(const route_t& r)
-            :Base(dfsCapsEventEnum::GetCloudRootsREQ,rpcChannel,r)
+            :Base(dfsCapsEventEnum::GetCloudRootsREQ,r)
         {
 
         }
@@ -58,13 +58,13 @@ namespace dfsCapsEvent {
         }
 
         GetCloudRootsRSP(const std::vector<msockaddr_in> &sas, const route_t& r)
-            :Base(dfsCapsEventEnum::GetCloudRootsRSP,rpcChannel,r), referrer_addresses(sas)
+            :Base(dfsCapsEventEnum::GetCloudRootsRSP,r), referrer_addresses(sas)
         {
 
         }
 
         GetCloudRootsRSP(const route_t& r)
-            :Base(dfsCapsEventEnum::GetCloudRootsRSP,rpcChannel,r)
+            :Base(dfsCapsEventEnum::GetCloudRootsRSP,r)
         {
 
         }

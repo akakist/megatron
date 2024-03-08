@@ -14,9 +14,10 @@ namespace rpcEvent {
              socketIdTo(_addrTo),e(_e) {}
         const SOCKET_id socketIdTo;
         const REF_getter<Event::Base> e;
-        void jdump(Json::Value &) const
+        void jdump(Json::Value &j) const
         {
-
+            j["socketIdTo"]=CONTAINER(socketIdTo);
+            j["e"]=e->dump();
         }
 
     };

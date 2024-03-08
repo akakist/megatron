@@ -6,7 +6,7 @@
 namespace dfsReferrerEvent {
     class UpdateConfigREQ: public Event::Base
     {
-        enum {rpcChannel=CHANNEL_100};
+
 
     public:
         static Base* construct(const route_t &r)
@@ -14,30 +14,30 @@ namespace dfsReferrerEvent {
             return new UpdateConfigREQ(r);
         }
         UpdateConfigREQ(const route_t& r)
-            :Base(dfsReferrerEventEnum::UpdateConfigREQ,rpcChannel,r) {}
+            :Base(dfsReferrerEventEnum::UpdateConfigREQ,r) {}
         UpdateConfigREQ(const std::string &_body,  const route_t &r)
-            :Base(dfsReferrerEventEnum::UpdateConfigREQ,rpcChannel,r),
-             body(_body) {}
-        std::string body;
+            :Base(dfsReferrerEventEnum::UpdateConfigREQ,r),
+             bod(_body) {}
+        std::string bod;
         void unpack(inBuffer& o)
         {
 
-            o>>body;
+            o>>bod;
         }
         void pack(outBuffer&o) const
         {
 
-            o<<body;
+            o<<bod;
         }
         void jdump(Json::Value &v) const
         {
-            v["body"]=body;
+            v["body"]=bod;
         }
     };
 
     class UpdateConfigRSP: public Event::Base
     {
-        enum {rpcChannel=CHANNEL_100};
+
 
     public:
         static Base* construct(const route_t &r)
@@ -45,24 +45,24 @@ namespace dfsReferrerEvent {
             return new UpdateConfigRSP(r);
         }
         UpdateConfigRSP(const route_t& r)
-            :Base(dfsReferrerEventEnum::UpdateConfigRSP,rpcChannel,r) {}
+            :Base(dfsReferrerEventEnum::UpdateConfigRSP,r) {}
         UpdateConfigRSP(const std::string &_body,  const route_t &r)
-            :Base(dfsReferrerEventEnum::UpdateConfigRSP,rpcChannel,r),
-             body(_body) {}
-        std::string body;
+            :Base(dfsReferrerEventEnum::UpdateConfigRSP,r),
+             bod(_body) {}
+        std::string bod;
         void unpack(inBuffer& o)
         {
 
-            o>>body;
+            o>>bod;
         }
         void pack(outBuffer&o) const
         {
 
-            o<<body;
+            o<<bod;
         }
         void jdump(Json::Value &v) const
         {
-            v["body"]=body;
+            v["body"]=bod;
         }
     };
 }

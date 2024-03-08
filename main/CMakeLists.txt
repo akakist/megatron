@@ -1,8 +1,7 @@
-cmake_minimum_required (VERSION 2.6)
+#cmake_minimum_required (VERSION 2.6)
 
 
 
-#include_directories(../local ../lib/jsoncpp-0.5.0/include /usr/local/include .. . )
 
 add_library(megatron-main STATIC
 

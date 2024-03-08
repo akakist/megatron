@@ -2,7 +2,7 @@
 #define _______________LOGGING____H
 #include "unknown.h"
 #include "mutexable.h"
-#include "event.h"
+#include "event_mt.h"
 #include "IInstance.h"
 class st_log
 {

@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.6)
+#cmake_minimum_required (VERSION 2.6)
 
 add_library(core-modules SHARED
 core-modules.cpp 
@@ -24,7 +24,6 @@ core-modules.cpp
 ../../modules/rpc/rpcService.cpp
 ../../modules/rpc/upnp_tr.c
 ../../modules/socket/socketService.cpp
-../../modules/socket/socketsContainerForSocketIO.cpp
 ../../modules/ssl/ssl_reg.cpp
 ../../modules/ssl/st_rsa_impl.cpp
 ../../modules/telnet/telnetService.cpp

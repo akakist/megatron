@@ -79,7 +79,7 @@ struct JsonHandler: public TimerHelper,
 
 
     bool isConnected;
-    std::string config_body;
+    std::string config_bod;
 
 };
 

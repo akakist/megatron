@@ -17,9 +17,11 @@ namespace rpcEvent {
         const msockaddr_in addressTo;
         const SERVICE_id destination;
         const REF_getter<Event::Base> ev;
-        void jdump(Json::Value &) const
+        void jdump(Json::Value &j) const
         {
-
+            j["ev"]=ev->dump();
+            j["destination"]=destination.dump();
+            j["addressTo"]=addressTo.dump();
         }
 
     };

@@ -74,7 +74,7 @@ void Timer::Service::deinit()
         printf(RED("%s pthread_join: %s"),__PRETTY_FUNCTION__,strerror(errno));
     }
 
-    ListenerBuffered1Thread::denit();
+    ListenerBuffered1Thread::deinit();
 }
 
 Timer::Service::~Service()

@@ -51,7 +51,7 @@ bool WebHandler::Service::on_RegisterHandler(const webHandlerEvent::RegisterHand
     std::vector<std::string> v=iUtils->splitString("/",e->url);
     REF_getter<WebHandler::Node> n=root->getByPathParentDir(e->url);
     if(!n.valid()) throw CommonError("base dir for url %s not defined",e->url.c_str());
-    DBG(logErr2("on_RegisterHandler parent %s node %s",n->path().c_str(),e->url.c_str()));
+//    DBG(logErr2("on_RegisterHandler parent %s node %s",n->path().c_str(),e->url.c_str()));
     n->addChild(new WebHandler::Node(n,v[v.size()-1],e->displayName,e->route));
     return true;
 }
@@ -61,7 +61,7 @@ bool WebHandler::Service::on_RegisterDirectory(const webHandlerEvent::RegisterDi
     std::vector<std::string> v=iUtils->splitString("/",e->url);
     REF_getter<WebHandler::Node> n=root->getByPathParentDir(e->url);
     if(!n.valid()) throw CommonError("base dir for url %s not defined",e->url.c_str());
-    DBG(logErr2("on_RegisterDirectory parent %s node %s",n->path().c_str(),e->url.c_str()));
+//    DBG(logErr2("on_RegisterDirectory parent %s node %s",n->path().c_str(),e->url.c_str()));
     n->addChild(new WebHandler::Node(n,v[v.size()-1],e->displayName));
     return true;
 }
@@ -76,7 +76,7 @@ bool WebHandler::Service::on_RequestIncoming(const httpEvent::RequestIncoming* e
         if(sizeof(d)!=ps.size()) throw CommonError("sizeof(d)!=ps.size()");
         memcpy(&d,ps.data(),ps.size());
         std::string out=iUtils->dumpWebDumpable(d);
-        HTTP::Response cc;
+        HTTP::Response cc(iInstance);
         cc.content=out;
         cc.makeResponse(e->esi);
         return true;
@@ -86,7 +86,7 @@ bool WebHandler::Service::on_RequestIncoming(const httpEvent::RequestIncoming* e
     if(!N.valid())
     {
         DBG(logErr2("!N valid"));
-        HTTP::Response cc;
+        HTTP::Response cc(iInstance);
         {
             std::string url;
             {
@@ -113,7 +113,7 @@ bool WebHandler::Service::on_RequestIncoming(const httpEvent::RequestIncoming* e
     else if(N->nodeType==WebHandler::Node::NT_directory)
     {
         DBG(logErr2("N->nodeType==WebHandler::Node::NT_directory"));
-        HTTP::Response cc;
+        HTTP::Response cc(iInstance);
         cc.content+="<h1>"+N->displayName+"</h1><p>";
         std::map<std::string, REF_getter<Node> > c=N->getChildren();
         for(auto &i:c)

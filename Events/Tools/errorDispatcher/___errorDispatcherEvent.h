@@ -1,6 +1,6 @@
 #ifndef _______________serviceErrorDispatcherEvent$h
 #define _______________serviceErrorDispatcherEvent$h
-#include "event.h"
+#include "event_mt.h"
 #include "SERVICE_id.h"
 #include "serviceEnum.h"
 

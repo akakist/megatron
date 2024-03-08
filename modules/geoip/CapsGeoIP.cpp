@@ -62,6 +62,7 @@ std::pair<std::string,std::string> CapsGeoIP::getIpRange(const std::string& ipma
 
 void CapsGeoIP::init()
 {
+#ifndef NO_FILES
     MUTEX_INSPECTOR;
     M_LOCK(this);
 
@@ -169,6 +170,7 @@ void CapsGeoIP::init()
         in>>geoNets;
     }
     logErr2("CapsGeoIP::init end");
+#endif
 }
 int CapsGeoIP::cmpGeo(const geoNetRec&a,const geoNetRec &b)
 {

@@ -9,7 +9,7 @@
 
 #define LOG_TARGET_DIR "@LOG_TARGET_DIR@"
 #define CAPS_ADDRESS "@CAPS_IP@:@PORT@"
-#define CLIENT_ADDRESS "@CAPS_IP@:@CLIENTPORT@"
+//#define CLIENT_ADDRESS "@CAPS_IP@:@CLIENTPORT@"
 #define CAPS_PORT "@PORT@"
 #define CAPS_IP "@CAPS_IP@"
 #endif

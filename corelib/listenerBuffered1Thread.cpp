@@ -5,7 +5,7 @@
 ListenerBuffered1Thread::~ListenerBuffered1Thread()
 {
 }
-void ListenerBuffered1Thread::denit()
+void ListenerBuffered1Thread::deinit()
 {
     auto cont=m_container;
     m_container=NULL;
@@ -44,13 +44,13 @@ void ListenerBuffered1Thread::processEvent(const REF_getter<Event::Base>&e)
         {
 
 
-            for(auto& i:handlers)
-            {
-                if(i.first)
-                {
-                    if(i.first(e.operator ->(),i.second))processed=true;
-                }
-            }
+//            for(auto& i:handlers)
+//            {
+//                if(i.first)
+//                {
+//                    if(i.first(e.operator ->(),i.second))processed=true;
+//                }
+//            }
         }
         if(!e.valid()) throw CommonError("!.valid() "+_DMI());
         if(!processed)
@@ -142,19 +142,6 @@ void* ListenerBuffered1Thread::worker(void*p)
     return NULL;
 }
 
-void ListenerBuffered1Thread::listenToEvent(const std::deque<REF_getter<Event::Base> >&D)
-{
-    if(m_isTerminating) return;
-    if(!m_container.valid())
-    {
-        logErr2("if(!m_container.valid())");
-        return;
-    }
-    XTRY;
-    for(size_t i=0; i<D.size(); i++)
-        m_container->push(D[i]);
-    XPASS;
-}
 
 void ListenerBuffered1Thread::listenToEvent(const REF_getter<Event::Base>& e)
 {

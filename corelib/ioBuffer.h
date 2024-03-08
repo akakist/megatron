@@ -184,11 +184,11 @@ public:
 template < class T > outBuffer & operator << (outBuffer& b,const std::vector < T > &v)
 {
     b << (unsigned int)v.size();
-#if !defined(_MSC_VER)
+//#if !defined(_MSC_VER)
     for (auto &j:v) b << j;
-#else
-    for (std::vector < T >::const_iterator j = v.begin(); j != v.end(); j++) b << *j;
-#endif
+//#else
+    //  for (auto j = v.begin(); j != v.end(); j++) b << *j;
+//#endif
 
     return b;
 }
@@ -197,11 +197,11 @@ template < class T > outBuffer & operator << (outBuffer& b,const std::list < T >
 {
 
     b << (unsigned int)v.size();
-#if defined(_MSC_VER)
-    for (std::list<T>::const_iterator j = v.begin(); j != v.end(); j++) b << *j;
-#else
+//#if defined(_MSC_VER)
+//    for (std::list<T>::const_iterator j = v.begin(); j != v.end(); j++) b << *j;
+//#else
     for (auto  &j:v) b << j;
-#endif
+//#endif
     return b;
 }
 
@@ -209,33 +209,33 @@ template < class T > outBuffer & operator << (outBuffer& b,const std::deque < T 
 {
 
     b << (unsigned int)v.size();
-#if defined (_MSC_VER)
-    for (std::deque<T>::const_iterator j = v.begin(); j != v.end(); j++) b << *j;
-#else
+//#if defined (_MSC_VER)
+//    for (std::deque<T>::const_iterator j = v.begin(); j != v.end(); j++) b << *j;
+//#else
     for (auto &j:v) b << j;
-#endif
+//#endif
     return b;
 }
 template < class T > outBuffer & operator << (outBuffer& b,const std::set < T > &v)
 {
 
     b << (unsigned int)v.size();
-#ifdef _MSC_VER
-    for (std::set < T > ::const_iterator j = v.begin(); j != v.end(); j++) b << *j;
-#else
+//#ifdef _MSC_VER
+//    for (std::set < T > ::const_iterator j = v.begin(); j != v.end(); j++) b << *j;
+//#else
     for (auto &j: v) b << j;
-#endif
+//#endif
     return b;
 }
 
 template < class T1, class T2 > outBuffer & operator << (outBuffer& b,const std::map < T1, T2 > &v)
 {
     b << (unsigned int)v.size();
-#if defined (_MSC_VER)
-    for (std::map < T1, T2 >::const_iterator j = v.begin(); j != v.end(); j++)
-#else
+//#if defined (_MSC_VER)
+//    for (std::map < T1, T2 >::const_iterator j = v.begin(); j != v.end(); j++)
+//#else
     for (auto j = v.begin(); j != v.end(); j++)
-#endif
+//#endif
     {
         b << j->first << j->second;
     }

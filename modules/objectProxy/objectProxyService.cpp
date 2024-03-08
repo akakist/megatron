@@ -20,7 +20,7 @@ bool ObjectProxy::Threaded::handleEvent(const REF_getter<Event::Base>& e)
     if( rpcEventEnum::IncomingOnConnector==ID)
     {
 
-        MUTEX_INSPECTOR;
+        ;
         rpcEvent::IncomingOnConnector* ez=static_cast<rpcEvent::IncomingOnConnector*>(e.operator ->());
         e->route=ez->e->route;
     }
@@ -32,18 +32,18 @@ bool ObjectProxy::Threaded::handleEvent(const REF_getter<Event::Base>& e)
     REF_getter<Route> r= e.operator->()->route.pop_front();
     if(r->type==Route::OBJECTHANDLER_THREADED)
     {
-        MUTEX_INSPECTOR;
+        ;
         ObjectHandlerRouteThreaded* l=(ObjectHandlerRouteThreaded*) r.operator ->();
 
         {
-            MUTEX_INSPECTOR;
+            ;
             XTRY;
 
             M_LOCK(__m_lock);
             auto i=__mx_handlers.find(l->addr);
             if(i==__mx_handlers.end())
             {
-                MUTEX_INSPECTOR;
+                ;
                 for(auto& it:__mx_handlers)
                 {
                     DBG(logErr2("*it %s",iUtils->bin2hex(it).c_str()));
@@ -52,7 +52,7 @@ bool ObjectProxy::Threaded::handleEvent(const REF_getter<Event::Base>& e)
                 return false;
             }
             {
-                MUTEX_INSPECTOR;
+                ;
                 XTRY;
                 ObjectHandlerThreaded* OH=NULL;
                 std::string aid=*i;
@@ -66,12 +66,12 @@ bool ObjectProxy::Threaded::handleEvent(const REF_getter<Event::Base>& e)
                     if( rpcEventEnum::IncomingOnConnector==ID)
                     {
 
-                        MUTEX_INSPECTOR;
+                        ;
                         rpcEvent::IncomingOnConnector* ez=static_cast<rpcEvent::IncomingOnConnector*>(e.operator ->());
                         ez->e->route=e->route;
                     }
 
-                    MUTEX_INSPECTOR;
+                    ;
                     M_UNLOCK(__m_lock);
                     if(!OH->OH_handleObjectEvent(e))
                     {
@@ -90,7 +90,7 @@ bool ObjectProxy::Threaded::handleEvent(const REF_getter<Event::Base>& e)
     }
     else
     {
-        MUTEX_INSPECTOR;
+        ;
         logErr2("!(r->type==Route::OBJECTHANDLER_THREADED) %d %s",r->dump().c_str(),r->type);
     }
     return true;
@@ -103,7 +103,7 @@ bool ObjectProxy::Threaded::handleEvent(const REF_getter<Event::Base>& e)
 bool ObjectProxy::Polled::handleEvent(const REF_getter<Event::Base>& e)
 {
     XTRY;
-    MUTEX_INSPECTOR;
+    ;
 
     auto &ID=e->id;
     if(systemEventEnum::startService==ID)
@@ -113,7 +113,7 @@ bool ObjectProxy::Polled::handleEvent(const REF_getter<Event::Base>& e)
         throw CommonError("rpcIncomingOnAcceptor here %s %d",__FILE__,__LINE__);
     if( rpcEventEnum::IncomingOnConnector==ID)
     {
-        MUTEX_INSPECTOR;
+        ;
 
         rpcEvent::IncomingOnConnector* ez=static_cast<rpcEvent::IncomingOnConnector*>(e.operator ->());
         e->route=ez->e->route;
@@ -121,16 +121,16 @@ bool ObjectProxy::Polled::handleEvent(const REF_getter<Event::Base>& e)
     REF_getter<Route> r=((Event::Base*)e.operator ->())->route.pop_front();
     if(r->type==Route::OBJECTHANDLER_POLLED)
     {
-        MUTEX_INSPECTOR;
+        ;
         ObjectHandlerRoutePolled* l=(ObjectHandlerRoutePolled*) r.operator ->();
 
         {
-            MUTEX_INSPECTOR;
+            ;
             M_LOCK(__m_lock);
             auto i=__mx_handlers.find(l->addr);
             if(i==__mx_handlers.end())
             {
-                MUTEX_INSPECTOR;
+                ;
                 for(auto& it:__mx_handlers)
                 {
                     DBG(logErr2("*it %s",iUtils->bin2hex(it).c_str()));
@@ -139,7 +139,7 @@ bool ObjectProxy::Polled::handleEvent(const REF_getter<Event::Base>& e)
                 return false;
             }
             {
-                MUTEX_INSPECTOR;
+                ;
                 ObjectHandlerPolled* OH=NULL;
                 std::string aid=*i;
                 if(aid.size()!=sizeof(OH))
@@ -149,7 +149,7 @@ bool ObjectProxy::Polled::handleEvent(const REF_getter<Event::Base>& e)
                 }
                 memcpy((char*)&OH,aid.data(),sizeof(OH));
                 try {
-                    MUTEX_INSPECTOR;
+                    ;
                     M_UNLOCK(__m_lock);
                     if(!OH->OH_handleObjectEvent(e))
                     {
@@ -180,7 +180,7 @@ void ObjectProxy::Polled::sendObjectRequest(const msockaddr_in& addr, const SERV
 {
     XTRY;
 
-    MUTEX_INSPECTOR;
+    ;
 
 
     e->route.push_front(new LocalServiceRoute(ListenerBase::serviceId));
@@ -190,7 +190,7 @@ void ObjectProxy::Polled::sendObjectRequest(const msockaddr_in& addr, const SERV
 void ObjectProxy::Polled::sendObjectRequest(const SERVICE_id& dst, const REF_getter<Event::Base>& e)
 {
     XTRY;
-    MUTEX_INSPECTOR;
+    ;
 
 
     e->route.push_front(new LocalServiceRoute(ListenerBase::serviceId));
@@ -201,7 +201,7 @@ void ObjectProxy::Threaded::sendObjectRequest(const msockaddr_in& addr, const SE
 {
     XTRY;
 
-    MUTEX_INSPECTOR;
+    ;
 
 
     e->route.push_front(new LocalServiceRoute(ListenerBase::serviceId));
@@ -211,7 +211,7 @@ void ObjectProxy::Threaded::sendObjectRequest(const msockaddr_in& addr, const SE
 void ObjectProxy::Threaded::sendObjectRequest(const SERVICE_id& dst, const REF_getter<Event::Base>& e)
 {
     XTRY;
-    MUTEX_INSPECTOR;
+    ;
 
 
     e->route.push_front(new LocalServiceRoute(ListenerBase::serviceId));
@@ -221,7 +221,7 @@ void ObjectProxy::Threaded::sendObjectRequest(const SERVICE_id& dst, const REF_g
 
 void registerObjectProxyModule(const char* pn)
 {
-    MUTEX_INSPECTOR;
+    ;
     XTRY;
 
     if(pn)
@@ -239,7 +239,7 @@ void registerObjectProxyModule(const char* pn)
 }
 void ObjectProxy::Polled::addObjectHandler(ObjectHandlerPolled* h)
 {
-    MUTEX_INSPECTOR;
+    ;
     XTRY;
 
     M_LOCK(__m_lock);
@@ -249,7 +249,7 @@ void ObjectProxy::Polled::addObjectHandler(ObjectHandlerPolled* h)
 }
 void ObjectProxy::Polled::removeObjectHandler(ObjectHandlerPolled* h)
 {
-    MUTEX_INSPECTOR;
+    ;
     XTRY;
 
     M_LOCK(__m_lock);
@@ -262,7 +262,7 @@ void ObjectProxy::Polled::removeObjectHandler(ObjectHandlerPolled* h)
 
 void ObjectProxy::Threaded::addObjectHandler(ObjectHandlerThreaded* h)
 {
-    MUTEX_INSPECTOR;
+    ;
     XTRY;
 
     M_LOCK(__m_lock);
@@ -272,7 +272,7 @@ void ObjectProxy::Threaded::addObjectHandler(ObjectHandlerThreaded* h)
 }
 void ObjectProxy::Threaded::removeObjectHandler(ObjectHandlerThreaded* h)
 {
-    MUTEX_INSPECTOR;
+    ;
     XTRY;
 
     M_LOCK(__m_lock);

@@ -4,7 +4,7 @@
 #include "unknown.h"
 
 #include "broadcaster.h"
-#include "listenerBuffered1Thread.h"
+#include "listenerSimple.h"
 #include "SOCKET_id.h"
 #include "httpConnection.h"
 
@@ -27,35 +27,11 @@
 namespace HTTP
 {
 
-    class __http_stuff : public Refcountable
-    /*: public SocketsContainerBase*/
-    {
-        Mutex m_lock;
-        std::map<SOCKET_id,REF_getter<HTTP::Request> > container;
-    public:
-        __http_stuff()
-//            :SocketsContainerBase("__http_stuff")
-        {}
-        REF_getter<HTTP::Request> getRequestOrNull(const SOCKET_id& id);
-        void insert(const SOCKET_id& id,const REF_getter<HTTP::Request> &C);
-        virtual ~__http_stuff() {}
-        void on_delete(const REF_getter<epoll_socket_info>&esi, const std::string& reason);
-//        void on_mod_write(const REF_getter<epoll_socket_info>&) {}
-        void clear()
-        {
-//            SocketsContainerBase::clear();
-            {
-                M_LOCK(m_lock);
-                container.clear();
-            }
-        }
-
-    };
 
     class Service:
         public UnknownBase,
         public Broadcaster,
-        public ListenerBuffered1Thread
+        public ListenerSimple
     {
 
         // config
@@ -69,6 +45,7 @@ namespace HTTP
             std::set<msockaddr_in> bind_addrs;
         };
         _mx mx;
+        ListenerBase* socketListener;
         //!config
         bool on_StreamRead(const socketEvent::StreamRead* evt);
         bool on_Accepted(const socketEvent::Accepted* evt);
@@ -92,21 +69,22 @@ namespace HTTP
         bool on_NotifyOutBufferEmpty(const socketEvent::NotifyOutBufferEmpty* );
         bool on_GetBindPortsREQ(const httpEvent::GetBindPortsREQ*);
 
+        REF_getter<HTTP::Request> getData(epoll_socket_info* esi);
+        void setData(epoll_socket_info* esi, const REF_getter<HTTP::Request> & p);
+        void clearData(epoll_socket_info* esi);
 
 
     public:
         void deinit()
         {
-            ListenerBuffered1Thread::denit();
+            ListenerSimple::deinit();
         }
         static UnknownBase*construct(const SERVICE_id&id, const std::string&nm, IInstance *_if);
         Service(const SERVICE_id& id, const std::string& nm, IInstance *_if);
         ~Service() {
-            _stuff->clear();
         }
 
 
-        REF_getter<__http_stuff> _stuff;
         std::string get_mime_type(const std::string& mime) const;
 
     protected:
@@ -127,6 +105,7 @@ namespace HTTP
             std::map<int64_t,std::pair<REF_getter<HTTP::Request>,std::vector<std::string> > > container;
         };
         _senderIo senderIo;
+        IInstance *iInstance;
     };
 };
 #endif

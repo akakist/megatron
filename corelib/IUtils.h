@@ -21,7 +21,7 @@
 #include "EVENT_id.h"
 #include "unknown.h"
 #include "webDumpable.h"
-#include "event.h"
+#include "event_mt.h"
 #include "ITests.h"
 #include "pollable.h"
 class epoll_socket_info;
@@ -50,7 +50,7 @@ public:
     virtual std::map<std::string,std::string> loadStringMapFromFile(const std::string& pathname) =0;
 
     /// загрузить мап из буфера
-    virtual std::map<std::string,std::string> loadStringMapFromBuffer(const std::string &body, const char *linedelim)=0;
+    virtual std::map<std::string,std::string> loadStringMapFromBuffer(const std::string &bod, const char *linedelim)=0;
 
     /// загрузить файл в буфер.
     /// \throw CommonError
@@ -141,8 +141,6 @@ public:
     virtual std::string dump(const std::map<msockaddr_in,std::set<SERVICE_id> > &s)=0;
 
 
-    virtual bool readable_fd(const REF_getter<epoll_socket_info>& esi,int sec, int usec)=0;
-    virtual bool writeable_fd(const REF_getter<epoll_socket_info>& esi, int timeout_sec, int timeout_usec)=0;
 
 #ifdef __WITH_ZLIB
     virtual REF_getter<refbuffer>  zcompress(const REF_getter<refbuffer>& data)=0;

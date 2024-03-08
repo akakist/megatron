@@ -1,7 +1,7 @@
 #ifndef ___________RPC__SERVER__H
 #define ___________RPC__SERVER__H
 
-#include "event.h"
+#include "event_mt.h"
 #include <IInstance.h>
 #include <listenerBuffered1Thread.h>
 #include <broadcaster.h>
@@ -23,8 +23,6 @@
 #include <Events/DFS/Referrer/SubscribeNotifications.h>
 #include <Events/DFS/Referrer/ToplinkDeliver.h>
 #include <Events/DFS/Referrer/Ping.h>
-#include <Events/DFS/Referrer/Hello.h>
-#include "Events/System/Net/rpc/UpnpResult.h"
 #include "Events/DFS/Caps/RegisterMyRefferrerNode.h"
 #include "Events/DFS/Caps/GetRefferrers.h"
 #include "uriReferals.h"
@@ -42,7 +40,7 @@ namespace refTimer {
         T_011_downlink_ping_timed_out=1011,
         T_012_reregister_referrer=1012,
 
-        T_019_D5_external_connection_check_timeout=1019,
+//        T_019_D5_external_connection_check_timeout=1019,
 
         T_020_D31_wait_after_send_PT_CACHE_on_recvd_from_GetReferrers=1020,
         ///
@@ -61,10 +59,6 @@ struct _dfsReferrerData
     _dfsReferrerData(IInstance* instance):uplinkConnectionState(NULL),
         urirefs(new dfsReferrer::_uriReferals()),
         d2_start_time(0),externalAccessIsPossible(false)
-#if !defined(WITHOUT_UPNP)
-        ,m_upnpExecuted(false),
-        m_upnpInRequesting(false)
-#endif
         ,
         connection_sequence_id(0),
         neighbours(instance->getName())
@@ -74,11 +68,7 @@ struct _dfsReferrerData
     time_t d2_start_time;
     std::set<route_t> m_readyNotificationBackroutes;
     bool externalAccessIsPossible;
-#if !defined(WITHOUT_UPNP)
-    bool m_upnpExecuted;
-    bool m_upnpInRequesting;
-#endif
-    std::string config_body;
+    std::string config_bod;
     int connection_sequence_id;
     _neighbours neighbours;
     enum _stage
@@ -128,23 +118,15 @@ namespace dfsReferrer
     {
 
         _dfsReferrerData rd;
-#if !defined(WITHOUT_UPNP)
-        bool m_enableUpnp;
-#endif
-        bool m_enableExternalCheckConnection;
         msockaddr_in getUL();
         bool hasUL();
 
         bool on_startService(const systemEvent::startService*);
     public:
-//        void on_Disaccepted(const SOCKET_id& sockId);
         bool handleEvent(const REF_getter<Event::Base>& e);
 
         bool on_CommandEntered(const telnetEvent::CommandEntered*e);
 
-#if !defined(WITHOUT_UPNP)
-        bool on_UpnpResult(const rpcEvent::UpnpResult*);
-#endif
         bool on_ConnectFailed(const rpcEvent::ConnectFailed*);
         bool on_Disconnected(const rpcEvent::Disconnected*e);
         bool on_Disaccepted(const rpcEvent::Disaccepted*e);
@@ -193,7 +175,7 @@ namespace dfsReferrer
         void d4_uplink_mode(const REF_getter<epoll_socket_info> &esi,const msockaddr_in& visibleName);
 
         /// check external connection
-        void d5_start_external_connection_check(const REF_getter<epoll_socket_info>&esi,const msockaddr_in& visibleName);
+//        void d5_start_external_connection_check(const REF_getter<epoll_socket_info>&esi,const msockaddr_in& visibleName);
 
         /// maintain connection with caps
         void d6_start(const msockaddr_in& sa);
@@ -215,8 +197,6 @@ namespace dfsReferrer
 
         bool on_Pong(const dfsReferrerEvent::Pong* e,  const REF_getter<epoll_socket_info>& esi);
 
-        bool on_acceptor_Elloh(const dfsReferrerEvent::Elloh* e, const REF_getter<epoll_socket_info>& esi);
-        bool on_acceptor_Hello(const dfsReferrerEvent::Hello*, const REF_getter<epoll_socket_info>& esi);
         bool on_Ping(const dfsReferrerEvent::Ping* e, const REF_getter<epoll_socket_info>& esi);
 
 
@@ -234,7 +214,7 @@ namespace dfsReferrer
         static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa);
         void deinit()
         {
-            ListenerBuffered1Thread::denit();
+            ListenerBuffered1Thread::deinit();
         }
 
         ~Service();

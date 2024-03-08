@@ -7,7 +7,7 @@ namespace httpEvent
 
     class GetBindPortsREQ: public Event::Base
     {
-        enum {rpcChannel=CHANNEL_100};
+
 
     public:
         static Base* construct(const route_t &r)
@@ -15,7 +15,7 @@ namespace httpEvent
             return new GetBindPortsREQ(r);
         }
         GetBindPortsREQ(const route_t& r)
-            :Base(httpEventEnum::GetBindPortsREQ,rpcChannel,r) {}
+            :Base(httpEventEnum::GetBindPortsREQ,r) {}
 
         void unpack(inBuffer& )
         {
@@ -29,7 +29,7 @@ namespace httpEvent
     };
     class GetBindPortsRSP: public Event::Base
     {
-        enum {rpcChannel=CHANNEL_100};
+
 
     public:
         static Base* construct(const route_t &r)
@@ -37,9 +37,9 @@ namespace httpEvent
             return new GetBindPortsRSP(r);
         }
         GetBindPortsRSP(const route_t& r)
-            :Base(httpEventEnum::GetBindPortsRSP,rpcChannel,r) {}
+            :Base(httpEventEnum::GetBindPortsRSP,r) {}
         GetBindPortsRSP(const std::set<msockaddr_in>& _ListenAdr,  const route_t &r)
-            :Base(httpEventEnum::GetBindPortsRSP,rpcChannel,r),
+            :Base(httpEventEnum::GetBindPortsRSP,r),
              listenAddrs(_ListenAdr) {}
         std::set<msockaddr_in> listenAddrs;
 

@@ -11,6 +11,8 @@
 #include "colorOutput.h"
 #include "ISSL.h"
 #include "main/configObj.h"
+#include <iostream>
+
 namespace ServiceEnum {
     const SERVICE_id CTRTest("CTRTest");
 }

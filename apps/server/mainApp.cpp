@@ -116,9 +116,11 @@ int main(int argc, char* argv[])
     }
 
 }
-
+bool is_term=false;
 void onterm(int signum)
 {
+    if(is_term) return;
+    is_term=true;
     printf("\n@@ %s\n",__FUNCTION__);
     static std::string ss;
     char s[200];

@@ -8,6 +8,7 @@
 #include "CONTAINER.h"
 #include "SOCKET_id.h"
 #include <set>
+//#include "listenerBase.h"
 
 /// event routing
 
@@ -21,6 +22,8 @@ public:
         OBJECTHANDLER_POLLED    =3,
         SOCKETROUTE             =4,
         OBJECTHANDLER_THREADED  =5,
+        THREAD                  =6,
+        LISTENER                =7
     };
     RouteType type;
     Route(RouteType t):type(t) {}
@@ -31,7 +34,7 @@ public:
 };
 class ObjectHandlerPolled;
 class ObjectHandlerThreaded;
-
+class ListenerBase;
 class route_t
 {
 
@@ -41,6 +44,7 @@ public:
     route_t(const SERVICE_id& id);
     route_t(ObjectHandlerPolled* id);
     route_t(ObjectHandlerThreaded* id);
+    route_t(ListenerBase* id);
     route_t(const std::string &javaCookie,ObjectHandlerPolled* id);
     route_t(const std::string &javaCookie,ObjectHandlerThreaded* id);
 
@@ -65,11 +69,34 @@ public:
     SERVICE_id id;
     LocalServiceRoute(const SERVICE_id& _id): Route(Route::LOCALSERVICE),id(_id) {}
     LocalServiceRoute():Route(Route::LOCALSERVICE) {}
-    void unpack(inBuffer&o);
-    void pack(outBuffer&o) const;
-    std::string dump()const;
+    void unpack(inBuffer&o) final;
+    void pack(outBuffer&o) const final;
+    std::string dump()const final;
     ~LocalServiceRoute() {}
 };
+class ListenerRoute:public Route
+{
+public:
+    ListenerBase* id;
+    ListenerRoute(ListenerBase* _id): Route(Route::LISTENER),id(_id) {}
+    ListenerRoute():Route(Route::LISTENER),id(NULL) {}
+    void unpack(inBuffer&o) final;
+    void pack(outBuffer&o) const final;
+    std::string dump()const final;
+    ~ListenerRoute() {}
+};
+class ThreadRoute:public Route
+{
+public:
+    int id;
+    ThreadRoute(const int& _id): Route(Route::THREAD),id(_id) {}
+    ThreadRoute():Route(Route::THREAD) {}
+    void unpack(inBuffer&o) final;
+    void pack(outBuffer&o) const final;
+    std::string dump()const final;
+    ~ThreadRoute() {}
+};
+
 class SocketRoute:public Route
 {
 public:
@@ -79,9 +106,9 @@ public:
     {
         CONTAINER(id)=0L;
     }
-    void unpack(inBuffer&o);
-    void pack(outBuffer&o) const;
-    std::string dump() const;
+    void unpack(inBuffer&o) final;
+    void pack(outBuffer&o) const final;
+    std::string dump() const final;
     ~SocketRoute() {}
 };
 class RemoteAddrRoute:public Route
@@ -93,9 +120,9 @@ public:
     {
         CONTAINER(addr)=0L;
     }
-    std::string dump() const;
-    void unpack(inBuffer&o);
-    void pack(outBuffer&o) const;
+    std::string dump() const final;
+    void unpack(inBuffer&o) final;
+    void pack(outBuffer&o) const final;
     ~RemoteAddrRoute() {}
 };
 
@@ -105,9 +132,9 @@ public:
     std::string  addr;
     ObjectHandlerRoutePolled(const std::string&  _addr): Route(Route::OBJECTHANDLER_POLLED),addr(_addr) {}
     ObjectHandlerRoutePolled(): Route(Route::OBJECTHANDLER_POLLED) {}
-    std::string dump() const;
-    void unpack(inBuffer&o);
-    void pack(outBuffer&o) const;
+    std::string dump() const final;
+    void unpack(inBuffer&o) final;
+    void pack(outBuffer&o) const final;
     ~ObjectHandlerRoutePolled() {}
 };
 class ObjectHandlerRouteThreaded:public Route
@@ -116,9 +143,9 @@ public:
     std::string  addr;
     ObjectHandlerRouteThreaded(const std::string&  _addr): Route(Route::OBJECTHANDLER_THREADED),addr(_addr) {}
     ObjectHandlerRouteThreaded(): Route(Route::OBJECTHANDLER_THREADED) {}
-    std::string dump() const;
-    void unpack(inBuffer&o);
-    void pack(outBuffer&o) const;
+    std::string dump() const final;
+    void unpack(inBuffer&o) final;
+    void pack(outBuffer&o) const final;
     ~ObjectHandlerRouteThreaded() {}
 };
 

@@ -8,6 +8,7 @@
 #define IPDATA "ipdata.txt"
 
 #define DBNAME "geoip"
+#define NO_FILES 1
 class CapsGeoIP: public Mutexable
 {
 public:

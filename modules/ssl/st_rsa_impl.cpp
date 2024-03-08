@@ -46,19 +46,22 @@ void st_rsa_impl::generate_key(const int bits)
 
     XTRY;
 
-    unsigned long   e = RSA_F4;
+//    unsigned long   e = RSA_F4;
     int             ret = 0;
     BIGNUM          *bne = NULL;
     bne = BN_new();
-    ret = BN_set_word(bne,e);
+    ret = BN_set_word(bne,RSA_F4);
     if(ret != 1) {
+        BN_free(bne);
         throw CommonError("BN_set_word");
     }
 
     rsa_xxx = RSA_new();
     ret = RSA_generate_key_ex(rsa_xxx, bits, bne, NULL);
     if(ret != 1) {
-        throw CommonError("RSA_generate_key_ex");
+        BN_free(bne);
+        auto err=ERR_get_error();
+        throw CommonError("RSA_generate_key_ex %d",err);
     }
     BN_free(bne);
 

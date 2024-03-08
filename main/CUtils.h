@@ -27,7 +27,7 @@ public:
 
 
     std::map<std::string,std::string> loadStringMapFromFile(const std::string& pathname);
-    std::map<std::string,std::string> loadStringMapFromBuffer(const std::string &body, const char *linedelim);
+    std::map<std::string,std::string> loadStringMapFromBuffer(const std::string &bod, const char *linedelim);
     std::string  load_file(const std::string&);
     std::string load_file_no_throw(const std::string & fn);
     long  load_file_from_disk(std::string&, const std::string&);
@@ -85,8 +85,6 @@ public:
 
     std::string extractFileExt(const std::string&);
     std::string extractFileName(const std::string & f);
-    bool readable_fd(const REF_getter<epoll_socket_info>& esi,int sec, int usec);
-    bool writeable_fd(const REF_getter<epoll_socket_info>& esi, int timeout_sec, int timeout_usec);
 
 #ifdef __WITH_ZLIB
     REF_getter<refbuffer>  zcompress(const REF_getter<refbuffer>& data);
@@ -160,11 +158,6 @@ public:
             CONTAINER(gen)++;
             if(CONTAINER(gen)<=0) CONTAINER(gen)=1;
             return gen;
-        }
-        size_t size()
-        {
-            M_LOCK(this);
-            return 0;
         }
 
 
