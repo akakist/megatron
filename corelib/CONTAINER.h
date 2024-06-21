@@ -1,5 +1,4 @@
-#ifndef ___________CONTAINER____F
-#define ___________CONTAINER____F
+#pragma once
 
 /// macro used with typed int|string typed
 
@@ -7,5 +6,4 @@
 #define CONTAINER(a) a.container
 #else
 #define CONTAINER(a) a
-#endif
 #endif

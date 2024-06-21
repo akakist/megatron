@@ -1,5 +1,4 @@
-#ifndef ____________ST_RSA__H
-#define ____________ST_RSA__H
+#pragma once
 #include <string>
 #include "ISSL.h"
 typedef struct rsa_st RSA;
@@ -57,7 +56,6 @@ public:
     std::string generateRandomKey();
 };
 
-#endif
 
 
 

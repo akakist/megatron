@@ -2,6 +2,17 @@
 #define __________dfsReferrer_EventInfo__HH
 
 
+#include "IUtils.h"
+
+#include "Events/DFS/capsEvent.h"
+#include "Events/Tools/telnetEvent.h"
+#include <Events/DFS/capsEvent.h>
+#include <Events/DFS/referrerEvent.h>
+#include <Events/System/Net/rpcEvent.h>
+#include <Events/System/Run/startService.h>
+#include <Events/System/timerEvent.h>
+#include <Events/Tools/telnetEvent.h>
+#include <Events/Tools/webHandlerEvent.h>
 inline std::set<EVENT_id> getEvents_dfsReferrer()
 {
 

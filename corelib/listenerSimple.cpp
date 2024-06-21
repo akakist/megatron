@@ -1,4 +1,5 @@
 #include "listenerSimple.h"
+#include "IUtils.h"
 #include "mutexInspector.h"
 ListenerSimple::~ListenerSimple()
 {
@@ -13,14 +14,9 @@ void ListenerSimple::listenToEvent(const REF_getter<Event::Base>& e)
     XTRY;
     try {
         if(!e.valid()) return;
-//        for(auto& i:handlers)
-//        {
-//            if(i.first(e.operator ->(),i.second))
-//                return;
-//        }
-        if(!handleEvent(e.operator ->()))
+        if(!handleEvent(e.get()))
         {
-            logErr2("ListenerSimple: unhandled event %s  in %s",e->dump().toStyledString().c_str(),listenerName.c_str());
+            logErr2("ListenerSimple: unhandled event %s  in %s",e->dump().toStyledString().c_str(),listenerName_.c_str());
         }
     }
     catch(CommonError& ec)

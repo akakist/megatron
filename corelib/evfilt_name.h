@@ -1,3 +1,5 @@
+#pragma once
+
 #include "e_poll.h"
 #ifdef HAVE_KQUEUE
 #include <sys/event.h>

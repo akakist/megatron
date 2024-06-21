@@ -1,7 +1,6 @@
-#ifndef ___DATA_ID_H
-#define ___DATA_ID_H
+#pragma once
+#include "ioBuffer.h"
 #include <string>
-#include "IInstance.h"
 struct DATA_id
 {
     std::string container;
@@ -39,4 +38,3 @@ inline inBuffer& operator>> (inBuffer& b,  DATA_id& s)
     b>>s.container;
     return b;
 }
-#endif

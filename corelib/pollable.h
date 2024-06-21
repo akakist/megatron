@@ -1,9 +1,7 @@
-#ifndef ___POLLABLE__H
-#define ___POLLABLE__H
+#pragma once
 
 class pollable
 {
 public:
     virtual void poll()=0;
 };
-#endif

@@ -1,12 +1,10 @@
-#ifndef __________________DBH___H______
-#define __________________DBH___H______
+#pragma once
 #include "SERVICE_id.h"
 #include "_QUERY.h"
 #include "queryResult.h"
 #include "unknown.h"
 #include "IInstance.h"
 #include "REF.h"
-#include "unknownCastDef.h"
 
 #define SQL_BUFFER_SIZE 4096
 /**  Universal device independant database handler
@@ -178,4 +176,3 @@ struct st_TRANSACTION
     }
 
 };
-#endif

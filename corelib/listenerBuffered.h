@@ -1,5 +1,4 @@
-#ifndef ________________LISTENER_BUFFERED____H
-#define ________________LISTENER_BUFFERED____H
+#pragma once
 #include "listenerBase.h"
 #include "mutexable.h"
 #include "IConfigObj.h"
@@ -46,4 +45,3 @@ public:
     /// caller of handleEvent
     void processEvent(const REF_getter<Event::Base>&);
 };
-#endif

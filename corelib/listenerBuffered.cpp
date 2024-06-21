@@ -1,6 +1,8 @@
 #include "listenerBuffered.h"
+#include "IUtils.h"
 #include "mutexInspector.h"
 #include <pthread.h>
+#include <unistd.h>
 #include "colorOutput.h"
 
 ListenerBuffered::ListenerBuffered(const std::string& name, IConfigObj* obj, const SERVICE_id& sid, IInstance *ins)
@@ -23,7 +25,7 @@ void ListenerBuffered::processEvent(const REF_getter<Event::Base>&e)
 //            {
 //                if(i.first)
 //                {
-//                    if(i.first(e.operator ->(),i.second))processed=true;
+//                    if(i.first(e.get(),i.second))processed=true;
 //                }
 //            }
         }
@@ -41,7 +43,7 @@ void ListenerBuffered::processEvent(const REF_getter<Event::Base>&e)
         if(!processed)
         {
             XTRY;
-            logErr2("ListenerBuffered: unhandled event %s svs=%s in listener=%s %s",e->dump().toStyledString().c_str(),iUtils->serviceName(serviceId).c_str(), listenerName.c_str(),e->dump().toStyledString().c_str());
+            logErr2("ListenerBuffered: unhandled event %s svs=%s in listener=%s %s",e->dump().toStyledString().c_str(),iUtils->serviceName(serviceId).c_str(), listenerName_.c_str(),e->dump().toStyledString().c_str());
             XPASS;
 
         }
@@ -161,14 +163,14 @@ void* ListenerBuffered::worker(void*p)
             }
             else
             {
-                DBG(logErr2("ListenerBufferedImpl exit %s",l->listenerName.c_str()));
+                DBG(logErr2("ListenerBufferedImpl exit %s",l->listenerName_.c_str()));
                 return NULL;
             }
 
         }
         catch(std::exception &e)
         {
-            logErr2("exception: %s (%s) %s ",e.what(),l->listenerName.c_str(),_DMI().c_str());
+            logErr2("exception: %s (%s) %s ",e.what(),l->listenerName_.c_str(),_DMI().c_str());
         }
     }
     return NULL;
@@ -202,12 +204,12 @@ void ListenerBuffered::listenToEvent(const REF_getter<Event::Base>& e)
         if(this->m_vector.size()<this->m_maxThreads)
         {
 
-            __ed=new EventDeque(listenerName,lb_instance);
+            __ed=new EventDeque(listenerName_,lb_instance);
             pthread_t __pt;
             if(pthread_create(&__pt,NULL,ListenerBuffered::worker,this))
                 throw CommonError("pthread_create: errno %d",errno);
 
-            DBG(logErr2("pthread_create %s",listenerName.c_str()));
+            DBG(logErr2("pthread_create %s",listenerName_.c_str()));
 
             this->m_container.insert(std::make_pair(__pt,__ed));
             this->m_vector.push_back(std::make_pair(__pt,__ed));

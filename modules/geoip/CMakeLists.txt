@@ -1,6 +1,8 @@
 #cmake_minimum_required (VERSION 2.6)
 
 add_library(core-geoip SHARED
+CapsGeoIP.h
+geoip_impl.h
     geoip.cpp
     geoip_reg.cpp
     geoip_impl.cpp

@@ -1,10 +1,8 @@
-#ifndef _____COMMMON_ERR___H
-#define _____COMMMON_ERR___H
+#pragma once
 
 #include <exception>
 #include <stdexcept>
 #include <string>
-#include "pconfig.h"
 /**
 * Common exception
 */
@@ -47,5 +45,4 @@ void logRemote(const char *fmt, ...);
 #define XTRY
 #define XPASS
 #define XPASS_S
-#endif
 #endif

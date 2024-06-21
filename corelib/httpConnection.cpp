@@ -1,3 +1,5 @@
+#include "IUtils.h"
+#include <unistd.h>
 #define _FILE_OFFSET_BITS 64
 #ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
@@ -9,7 +11,7 @@
 #endif
 #include <string>
 #include "httpConnection.h"
-#include "Events/System/Net/socket/Write.h"
+//#include "Events/System/Net/socket/Write.h"
 
 
 std::string HTTP::get_name_of_http_code(int code)
@@ -241,7 +243,7 @@ HTTP::Response::Response(IInstance* _ins)
 void HTTP::Response::makeResponse(const REF_getter<epoll_socket_info>& esi)
 {
     std::string out = build_html_response();
-    esi->markedToDestroyOnSend=true;
+    esi->markedToDestroyOnSend_=true;
     esi->write_(out);
 //    iInstance->sendEvent(ServiceEnum::Socket, new socketEvent::Write(esi,toRef(out)));
 

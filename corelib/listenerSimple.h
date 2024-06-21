@@ -1,5 +1,5 @@
-#ifndef ____________LISTENER_____H
-#define ____________LISTENER_____H
+#pragma once
+#include "IConfigObj.h"
 #include "listenerBase.h"
 
 
@@ -19,5 +19,4 @@ public:
     void listenToEvent(const REF_getter<Event::Base>& e) final;
 
 };
-#endif
 

@@ -1,8 +1,8 @@
-#ifndef _______________MUTEXABLE___H
-#define _______________MUTEXABLE___H
+#pragma once
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
+#include "commonError.h"
 #include "mtimespec.h"
 #include <pthread.h>
 #ifdef _WIN32
@@ -225,4 +225,3 @@ public:
     }
 };
 
-#endif

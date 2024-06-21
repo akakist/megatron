@@ -1,4 +1,5 @@
 #include "rpcTestService1.h"
+#include "IUtils.h"
 #include "colorOutput.h"
 #define BUF_SIZE_MAX (8*100*1)
 #define REMOTE_ADDR "localhost:2001"
@@ -49,7 +50,7 @@ bool rpcTestService1::handleEvent(const REF_getter<Event::Base>& e)
     auto& ID=e->id;
     if(timerEventEnum::TickAlarm==ID)
     {
-        timerEvent::TickAlarm* ee=(timerEvent::TickAlarm*)e.operator ->();
+        timerEvent::TickAlarm* ee=(timerEvent::TickAlarm*)e.get();
         if(ee->tid==TI_START)
         {
             sendRequest(session,0);
@@ -76,13 +77,13 @@ bool rpcTestService1::handleEvent(const REF_getter<Event::Base>& e)
     }
     if(rpcEventEnum::IncomingOnConnector==ID)
     {
-        rpcEvent::IncomingOnConnector *ioc=(rpcEvent::IncomingOnConnector *)e.operator ->();
+        rpcEvent::IncomingOnConnector *ioc=(rpcEvent::IncomingOnConnector *)e.get();
         auto &IDC=ioc->e->id;
         if(testEventEnum::testRSP==IDC)
-            return on_testRSP((testEvent::testRSP*)ioc->e.operator ->());
+            return on_testRSP((testEvent::testRSP*)ioc->e.get());
     }
     if(testEventEnum::testRSP==ID)
-        return on_testRSP((testEvent::testRSP*)e.operator ->());
+        return on_testRSP((testEvent::testRSP*)e.get());
     return false;
 }
 bool rpcTestService1::on_testRSP(const testEvent::testRSP* e)

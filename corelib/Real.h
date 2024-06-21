@@ -1,5 +1,4 @@
-#ifndef REAL_H
-#define REAL_H
+#pragma once
 #include <limits>
 #include <cstddef>
 #include <stdint.h>
@@ -22,4 +21,3 @@ typedef double real;
 #endif
 
 
-#endif // REAL_H

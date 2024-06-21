@@ -1,5 +1,4 @@
-#ifndef _________JSON_REF_EVENT_____H5
-#define _________JSON_REF_EVENT_____H5
+#pragma once
 #include "SERVICE_id.h"
 #include "route_t.h"
 #include "EVENT_id.h"
@@ -50,4 +49,3 @@ namespace ErrorEvent
     };
 
 }
-#endif

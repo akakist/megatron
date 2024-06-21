@@ -12,30 +12,12 @@
 #include <listenerSimple.h>
 #include <IRPC.h>
 
-#include "Events/System/Net/rpc/PassPacket.h"
-#include "Events/System/Net/rpc/SendPacket.h"
-#include "Events/System/Net/rpc/SubscribeNotifications.h"
-#include "Events/System/Net/rpc/UnsubscribeNotifications.h"
-#include "Events/System/Net/rpc/Connected.h"
-#include "Events/System/Net/oscar/Connected.h"
-#include "Events/System/Net/oscar/PacketOnAcceptor.h"
-#include "Events/System/Net/oscar/PacketOnConnector.h"
-#include "Events/Tools/webHandler/RegisterHandler.h"
-#include "Events/Tools/webHandler/RequestIncoming.h"
+#include "Events/System/Net/rpcEvent.h"
+#include "Events/System/Net/oscarEvent.h"
+#include "Events/Tools/webHandlerEvent.h"
 
-#include <Events/System/Net/oscar/SendPacket.h>
-#include <Events/System/Net/oscar/Disconnected.h>
-#include <Events/System/timer/TickAlarm.h>
-#include <Events/Tools/webHandler/RequestIncoming.h>
-#include <Events/System/Net/rpc/SubscribeNotifications.h>
-#include <Events/System/Net/rpc/SendPacket.h>
-#include <Events/System/Net/rpc/PassPacket.h>
+#include <Events/System/timerEvent.h>
 #include <Events/System/Run/startService.h>
-#include <Events/System/Net/oscar/ConnectFailed.h>
-#include <Events/System/Net/oscar/Accepted.h>
-#include <Events/System/Net/oscar/NotifyOutBufferEmpty.h>
-#include <Events/System/Net/oscar/NotifyBindAddress.h>
-#include <Events/System/Net/oscar/Disaccepted.h>
 
 namespace RPC
 {
@@ -48,21 +30,26 @@ namespace RPC
         };
     }
 
+    struct outCache: public Refcountable
+    {
+        std::deque<REF_getter<refbuffer> >  container;
+        RWLock lk;
+
+    };
     struct Session: public Refcountable, WebDumpable
     {
 
         SOCKET_id socketId;
-        std::deque<REF_getter<refbuffer> >  m_OutEventCache;
         REF_getter<epoll_socket_info> esi;
+        REF_getter<outCache> outCache_;
 
         Session(SOCKET_id sockId,const REF_getter<epoll_socket_info>& _esi):socketId(sockId),
-            esi(_esi) {}
+            esi(_esi),outCache_(nullptr) {}
 
         Json::Value jdump()
         {
             Json::Value v;
             v["socketId"]=std::to_string(CONTAINER(socketId));
-            v["OutEventCache size"]=std::to_string(m_OutEventCache.size());
             return v;
         }
         std::string wname()
@@ -76,39 +63,57 @@ namespace RPC
         }
 
     };
-    struct __sessions: public Refcountable,Broadcaster, WebDumpable
+    struct __sessions
     {
 
 
-        __sessions(IInstance* ifa):
-            Broadcaster(ifa) {}
+        __sessions()
+            {}
 
-        std::string wname()
+        struct subscr {
+        RWLock lock_;
+        std::set<route_t> container_;
+        };
+
+        subscr subscribers_;
+
+        struct sock2sess
         {
-            return "sessions";
-        }
-        Json::Value wdump()
+
+            RWLock lock_;
+            std::map<SOCKET_id, REF_getter<Session> > container_;
+        };
+        sock2sess sock2sess_;
+
+        struct sa2sess
         {
-            Json::Value j;
-            return jdump();
-        }
-        RWLock m_lock;
+            RWLock lock_;
+            std::map<msockaddr_in,REF_getter<Session> > container_;
+
+        };
+        sa2sess sa2sess_;
 
         // all
-        std::set<route_t> mx_subscribers;
-        std::map<SOCKET_id, REF_getter<Session> > mx_socketId2session;
-        std::map<msockaddr_in,REF_getter<Session> > mx_sa2Session;
+        struct passCache{
+            RWLock lock_;
+            std::map<SOCKET_id,std::deque<REF_getter<refbuffer>>>passCache;
+        };
+        passCache passCache_;
 
-        // connector
-
-        Json::Value jdump();
-
-        void clear()
+       void clear()
         {
-            WLocker lk(m_lock);
-            mx_sa2Session.clear();
-            mx_subscribers.clear();
-            mx_socketId2session.clear();
+            {
+                WLocker l(sa2sess_.lock_);
+                sa2sess_.container_.clear();
+            }
+            {
+                WLocker l(subscribers_.lock_);
+                subscribers_.container_.clear();
+            }
+            {
+                WLocker l(sock2sess_.lock_);
+                sock2sess_.container_.clear();
+            }
         }
     public:
     };
@@ -122,20 +127,19 @@ namespace RPC
 
 
         SERVICE_id myOscar;
-        const real m_iterateTimeout;
+        const real iterateTimeout_;
 
         ListenerBase* myOscarListener;
 
         std::set<msockaddr_in>m_bindAddr_main;
         std::set<msockaddr_in>m_bindAddr_reserve;
 
-        struct _shared_Addr: public Mutexable
+        struct _shared_Addr
         {
+            RWLock lk;
             _shared_Addr()
-//            :m_networkInitialized(false)
             {}
             std::set<msockaddr_in> m_internalAddr;
-//        bool m_networkInitialized;
             std::set<msockaddr_in>m_bindAddr_mainSH;
             std::set<msockaddr_in>m_bindAddr_reserveSH;
         };
@@ -148,7 +152,7 @@ namespace RPC
         unsigned short getExternalListenPortMain(); // network byte order
         std::set<msockaddr_in> getInternalListenAddrs(); // network byte order
 
-        REF_getter<__sessions> sessions;
+        __sessions sessions;
     public:
 
 
@@ -171,7 +175,6 @@ namespace RPC
         bool on_SubscribeNotifications(const rpcEvent::SubscribeNotifications* E);
         bool on_UnsubscribeNotifications(const rpcEvent::UnsubscribeNotifications* E);
 
-        bool on_RequestIncoming(const webHandlerEvent::RequestIncoming* e);
 
         bool on_TickAlarm(const timerEvent::TickAlarm*);
 
@@ -179,9 +182,10 @@ namespace RPC
 
         bool handleEvent(const REF_getter<Event::Base>& e);
 
-        void doSend(const REF_getter<Session> & S);
-        void doSendAll();
+        void flushAll();
         void addSendPacket(const REF_getter<Session>&S, const REF_getter<refbuffer> &P);
+        void flushOutCache(const REF_getter<Session> & S);
+
 
         IInstance* iInstance;
         bool m_isTerminating;
@@ -196,7 +200,6 @@ namespace RPC
         static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa);
         ~Service();
 
-        Json::Value jdump();
     };
 }
 

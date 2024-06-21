@@ -19,7 +19,7 @@ REF_getter<linkInfoDownReferrer> dfsReferrer::_uriReferals::getDownlinkOrCreate(
 
     REF_getter<linkInfoDownReferrer> l(NULL);
     {
-        auto i=m_downlinks.find(esi->m_id);
+        auto i=m_downlinks.find(esi->id_);
         if(i!=m_downlinks.end())
         {
             l=i->second;
@@ -28,8 +28,8 @@ REF_getter<linkInfoDownReferrer> dfsReferrer::_uriReferals::getDownlinkOrCreate(
     if(l.valid())
     {
 
-        M_LOCK(l.operator->());
-        if(!(l->backRoute_mx==backRoute) || l->externalAddr_mx!=externalAddr || l->internalAddrs_mx!=internalAddrs)
+        M_LOCK(l.get());
+        if(!(l->backRoute_mx_==backRoute) || l->externalAddr_mx_!=externalAddr || l->internalAddrs_mx!=internalAddrs)
         {
             *created=true;
         }
@@ -37,8 +37,8 @@ REF_getter<linkInfoDownReferrer> dfsReferrer::_uriReferals::getDownlinkOrCreate(
         {
             *created=false;
         }
-        l->backRoute_mx=backRoute;
-        l->externalAddr_mx=externalAddr;
+        l->backRoute_mx_=backRoute;
+        l->externalAddr_mx_=externalAddr;
         l->internalAddrs_mx=internalAddrs;
         return l;
 
@@ -47,7 +47,7 @@ REF_getter<linkInfoDownReferrer> dfsReferrer::_uriReferals::getDownlinkOrCreate(
     {
         l=new linkInfoDownReferrer(esi,externalAddr,internalAddrs,backRoute);
         {
-            m_downlinks.insert(std::make_pair(esi->m_id,l));
+            m_downlinks.insert(std::make_pair(esi->id_,l));
         }
         *created=true;
         return l;

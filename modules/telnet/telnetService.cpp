@@ -8,14 +8,14 @@
 #include "telnet.h"
 #include "telnet_keys.h"
 #include "mutexInspector.h"
-#include "Events/System/Net/socket/Write.h"
+#include "Events/System/Net/socketEvent.h"
 extern "C" {
 #include <regex.h>
 }
-#include "Events/Tools/telnet/CommandEntered.h"
+#include "Events/Tools/telnetEvent.h"
 
 
-#include "Events/System/Net/socket/AddToListenTCP.h"
+#include "Events/System/Net/socketEvent.h"
 #include "events_telnet.hpp"
 
 namespace vt100
@@ -208,7 +208,7 @@ bool Telnet::Service::on_Accepted(const socketEvent::Accepted* evt)
     MUTEX_INSPECTOR;
     XTRY;
     REF_getter<Telnet::Session> c=new Telnet::Session(cmdEntries.root(),evt->esi);
-    stuff->insert(evt->esi->m_id,c);
+    stuff->insert(evt->esi->id_,c);
 
     evt->esi->write_("\377\375\042\377\373\001"+vt100::insert_mode());
 
@@ -246,7 +246,7 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 {
     MUTEX_INSPECTOR;
     XTRY;
-    REF_getter<Telnet::Session> W=stuff->get(evt->esi->m_id);
+    REF_getter<Telnet::Session> W=stuff->get(evt->esi->id_);
     if (!W.valid())
     {
         logErr2("socketStreamRead socket not found %s %d",__FILE__,__LINE__);
@@ -254,7 +254,7 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
     }
     REF_getter<epoll_socket_info> esi=evt->esi;
 
-    std::string in=evt->esi->m_inBuffer.extract_all();
+    std::string in=evt->esi->inBuffer_.extract_all();
     std::deque<unsigned char> chars;
     for(size_t i=0; i<in.size(); i++)
     {
@@ -764,7 +764,7 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 
         bool ok=false;
         {
-            M_LOCK(W.operator ->());
+            M_LOCK(W.get());
             if(W->curpos < (int)W->mx_current_command_line.size())
             {
                 W->mx_current_command_line=
@@ -789,7 +789,7 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
     {
         int cp;
         {
-            M_LOCK(W.operator ->());
+            M_LOCK(W.get());
 
             cp=W->curpos;
             if(W->curpos>0)
@@ -818,7 +818,7 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         bool ok=false;
         int w,cp;
         {
-            M_LOCK(W.operator ->());
+            M_LOCK(W.get());
             w=W->width;
             if(W->curpos<(int)W->mx_current_command_line.size())
             {
@@ -846,7 +846,7 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         bool ok=false;
         {
 
-            M_LOCK(W.operator ->());
+            M_LOCK(W.get());
             if(W->mx_command_history.size())
             {
                 int next=0;
@@ -898,7 +898,7 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         std::deque<std::string> v;
         std::string norm_cmdline;
         {
-            M_LOCK(W.operator ->());
+            M_LOCK(W.get());
             norm_cmdline=W->mx_current_command_line;
         }
         REF_getter<Telnet::Node> N=W->defaultNode();
@@ -922,7 +922,7 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 
         esi->write_(append);
         {
-            M_LOCK(W.operator ->());
+            M_LOCK(W.get());
             W->mx_current_command_line+=append;
         }
         W->curpos+=append.size();
@@ -936,7 +936,7 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
             case 3:
             {
                 esi->write_("^C\r\n");
-                esi->markedToDestroyOnSend=true;
+                esi->markedToDestroyOnSend_=true;
             }
             break;
             case 9: // TAB
@@ -949,7 +949,7 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
             {
                 std::string toprint;
                 {
-                    M_LOCK(W.operator ->());
+                    M_LOCK(W.get());
                     if(W->curpos<0)W->curpos=0;
                     if(W->curpos > (int)W->mx_current_command_line.size()) W->curpos=W->mx_current_command_line.size();
                     if(W->insertMode)
@@ -979,7 +979,7 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
     }
 
     {
-        M_LOCK(W.operator ->());
+        M_LOCK(W.get());
     }
     return true;
     XPASS;
@@ -1042,7 +1042,7 @@ void Telnet::Service::processCommand(const REF_getter<Telnet::Session>& W, const
     esi->write_("\r\n");
     std::string cmd;
     {
-        M_LOCK(W.operator ->());
+        M_LOCK(W.get());
         cmd=W->mx_current_command_line;
         W->mx_current_command_line="";
         W->mx_command_history.push_back(cmd);
@@ -1054,7 +1054,7 @@ void Telnet::Service::processCommand(const REF_getter<Telnet::Session>& W, const
         if(iUtils->strlower(tokens[0])=="quit")
         {
             esi->write_("\r\n");
-            esi->markedToDestroyOnSend=true;
+            esi->markedToDestroyOnSend_=true;
             return;
         }
         else if(iUtils->strlower(tokens[0])=="ls" || iUtils->strlower(tokens[0])=="help" )
@@ -1184,7 +1184,7 @@ void Telnet::Service::processCommand(const REF_getter<Telnet::Session>& W, const
                             {
                                 XTRY;
                                 route_t r=c->dstService;
-                                passEvent(new telnetEvent::CommandEntered(esi->m_id,tokens,r));
+                                passEvent(new telnetEvent::CommandEntered(esi->id_,tokens,r));
                                 return;
                                 XPASS;
                             }
@@ -1421,7 +1421,7 @@ void Telnet::CommandEntries::registerDirectory(const std::deque<std::string> &d,
         n=n->getSubDir(d[i]);
         if(!n.valid()) throw CommonError("cannot find subdir '%s'",d[i].c_str());
     }
-    REF_getter<Node> P(new Node(name,n.operator ->(),help));
+    REF_getter<Node> P(new Node(name,n.get(),help));
     n->addChildNode(name,P);
 }
 void Telnet::CommandEntries::registerCommand(const std::deque<std::string> &d, const std::string& cmd, const std::string& help,const route_t& dst, const std::string &params)
@@ -1531,7 +1531,7 @@ void registerTelnetService(const char* pn)
 
 void Telnet::Service::__telnet_stuff::on_delete(const REF_getter<epoll_socket_info>&esi, const std::string& )
 {
-    sessions.erase(esi->m_id);
+    sessions.erase(esi->id_);
 }
 
 bool Telnet::Service::handleEvent(const REF_getter<Event::Base>& e)
@@ -1539,23 +1539,23 @@ bool Telnet::Service::handleEvent(const REF_getter<Event::Base>& e)
     auto& ID=e->id;
     XTRY;
     if( socketEventEnum::Disaccepted==ID)
-        return on_Disaccepted((const socketEvent::Disaccepted*)e.operator->());
+        return on_Disaccepted((const socketEvent::Disaccepted*)e.get());
     if( socketEventEnum::Disconnected==ID)
-        return on_Disconnected((const socketEvent::Disconnected*)e.operator->());
+        return on_Disconnected((const socketEvent::Disconnected*)e.get());
     if( socketEventEnum::Accepted==ID)
-        return on_Accepted((const socketEvent::Accepted*)e.operator->());
+        return on_Accepted((const socketEvent::Accepted*)e.get());
     if( socketEventEnum::StreamRead==ID)
-        return on_StreamRead((const socketEvent::StreamRead*)e.operator->());
+        return on_StreamRead((const socketEvent::StreamRead*)e.get());
     if( socketEventEnum::NotifyBindAddress==ID)
-        return on_NotifyBindAddress((const socketEvent::NotifyBindAddress*)e.operator->());
+        return on_NotifyBindAddress((const socketEvent::NotifyBindAddress*)e.get());
     if( telnetEventEnum::RegisterType==ID)
-        return(this->on_RegisterType((const telnetEvent::RegisterType*)e.operator->()));
+        return(this->on_RegisterType((const telnetEvent::RegisterType*)e.get()));
     if( telnetEventEnum::RegisterCommand==ID)
-        return(this->on_RegisterCommand((const telnetEvent::RegisterCommand*)e.operator->()));
+        return(this->on_RegisterCommand((const telnetEvent::RegisterCommand*)e.get()));
     if( telnetEventEnum::Reply==ID)
-        return(this->on_Reply((const telnetEvent::Reply*)e.operator->()));
+        return(this->on_Reply((const telnetEvent::Reply*)e.get()));
     if(systemEventEnum::startService==ID)
-        return on_startService((const systemEvent::startService*)e.operator->());
+        return on_startService((const systemEvent::startService*)e.get());
 
     XPASS;
     return false;

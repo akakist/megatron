@@ -1,5 +1,4 @@
-#ifndef _____telnet___SERVICE______H
-#define _____telnet___SERVICE______H
+#pragma once
 
 #include <REF.h>
 #include <epoll_socket_info.h>
@@ -8,15 +7,9 @@
 #include <listenerBuffered1Thread.h>
 #include <broadcaster.h>
 #include "event_mt.h"
-#include <Events/System/Net/socket/StreamRead.h>
-#include <Events/System/Net/socket/Accepted.h>
-#include <Events/System/Net/socket/NotifyBindAddress.h>
-#include <Events/System/Net/socket/Disaccepted.h>
-#include <Events/System/Net/socket/Disconnected.h>
+#include <Events/System/Net/socketEvent.h>
 #include <Events/System/Run/startService.h>
-#include "Events/Tools/telnet/RegisterCommand.h"
-#include "Events/Tools/telnet/RegisterType.h"
-#include "Events/Tools/telnet/Reply.h"
+#include "Events/Tools/telnetEvent.h"
 
 namespace Telnet
 {
@@ -186,4 +179,3 @@ namespace Telnet
 
     };
 };
-#endif

@@ -1,5 +1,5 @@
 #include "route_t.h"
-#include "IInstance.h"
+#include "IUtils.h"
 #include "objectHandler.h"
 #include "mutexInspector.h"
 #include "listenerBase.h"
@@ -42,9 +42,7 @@ void LocalServiceRoute::unpack(inBuffer&o)
 }
 std::string LocalServiceRoute::dump() const
 {
-    char s[100];
-    snprintf(s,sizeof(s),"local:%s",iUtils->serviceName(id).c_str());
-    return s;
+    return "local:"+iUtils->serviceName(id);
 }
 void ListenerRoute::pack(outBuffer&o) const
 {
@@ -57,7 +55,7 @@ void ListenerRoute::unpack(inBuffer&o)
 std::string ListenerRoute::dump() const
 {
     char s[100];
-    snprintf(s,sizeof(s),"listener:%s",id->listenerName.c_str());
+    snprintf(s,sizeof(s),"listener:%s",id->listenerName_.c_str());
     return s;
 }
 void ThreadRoute::pack(outBuffer&o) const
@@ -319,38 +317,38 @@ int route_t::operator<(const route_t& a) const
         {
         case Route::LOCALSERVICE:
         {
-            if(static_cast<const LocalServiceRoute*>(a.m_container[i].operator->())->id != static_cast<const LocalServiceRoute*>(m_container[i].operator->())->id)
-                return static_cast<const LocalServiceRoute*>(a.m_container[i].operator->())->id < static_cast<const LocalServiceRoute*>(m_container[i].operator->())->id;
+            if(static_cast<const LocalServiceRoute*>(a.m_container[i].get())->id != static_cast<const LocalServiceRoute*>(m_container[i].get())->id)
+                return static_cast<const LocalServiceRoute*>(a.m_container[i].get())->id < static_cast<const LocalServiceRoute*>(m_container[i].get())->id;
         }
         break;
         case Route::THREAD:
         {
-            if(static_cast<const ThreadRoute*>(a.m_container[i].operator->())->id != static_cast<const ThreadRoute*>(m_container[i].operator->())->id)
-                return static_cast<const ThreadRoute*>(a.m_container[i].operator->())->id < static_cast<const ThreadRoute*>(m_container[i].operator->())->id;
+            if(static_cast<const ThreadRoute*>(a.m_container[i].get())->id != static_cast<const ThreadRoute*>(m_container[i].get())->id)
+                return static_cast<const ThreadRoute*>(a.m_container[i].get())->id < static_cast<const ThreadRoute*>(m_container[i].get())->id;
         }
         break;
         case Route::REMOTEADDR:
         {
-            if(CONTAINER(static_cast<const RemoteAddrRoute*>(a.m_container[i].operator->())->addr) != CONTAINER(static_cast<const RemoteAddrRoute*>(m_container[i].operator->())->addr))
-                return CONTAINER(static_cast<const RemoteAddrRoute*>(a.m_container[i].operator->())->addr) < CONTAINER(static_cast<const RemoteAddrRoute*>(m_container[i].operator->())->addr);
+            if(CONTAINER(static_cast<const RemoteAddrRoute*>(a.m_container[i].get())->addr) != CONTAINER(static_cast<const RemoteAddrRoute*>(m_container[i].get())->addr))
+                return CONTAINER(static_cast<const RemoteAddrRoute*>(a.m_container[i].get())->addr) < CONTAINER(static_cast<const RemoteAddrRoute*>(m_container[i].get())->addr);
         }
         break;
         case Route::OBJECTHANDLER_POLLED:
         {
-            if(static_cast<const ObjectHandlerRoutePolled*>(a.m_container[i].operator->())->addr != static_cast<const ObjectHandlerRoutePolled*>(m_container[i].operator->())->addr)
-                return static_cast<const ObjectHandlerRoutePolled*>(a.m_container[i].operator->())->addr < static_cast<const ObjectHandlerRoutePolled*>(m_container[i].operator->())->addr;
+            if(static_cast<const ObjectHandlerRoutePolled*>(a.m_container[i].get())->addr != static_cast<const ObjectHandlerRoutePolled*>(m_container[i].get())->addr)
+                return static_cast<const ObjectHandlerRoutePolled*>(a.m_container[i].get())->addr < static_cast<const ObjectHandlerRoutePolled*>(m_container[i].get())->addr;
         }
         break;
         case Route::OBJECTHANDLER_THREADED:
         {
-            if(static_cast<const ObjectHandlerRouteThreaded*>(a.m_container[i].operator->())->addr != static_cast<const ObjectHandlerRouteThreaded*>(m_container[i].operator->())->addr)
-                return static_cast<const ObjectHandlerRouteThreaded*>(a.m_container[i].operator->())->addr < static_cast<const ObjectHandlerRouteThreaded*>(m_container[i].operator->())->addr;
+            if(static_cast<const ObjectHandlerRouteThreaded*>(a.m_container[i].get())->addr != static_cast<const ObjectHandlerRouteThreaded*>(m_container[i].get())->addr)
+                return static_cast<const ObjectHandlerRouteThreaded*>(a.m_container[i].get())->addr < static_cast<const ObjectHandlerRouteThreaded*>(m_container[i].get())->addr;
         }
         break;
         case Route::SOCKETROUTE:
         {
-            if(CONTAINER(static_cast<const SocketRoute*>(a.m_container[i].operator->())->id) != CONTAINER(static_cast<const SocketRoute*>(m_container[i].operator->())->id))
-                return CONTAINER(static_cast<const SocketRoute*>(a.m_container[i].operator->())->id) < CONTAINER(static_cast<const SocketRoute*>(m_container[i].operator->())->id);
+            if(CONTAINER(static_cast<const SocketRoute*>(a.m_container[i].get())->id) != CONTAINER(static_cast<const SocketRoute*>(m_container[i].get())->id))
+                return CONTAINER(static_cast<const SocketRoute*>(a.m_container[i].get())->id) < CONTAINER(static_cast<const SocketRoute*>(m_container[i].get())->id);
         }
         break;
         default:
@@ -375,37 +373,37 @@ bool route_t::operator==(const route_t& a) const
         {
         case Route::LOCALSERVICE:
         {
-            if(static_cast<const LocalServiceRoute*>(a.m_container[i].operator->())->id != static_cast<const LocalServiceRoute*>(m_container[i].operator->())->id)
+            if(static_cast<const LocalServiceRoute*>(a.m_container[i].get())->id != static_cast<const LocalServiceRoute*>(m_container[i].get())->id)
                 return false;
         }
         break;
         case Route::THREAD:
         {
-            if(static_cast<const ThreadRoute*>(a.m_container[i].operator->())->id != static_cast<const ThreadRoute*>(m_container[i].operator->())->id)
+            if(static_cast<const ThreadRoute*>(a.m_container[i].get())->id != static_cast<const ThreadRoute*>(m_container[i].get())->id)
                 return false;
         }
         break;
         case Route::REMOTEADDR:
         {
-            if(CONTAINER(static_cast<const RemoteAddrRoute*>(a.m_container[i].operator->())->addr) != CONTAINER(static_cast<const RemoteAddrRoute*>(m_container[i].operator->())->addr))
+            if(CONTAINER(static_cast<const RemoteAddrRoute*>(a.m_container[i].get())->addr) != CONTAINER(static_cast<const RemoteAddrRoute*>(m_container[i].get())->addr))
                 return false;
         }
         break;
         case Route::OBJECTHANDLER_POLLED:
         {
-            if(static_cast<const ObjectHandlerRoutePolled*>(a.m_container[i].operator->())->addr != static_cast<const ObjectHandlerRoutePolled*>(m_container[i].operator->())->addr)
+            if(static_cast<const ObjectHandlerRoutePolled*>(a.m_container[i].get())->addr != static_cast<const ObjectHandlerRoutePolled*>(m_container[i].get())->addr)
                 return false;
         }
         break;
         case Route::OBJECTHANDLER_THREADED:
         {
-            if(static_cast<const ObjectHandlerRouteThreaded*>(a.m_container[i].operator->())->addr != static_cast<const ObjectHandlerRouteThreaded*>(m_container[i].operator->())->addr)
+            if(static_cast<const ObjectHandlerRouteThreaded*>(a.m_container[i].get())->addr != static_cast<const ObjectHandlerRouteThreaded*>(m_container[i].get())->addr)
                 return false;
         }
         break;
         case Route::SOCKETROUTE:
         {
-            if(CONTAINER(static_cast<const SocketRoute*>(a.m_container[i].operator->())->id) != CONTAINER(static_cast<const SocketRoute*>(m_container[i].operator->())->id))
+            if(CONTAINER(static_cast<const SocketRoute*>(a.m_container[i].get())->id) != CONTAINER(static_cast<const SocketRoute*>(m_container[i].get())->id))
                 return false;
         }
         break;
@@ -425,7 +423,7 @@ std::string route_t::getLastJavaCookie() const
     {
         if(r->type==Route::LOCALSERVICE)
         {
-            LocalServiceRoute* lrt=(LocalServiceRoute* )r.operator ->();
+            LocalServiceRoute* lrt=(LocalServiceRoute* )r.get();
             return lrt->id.getSid();
         }
 

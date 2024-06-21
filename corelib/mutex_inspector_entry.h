@@ -1,8 +1,8 @@
-#ifndef __________mutex_inspector_entry_h
-#define __________mutex_inspector_entry_h
+#pragma once
 
 /// used in MutexInspector
 
+#include <string>
 struct mutex_inspector_entry
 {
     struct iint
@@ -22,4 +22,3 @@ struct mutex_inspector_entry
     mutex_inspector_entry():f(NULL),func(NULL),l(0),t(0) {}
 };
 
-#endif

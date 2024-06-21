@@ -1,5 +1,4 @@
-#ifndef ______REF__H
-#define ______REF__H
+#pragma once
 //#include "mutexable.h"
 
 #ifdef _MSC_VER
@@ -119,7 +118,10 @@ public:
     {
         return ___ptr;
     };
+    inline  T* get() const
+    {
+        return ___ptr;
+    };
 };
 
 
-#endif

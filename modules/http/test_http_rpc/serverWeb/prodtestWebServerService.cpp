@@ -1,15 +1,9 @@
 #include "corelib/mutexInspector.h"
 #include <time.h>
 #include <time.h>
-#include "ioBuffer.h"
-#include "tools_mt.h"
-#include "st_FILE.h"
 #include <map>
-#include "js_utils.h"
-#include "configDB.h"
 #include "prodtestWebServerService.h"
-#include "../Event/Ping.h"
-#include "serviceEnum.h"
+#include "Events/Ping.h"
 #include "events_prodtestWebServer.hpp"
 
 
@@ -31,7 +25,7 @@ bool prodtestWebServer::Service::handleEvent(const REF_getter<Event::Base>& e)
         auto& ID=e->id;
         if(timerEventEnum::TickTimer==ID)
         {
-            const timerEvent::TickTimer*ev=static_cast<const timerEvent::TickTimer*>(e.operator ->());
+            const timerEvent::TickTimer*ev=static_cast<const timerEvent::TickTimer*>(e.get());
             if(ev->tid==TIMER_PUSH_NOOP)
             {
                 for(auto &z: sessions)
@@ -50,20 +44,20 @@ bool prodtestWebServer::Service::handleEvent(const REF_getter<Event::Base>& e)
             return true;
         }
         if(httpEventEnum::RequestIncoming==ID)
-            return on_RequestIncoming((const httpEvent::RequestIncoming*)e.operator->());
+            return on_RequestIncoming((const httpEvent::RequestIncoming*)e.get());
         if(systemEventEnum::startService==ID)
-            return on_startService((const systemEvent::startService*)e.operator->());
+            return on_startService((const systemEvent::startService*)e.get());
 
 
         if(prodtestEventEnum::AddTaskRSP==ID)
-            return on_AddTaskRSP((const prodtestEvent::AddTaskRSP*)e.operator->());
+            return on_AddTaskRSP((const prodtestEvent::AddTaskRSP*)e.get());
 
         if(rpcEventEnum::IncomingOnConnector==ID)
         {
-            rpcEvent::IncomingOnConnector *E=(rpcEvent::IncomingOnConnector *) e.operator->();
+            rpcEvent::IncomingOnConnector *E=(rpcEvent::IncomingOnConnector *) e.get();
             auto& IDC=E->e->id;
             if(prodtestEventEnum::AddTaskRSP==IDC)
-                return on_AddTaskRSP((const prodtestEvent::AddTaskRSP*)E->e.operator->());
+                return on_AddTaskRSP((const prodtestEvent::AddTaskRSP*)E->e.get());
 
 
             return false;
@@ -71,10 +65,10 @@ bool prodtestWebServer::Service::handleEvent(const REF_getter<Event::Base>& e)
 
         if(rpcEventEnum::IncomingOnAcceptor==ID)
         {
-            rpcEvent::IncomingOnAcceptor *E=(rpcEvent::IncomingOnAcceptor *) e.operator->();
+            rpcEvent::IncomingOnAcceptor *E=(rpcEvent::IncomingOnAcceptor *) e.get();
             auto& IDA=E->e->id;
             if(prodtestEventEnum::AddTaskRSP==IDA)
-                return on_AddTaskRSP((const prodtestEvent::AddTaskRSP*)E->e.operator->());
+                return on_AddTaskRSP((const prodtestEvent::AddTaskRSP*)E->e.get());
 
 
             return false;
@@ -139,10 +133,6 @@ bool prodtestWebServer::Service::on_RequestIncoming(const httpEvent::RequestInco
 
     HTTP::Response resp(getIInstance());
     auto S=check_session(e->req,resp,e->esi);
-//    for(auto &z: e->req->headers)
-//    {
-//        printf("%s: %s\n",z.first.c_str(),z.second.c_str());
-//    }
     S->esi=e->esi;
 
     {

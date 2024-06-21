@@ -1,9 +1,6 @@
-#ifndef _______________LOGGING____H
-#define _______________LOGGING____H
-#include "unknown.h"
-#include "mutexable.h"
-#include "event_mt.h"
-#include "IInstance.h"
+#pragma once
+#include "IUtils.h"
+#include "commonError.h"
 class st_log
 {
 
@@ -23,5 +20,4 @@ public:
 #define S_LOG(a) st_log aaazzz(a)
 #else
 #define S_LOG(a)
-#endif
 #endif

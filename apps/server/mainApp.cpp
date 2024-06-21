@@ -1,3 +1,4 @@
+#include "IUtils.h"
 #include <unistd.h>
 #include <sys/types.h>
 #include <dirent.h>
@@ -11,7 +12,6 @@
 #ifndef _WIN32
 #include <syslog.h>
 #endif
-#include "IInstance.h"
 #include "IThreadNameController.h"
 #include "megatron.h"
 #include "colorOutput.h"

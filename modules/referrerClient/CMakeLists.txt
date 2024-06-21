@@ -9,6 +9,8 @@ add_library(ReferrerClient SHARED
 referrerClient.cpp
 referrerClientService.cpp
 #../dfsReferrer/neighbours.cpp
+referrerClientService.h
+uplinkconnectionstate_client.h
 
 )
 if(ENABLE_QT_GUI)

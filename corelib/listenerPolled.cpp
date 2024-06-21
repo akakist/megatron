@@ -1,4 +1,5 @@
 #include "listenerPolled.h"
+#include "IUtils.h"
 #include "mutexInspector.h"
 #include "colorOutput.h"
 
@@ -31,7 +32,7 @@ void ListenerPolled::poll()
 
 //                for(auto& i:handlers)
 //                {
-//                    if(i.first(d[n].operator ->(),i.second))processed=true;
+//                    if(i.first(d[n].get(),i.second))processed=true;
 //                }
 
                 if(!processed)
@@ -46,7 +47,7 @@ void ListenerPolled::poll()
                 if(!processed)
                 {
                     XTRY;
-                    logErr2("ListenerPolled: unhandled event %s in %s",d[n]->dump().toStyledString().c_str(),listenerName.c_str());
+                    logErr2("ListenerPolled: unhandled event %s in %s",d[n]->dump().toStyledString().c_str(),listenerName_.c_str());
                     XPASS;
 
                 }

@@ -2,6 +2,11 @@
 #define __________webHandler_EventInfo__HH
 
 
+#include "IUtils.h"
+
+#include "Events/Tools/webHandlerEvent.h"
+#include <Events/System/Net/httpEvent.h>
+#include <Events/System/Run/startService.h>
 inline std::set<EVENT_id> getEvents_webHandler()
 {
 

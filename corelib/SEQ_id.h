@@ -1,5 +1,4 @@
-#ifndef ___SEQ_ID_H
-#define ___SEQ_ID_H
+#pragma once
 #include <string>
 #include "IInstance.h"
 struct SEQ_id
@@ -40,4 +39,3 @@ inline inBuffer& operator>> (inBuffer& b,  SEQ_id& s)
     return b;
 }
 
-#endif

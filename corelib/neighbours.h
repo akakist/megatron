@@ -1,13 +1,9 @@
-#ifndef ____NEIGBORS___H
-#define ____NEIGBORS___H
+#pragma once
 #include <set>
 #include <map>
 #include <time.h>
-#include "mutexable.h"
 #include "msockaddr_in.h"
-#include "mutexInspector.h"
 
-#include "st_FILE.h"
 class _neighbours
 {
 public:
@@ -20,4 +16,3 @@ public:
 };
 
 
-#endif

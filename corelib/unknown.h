@@ -1,13 +1,6 @@
-#ifndef ________UNKNWN___H
-#define ________UNKNWN___H
-#include "CLASS_id.h"
+#pragma once
 #include <map>
-#include "mutexable.h"
-#include "CONTAINER.h"
-#include "commonError.h"
-#include "SERVICE_id.h"
-#include "IConfigObj.h"
-
+#include <string>
 /// base class for interfaces with casting ability
 
 class UnknownBase
@@ -20,4 +13,3 @@ public:
 
 };
 
-#endif

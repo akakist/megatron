@@ -2,19 +2,19 @@
 void Broadcaster::sendEvent(const SERVICE_id& svs, const REF_getter<Event::Base>&e)
 {
     XTRY;
-    __BRD$ifa->sendEvent(svs,e);
+    __BRDifa->sendEvent(svs,e);
     XPASS;
 }
 void Broadcaster::sendEvent( ListenerBase* svs, const REF_getter<Event::Base>&e)
 {
     XTRY;
-    __BRD$ifa->sendEvent(svs,e);
+    __BRDifa->sendEvent(svs,e);
     XPASS;
 }
 void Broadcaster::sendEvent(const msockaddr_in& addr, const SERVICE_id& svs, const REF_getter<Event::Base>&e)
 {
     XTRY;
-    __BRD$ifa->sendEvent(addr,svs,e);
+    __BRDifa->sendEvent(addr,svs,e);
     XPASS;
 }
 void Broadcaster::sendEvent(const std::set<msockaddr_in>& addr, const SERVICE_id& svs, const REF_getter<Event::Base>&e)
@@ -32,20 +32,20 @@ void Broadcaster::sendEvent(const std::set<msockaddr_in>& addr, const SERVICE_id
     for(auto &i:addr)
     {
 
-        __BRD$ifa->sendEvent(i,svs,e);
+        __BRDifa->sendEvent(i,svs,e);
     }
     XPASS;
 }
 void Broadcaster::sendEvent(const std::string& addr, const SERVICE_id& svs, const REF_getter<Event::Base>&e)
 {
     XTRY;
-    __BRD$ifa->sendEvent(addr,svs,e);
+    __BRDifa->sendEvent(addr,svs,e);
     XPASS;
 }
 
 void Broadcaster::passEvent(const REF_getter<Event::Base>&e)
 {
     XTRY;
-    __BRD$ifa->passEvent(e);
+    __BRDifa->passEvent(e);
     XPASS;
 }

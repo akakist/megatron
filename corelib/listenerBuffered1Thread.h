@@ -1,7 +1,6 @@
-#ifndef ________________LISTENER_BUFFERED____H1t
-#define ________________LISTENER_BUFFERED____H1t
+#pragma once
 #include "listenerBase.h"
-#include "mutexable.h"
+//#include "mutexable.h"
 #include "IConfigObj.h"
 #include "IInstance.h"
 #include "eventDeque.h"
@@ -36,4 +35,3 @@ public:
 
 
 };
-#endif

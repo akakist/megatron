@@ -1,5 +1,4 @@
-#ifndef ____________________BUFFER_H
-#define ____________________BUFFER_H
+#pragma once
 #include <sys/types.h>
 #include <stdint.h>
 #include <vector>
@@ -9,7 +8,7 @@
 #include <map>
 #include <list>
 #include <string.h>
-#include "commonError.h"
+//#include "commonError.h"
 #include "refstring.h"
 
 /**
@@ -80,26 +79,22 @@ public:
     std::string get_PSTR_nothrow(bool &success);
 
 #ifdef _WIN32
-    inBuffer& operator>>(long &);
+//    inBuffer& operator>>(long &);
 #endif
 
 #ifdef __MACH__
-    inBuffer& operator>>(long &);
-    inBuffer& operator>>(size_t &);
 #endif
-    inBuffer& operator>>(uint8_t &);
-    inBuffer& operator>>(int8_t&);
-    inBuffer& operator>>(uint16_t &);
-    inBuffer& operator>>(int16_t&);
-    inBuffer& operator>>(uint32_t &);
-    inBuffer& operator>>(int32_t&);
-    inBuffer& operator>>(uint64_t &);
-    inBuffer& operator>>(int64_t&);
     inBuffer& operator>>(std::string&);
     inBuffer& operator>>(bool&);
     inBuffer& operator>>(double&);
     inBuffer& operator>>(float &);
 public:
+    template <typename T,std::enable_if_t<std::is_arithmetic<T>::value, bool> = true >
+       inBuffer& operator>>(T &v)
+       {
+           v=get_PN();
+           return *this;
+       }
 };
 /**
 * Класс байтового потока без битовых операций, но с темплейтами STL
@@ -159,17 +154,7 @@ public:
 
     outBuffer& operator<<(const char*);
 #ifdef __MACH__
-    outBuffer& operator<<(const size_t&);
-    outBuffer& operator<<(const long&);
 #endif
-    outBuffer& operator<<(const uint8_t&);
-    outBuffer& operator<<(const int8_t&);
-    outBuffer& operator<<(const uint16_t&);
-    outBuffer& operator<<(const int16_t&);
-    outBuffer& operator<<(const uint32_t&);
-    outBuffer& operator<<(const int32_t&);
-    outBuffer& operator<<(const uint64_t&);
-    outBuffer& operator<<(const int64_t&);
     outBuffer& operator<<(const std::string&);
     outBuffer& operator<<(const bool&);
 #ifdef _WIN32
@@ -179,16 +164,18 @@ public:
     outBuffer& operator<<(const float&);
 public:
 
-};
+    template <typename T,std::enable_if_t<std::is_arithmetic<T>::value, bool> = true >
+      outBuffer& operator<<(const T& v)
+      {
+          put_PN(v);
+          return *this;
+      }};
 
 template < class T > outBuffer & operator << (outBuffer& b,const std::vector < T > &v)
 {
     b << (unsigned int)v.size();
-//#if !defined(_MSC_VER)
+
     for (auto &j:v) b << j;
-//#else
-    //  for (auto j = v.begin(); j != v.end(); j++) b << *j;
-//#endif
 
     return b;
 }
@@ -197,11 +184,7 @@ template < class T > outBuffer & operator << (outBuffer& b,const std::list < T >
 {
 
     b << (unsigned int)v.size();
-//#if defined(_MSC_VER)
-//    for (std::list<T>::const_iterator j = v.begin(); j != v.end(); j++) b << *j;
-//#else
     for (auto  &j:v) b << j;
-//#endif
     return b;
 }
 
@@ -209,33 +192,21 @@ template < class T > outBuffer & operator << (outBuffer& b,const std::deque < T 
 {
 
     b << (unsigned int)v.size();
-//#if defined (_MSC_VER)
-//    for (std::deque<T>::const_iterator j = v.begin(); j != v.end(); j++) b << *j;
-//#else
     for (auto &j:v) b << j;
-//#endif
     return b;
 }
 template < class T > outBuffer & operator << (outBuffer& b,const std::set < T > &v)
 {
 
     b << (unsigned int)v.size();
-//#ifdef _MSC_VER
-//    for (std::set < T > ::const_iterator j = v.begin(); j != v.end(); j++) b << *j;
-//#else
     for (auto &j: v) b << j;
-//#endif
     return b;
 }
 
 template < class T1, class T2 > outBuffer & operator << (outBuffer& b,const std::map < T1, T2 > &v)
 {
     b << (unsigned int)v.size();
-//#if defined (_MSC_VER)
-//    for (std::map < T1, T2 >::const_iterator j = v.begin(); j != v.end(); j++)
-//#else
     for (auto j = v.begin(); j != v.end(); j++)
-//#endif
     {
         b << j->first << j->second;
     }
@@ -258,7 +229,7 @@ template < class T > inBuffer & operator >> (inBuffer& b,std::set < T > &v)
     {
         T t;
         b >> t;
-        v.insert(t);
+        v.insert(std::move(t));
     }
     return b;
 }
@@ -271,7 +242,7 @@ template < class T > inBuffer& operator >> (inBuffer& b,std::list < T > &v)
     {
         T t;
         b >> t;
-        v.push_back(t);
+        v.push_back(std::move(t));
     }
     return b;
 }
@@ -286,7 +257,7 @@ template < class T1, class T2 > inBuffer & operator >> (inBuffer& b,std::map < T
         T2 t2;
         b >> t1;
         b >> t2;
-        v.insert(std::pair<T1,T2>(t1,t2));
+        v.insert(std::move(std::pair<T1,T2>(std::move(t1),std::move(t2))));
     }
     return b;
 }
@@ -306,7 +277,7 @@ template < class T > inBuffer & operator >> (inBuffer& b,std::vector < T > &v)
     {
         T t;
         b >> t;
-        v.push_back(t);
+        v.push_back(std::move(t));
     }
     return b;
 }
@@ -320,7 +291,7 @@ template < class T > inBuffer & operator >> (inBuffer& b,std::deque < T > &v)
     {
         T t;
         b >> t;
-        v.push_back(t);
+        v.push_back(std::move(t));
     }
     return b;
 }
@@ -383,4 +354,3 @@ inBuffer & operator>> (inBuffer& b,  REF_getter<refbuffer> &s);
 
 
 
-#endif

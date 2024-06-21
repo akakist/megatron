@@ -1,10 +1,9 @@
-#ifndef _____TIMER_HELPER___H
-#define _____TIMER_HELPER___H
+#pragma once
+#include "IInstance.h"
+#include "IUtils.h"
 #include "mutexInspector.h"
-#include "Events/System/timer/SetAlarm.h"
-#include "Events/System/timer/SetTimer.h"
-#include "Events/System/timer/ResetAlarm.h"
-#include "Events/System/timer/StopAlarm.h"
+#include "Events/System/timerEvent.h"
+#include "mutexable.h"
 class _timerValues: public Mutexable
 {
     std::map<int,real> values;
@@ -57,4 +56,3 @@ public:
 
 };
 
-#endif

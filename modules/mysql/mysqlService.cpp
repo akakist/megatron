@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "DBH.h"
+#include "IUtils.h"
 #include "mysqlService.h"
 #include <string>
 #include <mysql/mysql.h>
@@ -23,7 +24,6 @@
 #endif
 #include "_QUERY.h"
 #include "version_mega.h"
-#include "VERSION_id.h"
 #include "st_malloc.h"
 #include "mutexInspector.h"
 
@@ -52,13 +52,13 @@ REF_getter<QueryResult> DBH_mysql::exec(const QUERY &query)
     std::string result;
     //bind.
     size_t qidx=0;
-    for (unsigned int i=0; i<query.query.size(); i++)
+    for (unsigned int i=0; i<query.query_.size(); i++)
     {
-        if (query.query[i]!='?') result+=query.query[i];
+        if (query.query_[i]!='?') result+=query.query_[i];
         else
         {
-            if (query.params.size()<=qidx)throw CommonError("query params size not equal ? count"+_DMI());
-            result+=escape(query.params[qidx]);
+            if (query.params_.size()<=qidx)throw CommonError("query params size not equal ? count"+_DMI());
+            result+=escape(query.params_[qidx]);
             qidx++;
         }
     }
@@ -266,7 +266,7 @@ REF_getter<DBH> DBH_source_mysql::get()
                     REF_getter<DBH> dbh=*container_MX.begin();
                     container_MX.pop_front();
 
-                    DBH_mysql* dsql=(DBH_mysql* )dbh.operator ->();
+                    DBH_mysql* dsql=(DBH_mysql* )dbh.get();
 
                     if (time(NULL)-dsql->getLastQueryTime()>INACTIVE_CONNECTION_DROP_TIMEOUT_SEC)
                     {

@@ -1,21 +1,9 @@
-#include "mutexInspector.h"
+#include "mutexable.h"
+#include "IUtils.h"
+#include <unistd.h>
+
 Mutex::Mutex()
 {
-#ifdef KALL
-#ifdef __MACH__
-    //m_lock=PTHREAD_MUTEX_RECURSIVE
-    pthread_mutexattr_t   mta;
-//or alternatively, initialize at runtime:
-
-    pthread_mutexattr_init(&mta);
-
-    pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_RECURSIVE);
-
-    pthread_mutex_init(&m_lock, &mta);
-#else
-    m_lock=PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-#endif
-#endif
 #ifdef _WIN32
     InitializeCriticalSection(&m_lock);
 #else
@@ -24,21 +12,6 @@ Mutex::Mutex()
 }
 MutexC::MutexC()
 {
-#ifdef KALL
-#ifdef __MACH__
-    //m_lock=PTHREAD_MUTEX_RECURSIVE
-    pthread_mutexattr_t   mta;
-//or alternatively, initialize at runtime:
-
-    pthread_mutexattr_init(&mta);
-
-    pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_RECURSIVE);
-
-    pthread_mutex_init(&m_lock, &mta);
-#else
-    m_lock=PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-#endif
-#endif
     pthread_mutex_init(&m_lock, NULL);
 }
 

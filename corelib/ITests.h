@@ -1,6 +1,6 @@
-#ifndef _________________ITests___h
-#define _________________ITests___h
+#pragma once
 #include "trashable.h"
+#include <string>
 
 namespace ITests
 {
@@ -12,4 +12,3 @@ namespace ITests
         virtual ~Base() {}
     };
 }
-#endif

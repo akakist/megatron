@@ -1,38 +1,25 @@
 #ifndef ___________RPC__SERVER__H_OUT_PROXY__ZZ
 #define ___________RPC__SERVER__H_OUT_PROXY__ZZ
+#include "Events/Tools/webHandlerEvent.h"
 #include "broadcaster.h"
 #include "REF.h"
 
 
 
 
-#include "listenerBuffered.h"
-
-
-#include "objectHandler.h"
 
 
 
-#include "tools_mt.h"
-#include "ISSL.h"
+
+
 
 #include <map>
 #include "listenerBuffered1Thread.h"
-#include "logging.h"
-#include "_bitStream.h"
 #include <algorithm>
 #include "Events/System/Run/startService.h"
-#include "Events/Tools/webHandler/RequestIncoming.h"
-#include "Events/System/timer/TickAlarm.h"
-#include "Events/DFS/Caps/GetRefferrers.h"
-#include "Events/DFS/Caps/GetCloudRoots.h"
-#include "Events/DFS/Caps/RegisterMyRefferrerNode.h"
-#include "Events/DFS/Caps/RegisterCloudRoot.h"
-#include "Events/DFS/Referrer/ToplinkDeliver.h"
-#include "Events/DFS/Referrer/ToplinkDeliver.h"
-#include "Events/System/Net/rpc/IncomingOnAcceptor.h"
-#include "Events/System/Net/rpc/IncomingOnConnector.h"
-#include "DBH.h"
+#include "Events/System/timerEvent.h"
+#include "Events/DFS/referrerEvent.h"
+#include "Events/DFS/capsEvent.h"
 #include "CapsAlgorithm.h"
 #include "timerHelper.h"
 struct ServiceNode;

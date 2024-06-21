@@ -1,5 +1,4 @@
-#ifndef __________EVENT_ID___H
-#define __________EVENT_ID___H
+#pragma once
 #include "ioBuffer.h"
 
 /// EventID class. Possible be a number (old style) and string
@@ -57,4 +56,3 @@ inline inBuffer& operator>> (inBuffer& b,  EVENT_id& s)
 
 
 
-#endif

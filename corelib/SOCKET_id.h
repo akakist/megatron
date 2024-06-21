@@ -1,8 +1,6 @@
-#ifndef ______SOCKET_id___H
-#define ______SOCKET_id___H
-#include "commonError.h"
-#include <stdio.h>
+#pragma once
 #include "ioBuffer.h"
+#include <stdio.h>
 
 
 ///  wrapper for int for debug
@@ -42,4 +40,3 @@ typedef int64_t SOCKET_id;
 #endif
 
 
-#endif

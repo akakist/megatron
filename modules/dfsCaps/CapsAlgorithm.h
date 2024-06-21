@@ -1,6 +1,6 @@
-#ifndef CAPSALGORITHM_H_____________
-#define CAPSALGORITHM_H_____________
+#pragma once
 #include <map>
+#include "ioBuffer.h"
 #include "msockaddr_in.h"
 #define MAX_REFFERRERS_COUNT_IN_RESPONSE 40
 struct referrerItem: public Refcountable
@@ -75,4 +75,3 @@ public:
     CapsAlgorithm();
 };
 
-#endif // CAPSALGORITHM_H

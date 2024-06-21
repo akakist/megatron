@@ -1,6 +1,6 @@
-#ifndef ____ErrorDispatcherHelper__H
-#define ____ErrorDispatcherHelper__H
-#include "Events/Tools/errorDispatcher/SendMessage.h"
+#pragma once
+#include "Events/Tools/errorDispatcherEvent.h"
+#include "IInstance.h"
 #include <stdarg.h>
 class ErrorDispatcherHelper
 {
@@ -28,4 +28,3 @@ public:
 
 };
 
-#endif

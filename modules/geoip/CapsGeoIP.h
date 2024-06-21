@@ -2,9 +2,8 @@
 #define CAPSGEOIP_H
 #include <string>
 #include <algorithm>
-#include "REF.h"
-#include "DBH.h"
 #include "IGEOIP.h"
+#include "mutexable.h"
 #define IPDATA "ipdata.txt"
 
 #define DBNAME "geoip"

@@ -1,20 +1,19 @@
-#ifndef ___________MSOCKADDR_IN____H
-#define ___________MSOCKADDR_IN____H
-
+#pragma once
 #ifndef _WIN32
 #include <sys/socket.h>
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
-
+#include "REF.h"
 #else
 #include <ws2tcpip.h>
 #endif
 #include <string>
-#include "SOCKET_id.h"
-#include "CONTAINER.h"
+//#include "SOCKET_id.h"
+//#include "CONTAINER.h"
 #include <json/json.h>
 #include "mutexable.h"
+#include <set>
 #ifndef in_addr_t
 #define in_addr_t unsigned int
 #endif
@@ -98,4 +97,3 @@ inBuffer & operator>>(inBuffer &b,msockaddr_in &a);
 
 
 
-#endif

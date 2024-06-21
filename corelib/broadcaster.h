@@ -1,5 +1,4 @@
-#ifndef _______________BROADCASTER____H
-#define _______________BROADCASTER____H
+#pragma once
 #include "IInstance.h"
 
 /**
@@ -8,7 +7,7 @@
 class Broadcaster
 {
 public:
-    Broadcaster(IInstance* _if):__BRD$ifa(_if) {}
+    Broadcaster(IInstance* _if):__BRDifa(_if) {}
     /// послать евент в сервис
     void sendEvent(const SERVICE_id& svs, const REF_getter<Event::Base>&e);
     void sendEvent(ListenerBase *svs, const REF_getter<Event::Base>&e);
@@ -21,11 +20,10 @@ public:
     void passEvent(const REF_getter<Event::Base>&e);
     IInstance* getIInstance()
     {
-        return __BRD$ifa;
+        return __BRDifa;
     }
 
 private:
-    IInstance* __BRD$ifa;
+    IInstance* __BRDifa;
 
 };
-#endif

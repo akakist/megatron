@@ -1,5 +1,4 @@
-#ifndef _______________SERVICE___ID__H
-#define _______________SERVICE___ID__H
+#pragma once
 #include <sys/types.h>
 #include <stdint.h>
 #include "ioBuffer.h"
@@ -56,4 +55,3 @@ inline int operator!=(const SERVICE_id&a, const SERVICE_id&b)
 {
     return a.s_id!=b.s_id;
 }
-#endif

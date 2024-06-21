@@ -63,11 +63,11 @@ bool ErrorDispatcher::Service::on_IncomingOnAcceptor(const rpcEvent::IncomingOnA
     if(!ev) throw CommonError("!ev");
     auto &IDA=ev->e->id;
     if( errorDispatcherEventEnum::Subscribe==IDA)
-        return on_errorDispatcherSubscribe(static_cast<const errorDispatcherEvent::Subscribe* > (ev->e.operator ->()));
+        return on_errorDispatcherSubscribe(static_cast<const errorDispatcherEvent::Subscribe* > (ev->e.get()));
     if( errorDispatcherEventEnum::Unsubscribe==IDA)
-        return on_errorDispatcherUnsubscribeAll(static_cast<const errorDispatcherEvent::Unsubscribe* > (ev->e.operator ->()));
+        return on_errorDispatcherUnsubscribeAll(static_cast<const errorDispatcherEvent::Unsubscribe* > (ev->e.get()));
     if( errorDispatcherEventEnum::SendMessage==IDA)
-        return on_errorDispatcherSendMessage(static_cast<const errorDispatcherEvent::SendMessage* > (ev->e.operator ->()));
+        return on_errorDispatcherSendMessage(static_cast<const errorDispatcherEvent::SendMessage* > (ev->e.get()));
 
     logErr2("ErrorDispatcher: unhandled event %s %s %d",ev->id.dump().c_str(),__FILE__,__LINE__);
     XPASS;
@@ -79,11 +79,6 @@ bool ErrorDispatcher::Service::on_errorDispatcherSubscribe(const errorDispatcher
     XTRY;
     if(!e) throw CommonError("!e");
     m_subscribers.insert(e->route);
-    /*for(auto &i:m_cache)
-    {
-        passEvent(new errorDispatcherEvent::NotifySubscriber(i.first,i.second,poppedFrontRoute(e->route)));
-
-    }*/
     XPASS;
     return true;
 }
@@ -102,20 +97,20 @@ bool ErrorDispatcher::Service::handleEvent(const REF_getter<Event::Base>& e)
     XTRY;
     auto &ID=e->id;
 
-    auto z=dynamic_cast<const errorDispatcherEvent::Subscribe*>(e.operator->());
+    auto z=dynamic_cast<const errorDispatcherEvent::Subscribe*>(e.get());
     if(z)
         return on_errorDispatcherSubscribe(z);
 
     if( errorDispatcherEventEnum::Subscribe==ID)
-        return on_errorDispatcherSubscribe(dynamic_cast<const errorDispatcherEvent::Subscribe* > (e.operator ->()));
+        return on_errorDispatcherSubscribe(dynamic_cast<const errorDispatcherEvent::Subscribe* > (e.get()));
     if( errorDispatcherEventEnum::Unsubscribe==ID)
-        return on_errorDispatcherUnsubscribeAll(dynamic_cast<const errorDispatcherEvent::Unsubscribe* > (e.operator ->()));
+        return on_errorDispatcherUnsubscribeAll(dynamic_cast<const errorDispatcherEvent::Unsubscribe* > (e.get()));
     if( errorDispatcherEventEnum::SendMessage==ID)
-        return on_errorDispatcherSendMessage(dynamic_cast<const errorDispatcherEvent::SendMessage* > (e.operator ->()));
+        return on_errorDispatcherSendMessage(dynamic_cast<const errorDispatcherEvent::SendMessage* > (e.get()));
     if( systemEventEnum::startService==ID)
-        return on_startService(dynamic_cast<const systemEvent::startService*>(e.operator->()));
+        return on_startService(dynamic_cast<const systemEvent::startService*>(e.get()));
     if( rpcEventEnum::IncomingOnAcceptor==ID)
-        return(this->on_IncomingOnAcceptor(dynamic_cast<const rpcEvent::IncomingOnAcceptor*>(e.operator->())));
+        return(this->on_IncomingOnAcceptor(dynamic_cast<const rpcEvent::IncomingOnAcceptor*>(e.get())));
 
     logErr2("ErrorDispatcher: unhandled event %s %s %d",e->id.dump().c_str(),__FILE__,__LINE__);
     XPASS;

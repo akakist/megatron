@@ -1,3 +1,4 @@
+#include "IInstance.h"
 #define _FILE_OFFSET_BITS 64
 #include "pconfig.h"
 #ifndef _MSC_VER
@@ -11,12 +12,8 @@
 #include <dlfcn.h>
 #endif
 #include "megatronClient.h"
-#include "CInstance.h"
 #include "CUtils.h"
-#include "IObjectProxy.h"
-#include "serviceEnum.h"
 #include "megatron_config.h"
-#include "Events/System/Net/rpc/SendPacket.h"
 #include "configObj.h"
 
 //IUtils *iUtils=NULL;

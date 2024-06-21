@@ -16,13 +16,11 @@
 
 #include "Real.h"
 #include "Events/System/Run/startService.h"
-#include "Events/System/timer/TickTimer.h"
+#include "Events/System/timerEvent.h"
 
-#include "Events/System/Net/http/DoListen.h"
-#include "Events/System/Net/http/RequestIncoming.h"
-#include "Events/System/Net/rpc/IncomingOnAcceptor.h"
-#include "Events/System/Net/rpc/IncomingOnConnector.h"
-#include "../Event/Ping.h"
+#include "Events/System/Net/httpEvent.h"
+#include "Events/System/Net/rpcEvent.h"
+#include "Events/Ping.h"
 #include "version_mega.h"
 #define SESSION_ID  "session_id"
 enum TIMERS

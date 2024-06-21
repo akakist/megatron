@@ -1,6 +1,7 @@
 #include "neighbours.h"
 
 #include "configDB.h"
+#include "ioBuffer.h"
 #define NEIGBOURS_DB_NAME "neighboursz"
 
 _neighbours::_neighbours(const std::string& _dbName):dbName(_dbName) {

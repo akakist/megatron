@@ -1,24 +1,12 @@
 #include <version_mega.h>
 #include "oscarService.h"
 
-#include "bufferVerify.h"
 #include "event_mt.h"
-#include <Events/System/Net/socket/AddToConnectTCP.h>
-#include <Events/System/Net/socket/AddToListenTCP.h>
-#include <Events/System/Net/socket/Write.h>
-#include <Events/System/Net/oscar/Accepted.h>
-#include <Events/System/Net/oscar/ConnectFailed.h>
-#include <Events/System/Net/oscar/Disaccepted.h>
-#include <Events/System/Net/oscar/Disconnected.h>
-#include <Events/System/Net/oscar/Connected.h>
-#include <Events/System/Net/oscar/NotifyOutBufferEmpty.h>
-#include <Events/System/Net/oscar/NotifyBindAddress.h>
+#include <Events/System/Net/socketEvent.h>
+#include <Events/System/Net/oscarEvent.h>
 #include <mutexInspector.h>
-#include "Events/System/Net/oscar/PacketOnConnector.h"
-#include "Events/System/Net/oscar/PacketOnAcceptor.h"
-#include "Events/Tools/errorDispatcher/SendMessage.h"
+#include "Events/Tools/errorDispatcherEvent.h"
 #include "events_oscar.hpp"
-#include "colorOutput.h"
 
 Oscar::Service::Service(const SERVICE_id &svs, const std::string&  nm,IInstance* ifa):
     UnknownBase(nm),
@@ -94,8 +82,8 @@ bool Oscar::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                 {
                     XTRY;
                     {
-                        M_LOCK(evt->esi->m_inBuffer);
-                        inBuffer b(evt->esi->m_inBuffer._mx_data.data(), evt->esi->m_inBuffer._mx_data.size());
+                        M_LOCK(evt->esi->inBuffer_);
+                        inBuffer b(evt->esi->inBuffer_._mx_data.data(), evt->esi->inBuffer_._mx_data.size());
 
                         start_byte=b.get_8_nothrow(success);
 
@@ -117,11 +105,11 @@ bool Oscar::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                                 }
                                 else if(b.remains()==len)
                                 {
-                                    DBG(logErr2("b.remains()==len %d %d",b.remains(),len));
+//                                    DBG(logErr2("b.remains()==len %d %d",b.remains(),len));
                                 }
                                 else if(b.remains()>len)
                                 {
-                                    DBG(logErr2("b.remains()>len %d %d",b.remains(),len));
+//                                    DBG(logErr2("b.remains()>len %d %d",b.remains(),len));
                                 }
                                 b.unpack_nothrow(req,len,success);
                                 if (!success)
@@ -129,7 +117,7 @@ bool Oscar::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                                     logErr2("---------_ERROR if (!success) %s %d",__FILE__,__LINE__);
                                     return true;
                                 }
-                                evt->esi->m_inBuffer._mx_data.erase(0,evt->esi->m_inBuffer._mx_data.size()-b.remains());
+                                evt->esi->inBuffer_._mx_data.erase(0,evt->esi->inBuffer_._mx_data.size()-b.remains());
                                 recvd=true;
                                 XPASS;
                             }
@@ -155,7 +143,7 @@ bool Oscar::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                 {
                 case Oscar::SB_SINGLEPACKET:
                 {
-                    if(evt->esi->m_streamType==epoll_socket_info::STREAMTYPE_CONNECTED)
+                    if(evt->esi->streamType_==epoll_socket_info::STREAMTYPE_CONNECTED)
                     {
                         passEvent(new oscarEvent::PacketOnConnector(evt->esi,toRef(req),evt->route));
                     }
@@ -282,34 +270,34 @@ bool Oscar::Service::handleEvent(const REF_getter<Event::Base>& e)
     XTRY;
     auto &ID=e->id;
     if( socketEventEnum::Accepted==ID)
-        return on_Accepted((const socketEvent::Accepted*)e.operator->());
+        return on_Accepted((const socketEvent::Accepted*)e.get());
     if( socketEventEnum::StreamRead==ID)
-        return on_StreamRead((const socketEvent::StreamRead*)e.operator->());
+        return on_StreamRead((const socketEvent::StreamRead*)e.get());
     if( socketEventEnum::Connected==ID)
-        return on_Connected((const socketEvent::Connected*)e.operator->());
+        return on_Connected((const socketEvent::Connected*)e.get());
     if( socketEventEnum::NotifyBindAddress==ID)
-        return on_NotifyBindAddress((const socketEvent::NotifyBindAddress*)e.operator->());
+        return on_NotifyBindAddress((const socketEvent::NotifyBindAddress*)e.get());
     if( socketEventEnum::NotifyOutBufferEmpty==ID)
-        return on_NotifyOutBufferEmpty((const socketEvent::NotifyOutBufferEmpty*)e.operator->());
+        return on_NotifyOutBufferEmpty((const socketEvent::NotifyOutBufferEmpty*)e.get());
     if( socketEventEnum::ConnectFailed==ID)
-        return on_ConnectFailed((const socketEvent::ConnectFailed*)e.operator->());
+        return on_ConnectFailed((const socketEvent::ConnectFailed*)e.get());
     if( oscarEventEnum::SendPacket==ID)
-        return(this->on_SendPacket((const oscarEvent::SendPacket*)e.operator->()));
+        return(this->on_SendPacket((const oscarEvent::SendPacket*)e.get()));
 
     if( oscarEventEnum::AddToListenTCP==ID)
-        return(this->on_AddToListenTCP((const oscarEvent::AddToListenTCP*)e.operator->()));
+        return(this->on_AddToListenTCP((const oscarEvent::AddToListenTCP*)e.get()));
 
     if( oscarEventEnum::Connect==ID)
-        return(this->on_Connect((const oscarEvent::Connect*)e.operator->()));
+        return(this->on_Connect((const oscarEvent::Connect*)e.get()));
 
     if(systemEventEnum::startService==ID)
-        return on_startService((const systemEvent::startService*)e.operator->());
+        return on_startService((const systemEvent::startService*)e.get());
 
 
     if( socketEventEnum::Disaccepted==ID)
-        return on_Disaccepted((const socketEvent::Disaccepted*)e.operator->());
+        return on_Disaccepted((const socketEvent::Disaccepted*)e.get());
     if( socketEventEnum::Disconnected==ID)
-        return on_Disconnected((const socketEvent::Disconnected*)e.operator->());
+        return on_Disconnected((const socketEvent::Disconnected*)e.get());
 
     XPASS;
     return false;

@@ -1,4 +1,5 @@
 #include "st_rsa_impl.h"
+#include "IUtils.h"
 #include "configDB.h"
 #ifdef _WIN32
 #include <malloc.h>

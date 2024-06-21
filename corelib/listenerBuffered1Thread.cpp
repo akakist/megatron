@@ -1,6 +1,7 @@
 #include "listenerBuffered1Thread.h"
+#include "IUtils.h"
 #include "mutexInspector.h"
-#include "logging.h"
+//#include "logging.h"
 #include "colorOutput.h"
 ListenerBuffered1Thread::~ListenerBuffered1Thread()
 {
@@ -48,7 +49,7 @@ void ListenerBuffered1Thread::processEvent(const REF_getter<Event::Base>&e)
 //            {
 //                if(i.first)
 //                {
-//                    if(i.first(e.operator ->(),i.second))processed=true;
+//                    if(i.first(e.get(),i.second))processed=true;
 //                }
 //            }
         }
@@ -68,7 +69,7 @@ void ListenerBuffered1Thread::processEvent(const REF_getter<Event::Base>&e)
         {
             XTRY;
             logErr2("ListenerBuffered1Thread: unhandled event %s svs=%s in listener=%s %s",
-                    e->dump().toStyledString().c_str(),listenerName.c_str(), listenerName.c_str(),e->dump().toStyledString().c_str());
+                    e->dump().toStyledString().c_str(),listenerName_.c_str(), listenerName_.c_str(),e->dump().toStyledString().c_str());
             XPASS;
 
         }
@@ -119,7 +120,7 @@ void* ListenerBuffered1Thread::worker(void*p)
             if(l->m_isTerminating)
             {
 
-                DBG(printf(BLUE("ListenerBuffered1Thread exit %s"),l->listenerName.c_str()));
+                DBG(printf(BLUE("ListenerBuffered1Thread exit %s"),l->listenerName_.c_str()));
                 return NULL;
             }
 
@@ -129,14 +130,14 @@ void* ListenerBuffered1Thread::worker(void*p)
             }
             else
             {
-                DBG(printf(BLUE("ListenerBuffered1Thread exit %s"),l->listenerName.c_str()));
+                DBG(printf(BLUE("ListenerBuffered1Thread exit %s"),l->listenerName_.c_str()));
                 return NULL;
             }
 
         }
         catch(std::exception &e)
         {
-            logErr2("exception: " RED2("%s") " (%s) %s",e.what(),l->listenerName.c_str(),_DMI().c_str());
+            logErr2("exception: " RED2("%s") " (%s) %s",e.what(),l->listenerName_.c_str(),_DMI().c_str());
         }
     }
     return NULL;

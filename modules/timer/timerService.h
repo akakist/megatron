@@ -14,13 +14,7 @@
 #include "logging.h"
 #include "mutexInspector.h"
 #include "Events/System/Run/startService.h"
-#include "Events/System/timer/TickTimer.h"
-#include "Events/System/timer/TickAlarm.h"
-#include "Events/System/timer/StopAlarm.h"
-#include "Events/System/timer/ResetAlarm.h"
-#include "Events/System/timer/SetTimer.h"
-#include "Events/System/timer/SetAlarm.h"
-#include "Events/System/timer/StopTimer.h"
+#include "Events/System/timerEvent.h"
 
 
 namespace Timer

@@ -6,6 +6,7 @@
 #include "rpcTestService2.h"
 #include "testRpcEvent.h"
 #include "CUtils.h"
+#include <unistd.h>
 bool done_test=false;
 void registerRPCService(const char* pn);
 void registerSocketModule(const char* pn);

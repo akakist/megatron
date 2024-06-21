@@ -34,8 +34,11 @@ include(FetchContent)
 #fetchContent_MakeAvailable(OpenSSL)
 #FIND_PACKAGE(OpenSSL )
 # find_package(OpenSSL REQUIRED)
-set (OPENSSL_INCLUDE_DIR /usr/local lib/jsoncpp-0.5.0/include . corelib lib/SQLiteCpp lib main) 
-include_directories(${OPENSSL_INCLUDE_DIR} local)
+set (OPENSSL_INCLUDE_DIR /opt/homebrew/Cellar/openssl@1.1/1.1.1t/include) 
+set (OPENSSL_LIB_DIR /opt/homebrew/Cellar/openssl@1.1/1.1.1t/lib)
+link_directories(${OPENSSL_LIB_DIR})
+include_directories(${OPENSSL_INCLUDE_DIR} local /usr/local lib/jsoncpp-0.5.0/include . corelib lib/SQLiteCpp lib main)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fPIC -O3")
 
 
 SET(CAPS_IP "x.testquant.com")

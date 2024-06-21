@@ -11,8 +11,7 @@
 #include "SQLiteCpp/Database.h"
 #include "_QUERY.h"
 #include "megatronClient.h"
-#include "Events/DFS/Referrer/InitClient.h"
-#include "Events/DFS/Referrer/ToplinkDeliver.h"
+#include "Events/DFS/referrerEvent.h"
 
 //const char emitent[]="c4393323dc2cc32a4b9e30aea0b91878a78693d3";/// shuvalow
 void AppHandler::init(int argc, char ** argv, const std::string & filesDir, IInstance* instance)
@@ -49,7 +48,7 @@ void AppHandler::init(int argc, char ** argv, const std::string & filesDir, IIns
     {
 
         std::set<msockaddr_in> caps;
-        caps=instance->getConfig()->get_tcpaddr("CapsIP","x.testquant.com:10100","Root cloud address");
+        caps=instance->getConfig()->get_tcpaddr("CapsIP","127.0.0.1:10100","Root cloud address");
 
 //        msockaddr_in sa;
 //        sa.initFromUrl(CLIENT_ADDRESS);
@@ -130,7 +129,7 @@ bool AppHandler::on_ToplinkDeliverRSP(const dfsReferrerEvent::ToplinkDeliverRSP*
     auto &ID=z->id;
     if(ErrorEventEnum::ErrorRSP==ID)
     {
-        ErrorEvent::ErrorRSP*er=(ErrorEvent::ErrorRSP*)z.operator->();
+        ErrorEvent::ErrorRSP*er=(ErrorEvent::ErrorRSP*)z.get();
         logErr2("Error %s",er->errText.c_str());
         std::string javaCookie=e_tl->route.getLastJavaCookie();
 
@@ -151,29 +150,29 @@ bool AppHandler::OH_handleObjectEvent(const REF_getter<Event::Base>& e)
         if(dfsReferrerEventEnum::UpdateConfigRSP==ID)
         {
             MUTEX_INSPECTOR;
-            const dfsReferrerEvent::UpdateConfigRSP*xe=(const dfsReferrerEvent::UpdateConfigRSP*)e.operator ->();
+            const dfsReferrerEvent::UpdateConfigRSP*xe=(const dfsReferrerEvent::UpdateConfigRSP*)e.get();
             config_bod=xe->bod;
             return true;
         }
         if( dfsReferrerEventEnum::ToplinkDeliverRSP==ID)
-            return on_ToplinkDeliverRSP((const dfsReferrerEvent::ToplinkDeliverRSP*)e.operator ->());
+            return on_ToplinkDeliverRSP((const dfsReferrerEvent::ToplinkDeliverRSP*)e.get());
         if( dfsReferrerEventEnum::NotifyReferrerUplinkIsConnected==ID)
-            return on_NotifyReferrerUplinkIsConnected((const dfsReferrerEvent::NotifyReferrerUplinkIsConnected*)e.operator ->());
+            return on_NotifyReferrerUplinkIsConnected((const dfsReferrerEvent::NotifyReferrerUplinkIsConnected*)e.get());
         if( dfsReferrerEventEnum::NotifyReferrerUplinkIsDisconnected==ID)
-            return on_NotifyReferrerUplinkIsDisconnected((const dfsReferrerEvent::NotifyReferrerUplinkIsDisconnected*)e.operator ->());
+            return on_NotifyReferrerUplinkIsDisconnected((const dfsReferrerEvent::NotifyReferrerUplinkIsDisconnected*)e.get());
 
         if(timerEventEnum::TickAlarm==ID)
-            return on_TickAlarm((const timerEvent::TickAlarm*)e.operator ->());
+            return on_TickAlarm((const timerEvent::TickAlarm*)e.get());
 
         if(rpcEventEnum::IncomingOnConnector==ID)
         {
             MUTEX_INSPECTOR;
-            const rpcEvent::IncomingOnConnector*ze=(const rpcEvent::IncomingOnConnector*)e.operator ->();
+            const rpcEvent::IncomingOnConnector*ze=(const rpcEvent::IncomingOnConnector*)e.get();
             auto& IDC=ze->e->id;
             if(dfsReferrerEventEnum::UpdateConfigRSP==IDC)
             {
                 MUTEX_INSPECTOR;
-                const dfsReferrerEvent::UpdateConfigRSP*xe=(const dfsReferrerEvent::UpdateConfigRSP*)ze->e.operator ->();
+                const dfsReferrerEvent::UpdateConfigRSP*xe=(const dfsReferrerEvent::UpdateConfigRSP*)ze->e.get();
                 config_bod=xe->bod;
                 return true;
             }

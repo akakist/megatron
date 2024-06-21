@@ -1,9 +1,7 @@
-#ifndef _____________INconfigDBDB____H
-#define _____________INconfigDBDB____H
+#pragma once
 #include <set>
 #include <string>
 #include <msockaddr_in.h>
-#include "mtimespec.h"
 #include <sys/types.h>
 
 ///       Interface for simple configs
@@ -20,4 +18,3 @@ public:
 
 };
 
-#endif

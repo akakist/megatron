@@ -1,5 +1,4 @@
-#ifndef ________________ISSLAV___G11
-#define ________________ISSLAV___G11
+#pragma once
 #include <stdint.h>
 #include "ifaces.h"
 #include <string>
@@ -67,4 +66,3 @@ public:
 
 };
 
-#endif

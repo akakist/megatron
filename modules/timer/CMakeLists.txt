@@ -3,6 +3,7 @@
 add_library(core-timer SHARED
     timer.cpp
     timerService.cpp
+timerService.h
 )
 
 target_link_libraries(core-timer megatron-core pthread)

@@ -7,9 +7,8 @@
 
 
 #include "Events/System/Run/startService.h"
-#include "Events/System/Net/rpc/PassPacket.h"
-#include "Events/System/Net/rpc/SendPacket.h"
-#include "Events/DFS/Referrer/___dfsReferrerEvent.h"
+#include "Events/System/Net/rpcEvent.h"
+#include "Events/DFS/referrerEvent.h"
 #include "utils_local.h"
 #include "colorOutput.h"
 
@@ -45,14 +44,14 @@ void CInstance::passEvent(const REF_getter<Event::Base>&e)
     case Route::LOCALSERVICE:
     {
         MUTEX_INSPECTOR;
-        LocalServiceRoute* rt=(LocalServiceRoute* )r.operator ->();
+        LocalServiceRoute* rt=(LocalServiceRoute* )r.get();
         forwardEvent(rt->id,e);
     }
     break;
     case Route::LISTENER:
     {
         MUTEX_INSPECTOR;
-        ListenerRoute* rt=(ListenerRoute* )r.operator ->();
+        ListenerRoute* rt=(ListenerRoute* )r.get();
         rt->id->listenToEvent(e);
     }
     break;
@@ -77,7 +76,7 @@ void CInstance::passEvent(const REF_getter<Event::Base>&e)
         XTRY;
         if(!e.valid())
             throw CommonError("if(!e.valid()) %s",_DMI().c_str());
-        RemoteAddrRoute* rt=(RemoteAddrRoute* )r.operator ->();
+        RemoteAddrRoute* rt=(RemoteAddrRoute* )r.get();
         forwardEvent(ServiceEnum::RPC,new rpcEvent::PassPacket(rt->addr,e));
         XPASS;
 

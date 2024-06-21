@@ -1,8 +1,8 @@
 #include "IInstance.h"
 #include "colorOutput.h"
 #include "configObj.h"
-#include "version_mega.h"
 #include "CUtils.h"
+#include <unistd.h>
 //bool done_test_http=false;
 void registerRPCService(const char* pn);
 void registerSocketModule(const char* pn);
@@ -12,6 +12,7 @@ void registerOscarModule(const char* pn);
 void registerOscarSecureModule(const char* pn);
 void registertestServerWebService(const char* pn);
 void registerHTTPModule(const char* pn);
+
 int mainTestHTTP(int argc, char** argv )
 {
     try {
@@ -43,7 +44,7 @@ int mainTestHTTP(int argc, char** argv )
                                           "\nSocketIO.ListenerBuffered.MaxThreadsCount=10"
                                           "\nSocketIO.listen_backlog=128"
                                           "\nSocketIO.size=1024"
-                                          "\nSocketIO.timeout_millisec=2000"
+                                          "\nSocketIO.timeout_millisec=7000"
                                           "\nWebHandler.bindAddr=NONE"
 
                                           "\n# http listen address"
@@ -51,17 +52,18 @@ int mainTestHTTP(int argc, char** argv )
                                           "\nHTTP.max_post=1000000"
                                           "\nHTTP.doc_urls=/pics,/html,/css"
                                           "\nHTTP.document_root=./www"
-                                          "\nSocketIO.epoll_timeout_millisec=2000"
+                                          "\nSocketIO.epoll_timeout_millisec=12000"
                                           "\n"
                                           "\n# socket poll thread count"
-                                          "\nSocketIO.n_workers=3"
+                                          "\nSocketIO.n_workers=6"
                                          );
             instance1->setConfig(cnf1);
             instance1->initServices();
         }
 
         usleep(1000000);
-        system("ab -n 1000000 -k -c 100  http://127.0.0.1:8088/");
+        system("ab -n 1000000  -k -c 100  http://127.0.0.1:8088/");
+//        system("ab -n 1000000   -c 10  http://127.0.0.1:8088/");
 //        sleep(1);
         delete iUtils;
         return 0;

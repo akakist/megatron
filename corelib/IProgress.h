@@ -1,5 +1,4 @@
-#ifndef _____________IPROGRESS_H
-#define _____________IPROGRESS_H
+#pragma once
 
 #include <string>
 #include "route_t.h"
@@ -17,5 +16,4 @@ struct IProgress
 
 
 
-#endif // IPROGRESS_H
 

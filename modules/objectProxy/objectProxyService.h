@@ -1,6 +1,8 @@
 #ifndef ___________PP__SERVER__H
 #define ___________PP__SERVER__H
 
+#include "IUtils.h"
+#include "pollable.h"
 #include <unknown.h>
 #include <broadcaster.h>
 #include <IObjectProxy.h>

@@ -1,4 +1,4 @@
-include_directories(Event) 
+include_directories( .) 
 
 
 ADD_SUBDIRECTORY(server)

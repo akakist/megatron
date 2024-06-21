@@ -1,5 +1,4 @@
-#ifndef ______Rational__H
-#define ______Rational__H
+#pragma once
 #include <string>
 #include <sys/types.h>
 #include <stdint.h>
@@ -27,5 +26,3 @@ inline bool operator < (const Rational& a,const Rational& b)
     return a.v<b.v;
 }
 
-//#endif
-#endif

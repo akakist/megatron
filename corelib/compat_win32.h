@@ -1,5 +1,4 @@
-#ifndef _________________PTHREADS_WIN32____H
-#define _________________PTHREADS_WIN32____H
+#pragma once
 
 /**
 portability wrappers
@@ -16,5 +15,4 @@ typedef int socklen_t;
 #endif
 #if defined(_WIN32) || defined(_MSC_VER)
 #include <sys/types.h>
-#endif
 #endif

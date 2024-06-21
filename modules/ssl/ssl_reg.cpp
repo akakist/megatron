@@ -1,5 +1,6 @@
 #include <string>
-#include "IInstance.h"
+#include "EVENT_id.h"
+#include "IUtils.h"
 #include "st_rsa_impl.h"
 #include "version_mega.h"
 

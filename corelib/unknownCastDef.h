@@ -1,6 +1,4 @@
-#ifndef _______UNKNOWNCASTDEF_____H
-#define _______UNKNOWNCASTDEF_____H
+#pragma once
 namespace UnknownCast
 {
 }
-#endif

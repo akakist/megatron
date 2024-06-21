@@ -2,6 +2,12 @@
 #define __________oscar_EventInfo__HH
 
 
+#include "IUtils.h"
+
+#include "Events/Tools/errorDispatcherEvent.h"
+#include <Events/System/Net/oscarEvent.h>
+#include <Events/System/Net/socketEvent.h>
+#include <Events/System/Run/startService.h>
 inline std::set<EVENT_id> getEvents_oscar()
 {
 

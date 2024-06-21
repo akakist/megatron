@@ -1,8 +1,5 @@
-#ifndef ____________________SYSEVENT____H
-#define ____________________SYSEVENT____H
+#pragma once
 
-#include "REF.h"
-#include "ioBuffer.h"
 #include "event_mt.h"
 
 
@@ -31,4 +28,3 @@ namespace systemEvent
     };
 
 }
-#endif

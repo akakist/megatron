@@ -1,13 +1,10 @@
-#ifndef ________________IGEOIPAV___G11
-#define ________________IGEOIPAV___G11
+#pragma once
 #include <stdint.h>
 #include "ifaces.h"
 #include <string>
 #include <sys/types.h>
 #include "REF.h"
-#include "refstring.h"
 #include "ioBuffer.h"
-#include "IInstance.h"
 /// interfaces/wrapper to access OpenGEOIP
 
 #define LOCATION_LATITUDE_UNDEF 100000
@@ -42,4 +39,3 @@ public:
 
 };
 
-#endif

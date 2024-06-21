@@ -1,9 +1,8 @@
-#ifndef ________________LISTENER_Polled____H
-#define ________________LISTENER_Polled____H
+#pragma once
 #include "listenerBase.h"
 #include "mutexable.h"
 #include "IConfigObj.h"
-#include "IInstance.h"
+//#include "IInstance.h"
 class ListenerPolled;
 
 ///       Polled listener used mainly in GUI windows
@@ -30,4 +29,3 @@ public:
     void deinit();
 
 };
-#endif

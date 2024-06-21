@@ -1,8 +1,6 @@
-#ifndef _______________NETWORKMULTIPLEXOR_H
-#define _______________NETWORKMULTIPLEXOR_H
+#pragma once
 
 #include "e_poll.h"
-#include "unistd.h"
 #include <vector>
 #ifdef __FreeBSD__
 #include <sys/types.h>
@@ -56,4 +54,3 @@ public:
 };
 
 
-#endif // NETWORKMULTIPLEXOR_H

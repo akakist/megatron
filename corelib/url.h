@@ -1,5 +1,4 @@
-#ifndef _________________URL____H
-#define _________________URL____H
+#pragma once
 #include <string>
 
 /// url parser
@@ -22,4 +21,3 @@ struct Url
     void parse(const std::string& u);
 
 };
-#endif

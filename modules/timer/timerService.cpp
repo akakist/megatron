@@ -374,17 +374,17 @@ bool Timer::Service::handleEvent(const REF_getter<Event::Base>& e)
     XTRY;
     auto &ID=e->id;
     if(timerEventEnum::SetTimer==ID)
-        return on_SetTimer((const timerEvent::SetTimer*)e.operator->());
+        return on_SetTimer((const timerEvent::SetTimer*)e.get());
     if( timerEventEnum::SetAlarm==ID)
-        return on_SetAlarm((const timerEvent::SetAlarm*)e.operator->());
+        return on_SetAlarm((const timerEvent::SetAlarm*)e.get());
     if( timerEventEnum::ResetAlarm==ID)
-        return on_ResetAlarm((const timerEvent::ResetAlarm*)e.operator->());
+        return on_ResetAlarm((const timerEvent::ResetAlarm*)e.get());
     if( timerEventEnum::StopTimer==ID)
-        return on_StopTimer((const timerEvent::StopTimer*)e.operator->());
+        return on_StopTimer((const timerEvent::StopTimer*)e.get());
     if( timerEventEnum::StopAlarm==ID)
-        return on_StopAlarm((const timerEvent::StopAlarm*)e.operator->());
+        return on_StopAlarm((const timerEvent::StopAlarm*)e.get());
     if(systemEventEnum::startService==ID)
-        return on_startService((const systemEvent::startService*)e.operator->());
+        return on_startService((const systemEvent::startService*)e.get());
 
     XPASS;
     return false;

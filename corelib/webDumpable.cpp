@@ -1,5 +1,5 @@
 #include "webDumpable.h"
-#include "IInstance.h"
+#include "IUtils.h"
 WebDumpable::~WebDumpable()
 {
     iUtils->removeWebDumpableHandler(this);

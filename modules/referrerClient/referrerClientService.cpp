@@ -1,4 +1,6 @@
 #include "referrerClientService.h"
+#include "Events/DFS/capsEvent.h"
+#include "logging.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -11,35 +13,24 @@
 #include <algorithm>
 
 #include "route_t.h"
-#include "CHUNK_id.h"
 
-#include "IRPC.h"
 #include "mutexInspector.h"
 
 
 #include "tools_mt.h"
 #include "version_mega.h"
-#include "VERSION_id.h"
 #include <random>
 
 
 
 #include "tools_mt.h"
-#include "unknownCastDef.h"
-
-#include "st_rsa.h"
 
 
-#include "configDB.h"
 
-#include "Events/Tools/webHandler/RequestIncoming.h"
-#include "Events/Tools/webHandler/RegisterDirectory.h"
-#include "Events/Tools/webHandler/RegisterHandler.h"
-#include "Events/Tools/telnet/RegisterCommand.h"
-#include "Events/Tools/telnet/Reply.h"
-#include "Events/System/Net/rpc/SubscribeNotifications.h"
-#include "Events/System/Net/http/GetBindPorts.h"
-#include "Events/DFS/Referrer/UpdateConfig.h"
+
+#include "Events/Tools/webHandlerEvent.h"
+#include "Events/System/Net/rpcEvent.h"
+#include "Events/DFS/referrerEvent.h"
 #include <algorithm>
 #include "colorOutput.h"
 
@@ -184,7 +175,7 @@ bool Service::on_ToplinkDeliverREQ(const dfsReferrerEvent::ToplinkDeliverREQ *e1
 
     if(hasUL())
     {
-        sendToplinkReqClient(getUL(),ee.operator ->());
+        sendToplinkReqClient(getUL(),ee.get());
     }
     else
     {
@@ -202,12 +193,12 @@ bool  Service::on_IncomingOnConnector(const rpcEvent::IncomingOnConnector *evt)
 
     auto& IDC=evt->e->id;
     if( dfsReferrerEventEnum::ToplinkDeliverRSP==IDC)
-        return on_ToplinkDeliverRSP(static_cast<const dfsReferrerEvent::ToplinkDeliverRSP* > (evt->e.operator ->()));
+        return on_ToplinkDeliverRSP(static_cast<const dfsReferrerEvent::ToplinkDeliverRSP* > (evt->e.get()));
     if( dfsReferrerEventEnum::Pong==IDC) /// connector
-        return on_Pong(static_cast<const dfsReferrerEvent::Pong* > (evt->e.operator ->()),evt->esi);
+        return on_Pong(static_cast<const dfsReferrerEvent::Pong* > (evt->e.get()),evt->esi);
     if(dfsReferrerEventEnum::UpdateConfigRSP==IDC)
     {
-        const dfsReferrerEvent::UpdateConfigRSP*xe=(const dfsReferrerEvent::UpdateConfigRSP*)evt->e.operator ->();
+        const dfsReferrerEvent::UpdateConfigRSP*xe=(const dfsReferrerEvent::UpdateConfigRSP*)evt->e.get();
         config_bod=xe->bod;
 
         for(auto& z: m_readyNotificationBackroutes)
@@ -255,19 +246,19 @@ bool Service::handleEvent(const REF_getter<Event::Base>& ev)
     auto& ID=ev->id;
     XTRY;
     if( systemEventEnum::startService==ID)
-        return on_startService((const systemEvent::startService*)ev.operator->());
+        return on_startService((const systemEvent::startService*)ev.get());
     if( timerEventEnum::TickTimer==ID)
-        return on_TickTimer((const timerEvent::TickTimer*)ev.operator->());
+        return on_TickTimer((const timerEvent::TickTimer*)ev.get());
     if( timerEventEnum::TickAlarm==ID)
-        return on_TickAlarm((const timerEvent::TickAlarm*)ev.operator->());
+        return on_TickAlarm((const timerEvent::TickAlarm*)ev.get());
     if( webHandlerEventEnum::RequestIncoming==ID)
-        return(this->on_RequestIncoming((const webHandlerEvent::RequestIncoming*)ev.operator->()));
+        return(this->on_RequestIncoming((const webHandlerEvent::RequestIncoming*)ev.get()));
     if( telnetEventEnum::CommandEntered==ID)
-        return on_CommandEntered((const telnetEvent::CommandEntered*)ev.operator->());
+        return on_CommandEntered((const telnetEvent::CommandEntered*)ev.get());
 
     if(dfsReferrerEventEnum::UpdateConfigRSP==ID)
     {
-        const dfsReferrerEvent::UpdateConfigRSP*xe=(const dfsReferrerEvent::UpdateConfigRSP*)ev.operator ->();
+        const dfsReferrerEvent::UpdateConfigRSP*xe=(const dfsReferrerEvent::UpdateConfigRSP*)ev.get();
         config_bod=xe->bod;
         return true;
     }
@@ -281,7 +272,7 @@ bool Service::handleEvent(const REF_getter<Event::Base>& ev)
             return true;
         }
 
-        const dfsCapsEvent::GetReferrersRSP *e=(const dfsCapsEvent::GetReferrersRSP *)ev.operator ->();
+        const dfsCapsEvent::GetReferrersRSP *e=(const dfsCapsEvent::GetReferrersRSP *)ev.get();
 
         _stop_alarm(T_002_D3_caps_get_service_request_is_timed_out);
 
@@ -343,21 +334,21 @@ bool Service::handleEvent(const REF_getter<Event::Base>& ev)
         return true;
     }
     if( rpcEventEnum::Disconnected==ID)
-        return(this->on_Disconnected(dynamic_cast<const rpcEvent::Disconnected*>(ev.operator->())));
+        return(this->on_Disconnected(dynamic_cast<const rpcEvent::Disconnected*>(ev.get())));
     if( rpcEventEnum::ConnectFailed==ID)
-        return(this->on_ConnectFailed(dynamic_cast<const rpcEvent::ConnectFailed*>(ev.operator->())));
+        return(this->on_ConnectFailed(dynamic_cast<const rpcEvent::ConnectFailed*>(ev.get())));
     if( rpcEventEnum::Connected==ID)
-        return(this->on_Connected(dynamic_cast<const rpcEvent::Connected*>(ev.operator->())));
+        return(this->on_Connected(dynamic_cast<const rpcEvent::Connected*>(ev.get())));
     if( rpcEventEnum::IncomingOnConnector==ID)
-        return(this->on_IncomingOnConnector(dynamic_cast<const rpcEvent::IncomingOnConnector*>(ev.operator->())));
+        return(this->on_IncomingOnConnector(dynamic_cast<const rpcEvent::IncomingOnConnector*>(ev.get())));
     if( dfsReferrerEventEnum::SubscribeNotifications==ID)
-        return on_SubscribeNotifications(dynamic_cast<const dfsReferrerEvent::SubscribeNotifications*>(ev.operator ->()));
+        return on_SubscribeNotifications(dynamic_cast<const dfsReferrerEvent::SubscribeNotifications*>(ev.get()));
     if( dfsReferrerEventEnum::ToplinkDeliverRSP==ID)
-        return on_ToplinkDeliverRSP(dynamic_cast<const dfsReferrerEvent::ToplinkDeliverRSP* > (ev.operator ->()));
+        return on_ToplinkDeliverRSP(dynamic_cast<const dfsReferrerEvent::ToplinkDeliverRSP* > (ev.get()));
     if( dfsReferrerEventEnum::ToplinkDeliverREQ==ID)       /// forwading
-        return on_ToplinkDeliverREQ(dynamic_cast<const dfsReferrerEvent::ToplinkDeliverREQ* > (ev.operator ->()));
+        return on_ToplinkDeliverREQ(dynamic_cast<const dfsReferrerEvent::ToplinkDeliverREQ* > (ev.get()));
     if( dfsReferrerEventEnum::InitClient==ID)       /// forwading
-        return on_InitClient(dynamic_cast<const dfsReferrerEvent::InitClient* > (ev.operator ->()));
+        return on_InitClient(dynamic_cast<const dfsReferrerEvent::InitClient* > (ev.get()));
 
     logErr2("unhandled event t t %s %s %d",ev->id.dump().c_str(),__FILE__,__LINE__);
     XPASS;
@@ -678,8 +669,8 @@ bool Service::d6_on_pong_PT_CAPS_LONG(const msockaddr_in& visible_name_of_pinger
     (void)visible_name_of_pinger;
     MUTEX_INSPECTOR;
     S_LOG("d6_on_pong_PT_CAPS_LONG");
-    DBG(logErr2("d6_on_pong_PT_CAPS_LONG %s",esi->remote_name->addr.dump().c_str()));
-    _reset_alarm(T_008_D6_resend_ping_caps_long,T_009_pong_timed_out_caps_long,esi->remote_name->addr);
+    DBG(logErr2("d6_on_pong_PT_CAPS_LONG %s",esi->remote_name().dump().c_str()));
+    _reset_alarm(T_008_D6_resend_ping_caps_long,T_009_pong_timed_out_caps_long,esi->remote_name());
     return true;
 }
 void Service::d6_on_T_011_resend_ping_PT_CAPS_LONG(const msockaddr_in& remote_addr)
@@ -746,7 +737,7 @@ bool Service::on_Pong(const dfsReferrerEvent::Pong* e, const REF_getter<epoll_so
     uplinkConnectionState->nodeLevelInHierarhy=e->nodeLevelInHierarhy+1;
     uplinkConnectionState->ponged_for_cleanup_sockets.insert(esi);
     uplinkConnectionState->ponged_all[iUtils->getNow().get()-e->ping_time].insert(std::make_pair(esi,e->visible_name_of_pinger));
-    neighbours.add(esi->remote_name->addr,e->ping_time);
+    neighbours.add(esi->remote_name(),e->ping_time);
 #ifndef IGNORE_NAT
     if(sa.isNAT())
     {
@@ -784,7 +775,7 @@ bool Service::on_Pong(const dfsReferrerEvent::Pong* e, const REF_getter<epoll_so
             }
             if(ok_send)
             {
-                STAGE_D3_GET_GEFERRERS_start(esi->remote_name->addr);
+                STAGE_D3_GET_GEFERRERS_start(esi->remote_name());
             }
         }
         if(stage==STAGE_D3_1_SEND_PING_TO_RESPONDED_REFERRERS)
@@ -819,7 +810,7 @@ bool Service::on_Pong(const dfsReferrerEvent::Pong* e, const REF_getter<epoll_so
             }
         }
         {
-            DBG(logErr2("d2_on_pong_PT_CACHED %s",esi->remote_name->addr.dump().c_str()));
+            DBG(logErr2("d2_on_pong_PT_CACHED %s",esi->remote_name().dump().c_str()));
         }
 
         return true;
@@ -866,9 +857,9 @@ bool Service::on_connectionEstablished(const msockaddr_in& remote_addr)
 
     for(auto &z:uplinkConnectionState->ponged_for_cleanup_sockets)
     {
-        if(z->remote_name->addr!=remote_addr)
+        if(z->remote_name()!=remote_addr)
         {
-            DBG(logErr2("close %s",z->remote_name->addr.dump().c_str()));
+            DBG(logErr2("close %s",z->remote_name().dump().c_str()));
             z->close("cleanup unused connections");
 
         }
@@ -913,7 +904,7 @@ void Service::d4_uplink_mode(const REF_getter<epoll_socket_info>& esi, const mso
     stage=STAGE_D4_MAINTAIN_CONNECTION;
 
     {
-        on_connectionEstablished(esi->remote_name->addr);
+        on_connectionEstablished(esi->remote_name());
     }
 
 
@@ -929,10 +920,10 @@ void Service::d5_start(const REF_getter<epoll_socket_info>&esi,const msockaddr_i
 
     S_LOG("d5_start");
     MUTEX_INSPECTOR;
-    DBG(logErr2("sa %s ",esi->remote_name->addr.dump().c_str()));
+    DBG(logErr2("sa %s ",esi->remote_name().dump().c_str()));
 
 
-    on_connectionEstablished(esi->remote_name->addr);
+    on_connectionEstablished(esi->remote_name());
 }
 
 void Service::d6_start(const msockaddr_in& sa)
@@ -957,8 +948,8 @@ bool Service::d6_on_pong_PT_CAPS_SHORT(const msockaddr_in& visible_name_of_pinge
     S_LOG("d6_on_pong_PT_CAPS_SHORT");
     {
 
-        _stop_alarm(T_007_D6_resend_ping_caps_short,T_008_D6_resend_ping_caps_long,T_009_pong_timed_out_caps_long,esi->remote_name->addr);
-        _reset_alarm(T_008_D6_resend_ping_caps_long,T_009_pong_timed_out_caps_long,esi->remote_name->addr);
+        _stop_alarm(T_007_D6_resend_ping_caps_short,T_008_D6_resend_ping_caps_long,T_009_pong_timed_out_caps_long,esi->remote_name());
+        _reset_alarm(T_008_D6_resend_ping_caps_long,T_009_pong_timed_out_caps_long,esi->remote_name());
 
     }
     return true;
@@ -989,7 +980,7 @@ void Service::STAGE_D21_PING_CAPS_start()
 }
 void Service::STAGE_D2_PING_NEIGHBOURS_start()
 {
-    logErr2("STAGE_D2_PING_NEIGHBOURS_start");
+//    logErr2("STAGE_D2_PING_NEIGHBOURS_start");
     MUTEX_INSPECTOR;
     connection_sequence_id++;
 
@@ -1050,7 +1041,7 @@ void Service::STAGE_D3_GET_GEFERRERS_start(const msockaddr_in& sa)
         DBG(logErr2("dfsCapsEvent::GetReferrersREQ "));
 
         REF_getter<Event::Base> ze=new dfsCapsEvent::GetReferrersREQ(sas,ListenerBase::serviceId);
-        sendToplinkReqClient(sa,new ToplinkDeliverREQ(ServiceEnum::DFSCaps,ze.operator ->(),ListenerBase::serviceId));
+        sendToplinkReqClient(sa,new ToplinkDeliverREQ(ServiceEnum::DFSCaps,ze.get(),ListenerBase::serviceId));
         _reset_alarm(T_002_D3_caps_get_service_request_is_timed_out);
     }
     reset_T_001_common_connect_failed();

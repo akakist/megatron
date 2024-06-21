@@ -33,15 +33,15 @@ bool rpcTestService2::handleEvent(const REF_getter<Event::Base>& e)
     }
     if(rpcEventEnum::IncomingOnAcceptor==ID)
     {
-        rpcEvent::IncomingOnAcceptor *ioa=(rpcEvent::IncomingOnAcceptor *)e.operator ->();
+        rpcEvent::IncomingOnAcceptor *ioa=(rpcEvent::IncomingOnAcceptor *)e.get();
         auto &IDA=ioa->e->id;
         if(testEventEnum::testREQ==IDA)
-            return on_testREQ((testEvent::testREQ*)ioa->e.operator ->());
+            return on_testREQ((testEvent::testREQ*)ioa->e.get());
 
     }
     if(testEventEnum::testREQ==ID)
     {
-        testEvent::testREQ* ee=(testEvent::testREQ*) e.operator ->();
+        testEvent::testREQ* ee=(testEvent::testREQ*) e.get();
         if(ssl->md5(ee->buf)!=ee->md5)
         {
             throw CommonError("wrong md5 of buffer");

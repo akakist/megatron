@@ -1,6 +1,4 @@
-
-#ifndef ST_MALLOC_H
-#define ST_MALLOC_H
+#pragma once
 #include <stdio.h>
 #include "commonError.h"
 #if !defined __MACH__ && !defined __FreeBSD__
@@ -31,28 +29,3 @@ public:
     }
 
 };
-/*struct st_malloc_free
-{
-private:
-    st_malloc_free(const st_malloc_free&);             // Not defined
-    st_malloc_free& operator=(const st_malloc_free&);  // Not defined
-public:
-    unsigned char *buf;
-    st_malloc_free(unsigned char* b):buf(b)
-    {
-    }
-    ~st_malloc_free()
-    {
-        if (buf)
-        {
-            free(buf);
-            buf=NULL;
-        }
-    }
-
-};*/
-
-
-#endif
-
-

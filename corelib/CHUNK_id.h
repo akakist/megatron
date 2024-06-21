@@ -1,5 +1,4 @@
-#ifndef ______CHUNK_id___H
-#define ______CHUNK_id___H
+#pragma once
 #include "commonError.h"
 #include "ioBuffer.h"
 #ifdef DEBUG
@@ -38,4 +37,3 @@ inline inBuffer & operator>> (inBuffer& b,  CHUNK_id &s)
 typedef int64_t CHUNK_id;
 #endif
 
-#endif

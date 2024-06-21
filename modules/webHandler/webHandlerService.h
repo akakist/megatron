@@ -8,11 +8,9 @@
 #include <listenerBuffered1Thread.h>
 #include "event_mt.h"
 #include <Events/System/Run/startService.h>
-#include <Events/System/Net/http/RequestIncoming.h>
-#include "Events/Tools/webHandler/RequestIncoming.h"
-#include "Events/Tools/webHandler/RegisterHandler.h"
-#include "Events/Tools/webHandler/RegisterDirectory.h"
-#include <Events/System/Net/http/GetBindPorts.h>
+#include <Events/System/Net/httpEvent.h>
+#include "Events/Tools/webHandlerEvent.h"
+#include <Events/System/Net/httpEvent.h>
 
 namespace WebHandler
 {

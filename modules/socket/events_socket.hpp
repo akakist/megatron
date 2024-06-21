@@ -2,6 +2,7 @@
 #define __________socket_EventInfo__HH
 
 
+#include "EVENT_id.h"
 inline std::set<EVENT_id> getEvents_socket()
 {
 

@@ -1,5 +1,4 @@
-#ifndef ________TCP_LISTENER_____H
-#define ________TCP_LISTENER_____H
+#pragma once
 
 
 #include <REF.h>
@@ -9,13 +8,10 @@
 #include <unknown.h>
 #include <listenerSimple.h>
 #include <broadcaster.h>
-//#include "event.h"
-#include <Events/System/Net/socket/AddToListenTCP.h>
-#include <Events/System/Net/socket/AddToConnectTCP.h>
+#include <Events/System/Net/socketEvent.h>
 #include <Events/System/Run/startService.h>
-#include <Events/System/timer/TickTimer.h>
-#include <Events/Tools/webHandler/RequestIncoming.h>
-#include "Events/System/Net/socket/Write.h"
+#include <Events/System/timerEvent.h>
+#include <Events/Tools/webHandlerEvent.h>
 
 namespace SocketIO
 {
@@ -24,34 +20,34 @@ namespace SocketIO
     {
 
     private:
-        std::map<SOCKET_id,REF_getter<epoll_socket_info> > m_container;
+        std::map<SOCKET_id,REF_getter<epoll_socket_info> > container_;
     public:
-        REF_getter<NetworkMultiplexor> multiplexor;
+        REF_getter<NetworkMultiplexor> multiplexor_;
         RWLock lk;
-        SocketsContainerForSocketIO(): multiplexor(new NetworkMultiplexor)
+        SocketsContainerForSocketIO(): multiplexor_(new NetworkMultiplexor)
         {}
         ~SocketsContainerForSocketIO();
         void remove(const SOCKET_id& sid)
         {
             WLocker lock(lk);
-            m_container.erase(sid);
+            container_.erase(sid);
 
         }
         std::map<SOCKET_id,REF_getter<epoll_socket_info> > getContainer()
         {
             RLocker lock(lk);
-            return m_container;
+            return container_;
         }
         size_t count(const SOCKET_id& sid)
         {
             RLocker lock(lk);
-            return m_container.count(sid);
+            return container_.count(sid);
         }
         REF_getter<epoll_socket_info> getOrNull(const SOCKET_id& sid)
         {
             RLocker lock(lk);
-            auto z=m_container.find(sid);
-            if(z==m_container.end())
+            auto z=container_.find(sid);
+            if(z==container_.end())
                 return NULL;
             return z->second;
         }
@@ -60,12 +56,12 @@ namespace SocketIO
         void add(const REF_getter<epoll_socket_info>& esi)
         {
             WLocker lock(lk);
-            m_container.insert(std::make_pair(esi->m_id,esi));
+            container_.insert(std::make_pair(esi->id_,esi));
         }
 
         void clear()
         {
-            multiplexor=NULL;
+            multiplexor_=NULL;
         }
 
     private:
@@ -81,8 +77,8 @@ namespace SocketIO
         Json::Value jdump()
         {
             Json::Value v;
-            v["listen_backlog"]=(int)m_listen_backlog;
-            v["epoll_timeout_millisec"]=std::to_string(epoll_timeout_millisec);
+            v["listen_backlog"]=(int)listen_backlog_;
+            v["epoll_timeout_millisec"]=std::to_string(epoll_timeout_millisec_);
 
             return v;
         }
@@ -90,23 +86,24 @@ namespace SocketIO
         struct PTHSOCKS
         {
             RWLock lock;
-            std::vector<REF_getter<SocketsContainerForSocketIO> > m_socks_pollers;
-            std::deque<REF_getter<SocketsContainerForSocketIO> > for_threads;
+            std::vector<REF_getter<SocketsContainerForSocketIO> > socks_pollers_;
+            std::deque<REF_getter<SocketsContainerForSocketIO> > for_threads_;
             REF_getter<SocketsContainerForSocketIO> getPoller(SocketIO::Service* s)
             {
-                if(m_socks_pollers.size()!=s->n_workers)
+                RLocker l(lock);
+                if(socks_pollers_.size()!=s->n_workers_)
                     throw CommonError("if(m_socks_pollers.size()!=s->n_workers)");
                 {
-                    return m_socks_pollers[rand()%m_socks_pollers.size()];
+                    return socks_pollers_[rand()%socks_pollers_.size()];
                 }
             }
         };
-        PTHSOCKS m_io_socks_pollers;
-        std::vector<pthread_t> m_pthread_id_worker;
-        int64_t m_listen_backlog;
-        int n_workers;
+        PTHSOCKS m_io_socks_pollers_;
+        std::vector<pthread_t> pthread_id_worker_;
+        int64_t listen_backlog_;
+        int n_workers_;
         /// конфигурационный параметр
-        int epoll_timeout_millisec;
+        int epoll_timeout_millisec_;
 
 
 //#endif
@@ -114,8 +111,8 @@ namespace SocketIO
 
 
         void closeSocket(const REF_getter<epoll_socket_info>&esi, const std::string& reason, int errNo, const REF_getter<SocketsContainerForSocketIO> &MS);
-        bool on_AddToListenTCP(const socketEvent::AddToListenTCP*, const REF_getter<SocketsContainerForSocketIO> &MS);
-        bool on_AddToConnectTCP(const socketEvent::AddToConnectTCP*, const REF_getter<SocketsContainerForSocketIO> &MS);
+        bool on_AddToListenTCP(const socketEvent::AddToListenTCP*);
+        bool on_AddToConnectTCP(const socketEvent::AddToConnectTCP*);
         bool on_startService(const systemEvent::startService*);
         bool on_TickTimer(const timerEvent::TickTimer*);
         bool on_RequestIncoming(const webHandlerEvent::RequestIncoming*);
@@ -128,11 +125,11 @@ namespace SocketIO
         void onEPOLLOUT(const REF_getter<epoll_socket_info>& esi, const REF_getter<SocketsContainerForSocketIO> &MS);
         void onEPOLLERR(const REF_getter<epoll_socket_info>& esi, const REF_getter<SocketsContainerForSocketIO> &MS);
         bool  handleEvent(const REF_getter<Event::Base>&);
-        void handle_accepted1(const SOCKET_fd &neu_fd, const REF_getter<epoll_socket_info> esi, const REF_getter<SocketsContainerForSocketIO>& MS);
+        void handle_accepted1(const SOCKET_fd &neu_fd, const REF_getter<epoll_socket_info> esi, const REF_getter<SocketsContainerForSocketIO>& MS, const msockaddr_in &remote_sa);
 
 
         IInstance* iInstance;
-        bool m_isTerminating;
+        bool isTerminating_;
 
     public:
         static UnknownBase *construct(const SERVICE_id& id, const std::string&  nm, IInstance* ifa);
@@ -154,4 +151,3 @@ namespace SocketIO
 
 };
 
-#endif

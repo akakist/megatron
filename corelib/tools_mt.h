@@ -1,19 +1,14 @@
-#ifndef _______TOOOLS___H
-#define _______TOOOLS___H
+#pragma once
+#include "IUtils.h"
 #include "ioBuffer.h"
+#include "mutexInspector.h"
 #include "route_t.h"
 #include "IInstance.h"
 #include "IRPC.h"
 #include <stdarg.h>
 
 #include "msockaddr_in.h"
-#include "Events/System/Net/rpc/Accepted.h"
-#include "Events/System/timer/SetAlarm.h"
-#include "Events/System/timer/SetTimer.h"
-#include "Events/System/timer/ResetAlarm.h"
-#include "Events/System/timer/StopAlarm.h"
-#include "Events/Tools/errorDispatcher/SendMessage.h"
-#include "broadcaster.h"
+#include "Events/System/Net/rpcEvent.h"
 
 /// some tools used in DFS
 
@@ -167,4 +162,3 @@ inline std::string sqlDbName(const std::string& nm)
     }
     return iUtils->gCacheDir()+"/"+n+".db";
 }
-#endif

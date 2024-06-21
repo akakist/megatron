@@ -1,13 +1,9 @@
-#ifndef _____________IFACTORY_____H
-#define _____________IFACTORY_____H
+#pragma once
 #include <string>
+#include "IConfigObj.h"
 #include "event_mt.h"
 #include "SERVICE_id.h"
 #include "unknown.h"
-#include "IUtils.h"
-#include "route_t.h"
-#include "ifaces.h"
-#include "VERSION_id.h"
 #include "GlobalCookie_id.h"
 #ifndef __ANDROID__
 #endif
@@ -76,5 +72,4 @@ public:
 
 };
 
-#endif
 

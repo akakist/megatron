@@ -1,7 +1,5 @@
-#ifndef _________________UTILS____H_HHH
-#define _________________UTILS____H_HHH
+#pragma once
 
-#include "pconfig.h"
 #include <vector>
 #include <string>
 #include <map>
@@ -11,7 +9,6 @@
 #include <sys/types.h>
 #include "msockaddr_in.h"
 #include "SERVICE_id.h"
-#include "CHUNK_id.h"
 #include "REF.h"
 #include "Real.h"
 #include "IThreadNameController.h"
@@ -243,5 +240,4 @@ public:
 
 };
 extern IUtils * iUtils;
-#endif
 

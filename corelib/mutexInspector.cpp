@@ -1,9 +1,10 @@
 #include "mutexInspector.h"
+#include "IUtils.h"
+#include "commonError.h"
 #include "mutex_inspector_entry.h"
 #ifdef _WIN32
 #include "compat_win32.h"
 #endif
-#include "IInstance.h"
 MutexInspector::MutexInspector(const char *ff, int ll, const char *func)
 {
     mutex_inspector_entry e;

@@ -1,5 +1,4 @@
-#ifndef _________________ifaces___h
-#define _________________ifaces___h
+#pragma once
 #include "SERVICE_id.h"
 namespace Ifaces
 {
@@ -14,4 +13,3 @@ namespace Ifaces
         virtual ~Base() {}
     };
 };
-#endif

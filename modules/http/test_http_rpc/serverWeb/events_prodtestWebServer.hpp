@@ -2,6 +2,13 @@
 #define __________prodtestWebServer_EventInfo__HH
 
 
+#include "IUtils.h"
+
+#include "Events/Ping.h"
+#include "Events/System/Net/httpEvent.h"
+#include "Events/System/Net/rpcEvent.h"
+#include "Events/System/Run/startService.h"
+#include "Events/System/timerEvent.h"
 inline std::set<EVENT_id> getEvents_prodtestWebServer()
 {
 
@@ -13,7 +20,6 @@ inline std::set<EVENT_id> getEvents_prodtestWebServer()
 	out.insert(rpcEventEnum::IncomingOnAcceptor);
 	out.insert(rpcEventEnum::IncomingOnConnector);
 	out.insert(systemEventEnum::startService);
-	out.insert(timerEventEnum::SetTimer);
 	out.insert(timerEventEnum::TickTimer);
 
 	return out;
@@ -28,7 +34,6 @@ inline void regEvents_prodtestWebServer()
 	iUtils->registerEvent(rpcEvent::IncomingOnAcceptor::construct);
 	iUtils->registerEvent(rpcEvent::IncomingOnConnector::construct);
 	iUtils->registerEvent(systemEvent::startService::construct);
-	iUtils->registerEvent(timerEvent::SetTimer::construct);
 	iUtils->registerEvent(timerEvent::TickTimer::construct);
 }
 #endif

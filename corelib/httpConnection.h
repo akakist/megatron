@@ -1,13 +1,13 @@
-#ifndef ___WEB_CONNECTION______H
-#define ___WEB_CONNECTION______H
+#pragma once
 #include <map>
 #include <vector>
 #include <string>
 #include "REF.h"
 #include "epoll_socket_info.h"
-#include "SOCKET_id.h"
+//#include "SOCKET_id.h"
 #include <deque>
-#include "broadcaster.h"
+#include "IInstance.h"
+//#include "broadcaster.h"
 
 
 /**
@@ -140,4 +140,3 @@ namespace HTTP
     };
 };
 
-#endif

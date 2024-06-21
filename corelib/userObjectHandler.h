@@ -1,5 +1,4 @@
-#ifndef _________UserObjectHandler_h
-#define _________UserObjectHandler_h
+#pragma once
 #include "commonError.h"
 #include "objectHandler.h"
 #include "mutexInspector.h"
@@ -58,4 +57,3 @@ public:
     UserObjectHandler* user;
 };
 
-#endif

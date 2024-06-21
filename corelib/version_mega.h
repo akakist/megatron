@@ -1,5 +1,4 @@
-#ifndef ____VERSION____H
-#define ____VERSION____H
+#pragma once
 #if defined(__arm__)
 #define CPUTYPE "arm"
 #elif defined(__avr32__)
@@ -44,4 +43,3 @@
 
 #define COREVERSION 0x00000300
 
-#endif

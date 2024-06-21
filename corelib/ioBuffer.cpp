@@ -1,8 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "IUtils.h"
 #include "Rational.h"
 #include "ioBuffer.h"
-#include "IInstance.h"
+//#include "IInstance.h"
 #include "mutexInspector.h"
 
 
@@ -193,28 +194,7 @@ outBuffer& outBuffer::put_PSTR(const std::string & c)
     XPASS;
     return *this;
 }
-#ifdef _WIN32
-inBuffer& inBuffer::operator>>(long& p)
-{
-    XTRY;
-    p=get_PN();
-    XPASS;
-    return *this;
-}
-#endif
 #ifdef __MACH__
-inBuffer& inBuffer::operator>>(long &p)
-{
-    p=get_PN();
-
-    return *this;
-}
-inBuffer& inBuffer::operator>>(size_t &p)
-{
-    p=get_PN();
-
-    return *this;
-}
 #endif
 
 inBuffer& inBuffer::operator>>(double& p)
@@ -240,64 +220,6 @@ inBuffer& inBuffer::operator>>(float& p)
     return *this;
 }
 
-inBuffer& inBuffer::operator>>(int8_t& p)
-{
-    XTRY;
-    p= static_cast<int8_t>(get_PN());
-    XPASS;
-    return *this;
-}
-inBuffer& inBuffer::operator>>(uint8_t& p)
-{
-    XTRY;
-    p= static_cast<uint8_t>(get_PN());
-    XPASS;
-    return *this;
-}
-inBuffer& inBuffer::operator>>(int16_t& p)
-{
-    XTRY;
-    p= static_cast<int16_t>(get_PN());
-    XPASS;
-    return *this;
-}
-inBuffer& inBuffer::operator>>(uint16_t& p)
-{
-    XTRY;
-    p= static_cast<uint16_t>(get_PN());
-    XPASS;
-    return *this;
-}
-inBuffer& inBuffer::operator>>(int32_t& p)
-{
-    XTRY;
-    p=(int32_t)get_PN();
-    XPASS;
-    return *this;
-}
-inBuffer& inBuffer::operator>>(uint32_t& p)
-{
-    XTRY;
-    p=(uint32_t)get_PN();
-    XPASS;
-    return *this;
-}
-inBuffer& inBuffer::operator>>(int64_t& p)
-{
-    XTRY;
-    p=get_PN();
-    XPASS;
-    return *this;
-}
-inBuffer& inBuffer::operator>>(uint64_t& p)
-{
-    XTRY;
-    p=get_PN();
-    XPASS;
-    return *this;
-}
-
-
 inBuffer& inBuffer::operator>>(std::string&p)
 {
     XTRY;
@@ -315,28 +237,7 @@ inBuffer& inBuffer::operator>>(bool& p)
 
 }
 
-#ifdef _WIN32
-outBuffer& outBuffer::operator<<(const long&c)
-{
-    XTRY;
-    put_PN(c);
-    XPASS;
-    return *this;
-}
-#endif
 
-#ifdef __MACH__
-outBuffer& outBuffer::operator<<(const size_t&c)
-{
-    put_PN(c);
-    return *this;
-}
-outBuffer& outBuffer::operator<<(const long&c)
-{
-    put_PN(c);
-    return *this;
-}
-#endif
 outBuffer& outBuffer::operator<<(const double &c)
 {
 
@@ -352,63 +253,6 @@ outBuffer& outBuffer::operator<<(const float &c)
     XTRY;
     Rational r=c;
     *this<<r;
-    XPASS;
-    return *this;
-}
-
-outBuffer& outBuffer::operator<<(const int8_t &c)
-{
-    XTRY;
-    put_PN(static_cast<const uint64_t>(c));
-    XPASS;
-    return *this;
-}
-outBuffer& outBuffer::operator<<(const uint8_t &c)
-{
-    XTRY;
-    put_PN(c);
-    XPASS;
-    return *this;
-}
-outBuffer& outBuffer::operator<<(const int16_t &c)
-{
-    XTRY;
-    put_PN(static_cast<const uint64_t>(c));
-    XPASS;
-    return *this;
-}
-outBuffer& outBuffer::operator<<(const uint16_t &c)
-{
-    XTRY;
-    put_PN(c);
-    XPASS;
-    return *this;
-}
-outBuffer& outBuffer::operator<<(const int32_t &c)
-{
-    XTRY;
-    put_PN(static_cast<const uint64_t>(c));
-    XPASS;
-    return *this;
-}
-outBuffer& outBuffer::operator<<(const uint32_t &c)
-{
-    XTRY;
-    put_PN(c);
-    XPASS;
-    return *this;
-}
-outBuffer& outBuffer::operator<<(const int64_t &c)
-{
-    XTRY;
-    put_PN(static_cast<const uint64_t>(c));
-    XPASS;
-    return *this;
-}
-outBuffer& outBuffer::operator<<(const uint64_t &c)
-{
-    XTRY;
-    put_PN(c);
     XPASS;
     return *this;
 }

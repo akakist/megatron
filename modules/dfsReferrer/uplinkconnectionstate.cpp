@@ -1,4 +1,5 @@
 #include "uplinkconnectionstate.h"
+#include "mutexInspector.h"
 
 Json::Value dfsReferrer::_uplinkConnectionState::wdump()
 {

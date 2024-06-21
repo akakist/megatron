@@ -1,5 +1,4 @@
-#ifndef ______DFSERRS__H
-#define ______DFSERRS__H
+#pragma once
 enum
 {
     ERR_NONE=0,
@@ -28,4 +27,3 @@ enum
     ERR_INVALID_PEER_USER,
 
 };
-#endif

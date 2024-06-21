@@ -3,29 +3,25 @@
 #include <stdarg.h>
 #include <algorithm>
 #include "IGEOIP.h"
+#include "logging.h"
 #include "mutexInspector.h"
 #include <iostream>
 #include <fstream>
 #include <ios>
+#include "tools_mt.h"
 #include "version_mega.h"
-#include "VERSION_id.h"
 
 #include <math.h>
-#include "dfsErrors.h"
 #include <algorithm>
 #include <cmath>
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "st_malloc.h"
-#include "st_FILE.h"
-#include "Events/Tools/webHandler/RegisterHandler.h"
-#include "Events/Tools/webHandler/RegisterDirectory.h"
-#include "Events/System/Net/rpc/IncomingOnConnector.h"
-#include "Events/System/timer/TickTimer.h"
+#include "Events/Tools/webHandlerEvent.h"
+#include "Events/System/Net/rpcEvent.h"
+#include "Events/System/timerEvent.h"
 
 #include "events_dfsCaps.hpp"
-#include "megatron_config.h"
 
 #define CAPS_DBNAME "caps"
 dfsCaps::Service::Service(const SERVICE_id &svs, const std::string&  nm, IInstance *_ifa):
@@ -147,7 +143,7 @@ bool dfsCaps::Service::on_GetReferrersREQ(const dfsCapsEvent::GetReferrersREQ* E
 bool dfsCaps::Service::on_RegisterMyRefferrerNodeREQ(const dfsCapsEvent::RegisterMyRefferrerNodeREQ* e)
 {
     MUTEX_INSPECTOR;
-    const dfsCapsEvent::RegisterMyRefferrerNodeREQ * e_RegisterMyRefferrerNodeREQ=e;//(const dfsCapsEvent::RegisterMyRefferrerNodeREQ *)z.operator ->();
+    const dfsCapsEvent::RegisterMyRefferrerNodeREQ * e_RegisterMyRefferrerNodeREQ=e;//(const dfsCapsEvent::RegisterMyRefferrerNodeREQ *)z.get();
     if(e_RegisterMyRefferrerNodeREQ->externalListenAddr.size())
     {
         for(auto z:e_RegisterMyRefferrerNodeREQ->externalListenAddr)
@@ -209,13 +205,13 @@ bool dfsCaps::Service::on_ToplinkDeliverREQ(const dfsReferrerEvent::ToplinkDeliv
         return false;
 
     if(z->id==dfsCapsEventEnum::GetReferrersREQ)
-        return on_GetReferrersREQ((const dfsCapsEvent::GetReferrersREQ *)z.operator ->(),e_toplink);
+        return on_GetReferrersREQ((const dfsCapsEvent::GetReferrersREQ *)z.get(),e_toplink);
     if(z->id==dfsCapsEventEnum::RegisterMyRefferrerNodeREQ)
-        return on_RegisterMyRefferrerNodeREQ((const dfsCapsEvent::RegisterMyRefferrerNodeREQ *)z.operator ->());
+        return on_RegisterMyRefferrerNodeREQ((const dfsCapsEvent::RegisterMyRefferrerNodeREQ *)z.get());
     if(z->id==dfsCapsEventEnum::RegisterCloudRoot)
-        return on_RegisterCloudRoot((const dfsCapsEvent::RegisterCloudRoot *)z.operator ->());
+        return on_RegisterCloudRoot((const dfsCapsEvent::RegisterCloudRoot *)z.get());
     if(z->id==dfsCapsEventEnum::GetCloudRootsREQ)
-        return on_GetCloudRootsREQ((const dfsCapsEvent::GetCloudRootsREQ *)z.operator ->(),e_toplink);
+        return on_GetCloudRootsREQ((const dfsCapsEvent::GetCloudRootsREQ *)z.get(),e_toplink);
 
     return true;
 }
@@ -228,30 +224,30 @@ bool dfsCaps::Service::handleEvent(const REF_getter<Event::Base>& e)
 
     auto & ID=e->id;
     if(timerEventEnum::TickAlarm==ID)
-        return on_TickAlarm((const timerEvent::TickAlarm*)e.operator->());
+        return on_TickAlarm((const timerEvent::TickAlarm*)e.get());
     if( webHandlerEventEnum::RequestIncoming==ID)
-        return on_RequestIncoming((const webHandlerEvent::RequestIncoming*)e.operator->());
+        return on_RequestIncoming((const webHandlerEvent::RequestIncoming*)e.get());
     if(systemEventEnum::startService==ID)
-        return on_startService((const systemEvent::startService*)e.operator->());
+        return on_startService((const systemEvent::startService*)e.get());
     if(dfsReferrerEventEnum::ToplinkDeliverREQ==ID)
-        return on_ToplinkDeliverREQ((const dfsReferrerEvent::ToplinkDeliverREQ*)e.operator ->());
+        return on_ToplinkDeliverREQ((const dfsReferrerEvent::ToplinkDeliverREQ*)e.get());
     if( rpcEventEnum::IncomingOnConnector==ID)
     {
         S_LOG("rpcEventEnum::IncomingOnConnector");
-        const rpcEvent::IncomingOnConnector* E=(const rpcEvent::IncomingOnConnector*)e.operator ->();
+        const rpcEvent::IncomingOnConnector* E=(const rpcEvent::IncomingOnConnector*)e.get();
         auto &IDC=E->e->id;
         if(dfsReferrerEventEnum::ToplinkDeliverREQ==IDC)
-            return on_ToplinkDeliverREQ((const dfsReferrerEvent::ToplinkDeliverREQ*)E->e.operator ->());
+            return on_ToplinkDeliverREQ((const dfsReferrerEvent::ToplinkDeliverREQ*)E->e.get());
 
         logErr2("unhandled IncomingOnConnector event %s %s %d",E->e->id.dump().c_str(),__func__,__LINE__);
     }
     if( rpcEventEnum::IncomingOnAcceptor==ID)
     {
         S_LOG("rpcEventEnum::IncomingOnAcceptor");
-        const rpcEvent::IncomingOnAcceptor* E=(const rpcEvent::IncomingOnAcceptor*)e.operator ->();
+        const rpcEvent::IncomingOnAcceptor* E=(const rpcEvent::IncomingOnAcceptor*)e.get();
         auto & IDA=E->e->id;
         if(dfsReferrerEventEnum::ToplinkDeliverREQ==IDA)
-            return on_ToplinkDeliverREQ((const dfsReferrerEvent::ToplinkDeliverREQ*)E->e.operator ->());
+            return on_ToplinkDeliverREQ((const dfsReferrerEvent::ToplinkDeliverREQ*)E->e.get());
 
         logErr2("unhandled IncomingOnAcceptor event %s %s %d",E->e->id.dump().c_str(),__func__,__LINE__);
     }

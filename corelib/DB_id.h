@@ -1,6 +1,4 @@
-#ifndef ____________DB__ID__HH
-#define ____________DB__ID__HH
-#include "commonError.h"
+#pragma once
 #include "ioBuffer.h"
 #include <sys/types.h>
 
@@ -138,5 +136,4 @@ typedef int64_t SHARE_id;
 typedef int64_t STAT_id;
 typedef int64_t UNIQUE_id;
 
-#endif
 #endif

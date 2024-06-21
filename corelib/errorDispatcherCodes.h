@@ -1,5 +1,4 @@
-#ifndef _______errorDispatcherCodes____H
-#define _______errorDispatcherCodes____H
+#pragma once
 enum ErrorDispatcherClass
 {
     FATAL,
@@ -28,4 +27,3 @@ enum ErrorDispatcherCode
     ED_TOGGLE_MENU,
 
 };
-#endif

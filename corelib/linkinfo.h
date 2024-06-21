@@ -1,5 +1,4 @@
-#ifndef ________________LINKINFO_H
-#define ________________LINKINFO_H
+#pragma once
 #include <string>
 #include "epoll_socket_info.h"
 
@@ -7,20 +6,20 @@
 #include "IUtils.h"
 struct linkInfoDownReferrer: public Refcountable,public WebDumpable, public Mutexable
 {
-    REF_getter<epoll_socket_info> esi_mx;
-    msockaddr_in externalAddr_mx;
+    REF_getter<epoll_socket_info> esi_mx_;
+    msockaddr_in externalAddr_mx_;
     std::set<msockaddr_in> internalAddrs_mx;
-    route_t backRoute_mx;
-    time_t lastReplaceByDownlink_mx;
+    route_t backRoute_mx_;
+    time_t lastReplaceByDownlink_mx_;
 
     linkInfoDownReferrer(const REF_getter<epoll_socket_info> &_esi,const msockaddr_in& _externalAddr, const std::set<msockaddr_in> &_internalAddrs, const route_t &_backRoute)
-        :esi_mx(_esi),externalAddr_mx(_externalAddr), internalAddrs_mx(_internalAddrs),backRoute_mx(_backRoute), lastReplaceByDownlink_mx(time(NULL))
+        :esi_mx_(_esi),externalAddr_mx_(_externalAddr), internalAddrs_mx(_internalAddrs),backRoute_mx_(_backRoute), lastReplaceByDownlink_mx_(time(NULL))
     {}
     Json::Value wdump()
     {
         M_LOCK(this);
         Json::Value v;
-        v["externalAddr"]=externalAddr_mx.dump();
+        v["externalAddr"]=externalAddr_mx_.dump();
         v["internalAddrs"]=iUtils->dump(internalAddrs_mx);
         return v;
     }
@@ -30,4 +29,3 @@ struct linkInfoDownReferrer: public Refcountable,public WebDumpable, public Mute
 
 
 };
-#endif // LINKINFO_H

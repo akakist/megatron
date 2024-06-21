@@ -1,12 +1,9 @@
-#ifndef ________________IOBJECT_PROXY____H
-#define ________________IOBJECT_PROXY____H
+#pragma once
 
 #include "msockaddr_in.h"
 #include "SERVICE_id.h"
 #include "REF.h"
 #include "event_mt.h"
-#include "unknown.h"
-#include "unknownCastDef.h"
 class ObjectHandlerPolled;
 class ObjectHandlerThreaded;
 
@@ -54,4 +51,3 @@ public:
     virtual ~IObjectProxyThreaded() {}
 
 };
-#endif

@@ -1,11 +1,11 @@
 #include "IInstance.h"
 #include "colorOutput.h"
 #include "configObj.h"
-#include "version_mega.h"
 #include "CUtils.h"
 #include "appHandler.h"
 //bool done_test_http=false;
-#include "Events/DFS/Caps/RegisterMyRefferrerNode.h"
+#include "Events/DFS/capsEvent.h"
+#include <unistd.h>
 void registerRPCService(const char* pn);
 void registerSocketModule(const char* pn);
 void registerTimerService(const char* pn);
@@ -40,17 +40,124 @@ int mainTestReferrerClient(int argc, char** argv )
         printf(GREEN("RUN TEST %s"),__PRETTY_FUNCTION__);
 
         {
+
+            const char* cf=R"zxc(
+# list of initially started services
+Start=RPC,DFSReferrer,DFSCaps
+RPC.IterateTimeoutSec=60.000000
+RPC.ConnectionActivity=600.000000
+
+# Address used to work with dfs network. NONE - no bind
+RPC.BindAddr_MAIN=INADDR_ANY:10100,INADDR6_ANY:0
+
+# Address used to communicate with local apps, must be fixed. NONE - no bind
+RPC.BindAddr_RESERVE=NONE
+SocketIO.epoll_timeout_millisec=10
+SocketIO.listen_backlog=128
+
+# socket poll thread count
+SocketIO.n_workers=2
+
+# Is caps mode. Do not forward caps requests to uplink
+DFSReferrer.IsCapsServer=true
+DFSReferrer.T_001_common_connect_failed=20.000000
+DFSReferrer.T_002_D3_caps_get_service_request_is_timed_out=15.000000
+DFSReferrer.T_007_D6_resend_ping_caps_short=7.000000
+DFSReferrer.T_008_D6_resend_ping_caps_long=20.000000
+DFSReferrer.T_009_pong_timed_out_caps_long=40.000000
+DFSReferrer.T_011_downlink_ping_timed_out=60.000000
+DFSReferrer.T_012_reregister_referrer=3500.000000
+DFSReferrer.T_020_D3_1_wait_after_send_PT_CACHE_on_recvd_from_GetService=2.000000
+DFSReferrer.T_004_cache_pong_timed_out_=2.000000
+
+# Addr:port to bind. Addr=INADDR_ANY:port - bind to all interfaces. NONE - no bind
+WebHandler.bindAddr=NONE
+
+)zxc";
             IInstance *instance1=iUtils->createNewInstance("root");
-            ConfigObj *cnf1=new ConfigObj("root.conf");
+            ConfigObj *cnf1=new ConfigObj("root.conf",cf);
             instance1->setConfig(cnf1);
             instance1->initServices();
             sleep(1);
         }
         for(int i=0; i<2; i++)
         {
+
+            std::string cf[]={
+R"zxc(
+
+# list of initially started services
+Start=RPC,DFSReferrer
+RPC.IterateTimeoutSec=60.000000
+RPC.ConnectionActivity=600.000000
+
+# Address used to work with dfs network. NONE - no bind
+RPC.BindAddr_MAIN=INADDR_ANY:10101,INADDR6_ANY:10101
+
+# Address used to communicate with local apps, must be fixed. NONE - no bind
+RPC.BindAddr_RESERVE=NONE
+SocketIO.epoll_timeout_millisec=10
+SocketIO.listen_backlog=128
+
+# socket poll thread count
+SocketIO.n_workers=2
+
+# Is caps mode. Do not forward caps requests to uplink
+DFSReferrer.IsCapsServer=false
+DFSReferrer.CapsServerUrl=localhost:10100
+DFSReferrer.T_001_common_connect_failed=20.000000
+DFSReferrer.T_002_D3_caps_get_service_request_is_timed_out=15.000000
+DFSReferrer.T_007_D6_resend_ping_caps_short=7.000000
+DFSReferrer.T_008_D6_resend_ping_caps_long=20.000000
+DFSReferrer.T_009_pong_timed_out_caps_long=40.000000
+DFSReferrer.T_011_downlink_ping_timed_out=60.000000
+DFSReferrer.T_012_reregister_referrer=3500.000000
+DFSReferrer.T_020_D3_1_wait_after_send_PT_CACHE_on_recvd_from_GetService=2.000000
+DFSReferrer.T_004_cache_pong_timed_out_=2.000000
+
+# Addr:port to bind. Addr=INADDR_ANY:port - bind to all interfaces. NONE - no bind
+WebHandler.bindAddr=NONE
+)zxc"
+,
+R"zxc(
+
+# list of initially started services
+Start=RPC,DFSReferrer
+RPC.IterateTimeoutSec=60.000000
+RPC.ConnectionActivity=600.000000
+
+# Address used to work with dfs network. NONE - no bind
+RPC.BindAddr_MAIN=INADDR_ANY:10102,INADDR6_ANY:10102
+
+# Address used to communicate with local apps, must be fixed. NONE - no bind
+RPC.BindAddr_RESERVE=NONE
+SocketIO.epoll_timeout_millisec=10
+SocketIO.listen_backlog=128
+
+# socket poll thread count
+SocketIO.n_workers=2
+
+# Is caps mode. Do not forward caps requests to uplink
+DFSReferrer.IsCapsServer=false
+DFSReferrer.CapsServerUrl=localhost:10100
+DFSReferrer.T_001_common_connect_failed=20.000000
+DFSReferrer.T_002_D3_caps_get_service_request_is_timed_out=15.000000
+DFSReferrer.T_007_D6_resend_ping_caps_short=7.000000
+DFSReferrer.T_008_D6_resend_ping_caps_long=20.000000
+DFSReferrer.T_009_pong_timed_out_caps_long=40.000000
+DFSReferrer.T_011_downlink_ping_timed_out=60.000000
+DFSReferrer.T_012_reregister_referrer=3500.000000
+DFSReferrer.T_020_D3_1_wait_after_send_PT_CACHE_on_recvd_from_GetService=2.000000
+DFSReferrer.T_004_cache_pong_timed_out_=2.000000
+
+# Addr:port to bind. Addr=INADDR_ANY:port - bind to all interfaces. NONE - no bind
+WebHandler.bindAddr=NONE
+
+                )zxc"
+            };
             IInstance *instance1=iUtils->createNewInstance("node_"+std::to_string(i));
 
-            ConfigObj *cnf1=new ConfigObj("node_"+std::to_string(i)+".conf");
+            ConfigObj *cnf1=new ConfigObj("node_"+std::to_string(i)+".conf",cf[i]);
             instance1->setConfig(cnf1);
             instance1->initServices();
             sleep(1);
@@ -59,8 +166,65 @@ int mainTestReferrerClient(int argc, char** argv )
         std::set<AppHandler*> apps;
         for(int i=0; i<1; i++)
         {
+
+const char *cf=R"zxc(
+ReferrerClient.T_001_common_connect_failed=20.000000
+ReferrerClient.T_002_D3_caps_get_service_request_is_timed_out=15.000000
+ReferrerClient.T_007_D6_resend_ping_caps_short=7.000000
+ReferrerClient.T_008_D6_resend_ping_caps_long=20.000000
+ReferrerClient.T_009_pong_timed_out_caps_long=40.000000
+ReferrerClient.T_020_D31_wait_after_send_PT_CACHE_on_recvd_from_GetReferrers=2.000000
+ReferrerClient.T_040_D2_cache_pong_timed_out_from_neighbours=2.000000
+RPC.IterateTimeoutSec=60.000000
+RPC.ConnectionActivity=600.000000
+
+# Address used to work with dfs network. NONE - no bind
+RPC.BindAddr_MAIN=INADDR_ANY:0,INADDR6_ANY:0
+
+# Address used to communicate with local apps, must be fixed. NONE - no bind
+RPC.BindAddr_RESERVE=NONE
+SocketIO.epoll_timeout_millisec=10
+SocketIO.listen_backlog=128
+
+# socket poll thread count
+SocketIO.n_workers=2
+SocketIO.epoll_timeout_millisec=10
+SocketIO.listen_backlog=128
+
+# socket poll thread count
+SocketIO.n_workers=2
+SocketIO.epoll_timeout_millisec=10
+
+# Addr:port to bind. Addr=INADDR_ANY:port - bind to all interfaces. NONE - no bind
+WebHandler.bindAddr=NONE
+RPC.IterateTimeoutSec=60.000000
+RPC.ConnectionActivity=600.000000
+
+# Address used to work with dfs network. NONE - no bind
+RPC.BindAddr_MAIN=INADDR_ANY:0,INADDR6_ANY:0
+
+# Address used to communicate with local apps, must be fixed. NONE - no bind
+RPC.BindAddr_RESERVE=NONE
+RPC.IterateTimeoutSec=60.000000
+RPC.ConnectionActivity=600.000000
+
+# Address used to work with dfs network. NONE - no bind
+RPC.BindAddr_MAIN=INADDR_ANY:0,INADDR6_ANY:0
+
+# Address used to communicate with local apps, must be fixed. NONE - no bind
+RPC.BindAddr_RESERVE=NONE
+Socket.epoll_timeout_millisec=10
+Socket.listen_backlog=128
+
+# socket poll thread count
+Socket.n_workers=2
+
+# Root cloud address
+CapsIP=localhost:10101
+
+)zxc";
             IInstance *instance1=iUtils->createNewInstance("client_"+std::to_string(i));
-            ConfigObj *cnf1=new ConfigObj("client.conf");
+            ConfigObj *cnf1=new ConfigObj("client.conf",cf);
             instance1->setConfig(cnf1);
             AppHandler * h=new AppHandler(instance1);
             apps.insert(h);

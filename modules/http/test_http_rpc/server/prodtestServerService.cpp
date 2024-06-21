@@ -3,16 +3,16 @@
 #include <time.h>
 
 #include "tools_mt.h"
-#include "st_FILE.h"
 
 #include <map>
-#include "js_utils.h"
-#include "configDB.h"
 #include "prodtestServerService.h"
-#include "../Event/Ping.h"
+#include "Events/Ping.h"
+#include "Events/System/timerEvent.h"
+
+#include "Events/System/Net/rpcEvent.h"
+
 #include "events_prodtestServerService.hpp"
 
-#include "st_malloc.h"
 
 
 bool prodtestServer::Service::on_startService(const systemEvent::startService*)
@@ -37,27 +37,27 @@ bool prodtestServer::Service::handleEvent(const REF_getter<Event::Base>& e)
         auto& ID=e->id;
         if(timerEventEnum::TickTimer==ID)
         {
-            const timerEvent::TickTimer*ev=static_cast<const timerEvent::TickTimer*>(e.operator ->());
+            const timerEvent::TickTimer*ev=static_cast<const timerEvent::TickTimer*>(e.get());
             return true;
         }
         if(systemEventEnum::startService==ID)
-            return on_startService((const systemEvent::startService*)e.operator->());
+            return on_startService((const systemEvent::startService*)e.get());
 
         if(prodtestEventEnum::AddTaskREQ==ID)
-            return on_AddTaskREQ((const prodtestEvent::AddTaskREQ*)e.operator->());
+            return on_AddTaskREQ((const prodtestEvent::AddTaskREQ*)e.get());
 
 
         if(rpcEventEnum::IncomingOnAcceptor==ID)
         {
-            auto E=(rpcEvent::IncomingOnAcceptor*)e.operator->();
+            auto E=(rpcEvent::IncomingOnAcceptor*)e.get();
             auto &IDA=E->e->id;
             if(prodtestEventEnum::AddTaskREQ==IDA)
-                return on_AddTaskREQ((const prodtestEvent::AddTaskREQ*)E->e.operator->());
+                return on_AddTaskREQ((const prodtestEvent::AddTaskREQ*)E->e.get());
         }
 
     } catch(std::exception &e)
     {
-        logErr2("BlockchainTop std::exception  %s",e.what());
+        logErr2(" std::exception  %s",e.what());
     }
     XPASS;
     return false;

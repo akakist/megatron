@@ -1,6 +1,4 @@
-#ifndef ______SOCKET_fd___H
-#define ______SOCKET_fd___H
-#include "commonError.h"
+#pragma once
 #include "CONTAINER.h"
 ///  wrapper for int for debug
 
@@ -18,4 +16,3 @@ inline int operator < (const SOCKET_fd& a, const SOCKET_fd &b)
 typedef int SOCKET_fd;
 #endif
 
-#endif

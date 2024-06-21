@@ -15,11 +15,8 @@
 #include "logging.h"
 
 #include "Events/System/Run/startService.h"
-#include "Events/System/Net/rpc/IncomingOnAcceptor.h"
-#include "Events/Tools/errorDispatcher/SendMessage.h"
-#include "Events/Tools/errorDispatcher/Subscribe.h"
-#include "Events/Tools/errorDispatcher/Unsubscribe.h"
-#include "Events/Tools/errorDispatcher/NotifySubscriber.h"
+#include "Events/System/Net/rpcEvent.h"
+#include "Events/Tools/errorDispatcherEvent.h"
 namespace ErrorDispatcher
 {
 

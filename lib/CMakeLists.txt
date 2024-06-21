@@ -3,9 +3,9 @@
 #project (dfsCoreModules)
 
 
-#ADD_SUBDIRECTORY(sqlite3)
+ADD_SUBDIRECTORY(sqlite3)
 ADD_SUBDIRECTORY(SQLiteCpp)
-#ADD_SUBDIRECTORY(jpeg-9d)
+ADD_SUBDIRECTORY(jpeg-9d)
 
 #ADD_SUBDIRECTORY(jpegutil)
 

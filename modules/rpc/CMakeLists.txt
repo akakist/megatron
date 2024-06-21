@@ -6,6 +6,8 @@ include_directories(../../lib/miniupnp-master)
 add_library(core-rpc SHARED
             rpc.cpp
             rpcService.cpp
+rpcService.h
+upnp_tr.h
 #            upnp_tr.c
            )
 

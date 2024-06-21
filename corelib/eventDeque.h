@@ -1,5 +1,4 @@
-#ifndef ______________________EVENT_DEQUE_____H
-#define ______________________EVENT_DEQUE_____H
+#pragma once
 #include <deque>
 #include "event_mt.h"
 #include "mutexable.h"
@@ -34,5 +33,4 @@ public:
         m_cond.broadcast();
     }
 };
-#endif
 

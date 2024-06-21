@@ -1,5 +1,4 @@
-#ifndef ______________GlobalCookie_id__HH
-#define ______________GlobalCookie_id__HH
+#pragma once
 #ifdef DEBUG
 #include <string>
 #include "ioBuffer.h"
@@ -44,5 +43,4 @@ inline inBuffer& operator>> (inBuffer& b,  GlobalCookie_id& s)
 
 #else
 typedef std::string GlobalCookie_id;
-#endif
 #endif

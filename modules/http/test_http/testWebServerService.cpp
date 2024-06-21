@@ -1,15 +1,16 @@
 #include "corelib/mutexInspector.h"
 #include <time.h>
 #include <time.h>
-#include "ioBuffer.h"
-#include "tools_mt.h"
-#include "st_FILE.h"
 #include <map>
-#include "js_utils.h"
-#include "configDB.h"
 #include "testWebServerService.h"
 #include "___testEvent.h"
-#include "serviceEnum.h"
+
+
+
+
+#include "Events/System/Net/httpEvent.h"
+#include "Events/System/Net/rpcEvent.h"
+#include "version_mega.h"
 
 
 
@@ -30,15 +31,15 @@ bool testWebServer::Service::handleEvent(const REF_getter<Event::Base>& e)
         MUTEX_INSPECTOR;
         auto& ID=e->id;
         if(httpEventEnum::RequestIncoming==ID)
-            return on_RequestIncoming((const httpEvent::RequestIncoming*)e.operator->());
+            return on_RequestIncoming((const httpEvent::RequestIncoming*)e.get());
         if(systemEventEnum::startService==ID)
-            return on_startService((const systemEvent::startService*)e.operator->());
+            return on_startService((const systemEvent::startService*)e.get());
 
 
 
         if(rpcEventEnum::IncomingOnConnector==ID)
         {
-            rpcEvent::IncomingOnConnector *E=(rpcEvent::IncomingOnConnector *) e.operator->();
+            rpcEvent::IncomingOnConnector *E=(rpcEvent::IncomingOnConnector *) e.get();
             auto& IDC=E->e->id;
 
 
@@ -47,7 +48,7 @@ bool testWebServer::Service::handleEvent(const REF_getter<Event::Base>& e)
 
         if(rpcEventEnum::IncomingOnAcceptor==ID)
         {
-            rpcEvent::IncomingOnAcceptor *E=(rpcEvent::IncomingOnAcceptor *) e.operator->();
+            rpcEvent::IncomingOnAcceptor *E=(rpcEvent::IncomingOnAcceptor *) e.get();
             auto& IDA=E->e->id;
 
 
@@ -118,13 +119,15 @@ bool testWebServer::Service::on_RequestIncoming(const httpEvent::RequestIncoming
 
     {
         bool keepAlive=e->req->headers["CONNECTION"]=="Keep-Alive";
-        keepAlive=true;
+//        logErr2("e->req->headers[CONNECTION] %s ",e->req->headers["CONNECTION"].c_str());
+//        keepAlive=true;
         if(keepAlive)
         {
             resp.http_header_out["Connection"]="Keep-Alive";
-            resp.http_header_out["Keep-Alive"]="timeout=5, max=100000";
+//            resp.http_header_out["Keep-Alive"]="timeout=1, max=10";
         }
         resp.content="<div>received response </div>";
+//        keepAlive=false;
         if(keepAlive)
             resp.makeResponsePersistent(e->esi);
         else

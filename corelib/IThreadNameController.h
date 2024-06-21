@@ -1,12 +1,11 @@
 #ifndef ____________IThreadNameController_h
 #define ____________IThreadNameController_h
 
-#include "commonError.h"
+#include <string>
 #ifdef _WIN32
 #else
 #include <pthread.h>
 #endif
-#include "compat_win32.h"
 
 /// interface tool to debug mutex deadlocks etc
 

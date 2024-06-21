@@ -1,4 +1,5 @@
 #include "mtimespec.h"
+#include "commonError.h"
 #include <errno.h>
 #ifdef _WIN32
 #include <sys/timeb.h>

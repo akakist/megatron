@@ -1,5 +1,4 @@
-#ifndef ____________WUOERY_RESUKLT
-#define ____________WUOERY_RESUKLT
+#pragma once
 #include <map>
 #include <vector>
 #include <string>
@@ -23,4 +22,3 @@ public:
         return values[i];
     };
 };
-#endif

@@ -1,9 +1,7 @@
-#ifndef _____________INCONFIGOBJ____H
-#define _____________INCONFIGOBJ____H
+#pragma once
 #include <set>
 #include <string>
 #include "msockaddr_in.h"
-#include "mtimespec.h"
 #include "Real.h"
 
 /// Interface for megatron config
@@ -67,4 +65,3 @@ public:
 
 #define CFG_PUSH(a,b) st_configObjPrefix st_$$_dummy_obj$pushed(a,b)
 
-#endif

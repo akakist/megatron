@@ -3,19 +3,9 @@
 #include <logging.h>
 #include <colorOutput.h>
 #include "mutexInspector.h"
-#include <Events/System/Net/socket/Write.h>
-#include <Events/System/Net/oscar/PacketOnAcceptor.h>
-#include <Events/System/Net/oscar/PacketOnConnector.h>
-#include <Events/System/Net/oscar/Connected.h>
-#include <Events/System/Net/oscar/NotifyOutBufferEmpty.h>
-#include <Events/System/Net/oscar/NotifyBindAddress.h>
-#include <Events/System/Net/socket/AddToConnectTCP.h>
-#include <Events/System/Net/socket/AddToListenTCP.h>
-#include <Events/Tools/webHandler/RegisterHandler.h>
-#include <Events/System/Net/oscar/ConnectFailed.h>
-#include <Events/System/Net/oscar/Disaccepted.h>
-#include <Events/System/Net/oscar/Disconnected.h>
-#include "bufferVerify.h"
+#include <Events/System/Net/socketEvent.h>
+#include <Events/System/Net/oscarEvent.h>
+#include <Events/Tools/webHandlerEvent.h>
 #include "events_OscarSecure.hpp"
 
 
@@ -67,12 +57,12 @@ bool OscarSecure::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                 {
                     XTRY;
                     {
-                        M_LOCK(evt->esi->m_inBuffer);
-                        if(evt->esi->m_inBuffer._mx_data.size()==0)
+                        M_LOCK(evt->esi->inBuffer_);
+                        if(evt->esi->inBuffer_._mx_data.size()==0)
                         {
                             return true;
                         }
-                        inBuffer b(evt->esi->m_inBuffer._mx_data.data(), evt->esi->m_inBuffer._mx_data.size());
+                        inBuffer b(evt->esi->inBuffer_._mx_data.data(), evt->esi->inBuffer_._mx_data.size());
 
                         start_byte=b.get_8_nothrow(success);
 
@@ -116,7 +106,7 @@ bool OscarSecure::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                                     logErr2("---------_ERROR if (!success) %s %d",__FILE__,__LINE__);
                                     return true;
                                 }
-                                evt->esi->m_inBuffer._mx_data.erase(0,evt->esi->m_inBuffer._mx_data.size()-b.remains());
+                                evt->esi->inBuffer_._mx_data.erase(0,evt->esi->inBuffer_._mx_data.size()-b.remains());
                                 recvd=true;
                                 XPASS;
                             }
@@ -143,9 +133,9 @@ bool OscarSecure::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                 case OscarSecure::SB_SINGLEPACKET_AES:
                 {
                     MUTEX_INSPECTOR;
-                    OscarSecureData* od=getData(evt->esi.operator->());
+                    OscarSecureData* od=getData(evt->esi.get());
                     REF_getter<refbuffer> buf=od->aes.decrypt(toRef(req));
-                    if(evt->esi->m_streamType==epoll_socket_info::STREAMTYPE_ACCEPTED)
+                    if(evt->esi->streamType_==epoll_socket_info::STREAMTYPE_ACCEPTED)
                     {
                         passEvent(new oscarEvent::PacketOnAcceptor(evt->esi,buf,evt->route));
 
@@ -161,13 +151,13 @@ bool OscarSecure::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                 {
                     MUTEX_INSPECTOR;
                     inBuffer b(req.data(),req.size());
-                    OscarSecureData* od=getData(evt->esi.operator->());
+                    OscarSecureData* od=getData(evt->esi.get());
 
                     {
                         od->aes.init(od->rsa.privateDecrypt(b.get_PSTR()));
 
                         {
-                            if(evt->esi->m_streamType!=epoll_socket_info::STREAMTYPE_ACCEPTED)
+                            if(evt->esi->streamType_!=epoll_socket_info::STREAMTYPE_ACCEPTED)
                                 throw CommonError("!isServer");
                             outBuffer o;
                             sendPacketPlain(SB_HELLO_SSL2_S2C,evt->esi,o);
@@ -201,7 +191,7 @@ bool OscarSecure::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                         evt->esi->close("oscarSecure: invalid peer version");
                         return true;
                     }
-                    OscarSecureData* od=getData(evt->esi.operator->());
+                    OscarSecureData* od=getData(evt->esi.get());
 
                     {
                         XTRY;
@@ -299,7 +289,7 @@ bool OscarSecure::Service::on_SendPacket(const oscarEvent::SendPacket* e)
 
     MUTEX_INSPECTOR;
 
-    OscarSecureData* data=getData(e->esi.operator->());
+    OscarSecureData* data=getData(e->esi.get());
     sendPacketPlain(OscarSecure::SB_SINGLEPACKET_AES,e->esi,data->aes.encrypt(e->buf));
     return true;
 }
@@ -325,7 +315,7 @@ bool OscarSecure::Service::on_Accepted(const socketEvent::Accepted*e)
 {
     MUTEX_INSPECTOR;
     XTRY;
-    OscarSecureData* od=getData(e->esi.operator->());
+    OscarSecureData* od=getData(e->esi.get());
 
     od->rsa.generate_key(RSA_keysize);
     outBuffer o;
@@ -374,38 +364,38 @@ bool OscarSecure::Service::handleEvent(const REF_getter<Event::Base>& e)
     auto &ID=e->id;
 
     if( socketEventEnum::Accepted==ID)
-        return on_Accepted((const socketEvent::Accepted*)e.operator->());
+        return on_Accepted((const socketEvent::Accepted*)e.get());
     if( socketEventEnum::StreamRead==ID)
-        return on_StreamRead((const socketEvent::StreamRead*)e.operator->());
+        return on_StreamRead((const socketEvent::StreamRead*)e.get());
     if( socketEventEnum::Connected==ID)
-        return on_Connected((const socketEvent::Connected*)e.operator->());
+        return on_Connected((const socketEvent::Connected*)e.get());
     if( socketEventEnum::NotifyBindAddress==ID)
-        return on_NotifyBindAddress((const socketEvent::NotifyBindAddress*)e.operator->());
+        return on_NotifyBindAddress((const socketEvent::NotifyBindAddress*)e.get());
     if( socketEventEnum::NotifyOutBufferEmpty==ID)
-        return on_NotifyOutBufferEmpty((const socketEvent::NotifyOutBufferEmpty*)e.operator->());
+        return on_NotifyOutBufferEmpty((const socketEvent::NotifyOutBufferEmpty*)e.get());
     if( socketEventEnum::ConnectFailed==ID)
-        return on_ConnectFailed((const socketEvent::ConnectFailed*)e.operator->());
+        return on_ConnectFailed((const socketEvent::ConnectFailed*)e.get());
 
     if( oscarEventEnum::SendPacket==ID)
-        return(this->on_SendPacket((const oscarEvent::SendPacket*)e.operator->()));
+        return(this->on_SendPacket((const oscarEvent::SendPacket*)e.get()));
 
     if( oscarEventEnum::AddToListenTCP==ID)
-        return(this->on_AddToListenTCP((const oscarEvent::AddToListenTCP*)e.operator->()));
+        return(this->on_AddToListenTCP((const oscarEvent::AddToListenTCP*)e.get()));
 
     if( oscarEventEnum::Connect==ID)
-        return(this->on_Connect((const oscarEvent::Connect*)e.operator->()));
+        return(this->on_Connect((const oscarEvent::Connect*)e.get()));
 
     if(systemEventEnum::startService==ID)
-        return on_startService((const systemEvent::startService*)e.operator->());
+        return on_startService((const systemEvent::startService*)e.get());
 
     if(systemEventEnum::startService==ID)
-        return on_startService((const systemEvent::startService*)e.operator->());
+        return on_startService((const systemEvent::startService*)e.get());
     if(webHandlerEventEnum::RequestIncoming==ID)
-        return on_RequestIncoming((const webHandlerEvent::RequestIncoming*)e.operator->());
+        return on_RequestIncoming((const webHandlerEvent::RequestIncoming*)e.get());
     if( socketEventEnum::Disaccepted==ID)
-        return on_Disaccepted((const socketEvent::Disaccepted*)e.operator->());
+        return on_Disaccepted((const socketEvent::Disaccepted*)e.get());
     if( socketEventEnum::Disconnected==ID)
-        return on_Disconnected((const socketEvent::Disconnected*)e.operator->());
+        return on_Disconnected((const socketEvent::Disconnected*)e.get());
 
     XPASS;
     return false;
@@ -445,14 +435,14 @@ bool OscarSecure::Service::on_Disconnected(const socketEvent::Disconnected*e)
 OscarSecureData* OscarSecure::Service::getData(epoll_socket_info* esi)
 {
 
-    auto it=esi->additions.find('osca');
-    if(it==esi->additions.end())
+    auto it=esi->additions_.find('osca');
+    if(it==esi->additions_.end())
     {
         REF_getter<Refcountable> p=new OscarSecureData;
-        esi->additions.insert(std::make_pair('osca',p));
-        it=esi->additions.find('osca');
+        esi->additions_.insert(std::make_pair('osca',p));
+        it=esi->additions_.find('osca');
     }
-    auto ret=dynamic_cast<OscarSecureData*>(it->second.operator->());
+    auto ret=dynamic_cast<OscarSecureData*>(it->second.get());
     if(ret==NULL)
         throw CommonError("if(ret==NULL)");
     return ret;

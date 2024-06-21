@@ -2,7 +2,7 @@
 #include "IInstance.h"
 
 #include "url.h"
-#include "Events/System/Net/rpc/IncomingOnConnector.h"
+#include "Events/System/Net/rpcEvent.h"
 
 void ObjectHandlerPolled::sendEvent(const std::string & dstHost, const SERVICE_id & dstService, const REF_getter<Event::Base>& e)
 {

@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "IUtils.h"
 #include "_bitStream.h"
 #include <map>
 #include <string>

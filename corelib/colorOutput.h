@@ -1,5 +1,4 @@
-#ifndef ____COLOR_OUT__H
-#define ____COLOR_OUT__H
+#pragma once
 
 #ifndef __MOBILE__
 #define ANSI_COLOR_RED     "\x1b[31m"
@@ -47,4 +46,3 @@
 #define YELLOW2(a) ANSI_COLOR_YELLOW2 a ANSI_COLOR_RESET "\n"
 #define MAGENTA2(a) ANSI_COLOR_MAGENTA2 a ANSI_COLOR_RESET "\n"
 #define CYAN2(a) ANSI_COLOR_CYAN2 a ANSI_COLOR_RESET "\n"
-#endif

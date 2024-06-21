@@ -3,6 +3,7 @@
 add_library(core-webHandler SHARED
     webHandler.cpp
     webHandlerService.cpp
+    webHandlerService.h
 )
 
 target_link_libraries(core-webHandler megatron-core pthread)

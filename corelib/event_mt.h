@@ -1,5 +1,4 @@
-#ifndef ______________________EVENT______H
-#define ______________________EVENT______H
+#pragma once
 
 #include <json/json.h>
 #include "REF.h"
@@ -23,7 +22,6 @@ namespace Event
     public:
         /// тип евента
         const EVENT_id id;
-//        const int rpcChannel;
         virtual ~Base() {}
         virtual void jdump(Json::Value &v) const=0;
         /// маршрут
@@ -75,4 +73,3 @@ inline Json::Value Event::Base::dump() const
 }
 
 
-#endif

@@ -84,13 +84,13 @@ namespace SocketIO
             REF_getter<StatElement> S(NULL);
             {
                 M_LOCK(this);
-                auto i=container.find(std::make_pair(esi->local_name.getStringAddr(),esi->remote_name.getStringAddr()));
+                auto i=container.find(std::make_pair(esi->local_name().getStringAddr(),esi->remote_name().getStringAddr()));
 
                 if(i!=container.end()) S=i->second;
                 else
                 {
                     S=new StatElement;
-                    container.insert(std::make_pair(std::make_pair(esi->local_name.getStringAddr(),esi->remote_name.getStringAddr()),S));
+                    container.insert(std::make_pair(std::make_pair(esi->local_name().getStringAddr(),esi->remote_name().getStringAddr()),S));
                 }
 
 

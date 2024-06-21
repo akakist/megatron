@@ -5,7 +5,7 @@ link_directories(/usr/local/mysql/lib)
 
 add_library(core-mysql SHARED
     mysql.cpp
-    mysqlService.cpp
+mysqlService.h    mysqlService.cpp
 )
 add_library(zmysql STATIC
     mysqlService.cpp

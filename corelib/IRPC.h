@@ -1,9 +1,5 @@
-#ifndef _______________I___RPC___H
-#define _______________I___RPC___H
+#pragma once
 #include "msockaddr_in.h"
-#include "unknown.h"
-#include "unknownCastDef.h"
-#include "mutexInspector.h"
 
 class IRPC
 {
@@ -17,4 +13,3 @@ public:
 
 };
 
-#endif

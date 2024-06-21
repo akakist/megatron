@@ -4,13 +4,9 @@
 
 
 
-#include "Events/DFS/Referrer/NotifyReferrer.h"
-#include "Events/DFS/Referrer/SubscribeNotifications.h"
-#include "Events/DFS/Referrer/ToplinkDeliver.h"
-#include "Events/DFS/Referrer/UpdateConfig.h"
-#include "Events/System/Net/rpc/IncomingOnAcceptor.h"
-#include "Events/System/Net/rpc/IncomingOnConnector.h"
-#include "Events/System/timer/TickAlarm.h"
+#include "Events/DFS/referrerEvent.h"
+#include "Events/System/Net/rpcEvent.h"
+#include "Events/System/timerEvent.h"
 #include "objectHandler.h"
 #include "../Events/System/Error/Error.h"
 #include "timerHelper.h"

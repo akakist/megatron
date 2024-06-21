@@ -1,5 +1,4 @@
-#ifndef ____CRC_16__H
-#define ____CRC_16__H
+#pragma once
 #ifndef _MSC_VER
 #include <inttypes.h>
 #endif
@@ -12,4 +11,3 @@
 uint16_t
 __crc16(uint16_t crc, const void *buf, size_t size);
 
-#endif

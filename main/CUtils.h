@@ -10,6 +10,7 @@
 #include "colorOutput.h"
 #include "utils_local.h"
 #include "Real.h"
+#include "IInstance.h"
 
 class CUtils: public IUtils
 {

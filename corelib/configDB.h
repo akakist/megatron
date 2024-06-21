@@ -1,5 +1,4 @@
-#ifndef __________________CONFIG_DB__HH____
-#define __________________CONFIG_DB__HH____
+#pragma once
 #include "msockaddr_in.h"
 
 
@@ -18,7 +17,7 @@ class ConfigDB
 
 public:
 
-    bool m_shared;
+    bool shared_;
     void set(const std::string& key, const std::string&val);
     msockaddr_in get_tcpaddr(const std::string&name, const std::string& defv)const;
     uint64_t get_uint64_t(const std::string&name, const uint64_t& defv)const;
@@ -35,6 +34,3 @@ public:
     ConfigDB_private():ConfigDB(false) {}
 };
 
-//#endif
-
-#endif

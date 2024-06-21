@@ -1,18 +1,15 @@
-#ifndef _________________JSONHANDLER_H___
-#define _________________JSONHANDLER_H___
+#pragma once
 
 /// base class to construct JSON driven network client
 
 #include "objectHandler.h"
-#include "JAVACOOKIE_id.h"
-#include "AUTHCOOKIE_id.h"
+//#include "JAVACOOKIE_id.h"
+//#include "AUTHCOOKIE_id.h"
 #include "IInstance.h"
 #include "timerHelper.h"
-#include "Events/System/timer/TickAlarm.h"
-#include "Events/System/Net/jsonRef/Json.h"
-#include "Events/System/Net/jsonRef/Json.h"
-#include "Events/DFS/Referrer/NotifyReferrer.h"
-#include "Events/DFS/Referrer/ToplinkDeliver.h"
+#include "Events/System/timerEvent.h"
+#include "Events/System/Net/jsonRefEvent.h"
+#include "Events/DFS/referrerEvent.h"
 #ifdef __ANDROID__
 #include "jni.h"
 #endif
@@ -84,4 +81,3 @@ struct JsonHandler: public TimerHelper,
 };
 
 
-#endif // JSONHANDLER_H

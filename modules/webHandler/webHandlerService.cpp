@@ -4,7 +4,7 @@
 #endif
 #include "webHandlerService.h"
 
-#include <Events/System/Net/http/DoListen.h>
+#include <Events/System/Net/httpEvent.h>
 #include "mutexInspector.h"
 #include "version_mega.h"
 #include "events_webHandler.hpp"
@@ -137,15 +137,15 @@ bool WebHandler::Service::handleEvent(const REF_getter<Event::Base>& e)
     XTRY;
     auto &ID=e->id;
     if( webHandlerEventEnum::RegisterHandler==ID)
-        return(this->on_RegisterHandler((const webHandlerEvent::RegisterHandler*)e.operator->()));
+        return(this->on_RegisterHandler((const webHandlerEvent::RegisterHandler*)e.get()));
     if( webHandlerEventEnum::RegisterDirectory==ID)
-        return(this->on_RegisterDirectory((const webHandlerEvent::RegisterDirectory*)e.operator->()));
+        return(this->on_RegisterDirectory((const webHandlerEvent::RegisterDirectory*)e.get()));
     if( httpEventEnum::RequestIncoming==ID)
-        return(this->on_RequestIncoming((const httpEvent::RequestIncoming*)e.operator->()));
+        return(this->on_RequestIncoming((const httpEvent::RequestIncoming*)e.get()));
     if( httpEventEnum::GetBindPortsRSP==ID)
-        return(this->on_GetBindPortsRSP((const httpEvent::GetBindPortsRSP*)e.operator->()));
+        return(this->on_GetBindPortsRSP((const httpEvent::GetBindPortsRSP*)e.get()));
     if(systemEventEnum::startService==ID)
-        return on_startService((const systemEvent::startService*)e.operator->());
+        return on_startService((const systemEvent::startService*)e.get());
 
     XPASS;
     return false;

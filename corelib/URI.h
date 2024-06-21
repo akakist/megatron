@@ -1,12 +1,8 @@
-#ifndef _________________URI___H
-#define _________________URI___H
+#pragma once
 
 #include <string>
 #include "DB_id.h"
-#include "IUtils.h"
-#include "IInstance.h"
 #include "mutexInspector.h"
-#include "IInstance.h"
 struct URI
 {
     friend int operator<(const URI&a, const URI&b);
@@ -61,4 +57,3 @@ inline inBuffer& operator>> (inBuffer& b,  URI& s)
 }
 
 
-#endif

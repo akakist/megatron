@@ -1,7 +1,4 @@
-#ifndef ______LISTENER____H
-#define ______LISTENER____H
-#include "unknownCastDef.h"
-#include "unknown.h"
+#pragma once
 #include "event_mt.h"
 
 typedef bool (*eventhandler) (const REF_getter<Event::Base> &, void*);
@@ -14,14 +11,12 @@ class ListenerBase
 {
 protected:
 public:
-    /// deprecated, list of handler to work with ifacegeb
-//    std::vector<std::pair<eventhandler,void*> > handlers;
 
     /// declaration, implementation in inherited
     virtual void listenToEvent(const REF_getter<Event::Base>&)=0;
 
     /// name of listener
-    const std::string listenerName;
+    const std::string listenerName_;
 
 
     ListenerBase(const std::string& nm, const SERVICE_id& sid);
@@ -30,5 +25,4 @@ public:
     const SERVICE_id serviceId;
 };
 
-#endif
 

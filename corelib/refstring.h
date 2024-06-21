@@ -1,9 +1,9 @@
-#ifndef ___________________________REFSTRING_H
-#define ___________________________REFSTRING_H
+#pragma once
 
 #include "REF.h"
 #include <string>
 #include <inttypes.h>
+#include "commonError.h"
 
 /// refbuffer - string replacement with recount
 struct refbuffer: public Refcountable
@@ -69,4 +69,3 @@ inline REF_getter<refbuffer> toRef(const uint8_t* buf, int size)
     return r;
 }
 
-#endif // REFSTRING_H

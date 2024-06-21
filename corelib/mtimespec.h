@@ -1,5 +1,4 @@
-#ifndef ____MTIMESPEC___H
-#define ____MTIMESPEC___H
+#pragma once
 #ifndef _MSC_VER
 #include <sys/time.h>
 #endif
@@ -8,7 +7,6 @@
 #include <sys/timeb.h>
 #endif
 #endif
-#include "commonError.h"
 #ifdef _WIN32
 #include <pthread.h>
 #endif
@@ -29,4 +27,3 @@ int operator<(const mtimespec& a,const mtimespec& b);
 int operator<=(const mtimespec& a,const mtimespec& b);
 mtimespec operator+(const mtimespec& a,const mtimespec& b);
 mtimespec operator-(const mtimespec& a,const mtimespec& b);
-#endif

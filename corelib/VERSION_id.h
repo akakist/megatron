@@ -1,6 +1,4 @@
-#ifndef VERSION__ID__HH
-#define VERSION__ID__HH
-#include "commonError.h"
+#pragma once
 #include "ioBuffer.h"
 #include <sys/types.h>
 
@@ -41,5 +39,4 @@ inline inBuffer& operator>> (inBuffer& b,  VERSION_id& s)
 
 #else
 typedef int32_t VERSION_id;
-#endif
 #endif

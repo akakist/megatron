@@ -1,5 +1,4 @@
 #include "eventDeque.h"
-#include "mutexInspector.h"
 
 
 void EventDeque::push(const REF_getter<Event::Base> & e)

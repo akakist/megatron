@@ -3,12 +3,9 @@
 #ifdef __ANDROID__
 #include "jni.h"
 #endif
-#include "Events/System/timer/TickAlarm.h"
-#include "Events/DFS/Referrer/SubscribeNotifications.h"
-#include "Events/System/Net/rpc/IncomingOnConnector.h"
-#include "Events/System/Net/rpc/IncomingOnAcceptor.h"
-#include "Events/DFS/Referrer/UpdateConfig.h"
-#include "Events/DFS/Referrer/UpdateConfig.h"
+#include "Events/System/timerEvent.h"
+#include "Events/DFS/referrerEvent.h"
+#include "Events/System/Net/rpcEvent.h"
 
 JsonHandler::JsonHandler(IInstance *ins):
     TimerHelper(ins),
@@ -66,24 +63,24 @@ bool JsonHandler::OH_handleObjectEvent(const REF_getter<Event::Base>& e)
             return true;
         auto& ID=e->id;
         if(jsonRefEventEnum::JsonRSP==ID)
-            return on_JsonRSP((const jsonRefEvent::JsonRSP*) e.operator ->());
+            return on_JsonRSP((const jsonRefEvent::JsonRSP*) e.get());
         if( dfsReferrerEventEnum::ToplinkDeliverRSP==ID)
-            return on_ToplinkDeliverRSP((const dfsReferrerEvent::ToplinkDeliverRSP*)e.operator ->());
+            return on_ToplinkDeliverRSP((const dfsReferrerEvent::ToplinkDeliverRSP*)e.get());
         if( dfsReferrerEventEnum::NotifyReferrerUplinkIsConnected==ID)
-            return on_NotifyReferrerUplinkIsConnected((const dfsReferrerEvent::NotifyReferrerUplinkIsConnected*)e.operator ->());
+            return on_NotifyReferrerUplinkIsConnected((const dfsReferrerEvent::NotifyReferrerUplinkIsConnected*)e.get());
         if( dfsReferrerEventEnum::NotifyReferrerUplinkIsDisconnected==ID)
-            return on_NotifyReferrerUplinkIsDisconnected((const dfsReferrerEvent::NotifyReferrerUplinkIsDisconnected*)e.operator ->());
+            return on_NotifyReferrerUplinkIsDisconnected((const dfsReferrerEvent::NotifyReferrerUplinkIsDisconnected*)e.get());
 
         if(timerEventEnum::TickAlarm==ID)
-            return on_TickAlarm((const timerEvent::TickAlarm*)e.operator ->());
+            return on_TickAlarm((const timerEvent::TickAlarm*)e.get());
 
         if(rpcEventEnum::IncomingOnConnector==ID)
         {
-            const rpcEvent::IncomingOnConnector*ze=(const rpcEvent::IncomingOnConnector*)e.operator ->();
+            const rpcEvent::IncomingOnConnector*ze=(const rpcEvent::IncomingOnConnector*)e.get();
             auto& IDC=ze->e->id;
             if(dfsReferrerEventEnum::UpdateConfigRSP==IDC)
             {
-                const dfsReferrerEvent::UpdateConfigRSP*xe=(const dfsReferrerEvent::UpdateConfigRSP*)ze->e.operator ->();
+                const dfsReferrerEvent::UpdateConfigRSP*xe=(const dfsReferrerEvent::UpdateConfigRSP*)ze->e.get();
                 config_bod=xe->bod;
                 return true;
             }

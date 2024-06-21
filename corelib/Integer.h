@@ -1,5 +1,4 @@
-#ifndef ______INTEGER__H
-#define ______INTEGER__H
+#pragma once
 #include <string>
 #include <sys/types.h>
 #include <stdint.h>
@@ -31,4 +30,3 @@ public:
 Integer operator -(const Integer& a, const Integer& b);
 Integer operator +(const Integer& a, const Integer& b);
 
-#endif

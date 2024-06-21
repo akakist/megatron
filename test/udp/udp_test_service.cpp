@@ -1,4 +1,5 @@
 #include <string>
+#include <unistd.h>
 #include "ITests.h"
 #include "IUtils.h"
 #include "version_mega.h"
@@ -7,9 +8,8 @@
 #include "main/CInstance.h"
 #include "Events/System/Run/startService.h"
 #include "tools_mt.h"
-#include "Events/System/timer/TickAlarm.h"
-#include "Events/System/timer/TickTimer.h"
-#include "Events/System/Net/socket/UdpAssoc.h"
+#include "Events/System/timerEvent.h"
+#include "Events/System/Net/socketEvent.h"
 #include "colorOutput.h"
 #include "main/configObj.h"
 #include "ISSL.h"
@@ -75,13 +75,13 @@ public:
         }
         if(socketEventEnum::UdpAssocRSP==ID)
         {
-            socketEvent::UdpAssocRSP* ee=(socketEvent::UdpAssocRSP*)e.operator ->();
+            socketEvent::UdpAssocRSP* ee=(socketEvent::UdpAssocRSP*)e.get();
             logErr2("UdpAssocRSP errcode %d",ee->errcode);
             return true;
         }
         if(socketEventEnum::UdpPacketIncoming==ID)
         {
-            socketEvent::UdpPacketIncoming* ee=(socketEvent::UdpPacketIncoming*)e.operator ->();
+            socketEvent::UdpPacketIncoming* ee=(socketEvent::UdpPacketIncoming*)e.get();
             logErr2("UdpPacketIncoming from %s data %s",ee->addrFrom.dump().c_str(),ee->data.c_str());
             printf(GREEN("UDP test passed OK"));
             done_test=true;
@@ -134,7 +134,7 @@ public:
         }
         if(timerEventEnum::TickTimer==ID)
         {
-            timerEvent::TickTimer* ee=(timerEvent::TickTimer*)e.operator ->();
+            timerEvent::TickTimer* ee=(timerEvent::TickTimer*)e.get();
             if(ee->tid==1)
             {
                 std::string pk="asdasdfasdfasdfasdfasdf";

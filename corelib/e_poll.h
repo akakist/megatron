@@ -1,5 +1,4 @@
-#ifndef ______E_POLL_H
-#define ______E_POLL_H
+#pragma once
 #include "pconfig.h"
 #ifdef __linux__
 #include <sys/epoll.h>
@@ -17,4 +16,3 @@
 
 
 
-#endif // E_POLL_H

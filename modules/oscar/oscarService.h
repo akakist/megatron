@@ -8,17 +8,8 @@
 #include <listenerSimple.h>
 #include <broadcaster.h>
 #include "event_mt.h"
-#include <Events/System/Net/oscar/Connect.h>
-#include <Events/System/Net/oscar/SendPacket.h>
-#include <Events/System/Net/oscar/AddToListenTCP.h>
-#include <Events/System/Net/socket/Accepted.h>
-#include <Events/System/Net/socket/StreamRead.h>
-#include <Events/System/Net/socket/Connected.h>
-#include <Events/System/Net/socket/NotifyOutBufferEmpty.h>
-#include <Events/System/Net/socket/ConnectFailed.h>
-#include <Events/System/Net/socket/Disaccepted.h>
-#include <Events/System/Net/socket/Disconnected.h>
-#include <Events/System/Net/socket/NotifyBindAddress.h>
+#include <Events/System/Net/oscarEvent.h>
+#include <Events/System/Net/socketEvent.h>
 #include <Events/System/Run/startService.h>
 
 namespace Oscar

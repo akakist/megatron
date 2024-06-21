@@ -10,10 +10,9 @@
 #include <tools_mt.h>
 #include "httpService.h"
 #include "IUtils.h"
-#include <Events/System/Net/socket/Connected.h>
-#include <Events/System/Net/socket/AddToListenTCP.h>
-#include <Events/System/Net/rpc/IncomingOnAcceptor.h>
-#include <Events/System/Net/http/RequestIncoming.h>
+#include <Events/System/Net/socketEvent.h>
+#include <Events/System/Net/rpcEvent.h>
+#include <Events/System/Net/httpEvent.h>
 #include <version_mega.h>
 #include <st_malloc.h>
 #include <logging.h>
@@ -139,37 +138,37 @@ bool HTTP::Service::handleEvent(const REF_getter<Event::Base>& evt)
 
 
     if( socketEventEnum::Disaccepted==ID)
-        return on_Disaccepted((const socketEvent::Disaccepted*)evt.operator->());
+        return on_Disaccepted((const socketEvent::Disaccepted*)evt.get());
     if( socketEventEnum::Disconnected==ID)
-        return on_Disconnected((const socketEvent::Disconnected*)evt.operator->());
+        return on_Disconnected((const socketEvent::Disconnected*)evt.get());
 
     if( socketEventEnum::Accepted==ID)
-        return on_Accepted((const socketEvent::Accepted*)evt.operator->());
+        return on_Accepted((const socketEvent::Accepted*)evt.get());
     if( socketEventEnum::StreamRead==ID)
-        return on_StreamRead((const socketEvent::StreamRead*)evt.operator->());
+        return on_StreamRead((const socketEvent::StreamRead*)evt.get());
     if( socketEventEnum::Connected==ID)
-        return on_Connected((const socketEvent::Connected*)evt.operator->());
+        return on_Connected((const socketEvent::Connected*)evt.get());
     if( socketEventEnum::NotifyBindAddress==ID)
-        return on_NotifyBindAddress((const socketEvent::NotifyBindAddress*)evt.operator->());
+        return on_NotifyBindAddress((const socketEvent::NotifyBindAddress*)evt.get());
     if( socketEventEnum::NotifyOutBufferEmpty==ID)
-        return on_NotifyOutBufferEmpty((const socketEvent::NotifyOutBufferEmpty*)evt.operator->());
+        return on_NotifyOutBufferEmpty((const socketEvent::NotifyOutBufferEmpty*)evt.get());
     if( httpEventEnum::DoListen==ID)
-        return(this->on_DoListen((const httpEvent::DoListen*)evt.operator->()));
+        return(this->on_DoListen((const httpEvent::DoListen*)evt.get()));
     if( httpEventEnum::RegisterProtocol==ID)
-        return(this->on_RegisterProtocol((const httpEvent::RegisterProtocol*)evt.operator->()));
+        return(this->on_RegisterProtocol((const httpEvent::RegisterProtocol*)evt.get()));
     if( httpEventEnum::GetBindPortsREQ==ID)
-        return(this->on_GetBindPortsREQ((const httpEvent::GetBindPortsREQ*)evt.operator->()));
+        return(this->on_GetBindPortsREQ((const httpEvent::GetBindPortsREQ*)evt.get()));
     if( systemEventEnum::startService==ID)
-        return on_startService((const systemEvent::startService*)evt.operator->());
+        return on_startService((const systemEvent::startService*)evt.get());
     if( rpcEventEnum::IncomingOnAcceptor==ID)
     {
         MUTEX_INSPECTOR;
-        rpcEvent::IncomingOnAcceptor *E=(rpcEvent::IncomingOnAcceptor *)evt.operator ->();
+        rpcEvent::IncomingOnAcceptor *E=(rpcEvent::IncomingOnAcceptor *)evt.get();
         auto IDA=E->e->id;
         if(httpEventEnum::GetBindPortsREQ==IDA)
         {
             MUTEX_INSPECTOR;
-            const httpEvent::GetBindPortsREQ *e=(const httpEvent::GetBindPortsREQ *)E->e.operator ->();
+            const httpEvent::GetBindPortsREQ *e=(const httpEvent::GetBindPortsREQ *)E->e.get();
             M_LOCK(mx);
             passEvent(new httpEvent::GetBindPortsRSP(mx.bind_addrs,poppedFrontRoute(e->route)));
             return true;
@@ -190,7 +189,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
     MUTEX_INSPECTOR;
 
 
-    REF_getter<HTTP::Request> W=getData(evt->esi.operator->());
+    REF_getter<HTTP::Request> W=getData(evt->esi.get());
 
 
     W->m_last_io_time=time(NULL);
@@ -198,8 +197,8 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
     {
         std::string head;
         {
-            M_LOCK(evt->esi->m_inBuffer);
-            if (!W.___ptr->__gets$(head,"\r\n\r\n", evt->esi->m_inBuffer._mx_data))
+            M_LOCK(evt->esi->inBuffer_);
+            if (!W.___ptr->__gets$(head,"\r\n\r\n", evt->esi->inBuffer_._mx_data))
             {
                 return true;
             }
@@ -294,8 +293,8 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                     return true;
                 }
                 {
-                    M_LOCK(evt->esi->m_inBuffer);
-                    if (!W->__readbuf$(W->postContent,clen, evt->esi->m_inBuffer._mx_data)) return true;
+                    M_LOCK(evt->esi->inBuffer_);
+                    if (!W->__readbuf$(W->postContent,clen, evt->esi->inBuffer_._mx_data)) return true;
                 }
                 W->split_params(W->postContent);
             }
@@ -317,8 +316,8 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                 {
 
                     {
-                        M_LOCK(evt->esi->m_inBuffer);
-                        if (!W->__gets$(sbuf,ebound, evt->esi->m_inBuffer._mx_data)) return true;
+                        M_LOCK(evt->esi->inBuffer_);
+                        if (!W->__gets$(sbuf,ebound, evt->esi->inBuffer_._mx_data)) return true;
                     }
 
                     while (sbuf.size())
@@ -447,7 +446,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
     {
         W->sendRequestIncomingIsSent=true;
         passEvent(new httpEvent::RequestIncoming(W,evt->esi,evt->route));
-        clearData(evt->esi.operator->());
+        clearData(evt->esi.get());
     }
     return  true;
 }
@@ -467,7 +466,7 @@ bool HTTP::Service::on_NotifyOutBufferEmpty(const socketEvent::NotifyOutBufferEm
     return true;
     S_LOG("on_NotifyOutBufferEmpty");
 
-    REF_getter<HTTP::Request> W=getData(e->esi.operator->());
+    REF_getter<HTTP::Request> W=getData(e->esi.get());
     if(!W.valid())
     {
 
@@ -782,13 +781,13 @@ std::string datef(const time_t &__t)
 bool HTTP::Service::on_Disaccepted(const socketEvent::Disaccepted*e)
 {
     MUTEX_INSPECTOR;
-    clearData(e->esi.operator->());
+    clearData(e->esi.get());
     return true;
 }
 bool HTTP::Service::on_Disconnected(const socketEvent::Disconnected*e)
 {
     MUTEX_INSPECTOR;
-    clearData(e->esi.operator->());
+    clearData(e->esi.get());
     return true;
 }
 
@@ -796,14 +795,14 @@ bool HTTP::Service::on_Disconnected(const socketEvent::Disconnected*e)
 REF_getter<HTTP::Request> HTTP::Service::getData(epoll_socket_info* esi)
 {
 
-    auto it=esi->additions.find('http');
-    if(it==esi->additions.end())
+    auto it=esi->additions_.find('http');
+    if(it==esi->additions_.end())
     {
         REF_getter<Refcountable> p=new HTTP::Request;
-        esi->additions.insert(std::make_pair('http',p));
-        it=esi->additions.find('http');
+        esi->additions_.insert(std::make_pair('http',p));
+        it=esi->additions_.find('http');
     }
-    auto ret=dynamic_cast<HTTP::Request*>(it->second.operator->());
+    auto ret=dynamic_cast<HTTP::Request*>(it->second.get());
     if(ret==NULL)
         throw CommonError("if(ret==NULL)");
     return ret;
@@ -811,11 +810,11 @@ REF_getter<HTTP::Request> HTTP::Service::getData(epoll_socket_info* esi)
 }
 void HTTP::Service::setData(epoll_socket_info* esi, const REF_getter<HTTP::Request> & p)
 {
-    esi->additions.insert(std::make_pair('http',p.operator->()));
+    esi->additions_.insert(std::make_pair('http',p.get()));
 
 }
 void HTTP::Service::clearData(epoll_socket_info* esi)
 {
-    esi->additions.erase('http');
+    esi->additions_.erase('http');
 
 }

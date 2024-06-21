@@ -4,6 +4,10 @@ add_library(core-oscarSecure SHARED
     oscarSecure.cpp
     oscarSecureService.cpp
     oscarSecureUser.cpp
+    bufferVerify.h
+oscarSecureService.h
+oscarSecureUser.h
+
 )
 
 target_link_libraries(core-oscarSecure megatron-core pthread)

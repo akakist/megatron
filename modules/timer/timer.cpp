@@ -1,5 +1,4 @@
 #include "IUtils.h"
-#include "timerService.h"
 
 IUtils *iUtils;
 void registerTimerService(const char*);

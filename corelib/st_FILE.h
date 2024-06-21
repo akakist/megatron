@@ -1,9 +1,9 @@
-#ifndef __________ST_FILE_____HH
-#define __________ST_FILE_____HH
+#pragma once
 
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include "IUtils.h"
 #include "commonError.h"
 #include "mutexInspector.h"
 #ifdef _WIN32
@@ -66,4 +66,3 @@ public:
         }
     }
 };
-#endif

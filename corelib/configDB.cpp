@@ -2,13 +2,13 @@
 #ifdef _WIN32
 #include "compat_win32.h"
 #endif
-#include "queryResult.h"
+//#include "queryResult.h"
 
 #include "st_FILE.h"
 #include "url.h"
 
 
-ConfigDB::ConfigDB(bool shared):m_shared(shared)
+ConfigDB::ConfigDB(bool shared):shared_(shared)
 {
 
 }
@@ -75,7 +75,7 @@ std::string ConfigDB::fileName(const std::string &k) const
     baseDir=iUtils->gCacheDir();
 
     std::string pn;
-    if(m_shared)
+    if(shared_)
         pn=baseDir+"/config."+k;
     else
         pn=baseDir+ "/config."+iUtils->app_name()+"."+k;

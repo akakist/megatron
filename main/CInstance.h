@@ -1,6 +1,7 @@
 #ifndef ___________________C_FACTORY____H
 #define ___________________C_FACTORY____H
 
+#include "IUtils.h"
 #include <IInstance.h>
 #include <listenerBase.h>
 

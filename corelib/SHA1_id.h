@@ -1,7 +1,5 @@
-#ifndef ___SHA1_id_H
-#define ___SHA1_id_H
+#pragma once
 #include <string>
-#include "IInstance.h"
 #include "IUtils.h"
 struct SHA1_id
 {
@@ -53,4 +51,3 @@ inline inBuffer& operator>> (inBuffer& b,  SHA1_id& s)
     b>>s.container;
     return b;
 }
-#endif

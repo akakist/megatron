@@ -1,5 +1,4 @@
-#ifndef ________WEBDUMPABLE___H
-#define ________WEBDUMPABLE___H
+#pragma once
 #include <string>
 #include <stdint.h>
 #include <json/json.h>
@@ -25,4 +24,3 @@ public:
     std::string getWebDumpableLink(const int64_t& vname);
 
 };
-#endif

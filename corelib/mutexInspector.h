@@ -1,10 +1,8 @@
-#ifndef ________mutexInspector_h
-#define ________mutexInspector_h
+#pragma once
 
-#include "IThreadNameController.h"
-#include "IInstance.h"
 
 /// tool to debug thread, display function call stack in mutex errors - dead locks etc
+#include <string>
 class MutexInspector
 {
 public:
@@ -25,4 +23,3 @@ public:
 
 #endif
 
-#endif

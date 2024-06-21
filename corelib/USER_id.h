@@ -1,6 +1,4 @@
-
-#ifndef _______________USER_id_H
-#define _______________USER_id_H
+#pragma once
 #include <string>
 #include <stdint.h>
 
@@ -47,5 +45,4 @@ typedef int64_t USER_id;
 #endif
 
 
-#endif
 

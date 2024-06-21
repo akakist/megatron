@@ -3,11 +3,9 @@
 #include "broadcaster.h"
 #include "testRpcEvent.h"
 #include "msockaddr_in.h"
-#include "Events/System/timer/SetAlarm.h"
-#include "Events/System/timer/TickAlarm.h"
-#include "Events/System/timer/ResetAlarm.h"
+#include "Events/System/timerEvent.h"
 #include "Events/System/Run/startService.h"
-#include "Events/System/Net/rpc/IncomingOnConnector.h"
+#include "Events/System/Net/rpcEvent.h"
 
 //extern bool done_test;
 static int session=0;

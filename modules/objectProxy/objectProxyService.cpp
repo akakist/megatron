@@ -1,7 +1,6 @@
 #include <mutexInspector.h>
 #include "objectProxyService.h"
-#include <Events/System/Net/rpc/IncomingOnAcceptor.h>
-#include <Events/System/Net/rpc/IncomingOnConnector.h>
+#include <Events/System/Net/rpcEvent.h>
 #include <version_mega.h>
 
 #include "objectHandler.h"
@@ -14,26 +13,26 @@ bool ObjectProxy::Threaded::handleEvent(const REF_getter<Event::Base>& e)
 
     auto &ID=e->id;
     if(systemEventEnum::startService==ID)
-        return on_startService((const systemEvent::startService*)e.operator->());
+        return on_startService((const systemEvent::startService*)e.get());
     if( rpcEventEnum::IncomingOnAcceptor==ID)
         throw CommonError("rpcIncomingOnAcceptor here %s %d",__FILE__,__LINE__);
     if( rpcEventEnum::IncomingOnConnector==ID)
     {
 
         ;
-        rpcEvent::IncomingOnConnector* ez=static_cast<rpcEvent::IncomingOnConnector*>(e.operator ->());
+        rpcEvent::IncomingOnConnector* ez=static_cast<rpcEvent::IncomingOnConnector*>(e.get());
         e->route=ez->e->route;
     }
 
-    if(((Event::Base*)e.operator ->())->route.size()==0)
+    if(((Event::Base*)e.get())->route.size()==0)
     {
         logErr2("wrong event route %s",e->dump().toStyledString().c_str());
     }
-    REF_getter<Route> r= e.operator->()->route.pop_front();
+    REF_getter<Route> r= e.get()->route.pop_front();
     if(r->type==Route::OBJECTHANDLER_THREADED)
     {
         ;
-        ObjectHandlerRouteThreaded* l=(ObjectHandlerRouteThreaded*) r.operator ->();
+        ObjectHandlerRouteThreaded* l=(ObjectHandlerRouteThreaded*) r.get();
 
         {
             ;
@@ -67,7 +66,7 @@ bool ObjectProxy::Threaded::handleEvent(const REF_getter<Event::Base>& e)
                     {
 
                         ;
-                        rpcEvent::IncomingOnConnector* ez=static_cast<rpcEvent::IncomingOnConnector*>(e.operator ->());
+                        rpcEvent::IncomingOnConnector* ez=static_cast<rpcEvent::IncomingOnConnector*>(e.get());
                         ez->e->route=e->route;
                     }
 
@@ -107,7 +106,7 @@ bool ObjectProxy::Polled::handleEvent(const REF_getter<Event::Base>& e)
 
     auto &ID=e->id;
     if(systemEventEnum::startService==ID)
-        return on_startService((const systemEvent::startService*)e.operator->());
+        return on_startService((const systemEvent::startService*)e.get());
 
     if( rpcEventEnum::IncomingOnAcceptor==ID)
         throw CommonError("rpcIncomingOnAcceptor here %s %d",__FILE__,__LINE__);
@@ -115,14 +114,14 @@ bool ObjectProxy::Polled::handleEvent(const REF_getter<Event::Base>& e)
     {
         ;
 
-        rpcEvent::IncomingOnConnector* ez=static_cast<rpcEvent::IncomingOnConnector*>(e.operator ->());
+        rpcEvent::IncomingOnConnector* ez=static_cast<rpcEvent::IncomingOnConnector*>(e.get());
         e->route=ez->e->route;
     }
-    REF_getter<Route> r=((Event::Base*)e.operator ->())->route.pop_front();
+    REF_getter<Route> r=((Event::Base*)e.get())->route.pop_front();
     if(r->type==Route::OBJECTHANDLER_POLLED)
     {
         ;
-        ObjectHandlerRoutePolled* l=(ObjectHandlerRoutePolled*) r.operator ->();
+        ObjectHandlerRoutePolled* l=(ObjectHandlerRoutePolled*) r.get();
 
         {
             ;

@@ -1,8 +1,8 @@
 #include "IInstance.h"
 #include "colorOutput.h"
 #include "configObj.h"
-#include "version_mega.h"
 #include "CUtils.h"
+#include <unistd.h>
 //bool done_test_http=false;
 void registerRPCService(const char* pn);
 void registerSocketModule(const char* pn);
@@ -57,7 +57,7 @@ int mainTestHTTP_RPC(int argc, char** argv )
                                           "\nSocketIO.epoll_timeout_millisec=2000"
                                           "\n"
                                           "\n# socket poll thread count"
-                                          "\nSocketIO.n_workers=4"
+                                          "\nSocketIO.n_workers=3"
                                           "\nOscar.maxPacketSize=33554432"
                                          );
             instance1->setConfig(cnf1);

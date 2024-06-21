@@ -1,5 +1,4 @@
-#ifndef ___RSA_id_H
-#define ___RSA_id_H
+#pragma once
 #include <string>
 #include "IInstance.h"
 #include "IUtils.h"
@@ -65,4 +64,3 @@ inline inBuffer& operator>> (inBuffer& b,  RSA_id& s)
     b>>s.container;
     return b;
 }
-#endif

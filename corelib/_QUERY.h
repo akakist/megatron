@@ -1,5 +1,4 @@
-#ifndef __DB_POSTGRES_QUERY_H
-#define __DB_POSTGRES_QUERY_H
+#pragma once
 
 
 #include <string>
@@ -22,8 +21,8 @@ public:
 
     virtual ~QUERY();
 
-    std::deque<std::string> params;
-    std::string query;
+    std::deque<std::string> params_;
+    std::string query_;
     std::string prepare() const;
 
     QUERY& operator << (const std::string &);
@@ -50,5 +49,4 @@ public:
 
 };
 
-#endif
 

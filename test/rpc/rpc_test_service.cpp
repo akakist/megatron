@@ -1,4 +1,5 @@
 #include <string>
+#include <unistd.h>
 #include "ITests.h"
 #include "IUtils.h"
 #include "version_mega.h"
@@ -7,10 +8,8 @@
 #include "main/CInstance.h"
 #include "Events/System/Run/startService.h"
 #include "tools_mt.h"
-#include "Events/System/Net/rpc/IncomingOnAcceptor.h"
-#include "Events/System/Net/rpc/IncomingOnConnector.h"
-#include "Events/System/Net/rpc/SubscribeNotifications.h"
-#include "Events/System/timer/TickAlarm.h"
+#include "Events/System/Net/rpcEvent.h"
+#include "Events/System/timerEvent.h"
 #include "colorOutput.h"
 #include "ISSL.h"
 #include "main/configObj.h"
@@ -158,7 +157,7 @@ public:
         auto& ID=e->id;
         if(timerEventEnum::TickAlarm==ID)
         {
-            timerEvent::TickAlarm* ee=(timerEvent::TickAlarm*)e.operator ->();
+            timerEvent::TickAlarm* ee=(timerEvent::TickAlarm*)e.get();
             if(ee->tid==TI_START)
             {
                 sendRequest(session,0);
@@ -187,13 +186,13 @@ public:
         if(rpcEventEnum::IncomingOnConnector==ID)
         {
             MUTEX_INSPECTOR;
-            rpcEvent::IncomingOnConnector *ioc=(rpcEvent::IncomingOnConnector *)e.operator ->();
+            rpcEvent::IncomingOnConnector *ioc=(rpcEvent::IncomingOnConnector *)e.get();
             auto &IDC=ioc->e->id;
             if(testEventEnum::testRSP==IDC)
-                return on_testRSP((testEvent::testRSP*)ioc->e.operator ->());
+                return on_testRSP((testEvent::testRSP*)ioc->e.get());
         }
         if(testEventEnum::testRSP==ID)
-            return on_testRSP((testEvent::testRSP*)e.operator ->());
+            return on_testRSP((testEvent::testRSP*)e.get());
         return false;
     }
     bool on_testRSP(const testEvent::testRSP* e)
@@ -271,16 +270,16 @@ public:
         if(rpcEventEnum::IncomingOnAcceptor==ID)
         {
             MUTEX_INSPECTOR;
-            rpcEvent::IncomingOnAcceptor *ioa=(rpcEvent::IncomingOnAcceptor *)e.operator ->();
+            rpcEvent::IncomingOnAcceptor *ioa=(rpcEvent::IncomingOnAcceptor *)e.get();
             auto &IDA=ioa->e->id;
             if(testEventEnum::testREQ==IDA)
-                return on_testREQ((testEvent::testREQ*)ioa->e.operator ->());
+                return on_testREQ((testEvent::testREQ*)ioa->e.get());
 
         }
         if(testEventEnum::testREQ==ID)
         {
             MUTEX_INSPECTOR;
-            testEvent::testREQ* ee=(testEvent::testREQ*) e.operator ->();
+            testEvent::testREQ* ee=(testEvent::testREQ*) e.get();
             if(ssl->md5(ee->buf)!=ee->md5)
             {
                 throw CommonError("wrong md5 of buffer");

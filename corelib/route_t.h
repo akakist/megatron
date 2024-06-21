@@ -1,10 +1,7 @@
-#ifndef _________ROUTE_T__________H
-#define _________ROUTE_T__________H
-#include "commonError.h"
+#pragma once
 #include "ioBuffer.h"
 #include "SERVICE_id.h"
 #include "REF.h"
-#include "msockaddr_in.h"
 #include "CONTAINER.h"
 #include "SOCKET_id.h"
 #include <set>
@@ -149,4 +146,3 @@ public:
     ~ObjectHandlerRouteThreaded() {}
 };
 
-#endif

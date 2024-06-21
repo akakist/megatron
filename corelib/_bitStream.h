@@ -1,5 +1,4 @@
-#ifndef ________________________BITSTREAM___H
-#define ________________________BITSTREAM___H
+#pragma once
 
 
 #include <string>
@@ -238,4 +237,3 @@ private:
 
 };
 
-#endif

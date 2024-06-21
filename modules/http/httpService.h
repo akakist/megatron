@@ -5,21 +5,11 @@
 
 #include "broadcaster.h"
 #include "listenerSimple.h"
-#include "SOCKET_id.h"
 #include "httpConnection.h"
 
 #include "unknown.h"
-#include "mutexInspector.h"
-#include <Events/System/Net/socket/StreamRead.h>
-#include <Events/System/Net/socket/Accepted.h>
-#include <Events/System/Net/socket/Connected.h>
-#include <Events/System/Net/socket/NotifyBindAddress.h>
-#include <Events/System/Net/socket/Disaccepted.h>
-#include <Events/System/Net/socket/Disconnected.h>
-#include <Events/System/Net/http/DoListen.h>
-#include <Events/System/Net/http/RegisterProtocol.h>
-#include <Events/System/Net/socket/NotifyOutBufferEmpty.h>
-#include <Events/System/Net/http/GetBindPorts.h>
+#include <Events/System/Net/socketEvent.h>
+#include <Events/System/Net/httpEvent.h>
 #include <Events/System/Run/startService.h>
 
 
