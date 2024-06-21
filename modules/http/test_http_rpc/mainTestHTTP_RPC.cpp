@@ -98,14 +98,14 @@ int mainTestHTTP_RPC(int argc, char** argv )
                                           "\nprodtestServerWeb.bindAddr=0.0.0.0:8088"
                                           "\n"
                                           "\n# server prodtest address"
-                                          "\nprodtestServerWeb.prodtestServerAddr=localhost:2000"
+                                          "\nprodtestServerWeb.prodtestServerAddr=127.0.0.1:2000"
                                          );
             instance1->setConfig(cnf1);
             instance1->initServices();
         }
 
         sleep(2);
-        system("ab -n 100000 -k -c 200  http://localhost:8088/");
+        system("ab -n 100000 -k -c 200  http://127.0.0.1:8088/");
         sleep(1);
         delete iUtils;
         return 0;

@@ -104,7 +104,7 @@ SocketIO.n_workers=2
 
 # Is caps mode. Do not forward caps requests to uplink
 DFSReferrer.IsCapsServer=false
-DFSReferrer.CapsServerUrl=localhost:10100
+DFSReferrer.CapsServerUrl=127.0.0.1:10100
 DFSReferrer.T_001_common_connect_failed=20.000000
 DFSReferrer.T_002_D3_caps_get_service_request_is_timed_out=15.000000
 DFSReferrer.T_007_D6_resend_ping_caps_short=7.000000
@@ -139,7 +139,7 @@ SocketIO.n_workers=2
 
 # Is caps mode. Do not forward caps requests to uplink
 DFSReferrer.IsCapsServer=false
-DFSReferrer.CapsServerUrl=localhost:10100
+DFSReferrer.CapsServerUrl=127.0.0.1:10100
 DFSReferrer.T_001_common_connect_failed=20.000000
 DFSReferrer.T_002_D3_caps_get_service_request_is_timed_out=15.000000
 DFSReferrer.T_007_D6_resend_ping_caps_short=7.000000
@@ -220,7 +220,7 @@ Socket.listen_backlog=128
 Socket.n_workers=2
 
 # Root cloud address
-CapsIP=localhost:10101
+CapsIP=127.0.0.1:10101
 
 )zxc";
             IInstance *instance1=iUtils->createNewInstance("client_"+std::to_string(i));

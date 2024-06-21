@@ -2,7 +2,7 @@
 #include "IUtils.h"
 #include "colorOutput.h"
 #define BUF_SIZE_MAX (8*100*1)
-#define REMOTE_ADDR "localhost:2001"
+#define REMOTE_ADDR "127.0.0.1:2001"
 #define N_PONG 12000
 #define TI_ACTIVITY_VALUE 2.0
 extern bool done_test;
