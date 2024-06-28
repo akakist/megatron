@@ -1538,6 +1538,8 @@ bool Telnet::Service::handleEvent(const REF_getter<Event::Base>& e)
 {
     auto& ID=e->id;
     XTRY;
+    if(socketEventEnum::NotifyOutBufferEmpty==ID)
+        return true;
     if( socketEventEnum::Disaccepted==ID)
         return on_Disaccepted((const socketEvent::Disaccepted*)e.get());
     if( socketEventEnum::Disconnected==ID)

@@ -6,7 +6,7 @@ if(UNIX AND NOT APPLE)
 SET(LINUX true)
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fPIC ")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC ")
 
 if(LINUX)
