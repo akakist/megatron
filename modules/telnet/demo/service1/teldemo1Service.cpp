@@ -60,6 +60,7 @@ bool  teldemo1::Service::on_CommandEntered(const telnetEvent::CommandEntered *e)
             return true;
          }
     }
+    
     return true;
 }
 
