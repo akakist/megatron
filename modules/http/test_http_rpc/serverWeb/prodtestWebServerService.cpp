@@ -12,7 +12,11 @@ bool prodtestWebServer::Service::on_startService(const systemEvent::startService
 {
     MUTEX_INSPECTOR;
 
-    sendEvent(ServiceEnum::HTTP,new httpEvent::DoListen(bindAddr,this));
+    auto svs=dynamic_cast<ListenerBase*> (iInstance->getServiceOrCreate(ServiceEnum::HTTP));
+    if(!svs)
+        throw CommonError("if(!svs)");
+
+    sendEvent(svs,new httpEvent::DoListen(bindAddr,this));
     return true;
 }
 
@@ -97,7 +101,7 @@ prodtestWebServer::Service::~Service()
 prodtestWebServer::Service::Service(const SERVICE_id& id, const std::string& nm,IInstance* ins):
     UnknownBase(nm),
     ListenerBuffered1Thread(this,nm,ins->getConfig(),id,ins),
-    Broadcaster(ins)
+    Broadcaster(ins), iInstance(ins)
 {
     auto ba=ins->getConfig()->get_tcpaddr("bindAddr","0.0.0.0:8088","http listen address");
     if(ba.size()==0)

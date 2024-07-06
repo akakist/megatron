@@ -88,6 +88,7 @@ namespace prodtestWebServer
 
         msockaddr_in bindAddr;
         std::string prodtestServerAddr;
+        IInstance *iInstance;
 
     };
 
