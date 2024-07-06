@@ -126,7 +126,7 @@ bool testWebServer::Service::on_RequestIncoming(const httpEvent::RequestIncoming
         {
             resp.http_header_out["Connection"]="Keep-Alive";
         }
-        resp.content="<div>received response </div>";
+        resp.content="<div>received response </>";
         if(keepAlive)
             resp.makeResponsePersistent(e->esi);
         else

@@ -974,20 +974,9 @@ std::string CUtils::findExecutable(const std::string& _fn)
     char* pf2=getenv("ProgramFiles(x86)");
     if(pf1)
     {
-        searchPath.push_back((std::string)pf1+"\\dfs\\");
-        searchPath.push_back((std::string)pf1+"\\Webteh\\BSPlayer\\");
-        searchPath.push_back((std::string)pf1+"\\GRETECH\\GomPlayer\\");
-        searchPath.push_back((std::string)pf1+"\\Windows Media Player\\");
-        searchPath.push_back((std::string)pf1+"\\VideoLAN\\VLC\\");
     }
     if(pf2)
     {
-        searchPath.push_back((std::string)pf2+"\\dfs\\");
-        searchPath.push_back((std::string)pf2+"\\dfs\\");
-        searchPath.push_back((std::string)pf2+"\\Webteh\\BSPlayer\\");
-        searchPath.push_back((std::string)pf2+"\\GRETECH\\GomPlayer\\");
-        searchPath.push_back((std::string)pf2+"\\Windows Media Player\\");
-        searchPath.push_back((std::string)pf2+"\\VideoLAN\\VLC\\");
     }
 #else
     searchPath.push_back("/usr/bin/");
