@@ -19,7 +19,7 @@ public:
 #define MUTEX_INSPECTOR
 #define MUTEX_INSPECTORS(a)
 
-#define _DMI() std::string((std::string )"")
+#define _DMI() std::string("")
 
 #endif
 
