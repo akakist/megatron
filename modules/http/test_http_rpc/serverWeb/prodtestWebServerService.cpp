@@ -12,7 +12,7 @@ bool prodtestWebServer::Service::on_startService(const systemEvent::startService
 {
     MUTEX_INSPECTOR;
 
-    sendEvent(ServiceEnum::HTTP,new httpEvent::DoListen(bindAddr,ListenerBase::serviceId));
+    sendEvent(ServiceEnum::HTTP,new httpEvent::DoListen(bindAddr,this));
     return true;
 }
 

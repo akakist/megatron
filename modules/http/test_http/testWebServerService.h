@@ -41,6 +41,7 @@ namespace testWebServer
             return new Service(id,nm,obj);
         }
         msockaddr_in bindAddr;
+        IInstance * iInstance;
 
     };
 

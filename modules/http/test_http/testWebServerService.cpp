@@ -18,7 +18,11 @@ bool testWebServer::Service::on_startService(const systemEvent::startService*)
 {
     MUTEX_INSPECTOR;
 
-    sendEvent(ServiceEnum::HTTP,new httpEvent::DoListen(bindAddr,ListenerBase::serviceId));
+    
+    auto svs=dynamic_cast<ListenerBase*> (iInstance->getServiceOrCreate(ServiceEnum::HTTP));
+    if(!svs)
+        throw CommonError("if(!svs)");
+    sendEvent(svs,new httpEvent::DoListen(bindAddr,this));
 
     return true;
 }
@@ -78,7 +82,7 @@ testWebServer::Service::~Service()
 testWebServer::Service::Service(const SERVICE_id& id, const std::string& nm,IInstance* ins):
     UnknownBase(nm),
     ListenerBuffered1Thread(this,nm,ins->getConfig(),id,ins),
-    Broadcaster(ins)
+    Broadcaster(ins), iInstance(ins)
 {
     auto ba=ins->getConfig()->get_tcpaddr("bindAddr","0.0.0.0:8088","http listen address");
     if(ba.size()==0)
@@ -116,18 +120,13 @@ bool testWebServer::Service::on_RequestIncoming(const httpEvent::RequestIncoming
 {
 
     HTTP::Response resp(getIInstance());
-
     {
         bool keepAlive=e->req->headers["CONNECTION"]=="Keep-Alive";
-//        logErr2("e->req->headers[CONNECTION] %s ",e->req->headers["CONNECTION"].c_str());
-//        keepAlive=true;
         if(keepAlive)
         {
             resp.http_header_out["Connection"]="Keep-Alive";
-//            resp.http_header_out["Keep-Alive"]="timeout=1, max=10";
         }
         resp.content="<div>received response </div>";
-//        keepAlive=false;
         if(keepAlive)
             resp.makeResponsePersistent(e->esi);
         else

@@ -32,13 +32,11 @@ Oscar::Service::Service(const SERVICE_id &svs, const std::string&  nm,IInstance*
 
 Oscar::Service::~Service()
 {
-//    __m_users->clear();
 }
 
 bool Oscar::Service::on_Connect(const oscarEvent::Connect* e)
 {
     MUTEX_INSPECTOR;
-//    logErr2("Oscar::Service AddToConnectTCP %s",e->addr.dump().c_str());
     sendEvent(socketListener,new socketEvent::AddToConnectTCP(e->socketId,e->addr,e->socketDescription,e->route));
     return true;
 }
@@ -92,24 +90,11 @@ bool Oscar::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                             XTRY;
                             auto len= static_cast<size_t>(b.get_PN_nothrow(success));
                             if (!success) return true;
-//                            if (len>m_maxPacketSize)
-//                            {
-//                                need_disconnect=true;
-//                            }
-//                            else
                             {
                                 XTRY;
                                 if(b.remains()<len)
                                 {
                                     return true;
-                                }
-                                else if(b.remains()==len)
-                                {
-//                                    DBG(logErr2("b.remains()==len %d %d",b.remains(),len));
-                                }
-                                else if(b.remains()>len)
-                                {
-//                                    DBG(logErr2("b.remains()>len %d %d",b.remains(),len));
                                 }
                                 b.unpack_nothrow(req,len,success);
                                 if (!success)
@@ -201,8 +186,6 @@ bool Oscar::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 bool Oscar::Service::on_Connected(const socketEvent::Connected* e)
 {
     MUTEX_INSPECTOR;
-//    __m_users->user_insert(e->esi,false);
-
     passEvent(new oscarEvent::Connected(e->esi,e->route));
     return true;
 }
