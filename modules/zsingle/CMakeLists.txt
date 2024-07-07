@@ -21,7 +21,7 @@ add_library(zsingle STATIC
 ../oscarSecure/oscarSecureUser.cpp
 ../referrerClient/referrerClientService.cpp
 ../rpc/rpcService.cpp
-../rpc/upnp_tr.c
+#../rpc/upnp_tr.c
 ../socket/socketService.cpp
 ../ssl/ssl_reg.cpp
 ../ssl/st_rsa_impl.cpp

@@ -282,7 +282,7 @@ UnknownBase* CInstance::initService(const SERVICE_id& sid)
         }
         {
             MUTEX_INSPECTOR;
-            M_LOCK(locals->service_constructors);
+            RLocker ldddd(locals->service_constructors.lk);
             auto i=locals->service_constructors.container.find(sid);
             if(i==locals->service_constructors.container.end())
             {
@@ -323,12 +323,12 @@ UnknownBase* CInstance::initService(const SERVICE_id& sid)
             m_utils->registerPluginDLL(pn);
             {
                 MUTEX_INSPECTOR;
-                M_LOCK(locals->service_constructors);
+                RLocker sdfsdf(locals->service_constructors.lk);
                 auto i=locals->service_constructors.container.find(sid);
                 if(i==locals->service_constructors.container.end())
                 {
                     XTRY;
-                    M_UNLOCK(locals->service_constructors);
+                    // M_UNLOCK(locals->service_constructors);
                     throw CommonError("cannot load service ServiceId %s",sid.dump().c_str());
                     XPASS;
                 }

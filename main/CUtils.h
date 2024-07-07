@@ -146,19 +146,19 @@ public:
     int _argc;
     char** _argv;
 
-    struct __sockIdGen: public Mutexable
+    struct __sockIdGen
     {
-        SOCKET_id gen;
+        std::atomic<int16_t> gen;
         __sockIdGen()
         {
-            CONTAINER(gen)=0L;
+            gen=0L;
         }
         SOCKET_id get()
         {
-            M_LOCK(this);
-            CONTAINER(gen)++;
-            if(CONTAINER(gen)<=0) CONTAINER(gen)=1;
-            return gen;
+            // M_LOCK(this);
+            SOCKET_id id;
+            CONTAINER(id)=++gen;
+            return id;
         }
 
 

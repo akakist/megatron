@@ -87,8 +87,9 @@ struct Utils_local
 
     };
     _plugin_info pluginInfo;
-    struct __service_names: public Mutexable
+    struct __service_names
     {
+        RWLock lk;
         std::map<std::string, SERVICE_id> name2id;
         std::map<SERVICE_id,std::string> id2name;
         void clear()
@@ -96,31 +97,33 @@ struct Utils_local
             MUTEX_INSPECTOR;
 
 
-            M_LOCK(this);
+            WLocker dddd(lk);
             name2id.clear();
             id2name.clear();
         }
     };
-    struct __service_constructors: public Mutexable
+    struct __service_constructors
     {
+        RWLock lk;
         std::map<SERVICE_id,unknown_static_constructor> container;
         void clear()
         {
 
             MUTEX_INSPECTOR;
-            M_LOCK(this);
+            WLocker asasd(lk);
 
             container.clear();
         }
     };
-    struct __event_constructors: public Mutexable
+    struct __event_constructors
     {
+        RWLock lk;
         std::map<EVENT_id,event_static_constructor> container;
         void clear()
         {
 
             MUTEX_INSPECTOR;
-            M_LOCK(this);
+            WLocker aa(lk);
 
             container.clear();
         }

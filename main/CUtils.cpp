@@ -1471,7 +1471,7 @@ void CUtils::registerPlugingInfo(const VERSION_id& version, const char* pluginFi
     }
     if(pt==IUtils::PLUGIN_TYPE_SERVICE)
     {
-        M_LOCK (local.service_names);
+        WLocker asesdffds (local.service_names.lk);
         local.service_names.id2name[id]=name;
         local.service_names.name2id[name]=id;
     }
@@ -1490,7 +1490,7 @@ void CUtils::registerService(const VERSION_id& vid, const SERVICE_id& id, unknow
 
     XTRY;
     {
-        M_LOCK(local.service_constructors);
+        WLocker asdfsdf(local.service_constructors.lk);
         if(local.service_constructors.container.count(id))
         {
             DBG(printf(BLUE("Service '%s' already registered"),literalName.c_str()));
@@ -1503,7 +1503,7 @@ void CUtils::registerService(const VERSION_id& vid, const SERVICE_id& id, unknow
 
     }
     {
-        M_LOCK(local.service_names);
+        WLocker asdfasdf(local.service_names.lk);
         local.service_names.id2name[id]=literalName;
         local.service_names.name2id[literalName]=id;
     }
@@ -1524,7 +1524,7 @@ REF_getter<Event::Base> CUtils::unpackEvent(inBuffer&b)
     event_static_constructor esc=nullptr;
 
     {
-        M_LOCK(local.event_constructors);
+        RLocker rkr(local.event_constructors.lk);
         auto i=local.event_constructors.container.find(id);
         if(i!=local.event_constructors.container.end())
         {
@@ -1557,7 +1557,7 @@ REF_getter<Event::Base> CUtils::unpackEvent(inBuffer&b)
         }
         {
 
-            M_LOCK(local.event_constructors);
+            RLocker r(local.event_constructors.lk);
             auto i=local.event_constructors.container.find(id);
             if(i!=local.event_constructors.container.end())
             {
@@ -1591,10 +1591,12 @@ void CUtils::packEvent(outBuffer &b, const REF_getter<Event::Base> &e)const
 std::string CUtils::serviceName(const SERVICE_id& id) const
 {
     XTRY;
-    M_LOCK(local.service_names);
-    auto i=local.service_names.id2name.find(id);
-    if(i!=local.service_names.id2name.end())
-        return i->second;
+    RLocker asdfsdf(local.service_names.lk);
+    {
+        auto i=local.service_names.id2name.find(id);
+        if(i!=local.service_names.id2name.end())
+            return i->second;
+    }
     return "jc:"+id.dump();
     XPASS;
 
@@ -1603,10 +1605,13 @@ SERVICE_id CUtils::serviceIdByName(const std::string& name)const
 {
     MUTEX_INSPECTOR;
     XTRY;
-    M_LOCK(local.service_names);
-    auto i=local.service_names.name2id.find(name);
-    if(i!=local.service_names.name2id.end())
-        return i->second;
+    {
+        RLocker dddd(local.service_names.lk);
+
+        auto i=local.service_names.name2id.find(name);
+        if(i!=local.service_names.name2id.end())
+            return i->second;
+    }
 
     logErr2("serviceIdByName: NOT FOUND %s",name.c_str());
     throw CommonError ("Service name not found  %s %s",name.c_str(),_DMI().c_str());
@@ -1652,8 +1657,10 @@ void CUtils::registerEvent(event_static_constructor ec)
     {
         return;
     }
-    M_LOCK(local.event_constructors);
-    local.event_constructors.container.insert(std::make_pair(e->id,ec));
+    {
+        WLocker l(local.event_constructors.lk);
+        local.event_constructors.container.insert(std::make_pair(e->id,ec));
+    }
 
     XPASS;
 
@@ -1661,7 +1668,7 @@ void CUtils::registerEvent(event_static_constructor ec)
 bool CUtils::isServiceRegistered(const SERVICE_id& svs)
 {
     {
-        M_LOCK(local.service_constructors);
+        RLocker sdfsdf(local.service_constructors.lk);
         if(local.service_constructors.container.count(svs))
             return true;
     }
