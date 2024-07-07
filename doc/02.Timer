@@ -5,7 +5,7 @@
 
 вставим куда-то код, например в обработчик startService
 
-#defibe TI_START 1
+#define TI_START 1
 
 sendEvent(ServiceEnum::Timer,new timerEvent::SetAlarm(TI_START,NULL,NULL,0.3,ListenerBase::serviceId));
 Это посылка евента SetAlarm в сервис Timer.
