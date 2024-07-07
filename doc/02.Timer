@@ -15,7 +15,8 @@ sendEvent(ServiceEnum::Timer,new timerEvent::SetAlarm(TI_START,NULL,NULL,0.3,Lis
 указав такую же комбинацию ID::DATA
 
 3. Cookie - любые данные, которые не влияют на идентификацию таймера.
-4. route - маршрут евента, обычно можно указать this.
+4. время в секундах. double - допускаются дроби.
+5. route - маршрут евента, обычно можно указать this.
 
 Пример:
     /// выставили таймер TI_START для peerUin
