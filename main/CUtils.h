@@ -71,8 +71,9 @@ public:
     std::string getPercent(const real &numerator, const real &denumerator);
 
 
-    struct _hostnames: Mutexable
+    struct _hostnames
     {
+        RWLock lk;
         std::map<std::string, unsigned int>  cache;
     };
     _hostnames hostnames;

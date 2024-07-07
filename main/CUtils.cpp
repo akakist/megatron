@@ -806,7 +806,7 @@ std::string CUtils::getPercent(const real& numerator, const real& denumerator)
 int CUtils::getHostByName(const char* hostname,unsigned int &out)
 {
     {
-        M_LOCK(hostnames);
+        RLocker asdsdd(hostnames.lk);
         auto i=hostnames.cache.find(hostname);
         if(i!=hostnames.cache.end())
         {
@@ -822,7 +822,7 @@ int CUtils::getHostByName(const char* hostname,unsigned int &out)
     }
     out=*((unsigned int *)(hostEnt->h_addr));
     {
-        M_LOCK(hostnames);
+        WLocker ffff(hostnames.lk);
         hostnames.cache[hostname]=out;
     }
     return 0;
@@ -1697,7 +1697,6 @@ void CUtils::registerIface(const VERSION_id& vid,const SERVICE_id& id, Ifaces::B
         logErr2("register iface, already registered %s",id.dump().c_str());
         return;
     }
-//    logErr2("RegisterIFACE %s",id.dump().c_str());
     local.ifaces.container.insert(std::make_pair(id,p));
 }
 Utils_local *CUtils::getLocals()
@@ -1750,19 +1749,9 @@ CUtils::~CUtils()
     clearPollable();
 
     instances.clear();
-
-
     local.clear();
-
-
-
     m_addrInfos=NULL;
-
-
-
     registered_dlls.clear();
-
-
 }
 
 void CUtils::load_plugins_info(const std::set<std::string>& bases)
