@@ -1690,7 +1690,7 @@ void CUtils::registerIface(const VERSION_id& vid,const SERVICE_id& id, Ifaces::B
     }
 
 
-    M_LOCK(local.ifaces);
+    WLocker sdsdf(local.ifaces.lk);
     auto i=local.ifaces.container.find(id);
     if(i!=local.ifaces.container.end())
     {
