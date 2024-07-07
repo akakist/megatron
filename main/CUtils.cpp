@@ -1279,12 +1279,12 @@ Ifaces::Base* CUtils::queryIface(const SERVICE_id &id)
 {
     if(m_isTerminating) throw CommonError("terminating");
     {
-        M_LOCK(local.ifaces);
+        RLocker asdfasd(local.ifaces.lk);
         auto i=local.ifaces.container.find(id);
         if(i==local.ifaces.container.end())
         {
             {
-                M_UNLOCK(local.ifaces);
+                RUnlocker(local.ifaces.lk);
                 std::string pn;
                 {
                     M_LOCK(local.pluginInfo);
@@ -1458,10 +1458,6 @@ void CUtils::registerPlugingInfo(const VERSION_id& version, const char* pluginFi
             }
 
 
-            break;
-        case IUtils::PLUGIN_TYPE_TEST:
-            DBG(printf(BLUE("added iTest info %s %s -> %s"),id.dump().c_str(),name,pluginFileName));
-            local.pluginInfo.itests[id]=pluginFileName;
             break;
 
         default:
@@ -1703,35 +1699,6 @@ void CUtils::registerIface(const VERSION_id& vid,const SERVICE_id& id, Ifaces::B
     }
 //    logErr2("RegisterIFACE %s",id.dump().c_str());
     local.ifaces.container.insert(std::make_pair(id,p));
-}
-void CUtils::registerITest(const VERSION_id& vid,const SERVICE_id& id, itest_static_constructor p)
-{
-    DBG(printf(BLUE("registerITest %p"),p));
-    VERSION_id curv=COREVERSION;
-    if(CONTAINER(vid)>>8 != CONTAINER(curv)>>8)
-    {
-        logErr2("registerItest: invalid iface version %x current version %x ifaceid %s",CONTAINER(vid), CONTAINER(curv), id.dump().c_str());
-        return;
-    }
-
-
-    local.itests.insert(id,p);
-}
-std::map<SERVICE_id,itest_static_constructor>CUtils::getAllITests()
-{
-    if(m_isTerminating) throw CommonError("if(m_isTerminating)");
-    std::map<SERVICE_id,std::string> m;
-    {
-        M_LOCK(local.pluginInfo);
-        m=local.pluginInfo.itests;
-    }
-    for(auto& z: m)
-    {
-        DBG(printf(BLUE("registerPlugin %s %s"),z.first.dump().c_str(),z.second.c_str()));
-        registerPluginDLL(z.second);
-    }
-    return local.itests.getContainer();
-
 }
 Utils_local *CUtils::getLocals()
 {

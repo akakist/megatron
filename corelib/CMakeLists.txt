@@ -64,7 +64,6 @@ IObjectProxy.h
 IProgress.h
 IRPC.h
 ISSL.h
-ITests.h
 IThreadNameController.h
 IUtils.h
 Integer.cpp

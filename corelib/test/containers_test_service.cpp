@@ -80,30 +80,9 @@ void TEST4()
 }
 
 
-//class CTRTest: public ITests::Base
-//{
-//public:
-//    int zzz;
-//    int run();
-//    std::string getName()
-//    {
-//        return "CTRTest";
-//    }
-
-//    CTRTest() {
-//        zzz=100;
-//    }
-//    ~CTRTest() {}
-//    static ITests::Base* construct()
-//    {
-//        XTRY;
-//        return new CTRTest;
-//        XPASS;
-//    }
 
 
 
-//};
 template <class T> void fillrnd(I_ssl*ssl,T &z)
 {
     ssl->rand_bytes((uint8_t*)&z,sizeof(z));

@@ -19,7 +19,6 @@
 #include "unknown.h"
 #include "webDumpable.h"
 #include "event_mt.h"
-#include "ITests.h"
 #include "pollable.h"
 class epoll_socket_info;
 struct Utils_local;
@@ -31,7 +30,6 @@ typedef UnknownBase* (*unknown_static_constructor) (const SERVICE_id& id, const 
 
 class IUtils;
 
-typedef ITests::Base* (*itest_static_constructor) ();
 typedef void (*REGOBJECT)(IUtils*, const char*);
 
 
@@ -170,8 +168,6 @@ public:
     virtual void registerIface(const VERSION_id&,const SERVICE_id& id, Ifaces::Base* p)=0;
     virtual Ifaces::Base* queryIface(const SERVICE_id& id)=0;
 
-    virtual void registerITest(const VERSION_id& vid,const SERVICE_id& id, itest_static_constructor p)=0;
-    virtual std::map<SERVICE_id,itest_static_constructor> getAllITests()=0;
 
 
 
@@ -191,7 +187,6 @@ public:
     {
         PLUGIN_TYPE_IFACE,
         PLUGIN_TYPE_SERVICE,
-        PLUGIN_TYPE_TEST,
     };
     virtual void registerPlugingInfo(const VERSION_id& version, const char* pluginFileName, PluginType pt, const SERVICE_id &id, const char* name, const std::set<EVENT_id> &evts)=0;
     virtual void registerPluginDLL(const std::string& pn)=0;

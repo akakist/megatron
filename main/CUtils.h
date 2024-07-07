@@ -114,9 +114,6 @@ public:
     void registerIface(const VERSION_id& vid,const SERVICE_id& id, Ifaces::Base* p);
     Ifaces::Base* queryIface(const SERVICE_id& id);
 
-    void registerITest(const VERSION_id& vid,const SERVICE_id& id, itest_static_constructor p);
-
-    std::map<SERVICE_id, itest_static_constructor> getAllITests();
 
 
     Mutex m_app_name_mx;

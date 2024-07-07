@@ -4,7 +4,6 @@
 #include "SERVICE_id.h"
 #include "ifaces.h"
 #include "unknown.h"
-#include "ITests.h"
 #include "IUtils.h"
 #include "mutexInspector.h"
 #include "colorOutput.h"
@@ -12,18 +11,19 @@ class IInstance;
 
 struct Utils_local
 {
-    struct _ifaces: public Mutexable
+    struct _ifaces
     {
+        RWLock lk;
         std::map<SERVICE_id,Ifaces::Base*> container;
         void clear()
         {
 
             MUTEX_INSPECTOR;
 
-            std::map<SERVICE_id,Ifaces::Base*> ifs;
+            decltype(container) ifs;
 
             {
-                M_LOCK(this);
+                WLocker asdas(lk);
                 ifs=container;
                 container.clear();
 
@@ -40,38 +40,10 @@ struct Utils_local
         }
     };
     _ifaces ifaces;
-    struct _itests
-    {
-    private:
-        Mutex mx;
-        std::map<SERVICE_id,itest_static_constructor> container;
-    public:
-        std::map<SERVICE_id,itest_static_constructor> getContainer()
-        {
-            M_LOCK(mx);
-            return container;
-        }
-        void insert(const SERVICE_id& id, const itest_static_constructor &c)
-        {
-            M_LOCK(mx);
-            container.insert(std::make_pair(id,c));
-        }
-        void clear()
-        {
-            MUTEX_INSPECTOR;
-
-
-            M_LOCK(mx);
-            container.clear();
-
-        }
-    };
-    _itests itests;
     struct _plugin_info: public Mutexable
     {
         std::map<SERVICE_id,std::string> services;
         std::map<SERVICE_id,std::string> ifaces;
-        std::map<SERVICE_id,std::string> itests;
         std::map<EVENT_id, std::set<std::string> > events;
         void clear()
         {
@@ -81,7 +53,6 @@ struct Utils_local
             M_LOCK(this);
             services.clear();
             ifaces.clear();
-            itests.clear();
             events.clear();
         }
 
@@ -135,29 +106,12 @@ struct Utils_local
 
     void clear()
     {
-
         MUTEX_INSPECTOR;
-
         service_constructors.clear();
         event_constructors.clear();
-
-
         ifaces.clear();
-
-
-        itests.clear();
-
-
         pluginInfo.clear();
-
-
         service_names.clear();
-
-
-
-
-
-
     }
 
 };

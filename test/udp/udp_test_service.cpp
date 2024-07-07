@@ -1,6 +1,5 @@
 #include <string>
 #include <unistd.h>
-#include "ITests.h"
 #include "IUtils.h"
 #include "version_mega.h"
 #include "listenerBuffered.h"
@@ -159,74 +158,6 @@ public:
 
 
 
-class udpTest: public ITests::Base
-{
-public:
-    int zzz;
-    int run();
-    std::string getName()
-    {
-        return "udpTest";
-    }
-
-    udpTest() {
-        zzz=100;
-    }
-    ~udpTest() {}
-    static ITests::Base* construct()
-    {
-        XTRY;
-        return new udpTest;
-        XPASS;
-    }
-
-
-
-};
-
-int udpTest::run()
-{
-
-    printf(GREEN("RUN TEST %s"),__PRETTY_FUNCTION__);
-
-    {
-        IInstance *instance1=iUtils->createNewInstance("udpTestService1");
-        ConfigObj *cnf1=new ConfigObj("udpTestService1",
-                                      "\nStart=udpTestService1"
-                                      "\nSocketIO.ListenerBuffered.MaxThreadsCount=10"
-                                      "\nSocketIO.listen_backlog=128"
-                                      "\nSocketIO.maxOutBufferSize=8388608"
-                                      "\nSocketIO.size=1024"
-                                      "\nSocketIO.timeout_millisec=10"
-                                      "\nWebHandler.bindAddr=NONE"
-                                      "\nudpTestService1.ListenerBuffered.MaxThreadsCount=10"
-                                     );
-        instance1->setConfig(cnf1);
-        instance1->initServices();
-    }
-    {
-        IInstance *instance2=iUtils->createNewInstance("udpTestService2");
-        ConfigObj *cnf2=new ConfigObj("udpTestService2",
-                                      "\nStart=udpTestService2"
-                                      "\nSocketIO.ListenerBuffered.MaxThreadsCount=10"
-                                      "\nSocketIO.listen_backlog=128"
-                                      "\nSocketIO.maxOutBufferSize=8388608"
-                                      "\nSocketIO.size=1024"
-                                      "\nSocketIO.timeout_millisec=10"
-                                      "\nWebHandler.bindAddr=NONE"
-                                      "\nudpTestService2.ListenerBuffered.MaxThreadsCount=10"
-                                     );
-        instance2->setConfig(cnf2);
-        instance2->initServices();
-    }
-
-
-    while(!done_test)
-    {
-        usleep(100000);
-    }
-    return 0;
-}
 
 
 void registerUDPTest(const char* pn)
@@ -234,14 +165,12 @@ void registerUDPTest(const char* pn)
     if(pn)
     {
 
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_TEST,ServiceEnum::udpTest,"udpTest",std::set<EVENT_id>());
         iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::udpTestService1,"udpTestService1",std::set<EVENT_id>());
         iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::udpTestService2,"udpTestService2",std::set<EVENT_id>());
 
     }
     else
     {
-        iUtils->registerITest(COREVERSION,ServiceEnum::udpTest,udpTest::construct);
         iUtils->registerService(COREVERSION,ServiceEnum::udpTestService1,udpTestService1::construct,"udpTestService1");
         iUtils->registerService(COREVERSION,ServiceEnum::udpTestService2,udpTestService2::construct,"udpTestService2");
 

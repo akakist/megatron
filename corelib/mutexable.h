@@ -224,4 +224,41 @@ public:
         m_lock->unlock();
     }
 };
+class WUnlocker
+{
+private:
+    const  RWLock* m_lock;
+public:
+    explicit WUnlocker(const RWLock& m):m_lock(&m)
+    {
+        m_lock->unlock();
+    }
+    explicit WUnlocker(const RWLock* m):m_lock(m)
+    {
+        m_lock->unlock();
+    }
+    ~WUnlocker()
+    {
+        m_lock->wrlock();
+    }
+};
+
+class RUnlocker
+{
+private:
+    const  RWLock* m_lock;
+public:
+    explicit RUnlocker(const RWLock& m):m_lock(&m)
+    {
+        m_lock->unlock();
+    }
+    explicit RUnlocker(const RWLock* m):m_lock(m)
+    {
+        m_lock->unlock();
+    }
+    ~RUnlocker()
+    {
+        m_lock->rdlock();
+    }
+};
 
