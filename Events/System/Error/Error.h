@@ -5,7 +5,7 @@
 #include "event_mt.h"
 namespace ErrorEventEnum
 {
-    const EVENT_id ErrorRSP("ErrorRSP");
+    const EVENT_id ErrorRSP("2ca9@ErrorRSP");
 }
 
 namespace ErrorEvent

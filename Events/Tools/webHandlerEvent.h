@@ -9,14 +9,15 @@
 #include "route_t.h"
 namespace ServiceEnum
 {
-    const SERVICE_id WebHandler("WebHandler");
+    const SERVICE_id WebHandler("bc29@WebHandler");
 }
+
 namespace webHandlerEventEnum
 {
 
-    const EVENT_id RegisterHandler("webHandlerRegisterHandler");
-    const EVENT_id RegisterDirectory("webHandlerRegisterDirectory");
-    const EVENT_id RequestIncoming("webHandlerRequestIncoming");
+    const EVENT_id RegisterHandler("4e82@webHandlerRegisterHandler");
+    const EVENT_id RegisterDirectory("403d@webHandlerRegisterDirectory");
+    const EVENT_id RequestIncoming("89b6@webHandlerRequestIncoming");
 }
 
 namespace webHandlerEvent

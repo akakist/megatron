@@ -7,28 +7,28 @@
 
 namespace ServiceEnum
 {
-    const SERVICE_id RPC("RPC");
-    const SERVICE_id ObjectProxyPolled("ObjectProxyPolled");
-    const SERVICE_id ObjectProxyThreaded("ObjectProxyThreaded");
+    const SERVICE_id RPC("e3e8@RPC");
+    const SERVICE_id ObjectProxyPolled("c1de@ObjectProxyPolled");
+    const SERVICE_id ObjectProxyThreaded("e6ed@ObjectProxyThreaded");
 
 }
 
 namespace rpcEventEnum
 {
 
-    const EVENT_id PassPacket("rpcPassPacket");
-    const EVENT_id SendPacket("rpcSendPacket");
-    const EVENT_id SubscribeNotifications("rpcSubscribeNotifications");
-    const EVENT_id UnsubscribeNotifications("rpcUnsubscribeNotifications");
-    const EVENT_id Disconnected("rpcDisconnected");
-    const EVENT_id Disaccepted("rpcDisaccepted");
-    const EVENT_id ConnectFailed("rpcConnectFailed");
-    const EVENT_id Connected("rpcConnected");
-    const EVENT_id Accepted("rpcAccepted");
-    const EVENT_id Binded("rpcBinded");
-    const EVENT_id IncomingOnAcceptor("rpcIncomingOnAcceptor");
-    const EVENT_id IncomingOnConnector("rpcIncomingOnConnector");
-    const EVENT_id NotifyOutBufferEmpty("rpc_NotifyOutBufferEmpty");
+    const EVENT_id PassPacket("d7a5@rpcPassPacket");
+    const EVENT_id SendPacket("a9f1@rpcSendPacket");
+    const EVENT_id SubscribeNotifications("e5c@rpcSubscribeNotifications");
+    const EVENT_id UnsubscribeNotifications("c7e6@rpcUnsubscribeNotifications");
+    const EVENT_id Disconnected("ed0e@rpcDisconnected");
+    const EVENT_id Disaccepted("5f1f@rpcDisaccepted");
+    const EVENT_id ConnectFailed("23b4@rpcConnectFailed");
+    const EVENT_id Connected("2a11@rpcConnected");
+    const EVENT_id Accepted("f621@rpcAccepted");
+    const EVENT_id Binded("236@rpcBinded");
+    const EVENT_id IncomingOnAcceptor("d58@rpcIncomingOnAcceptor");
+    const EVENT_id IncomingOnConnector("3b10@rpcIncomingOnConnector");
+    const EVENT_id NotifyOutBufferEmpty("f53e@rpc_NotifyOutBufferEmpty");
 }
 
 

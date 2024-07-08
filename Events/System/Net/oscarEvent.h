@@ -7,25 +7,25 @@
 #include "route_t.h"
 namespace ServiceEnum
 {
-    const SERVICE_id Oscar("Oscar");
-    const SERVICE_id OscarSecure("OscarSecure");
+    const SERVICE_id Oscar("b7cd@Oscar");
+    const SERVICE_id OscarSecure("80a@OscarSecure");
 }
 
 namespace oscarEventEnum
 {
 
-    const EVENT_id SendPacket("oscar.SendPacket");
-    const EVENT_id AddToListenTCP("oscar.AddToListenTCP");
-    const EVENT_id Connect("oscar.Connect");
-    const EVENT_id PacketOnAcceptor("oscar.PacketOnAcceptor");
-    const EVENT_id PacketOnConnector("oscar.PacketOnConnector");
-    const EVENT_id Connected("oscar.Connected");
-    const EVENT_id Disconnected("oscar.Disconnected");
-    const EVENT_id Accepted("oscar.Accepted");
-    const EVENT_id Disaccepted("oscar.Disaccepted");
-    const EVENT_id NotifyBindAddress("oscar.NotifyBindAddress");
-    const EVENT_id NotifyOutBufferEmpty("oscar.NotifyOutBufferEmpty");
-    const EVENT_id ConnectFailed("oscar.ConnectFailed");
+    const EVENT_id SendPacket("f832@oscar.SendPacket");
+    const EVENT_id AddToListenTCP("a5dd@oscar.AddToListenTCP");
+    const EVENT_id Connect("a5dd@oscar.Connect");
+    const EVENT_id PacketOnAcceptor("6e0c@oscar.PacketOnAcceptor");
+    const EVENT_id PacketOnConnector("ec5d@oscar.PacketOnConnector");
+    const EVENT_id Connected("e941@oscar.Connected");
+    const EVENT_id Disconnected("b7c8@oscar.Disconnected");
+    const EVENT_id Accepted("b5fe@oscar.Accepted");
+    const EVENT_id Disaccepted("4197@oscar.Disaccepted");
+    const EVENT_id NotifyBindAddress("23d1@oscar.NotifyBindAddress");
+    const EVENT_id NotifyOutBufferEmpty("afb5@oscar.NotifyOutBufferEmpty");
+    const EVENT_id ConnectFailed("c56b@oscar.ConnectFailed");
 }
 
 
