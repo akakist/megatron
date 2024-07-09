@@ -343,7 +343,7 @@ bool  dfsReferrer::Service::on_IncomingOnConnector(const rpcEvent::IncomingOnCon
     XTRY
 
 
-    logErr2("unhandled event t t %s %s %d",evt->e->id.dump().c_str(),__FILE__,__LINE__);
+    logErr2("unhandled event t t %s %s %d",iUtils->genum_name(evt->e->id),__FILE__,__LINE__);
     XPASS;
     return false;
 }
@@ -381,7 +381,7 @@ bool  dfsReferrer::Service::on_IncomingOnAcceptor(const rpcEvent::IncomingOnAcce
         return on_UpdateConfigRSP(dynamic_cast<const dfsReferrerEvent::UpdateConfigRSP* > (evt->e.get()));
 
 
-    logErr2("unhandled event %s %s %d",evt->e->id.dump().c_str(),__FILE__,__LINE__);
+    logErr2("unhandled event %s %s %d",iUtils->genum_name(evt->e->id),__FILE__,__LINE__);
     XPASS;
     return false;
 }
@@ -514,7 +514,7 @@ bool dfsReferrer::Service::handleEvent(const REF_getter<Event::Base>& ev)
         return on_UpdateConfigREQ(dynamic_cast<const dfsReferrerEvent::UpdateConfigREQ* > (ev.get()));
 
 
-    logErr2("unhandled event t t %s %s %d",ev->id.dump().c_str(),__FILE__,__LINE__);
+    logErr2("unhandled event t t %s %s %d",iUtils->genum_name(ev->id),__FILE__,__LINE__);
     XPASS;
     return false;
 }

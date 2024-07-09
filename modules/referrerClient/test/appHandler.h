@@ -8,7 +8,7 @@
 #include "Events/System/Net/rpcEvent.h"
 #include "Events/System/timerEvent.h"
 #include "objectHandler.h"
-#include "../Events/System/Error/Error.h"
+#include "../Events/System/Error/ErrorEvent.h"
 #include "timerHelper.h"
 #include "SQLiteCpp/Transaction.h"
 

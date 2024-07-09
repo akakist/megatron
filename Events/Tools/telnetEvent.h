@@ -5,7 +5,7 @@
 #include "SERVICE_id.h"
 namespace ServiceEnum
 {
-    const SERVICE_id Telnet ("6d72@Telnet");
+    const SERVICE_id Telnet (genum_Telnet);
 
 }
 
@@ -17,10 +17,10 @@ namespace ServiceEnum
 
 namespace telnetEventEnum
 {
-    const EVENT_id RegisterType("8739@telnetRegisterType");
-    const EVENT_id RegisterCommand("d416@telnetRegisterCommand");
-    const EVENT_id Reply("d010@telnetReply");
-    const EVENT_id CommandEntered("f9d3@telnetCommandEntered");
+    const EVENT_id RegisterType(genum_telnetRegisterType);
+    const EVENT_id RegisterCommand(genum_telnetRegisterCommand);
+    const EVENT_id Reply(genum_telnetReply);
+    const EVENT_id CommandEntered(genum_telnetCommandEntered);
 }
 
 

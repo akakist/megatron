@@ -12,15 +12,15 @@
 
 namespace ServiceEnum
 {
-    const SERVICE_id ErrorDispatcher("2dec@ErrorDispatcher");
+    const SERVICE_id ErrorDispatcher(genum_ErrorDispatcher);
 
 }
 namespace errorDispatcherEventEnum
 {
-    const EVENT_id SendMessage("51ab@e43@errorDispatcherSendMessage");
-    const EVENT_id Subscribe("e1fc@errorDispatcherSubscribe");
-    const EVENT_id Unsubscribe("97c9@errorDispatcherUnsubscribe");
-    const EVENT_id NotifySubscriber("1de0@errorDispatcherNotifySubscriber");
+    const EVENT_id SendMessage(genum_errorDispatcherSendMessage);
+    const EVENT_id Subscribe(genum_errorDispatcherSubscribe);
+    const EVENT_id Unsubscribe(genum_errorDispatcherUnsubscribe);
+    const EVENT_id NotifySubscriber(genum_errorDispatcherNotifySubscriber);
 }
 
 

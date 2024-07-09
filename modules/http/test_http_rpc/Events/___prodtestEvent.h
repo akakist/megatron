@@ -4,15 +4,15 @@
 #include "SERVICE_id.h"
 namespace ServiceEnum
 {
-    const SERVICE_id prodtestServer("prodtestServer");
-    const SERVICE_id prodtestServerWeb("prodtestServerWeb");
+    const SERVICE_id prodtestServer(genum_prodtestServer);
+    const SERVICE_id prodtestServerWeb(genum_prodtestServerWeb);
 }
 
 namespace prodtestEventEnum
 {
 
-    const EVENT_id AddTaskREQ("pt.AddTaskREQ");
-    const EVENT_id AddTaskRSP("pt.AddTaskRSP");
+    const EVENT_id AddTaskREQ(genum_pt_AddTaskREQ);
+    const EVENT_id AddTaskRSP(genum_pt_AddTaskRSP);
 
 }
 

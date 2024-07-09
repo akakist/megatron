@@ -5,13 +5,14 @@
 #include "listenerBuffered.h"
 #include "broadcaster.h"
 #include "main/CInstance.h"
-#include "Events/System/Run/startService.h"
+#include "Events/System/Run/startServiceEvent.h"
 #include "tools_mt.h"
 #include "Events/System/Net/rpcEvent.h"
 #include "Events/System/timerEvent.h"
 #include "colorOutput.h"
 #include "ISSL.h"
 #include "main/configObj.h"
+#include "rpcTestEvent.h"
 static bool done_test=false;
 #define BUF_SIZE_MAX (8*100*1)
 #define N_PONG 12000
@@ -20,15 +21,6 @@ static bool done_test=false;
 
 #define REMOTE_ADDR "localhost:2001"
 static int session=0;
-namespace ServiceEnum {
-    const SERVICE_id rpcTest("rpcTest");
-    const SERVICE_id rpcTestService1("rpcTestService1");
-    const SERVICE_id rpcTestService2("rpcTestService2");
-}
-namespace testEventEnum {
-    const EVENT_id testREQ("testREQ");
-    const EVENT_id testRSP("testRSP");
-}
 enum timers
 {
     TI_START,

@@ -1,5 +1,8 @@
 #pragma once
 
+class IUtils;
+extern IUtils * iUtils;
+
 #include <vector>
 #include <string>
 #include <map>
@@ -18,21 +21,20 @@
 #include "EVENT_id.h"
 #include "unknown.h"
 #include "webDumpable.h"
-#include "event_mt.h"
+//#include "event_mt.h"
 #include "pollable.h"
+#include "construct.h"
 class epoll_socket_info;
 struct Utils_local;
 
 /**        This is interface to access to  shared utils library between plugins
 */
-class IInstance;
-typedef UnknownBase* (*unknown_static_constructor) (const SERVICE_id& id, const std::string& name,IInstance* ifa);
 
 class IUtils;
 
 typedef void (*REGOBJECT)(IUtils*, const char*);
 
-
+#include "event_mt.h"
 class IUtils
 {
 public:
@@ -135,6 +137,7 @@ public:
     virtual std::string dump(const std::map<SERVICE_id,std::set<msockaddr_in> > &s)=0;
     virtual std::string dump(const std::map<msockaddr_in,std::set<SERVICE_id> > &s)=0;
 
+    virtual  const char* genum_name(int n) =0;
 
 
 #ifdef __WITH_ZLIB
@@ -234,5 +237,4 @@ public:
     virtual std::deque<std::string> getLogPrefix()=0;
 
 };
-extern IUtils * iUtils;
 

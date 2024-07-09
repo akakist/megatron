@@ -8,9 +8,9 @@ namespace ServiceEnum
 
 namespace jsonRefEventEnum
 {
-    const EVENT_id JsonREQ("a6a8@JsonREQ");
+    const EVENT_id JsonREQ(genum_JsonREQ);
 
-    const EVENT_id JsonRSP("439c@JsonRSP");
+    const EVENT_id JsonRSP(genum_JsonRSP);
 }
 
 

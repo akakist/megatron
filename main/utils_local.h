@@ -30,8 +30,8 @@ struct Utils_local
             }
             for(auto & z: ifs)
             {
-                std::string name=z.first.dump().c_str();
-                printf(BLUE("deleting %s"),z.first.dump().c_str());
+                std::string name=iUtils->genum_name(z.first);
+                printf(BLUE("deleting %s"),iUtils->genum_name(z.first));
                 delete z.second;
                 printf(BLUE("deleted %s"),name.c_str());
 
