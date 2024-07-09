@@ -5,10 +5,12 @@ namespace ServiceEnum
 {
 
 }
+
 namespace jsonRefEventEnum
 {
-    const EVENT_id JsonREQ("JsonREQ");
-    const EVENT_id JsonRSP("JsonRSP");
+    const EVENT_id JsonREQ(genum_JsonREQ);
+
+    const EVENT_id JsonRSP(genum_JsonRSP);
 }
 
 

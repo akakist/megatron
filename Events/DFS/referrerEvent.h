@@ -7,31 +7,31 @@
 #include "mutexInspector.h"
 namespace ServiceEnum
 {
-    const SERVICE_id DFSReferrer("DFSReferrer");
-    const SERVICE_id ReferrerClient("RefferrerClient");
+    const SERVICE_id DFSReferrer(genum_DFSReferrer);
+    const SERVICE_id ReferrerClient(genum_RefferrerClient);
 }
 
 namespace dfsReferrerEventEnum
 {
 
-    const EVENT_id Ping("DFSReferrer.Ping");
-    const EVENT_id Hello("DFSReferrer.Hello");
-    const EVENT_id SubscribeNotifications("DFSReferrer.SubscribeNotifications");
-    const EVENT_id Noop("DFSReferrer.Noop");
+    const EVENT_id Ping(genum_DFSReferrer_Ping);
+    const EVENT_id Hello(genum_DFSReferrer_Hello);
+    const EVENT_id SubscribeNotifications(genum_DFSReferrer_SubscribeNotifications);
+    const EVENT_id Noop(genum_DFSReferrer_Noop);
 
-    const EVENT_id ToplinkDeliverREQ("DFSReferrer.ToplinkDeliverREQ");
-    const EVENT_id ToplinkDeliverRSP("DFSReferrer.ToplinkDeliverRSP");
+    const EVENT_id ToplinkDeliverREQ(genum_DFSReferrer_ToplinkDeliverREQ);
+    const EVENT_id ToplinkDeliverRSP(genum_DFSReferrer_ToplinkDeliverRSP);
 
 
 
-    const EVENT_id Pong("DFSReferrer.Pong");
-    const EVENT_id NotifyReferrerUplinkIsConnected("DFSReferrer.NotifyReferrerUplinkIsConnected");
-    const EVENT_id NotifyReferrerUplinkIsDisconnected("DFSReferrer.NotifyReferrerUplinkIsDisconnected");
-    const EVENT_id NotifyReferrerDownlinkDisconnected("DFSReferrer.NotifyReferrerDownlinkDisconnected");
-    const EVENT_id InitClient("DFSReferrer.InitClient");
+    const EVENT_id Pong(genum_DFSReferrer_Pong);
+    const EVENT_id NotifyReferrerUplinkIsConnected(genum_DFSReferrerNotifyReferrerUplinkIsConnected);
+    const EVENT_id NotifyReferrerUplinkIsDisconnected(genum_DFSReferrerNotifyReferrerUplinkIsDisconnected);
+    const EVENT_id NotifyReferrerDownlinkDisconnected(genum_DFSReferrerNotifyReferrerDownlinkDisconnected);
+    const EVENT_id InitClient(genum_DFSReferrerInitClient);
 
-    const EVENT_id UpdateConfigREQ("DFSReferrer.UpdateConfigREQ");
-    const EVENT_id UpdateConfigRSP("DFSReferrer.UpdateConfigRSP");
+    const EVENT_id UpdateConfigREQ(genum_DFSReferrerUpdateConfigREQ);
+    const EVENT_id UpdateConfigRSP(genum_DFSReferrerUpdateConfigRSP);
 
 }
 namespace dfsReferrer {
@@ -331,7 +331,7 @@ namespace dfsReferrerEvent {
         void jdump(Json::Value &v) const
         {
 
-            v["destinationService"]=destinationService.dump();
+            v["destinationService"]=iUtils->genum_name(id);
         }
 
     };

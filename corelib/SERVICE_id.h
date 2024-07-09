@@ -4,7 +4,7 @@
 #include "ioBuffer.h"
 
 /// Service ID. Possible be a number (old style) and string
-
+#ifdef KALL
 struct SERVICE_id
 {
 private:
@@ -55,3 +55,5 @@ inline int operator!=(const SERVICE_id&a, const SERVICE_id&b)
 {
     return a.s_id!=b.s_id;
 }
+#endif
+typedef int SERVICE_id;

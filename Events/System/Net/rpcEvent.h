@@ -4,31 +4,32 @@
 #include "SERVICE_id.h"
 #include "epoll_socket_info.h"
 #include "event_mt.h"
-
+#include "genum.hpp"
+#include "IUtils.h"
 namespace ServiceEnum
 {
-    const SERVICE_id RPC("RPC");
-    const SERVICE_id ObjectProxyPolled("ObjectProxyPolled");
-    const SERVICE_id ObjectProxyThreaded("ObjectProxyThreaded");
+    const SERVICE_id RPC(genum_RPC);
+    const SERVICE_id ObjectProxyPolled(genum_ObjectProxyThreaded);
+    const SERVICE_id ObjectProxyThreaded(genum_ObjectProxyThreaded);
 
 }
 
 namespace rpcEventEnum
 {
 
-    const EVENT_id PassPacket("rpcPassPacket");
-    const EVENT_id SendPacket("rpcSendPacket");
-    const EVENT_id SubscribeNotifications("rpcSubscribeNotifications");
-    const EVENT_id UnsubscribeNotifications("rpcUnsubscribeNotifications");
-    const EVENT_id Disconnected("rpcDisconnected");
-    const EVENT_id Disaccepted("rpcDisaccepted");
-    const EVENT_id ConnectFailed("rpcConnectFailed");
-    const EVENT_id Connected("rpcConnected");
-    const EVENT_id Accepted("rpcAccepted");
-    const EVENT_id Binded("rpcBinded");
-    const EVENT_id IncomingOnAcceptor("rpcIncomingOnAcceptor");
-    const EVENT_id IncomingOnConnector("rpcIncomingOnConnector");
-    const EVENT_id NotifyOutBufferEmpty("rpc_NotifyOutBufferEmpty");
+    const EVENT_id PassPacket(genum_rpcPassPacket);
+    const EVENT_id SendPacket(genum_rpcSendPacket);
+    const EVENT_id SubscribeNotifications(genum_rpcSubscribeNotifications);
+    const EVENT_id UnsubscribeNotifications(genum_rpcUnsubscribeNotifications);
+    const EVENT_id Disconnected(genum_rpcDisconnected);
+    const EVENT_id Disaccepted(genum_rpcDisaccepted);
+    const EVENT_id ConnectFailed(genum_rpcConnectFailed);
+    const EVENT_id Connected(genum_rpcConnected);
+    const EVENT_id Accepted(genum_rpcAccepted);
+    const EVENT_id Binded(genum_rpcBinded);
+    const EVENT_id IncomingOnAcceptor(genum_rpcIncomingOnAcceptor);
+    const EVENT_id IncomingOnConnector(genum_rpcIncomingOnConnector);
+    const EVENT_id NotifyOutBufferEmpty(genum_rpc_NotifyOutBufferEmpty);
 }
 
 
@@ -87,7 +88,7 @@ namespace rpcEvent {
         void jdump(Json::Value &j) const
         {
             j["ev"]=ev->dump();
-            j["destination"]=destination.dump();
+            j["destination"]=iUtils->genum_name(destination);
             j["addressTo"]=addressTo.dump();
         }
 

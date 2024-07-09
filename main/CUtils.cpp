@@ -36,6 +36,13 @@
 #include "megatron_config.h"
 #include "CInstance.h"
 #include "threadNameCtl.h"
+#include "genum.hpp"
+const char* CUtils::genum_name(int n)
+{
+
+    return __gen_string123(n);
+    
+}
 
 std::map<std::string,std::string> CUtils::loadStringMapFromBuffer(const std::string &bod, const char *linedelim)
 {
@@ -1297,16 +1304,16 @@ Ifaces::Base* CUtils::queryIface(const SERVICE_id &id)
                     {
                         for(auto z: local.pluginInfo.ifaces)
                         {
-                            logErr2("have iface: %s -> %s",z.first.dump().c_str(),z.second.c_str());
+                            logErr2("have iface: %s -> %s",iUtils->genum_name(z.first),z.second.c_str());
                         }
-                        throw CommonError("iface %s not found",id.dump().c_str());
+                        throw CommonError("iface %s not found",iUtils->genum_name(id));
                     }
                 }
                 registerPluginDLL(pn);
             }
             i=local.ifaces.container.find(id);
             if(i==local.ifaces.container.end())
-                throw CommonError("cannot find iface %s %s",id.dump().c_str(),_DMI().c_str());
+                throw CommonError("cannot find iface %s %s",iUtils->genum_name(id),_DMI().c_str());
         }
 
         return i->second;
@@ -1548,7 +1555,7 @@ REF_getter<Event::Base> CUtils::unpackEvent(inBuffer&b)
             }
             else
             {
-                logErr2("event not binded to module %s",id.dump().c_str());
+                logErr2("event not binded to module %s",iUtils->genum_name(id));
             }
         }
         {
@@ -1564,7 +1571,7 @@ REF_getter<Event::Base> CUtils::unpackEvent(inBuffer&b)
     {
         MUTEX_INSPECTOR;
         if(esc==nullptr)
-            throw CommonError("Event constructor not found for %s",id.dump().c_str());
+            throw CommonError("Event constructor not found for %s",iUtils->genum_name(id));
 
         Event::Base *e=esc(r);
         {
@@ -1593,7 +1600,7 @@ std::string CUtils::serviceName(const SERVICE_id& id) const
         if(i!=local.service_names.id2name.end())
             return i->second;
     }
-    return "jc:"+id.dump();
+    return (std::string)"jc:"+iUtils->genum_name(id);
     XPASS;
 
 }
@@ -1685,7 +1692,7 @@ void CUtils::registerIface(const VERSION_id& vid,const SERVICE_id& id, Ifaces::B
     VERSION_id curv=COREVERSION;
     if(CONTAINER(vid)>>8 != CONTAINER(curv)>>8)
     {
-        logErr2("registerService: invalid iface version %x current version %x ifaceid %s",CONTAINER(vid), CONTAINER(curv), id.dump().c_str());
+        logErr2("registerService: invalid iface version %x current version %x ifaceid %s",CONTAINER(vid), CONTAINER(curv), iUtils->genum_name(id));
         return;
     }
 
@@ -1694,7 +1701,7 @@ void CUtils::registerIface(const VERSION_id& vid,const SERVICE_id& id, Ifaces::B
     auto i=local.ifaces.container.find(id);
     if(i!=local.ifaces.container.end())
     {
-        logErr2("register iface, already registered %s",id.dump().c_str());
+        logErr2("register iface, already registered %s",iUtils->genum_name(id));
         return;
     }
     local.ifaces.container.insert(std::make_pair(id,p));

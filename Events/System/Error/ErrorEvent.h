@@ -3,9 +3,10 @@
 #include "route_t.h"
 #include "EVENT_id.h"
 #include "event_mt.h"
+#include "genum.hpp"
 namespace ErrorEventEnum
 {
-    const EVENT_id ErrorRSP("ErrorRSP");
+    const EVENT_id ErrorRSP(genum_ErrorRSP);
 }
 
 namespace ErrorEvent

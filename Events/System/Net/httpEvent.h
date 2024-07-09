@@ -7,15 +7,15 @@
 #include "route_t.h"
 namespace ServiceEnum
 {
-    const SERVICE_id HTTP("HTTP");
+    const SERVICE_id HTTP(genum_HTTP);
 }
 namespace httpEventEnum
 {
-    const EVENT_id DoListen("httpDoListen");
-    const EVENT_id RegisterProtocol("httpRegisterProtocol");
-    const EVENT_id GetBindPortsREQ("GetBindPortsREQ");
-    const EVENT_id RequestIncoming("httpRequestIncoming");
-    const EVENT_id GetBindPortsRSP("GetBindPortsRSP");
+    const EVENT_id DoListen(genum_httpDoListen);
+    const EVENT_id RegisterProtocol(genum_httpRegisterProtocol);
+    const EVENT_id GetBindPortsREQ(genum_GetBindPortsREQ);
+    const EVENT_id RequestIncoming(genum_httpRequestIncoming);
+    const EVENT_id GetBindPortsRSP(genum_GetBindPortsRSP);
 }
 
 namespace httpEvent

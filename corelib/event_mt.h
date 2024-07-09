@@ -4,7 +4,6 @@
 #include "REF.h"
 #include "EVENT_id.h"
 #include "route_t.h"
-
 enum
 {
     CHANNEL_LOCAL,
@@ -43,8 +42,8 @@ namespace Event
     public:
         NoPacked(const EVENT_id&_id): Base(_id) {}
         NoPacked(const EVENT_id& _id, const route_t &_route):Base(_id,_route) {}
-        void pack(outBuffer& ) const;
-        void unpack(inBuffer& );
+        void pack(outBuffer& ) const final;
+        void unpack(inBuffer& ) final;
 
     };
 
@@ -52,24 +51,6 @@ namespace Event
 
 
 
-/// Static constructor, needed only for serializebla events
-typedef Event::Base* (*event_static_constructor) (const route_t& r);
 
-inline void Event::NoPacked::pack(outBuffer& ) const
-{
-    throw CommonError("NoPacked::pack: invalid usage for class %s",id.dump().c_str());
-}
-inline void Event::NoPacked::unpack(inBuffer& )
-{
-    throw CommonError("NoPacked::unpack: invalid usage for class %s",id.dump().c_str());
-}
-inline Json::Value Event::Base::dump() const
-{
-    Json::Value v;
-    v["evid"]=id.dump();
-    v["evroute"]=route.dump();
-    jdump(v);
-    return v;
-}
-
+//#include "IUtils.h"
 

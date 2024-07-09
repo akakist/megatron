@@ -56,20 +56,6 @@ void ObjectHandlerThreaded::sendEvent(const std::string & dstHost, const SERVICE
     }
 
 }
-void ObjectHandlerPolled::sendEvent(const std::set<msockaddr_in> & dstHost, const SERVICE_id & dstService, const REF_getter<Event::Base>& e)
-{
-    for(auto &i:dstHost)
-    {
-        objectProxy->sendObjectRequest(i,dstService,e);
-    }
-}
-void ObjectHandlerThreaded::sendEvent(const std::set<msockaddr_in> & dstHost, const SERVICE_id & dstService, const REF_getter<Event::Base>& e)
-{
-    for(auto &i:dstHost)
-    {
-        objectProxy->sendObjectRequest(i,dstService,e);
-    }
-}
 
 void ObjectHandlerPolled::sendEvent(const msockaddr_in & dstHost, const SERVICE_id & dstService, const REF_getter<Event::Base>& e)
 {

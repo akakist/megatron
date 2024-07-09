@@ -239,7 +239,7 @@ bool dfsCaps::Service::handleEvent(const REF_getter<Event::Base>& e)
         if(dfsReferrerEventEnum::ToplinkDeliverREQ==IDC)
             return on_ToplinkDeliverREQ((const dfsReferrerEvent::ToplinkDeliverREQ*)E->e.get());
 
-        logErr2("unhandled IncomingOnConnector event %s %s %d",E->e->id.dump().c_str(),__func__,__LINE__);
+        logErr2("unhandled IncomingOnConnector event %s %s %d",iUtils->genum_name(E->e->id),__func__,__LINE__);
     }
     if( rpcEventEnum::IncomingOnAcceptor==ID)
     {
@@ -249,11 +249,11 @@ bool dfsCaps::Service::handleEvent(const REF_getter<Event::Base>& e)
         if(dfsReferrerEventEnum::ToplinkDeliverREQ==IDA)
             return on_ToplinkDeliverREQ((const dfsReferrerEvent::ToplinkDeliverREQ*)E->e.get());
 
-        logErr2("unhandled IncomingOnAcceptor event %s %s %d",E->e->id.dump().c_str(),__func__,__LINE__);
+        logErr2("unhandled IncomingOnAcceptor event %s %s %d",iUtils->genum_name(E->e->id),__func__,__LINE__);
     }
 
 
-    logErr2("unhandled event %s %s %d",e->id.dump().c_str(),__FILE__,__LINE__);
+    logErr2("unhandled event %s %s %d",iUtils->genum_name(e->id),__FILE__,__LINE__);
     XPASS;
     return false;
 }

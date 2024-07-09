@@ -4,17 +4,23 @@
 #include "event_mt.h"
 #include "route_t.h"
 
+
+
+
+
+
+
 namespace ServiceEnum
 {
-    const SERVICE_id ErrorDispatcher("ErrorDispatcher");
+    const SERVICE_id ErrorDispatcher(genum_ErrorDispatcher);
 
 }
 namespace errorDispatcherEventEnum
 {
-    const EVENT_id SendMessage("errorDispatcherSendMessage");
-    const EVENT_id Subscribe("errorDispatcherSubscribe");
-    const EVENT_id Unsubscribe("errorDispatcherUnsubscribe");
-    const EVENT_id NotifySubscriber("errorDispatcherNotifySubscriber");
+    const EVENT_id SendMessage(genum_errorDispatcherSendMessage);
+    const EVENT_id Subscribe(genum_errorDispatcherSubscribe);
+    const EVENT_id Unsubscribe(genum_errorDispatcherUnsubscribe);
+    const EVENT_id NotifySubscriber(genum_errorDispatcherNotifySubscriber);
 }
 
 

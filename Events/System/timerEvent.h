@@ -6,17 +6,18 @@
 
 namespace ServiceEnum
 {
-    const SERVICE_id Timer("0-Timer");
+    const SERVICE_id Timer(genum_Timer);
 }
+
 namespace timerEventEnum
 {
-    const EVENT_id SetTimer("timerSetTimer");
-    const EVENT_id SetAlarm("timerSetAlarm");
-    const EVENT_id ResetAlarm("timerResetAlarm");
-    const EVENT_id StopTimer("timerStopTimer");
-    const EVENT_id StopAlarm("timerStopAlarm");
-    const EVENT_id TickTimer("timerTickTimer");
-    const EVENT_id TickAlarm("timerTickAlarm");
+    const EVENT_id SetTimer(genum_timerSetTimer);
+    const EVENT_id SetAlarm(genum_timerSetAlarm);
+    const EVENT_id ResetAlarm(genum_timerResetAlarm);
+    const EVENT_id StopTimer(genum_timerStopTimer);
+    const EVENT_id StopAlarm(genum_timerStopAlarm);
+    const EVENT_id TickTimer(genum_timerTickTimer);
+    const EVENT_id TickAlarm(genum_timerTickAlarm);
 }
 
 namespace timerEvent

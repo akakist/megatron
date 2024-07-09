@@ -1,7 +1,9 @@
 #pragma once
+
 #include "ioBuffer.h"
 
 /// EventID class. Possible be a number (old style) and string
+#ifdef KALL
 struct EVENT_id
 {
 private:
@@ -54,5 +56,19 @@ inline inBuffer& operator>> (inBuffer& b,  EVENT_id& s)
     return b;
 }
 
+#endif
 
+typedef int EVENT_id;
 
+// inline outBuffer& operator<< (outBuffer& b,const EVENT_id& s)
+// {
+//     b<<s.s_id;
+//     return b;
+// }
+
+// inline inBuffer& operator>> (inBuffer& b,  EVENT_id& s)
+// {
+
+//     b>>s.s_id;
+//     return b;
+// }

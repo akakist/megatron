@@ -7,7 +7,7 @@
 #include "Events/System/Net/socketEvent.h"
 #include "Events/Tools/telnetEvent.h"
 #include <Events/System/Net/socketEvent.h>
-#include <Events/System/Run/startService.h>
+#include <Events/System/Run/startServiceEvent.h>
 inline std::set<EVENT_id> getEvents_telnet()
 {
 
@@ -17,6 +17,7 @@ inline std::set<EVENT_id> getEvents_telnet()
 	out.insert(socketEventEnum::Disaccepted);
 	out.insert(socketEventEnum::Disconnected);
 	out.insert(socketEventEnum::NotifyBindAddress);
+	out.insert(socketEventEnum::NotifyOutBufferEmpty);
 	out.insert(socketEventEnum::StreamRead);
 	out.insert(systemEventEnum::startService);
 	out.insert(telnetEventEnum::CommandEntered);
@@ -34,6 +35,7 @@ inline void regEvents_telnet()
 	iUtils->registerEvent(socketEvent::Disaccepted::construct);
 	iUtils->registerEvent(socketEvent::Disconnected::construct);
 	iUtils->registerEvent(socketEvent::NotifyBindAddress::construct);
+	iUtils->registerEvent(socketEvent::NotifyOutBufferEmpty::construct);
 	iUtils->registerEvent(socketEvent::StreamRead::construct);
 	iUtils->registerEvent(systemEvent::startService::construct);
 	iUtils->registerEvent(telnetEvent::CommandEntered::construct);

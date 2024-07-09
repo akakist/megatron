@@ -25,6 +25,7 @@ include(CTest)
 
 include(FetchContent)
 
+include_directories(.)
 #FetchContent_Declare(
 #        OpenSSL
 #            GIT_REPOSITORY 

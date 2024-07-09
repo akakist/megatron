@@ -3,7 +3,7 @@
 #include "SERVICE_id.h"
 namespace ServiceEnum
 {
-    const SERVICE_id testWebServer("testWebServer");
+    const SERVICE_id testWebServer(genum_testWebServer);
 }
 
 namespace prodtestEventEnum

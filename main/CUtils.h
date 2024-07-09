@@ -100,7 +100,7 @@ public:
     std::string en_datetime(const time_t& t);
     std::string en_date(const time_t& t);
     time_t from_en_datetime(const std::string& s);
-
+    const char* genum_name(int n) final;
 
     std::string makeSlug(const std::string& s);
 

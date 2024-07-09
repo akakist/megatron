@@ -6,15 +6,10 @@
 #include "IInstance.h"
 #include "REF.h"
 
+#include "DBHEvent.h"
 #define SQL_BUFFER_SIZE 4096
 /**  Universal device independant database handler
 */
-namespace ServiceEnum
-{
-    const SERVICE_id Mysql("Mysql");
-    const SERVICE_id Postgres("Postgres");
-
-}
 
 class DBH: public Refcountable
 {
