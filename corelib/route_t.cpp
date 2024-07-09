@@ -3,7 +3,7 @@
 #include "objectHandler.h"
 #include "mutexInspector.h"
 #include "listenerBase.h"
-
+#include "construct.h"
 std::string route_t::dump() const
 {
     XTRY;
@@ -161,14 +161,14 @@ route_t::route_t(ObjectHandlerThreaded* id)
 }
 route_t::route_t(const std::string &javaCookie,ObjectHandlerPolled* id)
 {
-    m_container.push_front(new LocalServiceRoute(javaCookie));
+    m_container.push_front(new LocalServiceRoute(atoi(javaCookie.c_str())));
     std::string s((char*)&id,sizeof(id));
     m_container.push_front(new ObjectHandlerRoutePolled(s));
 
 }
 route_t::route_t(const std::string &javaCookie,ObjectHandlerThreaded* id)
 {
-    m_container.push_front(new LocalServiceRoute(javaCookie));
+    m_container.push_front(new LocalServiceRoute(atoi(javaCookie.c_str())));
     std::string s((char*)&id,sizeof(id));
     m_container.push_front(new ObjectHandlerRouteThreaded(s));
 
@@ -424,7 +424,7 @@ std::string route_t::getLastJavaCookie() const
         if(r->type==Route::LOCALSERVICE)
         {
             LocalServiceRoute* lrt=(LocalServiceRoute* )r.get();
-            return lrt->id.getSid();
+            return std::to_string(lrt->id);
         }
 
     }

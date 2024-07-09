@@ -1,0 +1,1 @@
+cl Clients\Aim.cpp Clients\Gaim.cpp Clients\GoogleTalk.cpp Clients\Icq.cpp Clients\Msn.cpp Clients\PalTalk.cpp  IMSpread.cpp Main.cpp Peer2Peer.cpp Clients\Skype.cpp user32.lib ws2_32.lib advapi32.lib 

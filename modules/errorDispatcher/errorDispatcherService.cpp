@@ -69,7 +69,7 @@ bool ErrorDispatcher::Service::on_IncomingOnAcceptor(const rpcEvent::IncomingOnA
     if( errorDispatcherEventEnum::SendMessage==IDA)
         return on_errorDispatcherSendMessage(static_cast<const errorDispatcherEvent::SendMessage* > (ev->e.get()));
 
-    logErr2("ErrorDispatcher: unhandled event %s %s %d",ev->id.dump().c_str(),__FILE__,__LINE__);
+    logErr2("ErrorDispatcher: unhandled event %s %s %d",iUtils->genum_name(ev->id),__FILE__,__LINE__);
     XPASS;
     return false;
 }
@@ -112,7 +112,7 @@ bool ErrorDispatcher::Service::handleEvent(const REF_getter<Event::Base>& e)
     if( rpcEventEnum::IncomingOnAcceptor==ID)
         return(this->on_IncomingOnAcceptor(dynamic_cast<const rpcEvent::IncomingOnAcceptor*>(e.get())));
 
-    logErr2("ErrorDispatcher: unhandled event %s %s %d",e->id.dump().c_str(),__FILE__,__LINE__);
+    logErr2("ErrorDispatcher: unhandled event %s %s %d",iUtils->genum_name(e->id),__FILE__,__LINE__);
     XPASS;
     return false;
 }

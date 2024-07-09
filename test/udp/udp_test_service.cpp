@@ -5,19 +5,15 @@
 #include "listenerBuffered.h"
 #include "broadcaster.h"
 #include "main/CInstance.h"
-#include "Events/System/Run/startService.h"
+#include "Events/System/Run/startServiceEvent.h"
 #include "tools_mt.h"
 #include "Events/System/timerEvent.h"
 #include "Events/System/Net/socketEvent.h"
 #include "colorOutput.h"
 #include "main/configObj.h"
 #include "ISSL.h"
+#include "udpTestEvent.h"
 static bool done_test=false;
-namespace ServiceEnum {
-    const SERVICE_id udpTest("udpTest");
-    const SERVICE_id udpTestService1("udpTestService1");
-    const SERVICE_id udpTestService2("udpTestService2");
-}
 namespace testEventEnum {
 }
 enum timers

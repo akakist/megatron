@@ -1,12 +1,12 @@
 #pragma once
 
 #include "event_mt.h"
-
+#include "genum.hpp"
 
 namespace systemEventEnum
 {
 
-    const EVENT_id startService("startService");
+    const EVENT_id startService(genum_startService);
 }
 namespace systemEvent
 {

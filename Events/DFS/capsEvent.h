@@ -7,17 +7,17 @@
 #include "event_mt.h"
 namespace ServiceEnum
 {
-    const SERVICE_id DFSCaps("DFSCaps");
+    const SERVICE_id DFSCaps(genum_DFSCaps);
 }
 
 namespace dfsCapsEventEnum
 {
-    const EVENT_id RegisterMyRefferrerNodeREQ("DFSCaps.RegisterMyRefferrerNodeREQ");
-    const EVENT_id RegisterCloudRoot("DFSCaps.RegisterCloudRoot");
-    const EVENT_id GetReferrersREQ("DFSCaps.GetReferrersREQ");
-    const EVENT_id GetReferrersRSP("DFSCaps.GetReferrersRSP");
-    const EVENT_id GetCloudRootsREQ("DFSCaps.GetCloudRootsREQ");
-    const EVENT_id GetCloudRootsRSP("DFSCaps.GetCloudRootsRSP");
+    const EVENT_id RegisterMyRefferrerNodeREQ(genum_DFSCaps_RegisterMyRefferrerNodeREQ);
+    const EVENT_id RegisterCloudRoot(genum_DFSCaps_RegisterCloudRoot);
+    const EVENT_id GetReferrersREQ(genum_DFSCaps_GetReferrersREQ);
+    const EVENT_id GetReferrersRSP(genum_DFSCaps_GetReferrersRSP);
+    const EVENT_id GetCloudRootsREQ(genum_DFSCaps_GetCloudRootsREQ);
+    const EVENT_id GetCloudRootsRSP(genum_DFSCaps_GetCloudRootsRSP);
 }
 namespace dfsCapsEvent {
     class RegisterMyRefferrerNodeREQ: public Event::Base

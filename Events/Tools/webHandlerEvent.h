@@ -5,19 +5,21 @@
 #include "SERVICE_id.h"
 #include "epoll_socket_info.h"
 #include "event_mt.h"
+#include "genum.hpp"
 #include "httpConnection.h"
 #include "route_t.h"
+#include "genum.hpp"
 namespace ServiceEnum
 {
-    const SERVICE_id WebHandler("bc29@WebHandler");
+    const SERVICE_id WebHandler(genum_WebHandler);
 }
 
 namespace webHandlerEventEnum
 {
 
-    const EVENT_id RegisterHandler("4e82@webHandlerRegisterHandler");
-    const EVENT_id RegisterDirectory("403d@webHandlerRegisterDirectory");
-    const EVENT_id RequestIncoming("89b6@webHandlerRequestIncoming");
+    const EVENT_id RegisterHandler(genum_webHandlerRegisterHandler);
+    const EVENT_id RegisterDirectory(genum_webHandlerRegisterDirectory);
+    const EVENT_id RequestIncoming(genum_webHandlerRequestIncoming);
 }
 
 namespace webHandlerEvent

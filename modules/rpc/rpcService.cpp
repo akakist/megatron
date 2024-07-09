@@ -195,7 +195,7 @@ bool RPC::Service::on_PacketOnConnector(const oscarEvent::PacketOnConnector* E)
             else
             {
                 throw CommonError("!(r->type==Route::LOCALSERVICE %d) %s %s %s %s ",
-                                  r->type,e->id.dump().c_str(),r->dump().c_str(),e->dump().toStyledString().c_str(),_DMI().c_str());
+                                  r->type,iUtils->genum_name(e->id),r->dump().c_str(),e->dump().toStyledString().c_str(),_DMI().c_str());
             }
         }
         else if(direction=='s')

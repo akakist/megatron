@@ -4,24 +4,15 @@
 
 
 
-#include "logging.h"
 #include "listenerBuffered1Thread.h"
-#include "DBH.h"
-#include "USER_id.h"
-#include "IProgress.h"
-#include "tools_mt.h"
 #include <map>
 
 
 
-#include "Real.h"
-#include "Events/System/Run/startService.h"
-#include "Events/System/timerEvent.h"
+#include "Events/System/Run/startServiceEvent.h"
 
 #include "Events/System/Net/httpEvent.h"
-#include "Events/System/Net/rpcEvent.h"
 #include "Events/Ping.h"
-#include "version_mega.h"
 #define SESSION_ID  "session_id"
 enum TIMERS
 {

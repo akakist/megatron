@@ -7,30 +7,30 @@
 #include "event_mt.h"
 #include "msockaddr_in.h"
 #include "route_t.h"
-
+#include "genum.hpp"
 namespace ServiceEnum
 {
-    const SERVICE_id Socket("62e6@Socket");
-    const SERVICE_id Socks5("ecff@Socks5");
+    const SERVICE_id Socket(genum_Socket);
+    const SERVICE_id Socks5(genum_Socks5);
 }
 
 namespace socketEventEnum
 {
 
-    const EVENT_id AddToListenTCP("56cf@socket.AddToListenTCP");
-    const EVENT_id AddToConnectTCP("a4ac@socket.AddToConnectTCP");
-    const EVENT_id Accepted("6a2c@socket.Accepted");
-    const EVENT_id StreamRead("9a97@socket.StreamRead");
-    const EVENT_id Connected("2498@socket.Connected");
-    const EVENT_id Disconnected("e9ee@socket.Disconnected");
-    const EVENT_id Disaccepted("1f4c@socket.Disaccepted");
-    const EVENT_id NotifyBindAddress("dd3a@socket.NotifyBindAddress");
-    const EVENT_id NotifyOutBufferEmpty("3e38@socket.NotifyOutBufferEmpty");
-    const EVENT_id ConnectFailed("b17f@socket.ConnectFailed");
-    const EVENT_id UdpAssoc("283c@socket.UdpAssoc");
-    const EVENT_id UdpAssocRSP("86d9@socket.UdpAssocRSP");
-    const EVENT_id UdpPacketIncoming("9c70@socket.UdpPacketIncoming");
-    const EVENT_id Write("bd2c@socket.Write");
+    const EVENT_id AddToListenTCP(genum_socket_AddToListenTCP);
+    const EVENT_id AddToConnectTCP(genum_socket_AddToConnectTCP);
+    const EVENT_id Accepted(genum_socket_Accepted);
+    const EVENT_id StreamRead(genum_socket_StreamRead);
+    const EVENT_id Connected(genum_socket_Connected);
+    const EVENT_id Disconnected(genum_socket_Disconnected);
+    const EVENT_id Disaccepted(genum_socket_Disaccepted);
+    const EVENT_id NotifyBindAddress(genum_socket_NotifyBindAddress);
+    const EVENT_id NotifyOutBufferEmpty(genum_socket_NotifyOutBufferEmpty);
+    const EVENT_id ConnectFailed(genum_socket_ConnectFailed);
+    const EVENT_id UdpAssoc(genum_socket_UdpAssoc);
+    const EVENT_id UdpAssocRSP(genum_socket_UdpAssocRSP);
+    const EVENT_id UdpPacketIncoming(genum_socket_UdpPacketIncoming);
+    const EVENT_id Write(genum_socket_Write);
 }
 
 

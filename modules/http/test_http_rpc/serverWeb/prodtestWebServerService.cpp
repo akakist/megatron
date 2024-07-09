@@ -5,6 +5,7 @@
 #include "prodtestWebServerService.h"
 #include "Events/Ping.h"
 #include "events_prodtestWebServer.hpp"
+#include "version_mega.h"
 
 
 

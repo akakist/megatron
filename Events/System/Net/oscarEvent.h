@@ -5,27 +5,28 @@
 #include "epoll_socket_info.h"
 #include "event_mt.h"
 #include "route_t.h"
+#include "genum.hpp"
 namespace ServiceEnum
 {
-    const SERVICE_id Oscar("b7cd@Oscar");
-    const SERVICE_id OscarSecure("80a@OscarSecure");
+    const SERVICE_id Oscar(genum_Oscar);
+    const SERVICE_id OscarSecure(genum_OscarSecure);
 }
 
 namespace oscarEventEnum
 {
 
-    const EVENT_id SendPacket("f832@oscar.SendPacket");
-    const EVENT_id AddToListenTCP("a5dd@oscar.AddToListenTCP");
-    const EVENT_id Connect("a5dd@oscar.Connect");
-    const EVENT_id PacketOnAcceptor("6e0c@oscar.PacketOnAcceptor");
-    const EVENT_id PacketOnConnector("ec5d@oscar.PacketOnConnector");
-    const EVENT_id Connected("e941@oscar.Connected");
-    const EVENT_id Disconnected("b7c8@oscar.Disconnected");
-    const EVENT_id Accepted("b5fe@oscar.Accepted");
-    const EVENT_id Disaccepted("4197@oscar.Disaccepted");
-    const EVENT_id NotifyBindAddress("23d1@oscar.NotifyBindAddress");
-    const EVENT_id NotifyOutBufferEmpty("afb5@oscar.NotifyOutBufferEmpty");
-    const EVENT_id ConnectFailed("c56b@oscar.ConnectFailed");
+    const EVENT_id SendPacket(genum_oscar_SendPacket);
+    const EVENT_id AddToListenTCP(genum_oscar_AddToListenTCP);
+    const EVENT_id Connect(genum_oscar_Connect);
+    const EVENT_id PacketOnAcceptor(genum_oscar_PacketOnAcceptor);
+    const EVENT_id PacketOnConnector(genum_oscar_PacketOnConnector);
+    const EVENT_id Connected(genum_oscar_Connected);
+    const EVENT_id Disconnected(genum_oscar_Disconnected);
+    const EVENT_id Accepted(genum_oscar_Accepted);
+    const EVENT_id Disaccepted(genum_oscar_Disaccepted);
+    const EVENT_id NotifyBindAddress(genum_oscar_NotifyBindAddress);
+    const EVENT_id NotifyOutBufferEmpty(genum_oscar_NotifyOutBufferEmpty);
+    const EVENT_id ConnectFailed(genum_oscar_ConnectFailed);
 }
 
 

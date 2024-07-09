@@ -6,7 +6,7 @@
 
 
 
-#include "Events/System/Run/startService.h"
+#include "Events/System/Run/startServiceEvent.h"
 #include "Events/System/Net/rpcEvent.h"
 #include "Events/DFS/referrerEvent.h"
 #include "utils_local.h"
@@ -190,7 +190,7 @@ UnknownBase* CInstance::getServiceOrCreate(const SERVICE_id& svs)
     }
     XPASS;
     XPASS;
-    throw CommonError("cannot find service %s",svs.dump().c_str());
+    throw CommonError("cannot find service %s",iUtils->genum_name(svs));
 
 }
 
@@ -240,11 +240,11 @@ void CInstance::forwardEvent(const SERVICE_id& svs,  const REF_getter<Event::Bas
     }
     catch(CommonError &err)
     {
-        logErr2("CommonError catched for event %s %s %s",e->id.dump().c_str(),e->route.dump().c_str(),err.what());
+        logErr2("CommonError catched for event %s %s %s",iUtils->genum_name(e->id),e->route.dump().c_str(),err.what());
     }
     catch(std::exception &err)
     {
-        logErr2("std::exception catched for event %s %s %s",e->id.dump().c_str(),e->route.dump().c_str(),err.what());
+        logErr2("std::exception catched for event %s %s %s",iUtils->genum_name(e->id),e->route.dump().c_str(),err.what());
     }
 
     XPASS;
@@ -312,11 +312,11 @@ UnknownBase* CInstance::initService(const SERVICE_id& sid)
                         M_UNLOCK(locals->pluginInfo);
                         for(auto &z: locals->pluginInfo.services)
                         {
-                            logErr2("have: %s -> %s",z.first.dump().c_str(),z.second.c_str());
+                            logErr2("have: %s -> %s",iUtils->genum_name(z.first),z.second.c_str());
                         }
                     }
 
-                    throw CommonError("cannot find plugin for service %s (sid %s)",iUtils->serviceName(sid).c_str(),sid.dump().c_str());
+                    throw CommonError("cannot find plugin for service %s (sid %s)",iUtils->serviceName(sid).c_str(),iUtils->genum_name(sid));
                     XPASS;
                 }
             }
@@ -329,7 +329,7 @@ UnknownBase* CInstance::initService(const SERVICE_id& sid)
                 {
                     XTRY;
                     // M_UNLOCK(locals->service_constructors);
-                    throw CommonError("cannot load service ServiceId %s",sid.dump().c_str());
+                    throw CommonError("cannot load service ServiceId %s",iUtils->genum_name(sid));
                     XPASS;
                 }
                 else
