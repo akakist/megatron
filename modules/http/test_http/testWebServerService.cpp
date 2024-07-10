@@ -126,8 +126,8 @@ bool testWebServer::Service::on_RequestIncoming(const httpEvent::RequestIncoming
         {
             resp.http_header_out["Connection"]="Keep-Alive";
         }
-//        resp.content="<div>received response </>";
-	resp.content=iUtils->load_file("index.nginx-debian.html");
+        resp.content="<div>received response </>";
+//	resp.content=iUtils->load_file("index.nginx-debian.html");
         if(keepAlive)
             resp.makeResponsePersistent(e->esi);
         else
