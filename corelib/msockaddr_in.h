@@ -33,8 +33,9 @@ struct _addrInfo {
         t=time(NULL);
     }
 };
-struct _addrInfos: public Refcountable, public Mutexable {
+struct _addrInfos: public Refcountable {
 
+    RWLock lk;
     std::map<std::string,
         _addrInfo
         > host2AddrInfo;
