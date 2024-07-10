@@ -7,7 +7,7 @@ class ListenerPolled;
 
 ///       Polled listener used mainly in GUI windows
 
-class ListenerPolled:public ListenerBase
+class ListenerPolled:public ListenerBase, public Mutexable
 {
     std::deque<REF_getter<Event::Base> > m_container_;
 

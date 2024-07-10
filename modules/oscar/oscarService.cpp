@@ -80,7 +80,7 @@ bool Oscar::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                 {
                     XTRY;
                     {
-                        WLocker sdfsdf(evt->esi->inBuffer_.lk);
+                        M_LOCK(evt->esi->inBuffer_);
                         inBuffer b(evt->esi->inBuffer_._mx_data.data(), evt->esi->inBuffer_._mx_data.size());
 
                         start_byte=b.get_8_nothrow(success);

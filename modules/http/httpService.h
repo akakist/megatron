@@ -26,9 +26,8 @@ namespace HTTP
 
         // config
         size_t m_maxPost;
-        struct _mx
+        struct _mx: public Mutexable
         {
-    	    RWLock lk;
             std::set<std::string> docUrls;
             std::string documentRoot;
             std::map<std::string,std::string>mime_types;
@@ -49,7 +48,7 @@ namespace HTTP
         bool on_RegisterProtocol(const httpEvent::RegisterProtocol*e)
         {
 
-            WLocker lk(mx.lk);
+            M_LOCK(mx);
             mx.protocols.insert(std::make_pair(e->url,e->protocol));
 
             return true;

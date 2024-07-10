@@ -21,7 +21,7 @@ void ListenerPolled::poll()
     {
         std::deque<REF_getter<Event::Base> > d;
         {
-//            WLocker sdfsd(lk);
+            M_LOCK(this);
             d=m_container_;
             m_container_.clear();
         }
@@ -72,7 +72,7 @@ void ListenerPolled::listenToEvent(const REF_getter<Event::Base>& e)
 
     XTRY;
 
-//    M_LOCK(this);
+    M_LOCK(this);
     m_container_.push_back(e);
     XPASS;
 

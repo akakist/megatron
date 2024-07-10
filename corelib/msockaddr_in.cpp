@@ -304,7 +304,7 @@ std::pair<std::set<std::string>,std::set<std::string> > msockaddr_in::getAddrInf
     MUTEX_INSPECTOR;
     auto ai=iUtils->getAddrInfos();
     {
-        RLocker sdsdf(ai.get()->lk);
+        M_LOCK(ai.get());
 
         auto pa=ai->host2AddrInfo.find(host);
         if(pa!=ai->host2AddrInfo.end())
@@ -379,7 +379,7 @@ std::pair<std::set<std::string>,std::set<std::string> > msockaddr_in::getAddrInf
     freeaddrinfo(res); // free the linked list
 
     {
-        WLocker sdsdf(ai.get()->lk);
+        M_LOCK(ai.get());
         ai->host2AddrInfo.erase(host);
         ai->host2AddrInfo.insert(std::make_pair(host,_addrInfo(std::make_pair(ipv4,ipv6))));
 

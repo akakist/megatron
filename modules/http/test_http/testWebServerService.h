@@ -2,7 +2,7 @@
 #define _______________displayzzPLAYBCNODE___H1INV
 #include "broadcaster.h"
 
-#include "listenerSimple.h"
+#include "listenerBuffered1Thread.h"
 #include <map>
 #include "Events/System/Run/startServiceEvent.h"
 #include "Events/System/Net/httpEvent.h"
@@ -13,7 +13,7 @@ namespace testWebServer
 {
     class Service:
         public UnknownBase,
-        public ListenerSimple,
+        public ListenerBuffered1Thread,
         public Broadcaster
     {
         bool on_startService(const systemEvent::startService*);
@@ -33,7 +33,7 @@ namespace testWebServer
     public:
         void deinit()
         {
-            ListenerSimple::deinit();
+            ListenerBuffered1Thread::deinit();
         }
 
         static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* obj)

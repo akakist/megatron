@@ -48,9 +48,8 @@ namespace Timer
         _searchKey(const REF_getter<task>& tt):t(tt) {}
         int operator < (const _searchKey& b) const;
     };
-    struct _all: public Refcountable
+    struct _all: public Refcountable,public Mutexable
     {
-        RWLock lk;
         _all() {}
         std::map<_searchKey,std::set<REF_getter<task> > >   timers;
         void clear();

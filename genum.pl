@@ -23,7 +23,7 @@ foreach(@a)
     open(H,'>',"genum.hpp");
     print H "#pragma once\n";
     print H "enum genum\n{\n";
-    foreach(sort keys %arr)
+    foreach(keys %arr)
     {
 	print H "\tgenum_".$_,",\n";
     }
@@ -39,7 +39,7 @@ foreach(@a)
 #    print C "#include \"genum.hpp\"\n";
     print H "inline const char* __gen_string123(int n){\n";
     print H "switch(n){\n";
-    foreach(sort keys %arr)
+    foreach(keys %arr)
     {
 	print H "case genum_$_: return \"$_\";\n";    
     }

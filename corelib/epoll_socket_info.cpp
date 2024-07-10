@@ -40,7 +40,7 @@ Json::Value epoll_socket_info::__jdump()
     {
         v["outBufferSize"]=(int)outBuffer_.size();
         {
-            RLocker sadfasd(inBuffer_.lk);
+            M_LOCK(inBuffer_);
             v["inBufferSize"]=(int)inBuffer_._mx_data.size();
         }
     }
@@ -173,7 +173,7 @@ epoll_socket_info::~epoll_socket_info()
 void socketBuffersOut::append(epoll_socket_info* esi,const char* data, size_t sz)
 {
     MUTEX_INSPECTOR;
-    WLocker sdfsdf(lk);
+    M_LOCK(this);
     container_+=std::string(data,sz);
     esi->multiplexor_->sockStartWrite(esi);
 
@@ -181,7 +181,7 @@ void socketBuffersOut::append(epoll_socket_info* esi,const char* data, size_t sz
 size_t socketBuffersOut::size()
 {
     MUTEX_INSPECTOR;
-    RLocker sdasdf(lk);
+    M_LOCK(this);
     return container_.size();
 }
 int socketBuffersOut::send(const SOCKET_fd &fd, epoll_socket_info* esi)
@@ -190,7 +190,7 @@ int socketBuffersOut::send(const SOCKET_fd &fd, epoll_socket_info* esi)
     int res=0;
     int restSize=0;
     {
-        WLocker sdsdf(lk);
+        M_LOCK(this);
         if(container_.size())
         {
             res=::send(CONTAINER(fd),container_.data(),container_.size(),0);
@@ -250,19 +250,19 @@ epoll_socket_info::epoll_socket_info(const int &_socketType, const STREAMTYPE &_
 
 void epoll_socket_info::_inBuffer::append(const char* data, size_t size)
 {
-    WLocker asdfasd(lk);
+    M_LOCK(this);
     _mx_data.append(data,size);
 }
 size_t epoll_socket_info::_inBuffer::size()
 {
     MUTEX_INSPECTOR;
-    RLocker asdfasd(lk);
+    M_LOCK(this);
     return _mx_data.size();
 }
 std::string epoll_socket_info::_inBuffer::extract_all()
 {
     MUTEX_INSPECTOR;
-    WLocker asdfasd(lk);
+    M_LOCK(this);
     std::string ret=std::move(_mx_data);
     _mx_data.clear();
     return ret;

@@ -25,9 +25,8 @@ struct P_msockaddr_in: public Refcountable
     }
 };
 
-class   socketBuffersOut
+class   socketBuffersOut: public Mutexable
 {
-    RWLock lk;
     std::string container_;
 public:
     void append(epoll_socket_info *esi, const char* data, size_t sz);
@@ -79,9 +78,8 @@ public:
     socketBuffersOut outBuffer_;
 
     /// in buffer
-    struct _inBuffer
+    struct _inBuffer: public Mutexable
     {
-        RWLock lk;
         std::string _mx_data;
         void append(const char* data, size_t size);
         size_t size();
