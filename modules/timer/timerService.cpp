@@ -420,17 +420,17 @@ int Timer::_searchKey::operator < (const _searchKey& b) const
 }
 void Timer::_all::clear()
 {
-    M_LOCK(this);
+    WLocker daasdf(lk);
     timers.clear();
 }
 int Timer::_all::exists(const REF_getter<task>& tt)
 {
-    M_LOCK(this);
+    RLocker daasdf(lk);
     return timers.count(tt);
 }
 void Timer::_all::replace(const REF_getter<task>& t)
 {
-    M_LOCK(this);
+    WLocker daasdf(lk);
     std::set<REF_getter<task> > &s=timers[t];
     for(auto& i:s)
     {
@@ -442,12 +442,12 @@ void Timer::_all::replace(const REF_getter<task>& t)
 }
 void Timer::_all::add(const REF_getter<task>& t)
 {
-    M_LOCK(this);
+    WLocker daasdf(lk);
     timers[t].insert(t);
 }
 void Timer::_all::remove_t_only(const REF_getter<task>&t)
 {
-    M_LOCK(this);
+    WLocker daasdf(lk);
     std::set<REF_getter<task> > &s=timers[t];
     if(s.count(t))
     {
@@ -456,7 +456,7 @@ void Timer::_all::remove_t_only(const REF_getter<task>&t)
 }
 void Timer::_all::remove(const REF_getter<task>& t)
 {
-    M_LOCK(this);
+    WLocker daasdf(lk);
     std::set<REF_getter<task> > &s=timers[t];
     bool found=false;
     for(auto& i:s)

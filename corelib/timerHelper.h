@@ -4,18 +4,19 @@
 #include "mutexInspector.h"
 #include "Events/System/timerEvent.h"
 #include "mutexable.h"
-class _timerValues: public Mutexable
+class _timerValues
 {
+    RWLock lk;
     std::map<int,real> values;
 public:
     void set(int k,const real& v)
     {
-        M_LOCK(this);
+        WLocker aaa(lk);
         values[k]=v;
     }
     real get(const real& k)
     {
-        M_LOCK(this);
+        RLocker dddd(lk);
         std::map<int,real>::iterator i=values.find(k);
         if(i==values.end()) throw CommonError("unkonfigured timer value for %f %s",k,_DMI().c_str());
         return i->second;
