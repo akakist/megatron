@@ -94,12 +94,11 @@ void epoll_socket_info::write_(const REF_getter<refbuffer> &s)
     XPASS;
 }
 
-void epoll_socket_info::close(const std::string & reason)
+void epoll_socket_info::close(const char* reason)
 {
     MUTEX_INSPECTOR;
 
     DBG(logErr2("epoll_socket_info::close %s",reason.c_str()));
-//    printf("epoll_socket_info::close %s %s\n",reason.c_str(),socketDescription);
     XTRY;
     std::string sType;
     if(CONTAINER(fd_)==-1)

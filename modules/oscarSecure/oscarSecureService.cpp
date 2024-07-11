@@ -120,7 +120,7 @@ bool OscarSecure::Service::on_StreamRead(const socketEvent::StreamRead* evt)
             if(need_disconnect)
             {
                 XTRY;
-                evt->esi->close((std::string)"oscar: buffer broken. "+disconnectReason);
+                evt->esi->close("oscar: buffer broken. ");
                 return true;
                 XPASS;
             }

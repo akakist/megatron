@@ -151,7 +151,7 @@ public:
     void write_(const std::string&s);
     void write_(const REF_getter<refbuffer>&s);
 
-    void close(const std::string & reason);
+    void close(const char *reason);
 
     Json::Value __jdump();
     std::map<int,REF_getter<Refcountable> > additions_;

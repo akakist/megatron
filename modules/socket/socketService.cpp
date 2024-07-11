@@ -246,7 +246,7 @@ void SocketIO::Service::onEPOLLIN_STREAMTYPE_CONNECTED_or_STREAMTYPE_ACCEPTED(
             return;
         }
         if(needClose)
-            closeSocket(esi,errText,errno,MS);
+            closeSocket(esi,errText.c_str(),errno,MS);
         XPASS;
     }
     if(r>=0)
@@ -706,12 +706,12 @@ void SocketIO::Service::worker()
         XPASS;
     }
 }
-void SocketIO::Service::closeSocket(const REF_getter<epoll_socket_info>&esi,const std::string &reason, int errNo, const     REF_getter<SocketsContainerForSocketIO>& MS)
+void SocketIO::Service::closeSocket(const REF_getter<epoll_socket_info>&esi,const char*reason, int errNo, const     REF_getter<SocketsContainerForSocketIO>& MS)
 {
     MUTEX_INSPECTOR;
     if(esi->closed())
     {
-        logErr2("  socket already closed %s",reason.c_str());
+        logErr2("  socket already closed %s",reason);
         return;
     }
 

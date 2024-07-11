@@ -110,7 +110,7 @@ namespace SocketIO
 
 
 
-        void closeSocket(const REF_getter<epoll_socket_info>&esi, const std::string& reason, int errNo, const REF_getter<SocketsContainerForSocketIO> &MS);
+        void closeSocket(const REF_getter<epoll_socket_info>&esi, const char *reason, int errNo, const REF_getter<SocketsContainerForSocketIO> &MS);
         bool on_AddToListenTCP(const socketEvent::AddToListenTCP*);
         bool on_AddToConnectTCP(const socketEvent::AddToConnectTCP*);
         bool on_startService(const systemEvent::startService*);
