@@ -46,7 +46,7 @@ HTTP::Service::Service(const SERVICE_id& id, const std::string&nm, IInstance* _i
     m_maxPost= static_cast<size_t>(_if->getConfig()->get_int64_t("max_post", 1000000, ""));
     {
         {
-            M_LOCK(mx);
+            WLocker aaa(mx.lk);
             mx.docUrls=_if->getConfig()->get_stringset("doc_urls","/pics,/html,/css","");
             mx.documentRoot=_if->getConfig()->get_string("document_root","./www","");
         }
@@ -55,7 +55,7 @@ HTTP::Service::Service(const SERVICE_id& id, const std::string&nm, IInstance* _i
             bod=std::string(mime_types, static_cast<unsigned int>(mime_types_sz));
 
             {
-                M_LOCK(mx);
+                WLocker aaa(mx.lk);
                 mx.mime_types.clear();
             }
             std::vector<std::string> v=iUtils->splitString("\r\n",bod);
@@ -74,7 +74,7 @@ HTTP::Service::Service(const SERVICE_id& id, const std::string&nm, IInstance* _i
                     {
 
                         {
-                            M_LOCK(mx);
+                            WLocker aaa(mx.lk);
                             mx.mime_types[dq[0]]=typ;
                         }
                         dq.pop_front();
@@ -97,7 +97,7 @@ bool HTTP::Service::on_NotifyBindAddress(const socketEvent::NotifyBindAddress*e)
 {
     MUTEX_INSPECTOR;
 
-    M_LOCK(mx);
+    WLocker aaa(mx.lk);
     mx.bind_addrs.insert(e->addr);
     return true;
 }
@@ -126,7 +126,7 @@ bool HTTP::Service::on_startService(const systemEvent::startService*)
 bool HTTP::Service::on_GetBindPortsREQ(const httpEvent::GetBindPortsREQ *e)
 {
     MUTEX_INSPECTOR;
-    M_LOCK(mx);
+    RLocker aaa(mx.lk);
     passEvent(new httpEvent::GetBindPortsRSP(mx.bind_addrs,poppedFrontRoute(e->route)));
     return true;
 }
@@ -169,7 +169,7 @@ bool HTTP::Service::handleEvent(const REF_getter<Event::Base>& evt)
         {
             MUTEX_INSPECTOR;
             const httpEvent::GetBindPortsREQ *e=(const httpEvent::GetBindPortsREQ *)E->e.get();
-            M_LOCK(mx);
+            RLocker aaa(mx.lk);
             passEvent(new httpEvent::GetBindPortsRSP(mx.bind_addrs,poppedFrontRoute(e->route)));
             return true;
         }
@@ -454,7 +454,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 std::string HTTP::Service::get_mime_type(const std::string& mime) const
 {
     MUTEX_INSPECTOR;
-    M_LOCK(mx);
+    RLocker aaa(mx.lk);
     auto i=mx.mime_types.find(mime);
     if (i==mx.mime_types.end()) return "";
     else return i->second;
@@ -715,7 +715,7 @@ std::string datef(const time_t &__t)
     out.push_back("Date: "+datef(time(NULL))+"\r\n");
 
     {
-        M_LOCK(mx);
+        RLocker aaa(mx.lk);
         auto i=mx.mime_types.find(exten);
         if(i!=mx.mime_types.end())
             out.push_back("Content-Type: "+i->second+"\r\n");
