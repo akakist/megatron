@@ -3,7 +3,6 @@
 #include "configObj.h"
 #include "CUtils.h"
 #include <unistd.h>
-//bool done_test_http=false;
 void registerRPCService(const char* pn);
 void registerSocketModule(const char* pn);
 void registerTimerService(const char* pn);

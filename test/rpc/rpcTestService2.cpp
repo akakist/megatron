@@ -25,7 +25,6 @@ bool rpcTestService2::on_testREQ(const testEvent::testREQ* e)
 bool rpcTestService2::handleEvent(const REF_getter<Event::Base>& e)
 {
     if(done_test)return true;
-    //logErr2("@%s",__PRETTY_FUNCTION__);
     auto& ID=e->id;
     if(systemEventEnum::startService==ID)
     {
@@ -46,7 +45,6 @@ bool rpcTestService2::handleEvent(const REF_getter<Event::Base>& e)
         {
             throw CommonError("wrong md5 of buffer");
         }
-        //usleep(50000);
         passEvent(new testEvent::testRSP(ee->session,ee->seq,ee->buf,ee->md5,poppedFrontRoute(e->route)));
         return true;
     }

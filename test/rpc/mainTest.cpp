@@ -18,7 +18,6 @@ int mainTest(int argc, char** argv )
 {
     try {
         iUtils=new CUtils(argc, argv, "rpcTest");
-//        iUtils->registerITest(COREVERSION,ServiceEnum::rpcTest,rpcTest::construct);
         iUtils->registerService(COREVERSION,ServiceEnum::rpcTestService1,rpcTestService1::construct,"rpcTestService1");
         iUtils->registerService(COREVERSION,ServiceEnum::rpcTestService2,rpcTestService2::construct,"rpcTestService2");
         iUtils->registerEvent(testEvent::testREQ::construct);

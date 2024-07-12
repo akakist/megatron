@@ -3,7 +3,6 @@
 #include <time.h>
 #include <map>
 #include "teldemo1Service.h"
-#include "Events/Ping.h"
 #include "events_teldemo1.hpp"
 
 

@@ -46,7 +46,6 @@ void rpcTestService1::sendRequest(int session,int seq)
 bool rpcTestService1::handleEvent(const REF_getter<Event::Base>& e)
 {
     if(done_test)return true;
-    //logErr2("@%s",__PRETTY_FUNCTION__);
     auto& ID=e->id;
     if(timerEventEnum::TickAlarm==ID)
     {
@@ -54,9 +53,6 @@ bool rpcTestService1::handleEvent(const REF_getter<Event::Base>& e)
         if(ee->tid==TI_START)
         {
             sendRequest(session,0);
-            //sendRequest(session+1,0);
-            //sendRequest(session+2,0);
-            //session+=3;
             return true;
         }
         if(ee->tid==TI_ACTIVITY)
@@ -93,7 +89,6 @@ bool rpcTestService1::on_testRSP(const testEvent::testRSP* e)
         logErr2("on rsp %d",e->seq);
     sendEvent(ServiceEnum::Timer,new timerEvent::ResetAlarm(TI_ACTIVITY,NULL,NULL,TI_ACTIVITY_VALUE,ListenerBase::serviceId));
 
-    //logErr2("@%s",__PRETTY_FUNCTION__);
     if(e->seq>N_PONG)
     {
         logErr2(GREEN("RPC test OK %d"),e->seq);

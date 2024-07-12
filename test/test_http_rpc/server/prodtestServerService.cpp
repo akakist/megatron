@@ -8,12 +8,8 @@
 #include "prodtestServerService.h"
 #include "Events/Ping.h"
 #include "Events/System/timerEvent.h"
-
 #include "Events/System/Net/rpcEvent.h"
-
 #include "events_prodtestServerService.hpp"
-
-
 
 bool prodtestServer::Service::on_startService(const systemEvent::startService*)
 {
