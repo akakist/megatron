@@ -10,7 +10,6 @@
 #include <Events/System/Net/socketEvent.h>
 #include <Events/Tools/webHandlerEvent.h>
 #include <Events/System/Run/startServiceEvent.h>
-#include "oscarSecureUser.h"
 #include "st_rsa.h"
 namespace OscarSecure
 {

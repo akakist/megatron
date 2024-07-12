@@ -38,7 +38,6 @@ add_library(megatron-core STATIC
             st_rsa.cpp
             unknown.cpp
             url.cpp
-            trashable.cpp
             webDumpable.cpp
             neighbours.cpp
             ../lib/jsoncpp-0.5.0/src/lib_json/json_reader.cpp
@@ -158,8 +157,6 @@ st_rsa.cpp
 st_rsa.h
 timerHelper.h
 tools_mt.h
-trashable.cpp
-trashable.h
 unknown.cpp
 unknown.h
 unknownCastDef.h

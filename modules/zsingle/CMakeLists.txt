@@ -18,7 +18,6 @@ add_library(zsingle STATIC
 ../objectProxy/objectProxyService.cpp
 ../oscar/oscarService.cpp
 ../oscarSecure/oscarSecureService.cpp
-../oscarSecure/oscarSecureUser.cpp
 ../referrerClient/referrerClientService.cpp
 ../rpc/rpcService.cpp
 #../rpc/upnp_tr.c

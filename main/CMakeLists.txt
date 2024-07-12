@@ -15,7 +15,6 @@ megatron.cpp
 megatron.h
 megatronClient.cpp
 megatronClient.h
-progressor.h
 threadNameCtl.cpp
 threadNameCtl.h
 utils_local.h
@@ -29,5 +28,4 @@ megatronClient.cpp
 iutils_decl.cpp
 
 )
-#install(TARGETS megatron-main DESTINATION ${LIB_TARGET_DIR})
 
