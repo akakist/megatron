@@ -4,6 +4,7 @@ project (dfsCoreModules)
 
 #ADD_SUBDIRECTORY(rpc)
 #ADD_SUBDIRECTORY(udp)
+ADD_SUBDIRECTORY(timer)
 ADD_SUBDIRECTORY(rpc)
 ADD_SUBDIRECTORY(containers)
 ADD_SUBDIRECTORY(telnet)
