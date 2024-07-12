@@ -13,4 +13,3 @@
 #define CAPS_PORT "10100"
 #define CAPS_IP "x.testquant.com"
 #endif
-

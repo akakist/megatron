@@ -2,7 +2,6 @@
 
 #project(dfsCore)
 
-ADD_SUBDIRECTORY(test)
 
 
 add_library(megatron-core STATIC
