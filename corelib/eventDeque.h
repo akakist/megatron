@@ -20,7 +20,7 @@ public:
     EventDeque(const std::string& _name,IInstance* ins):name(_name), m_cond(m_mutex),instance(ins),m_isTerminating(false) {}
     void push(const REF_getter<Event::Base> & e);
     REF_getter<Event::Base> pop();
-    virtual ~EventDeque() {}
+//    virtual ~EventDeque() {}
     void deinit()
     {
         m_isTerminating=true;

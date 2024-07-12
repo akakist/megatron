@@ -3,10 +3,8 @@
 add_library(core-oscarSecure SHARED
     oscarSecure.cpp
     oscarSecureService.cpp
-    oscarSecureUser.cpp
     bufferVerify.h
 oscarSecureService.h
-oscarSecureUser.h
 
 )
 

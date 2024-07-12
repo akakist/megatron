@@ -4,7 +4,6 @@ add_library(core-socket SHARED
             socket.cpp
             socketService.cpp
             socketService.h
-socketStats.h
 
            )
 

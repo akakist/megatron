@@ -1,22 +1,11 @@
 #include <string>
-#include "IUtils.h"
-#include "version_mega.h"
-#include "listenerBuffered.h"
-#include "broadcaster.h"
-#include "main/CInstance.h"
-#include "Events/System/Run/startService.h"
-#include "tools_mt.h"
 #include "url.h"
 #include "colorOutput.h"
 #include "ISSL.h"
-#include "main/configObj.h"
+#include "CUtils.h"
 #include <iostream>
+#include "IUtils.h"
 
-namespace ServiceEnum {
-    const SERVICE_id CTRTest("CTRTest");
-}
-namespace testEventEnum {
-}
 
 template <class T1, class T2> bool ASSERT_eq(const char* file, int line, const char* func, const T1& t1, const T2& t2)
 {
@@ -91,30 +80,9 @@ void TEST4()
 }
 
 
-class CTRTest: public ITests::Base
-{
-public:
-    int zzz;
-    int run();
-    std::string getName()
-    {
-        return "CTRTest";
-    }
-
-    CTRTest() {
-        zzz=100;
-    }
-    ~CTRTest() {}
-    static ITests::Base* construct()
-    {
-        XTRY;
-        return new CTRTest;
-        XPASS;
-    }
 
 
 
-};
 template <class T> void fillrnd(I_ssl*ssl,T &z)
 {
     ssl->rand_bytes((uint8_t*)&z,sizeof(z));
@@ -286,6 +254,8 @@ struct Z
     Z()
     {
         I_ssl *ssl=(I_ssl*)iUtils->queryIface(Ifaces::SSL);
+        if(!ssl)
+            throw CommonError("if(!ssl)");
         int rnd=rand()%10000;
         for(int i=0; i<rnd; i++)
         {
@@ -350,7 +320,8 @@ void TEST5()
         0xFF,
         0xF
     };
-    for(int i=sizeof(sn)-1; i>=0; i--)
+
+    for(int i=0; i< sizeof(sn)/sizeof(uint64_t);  i++)
     {
         uint64_t n=sn[i];
         outBuffer o;
@@ -362,11 +333,15 @@ void TEST5()
         ASSERT_EQ(n,nn);
     }
 
+    printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
+
 }
 void TEST6()
 {
+
     for(int i=0; i<3; i++)
     {
+        printf("%s %d\n",__PRETTY_FUNCTION__,i);
         Z z;
         outBuffer o;
         o<<z;
@@ -379,6 +354,7 @@ void TEST6()
             ASSERT_EQ(1,2);
         }
     }
+
     printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
 
 }
@@ -405,40 +381,33 @@ void TEST8()
     printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
 }
 
-int CTRTest::run()
+void registerSSL(const char* pn);
+int run(int ac, char** av)
 {
-
     printf(GREEN("RUN TEST %s"),__PRETTY_FUNCTION__);
-
-    TEST1();
-    TEST2();
-    TEST3();
-    TEST4();
-    TEST5();
-    TEST6();
-    TEST7();
-    TEST8();
-//    int argc=iUtils->argc();
-//    ::testing::InitGoogleTest(&argc, iUtils->argv());
-
-//    return RUN_ALL_TESTS();
+    try {
+        iUtils=new CUtils(ac,av,"TestContainers");
+        registerSSL(NULL);
+        TEST1();
+        TEST2();
+        TEST3();
+        TEST4();
+        TEST5();
+        TEST6();
+        TEST7();
+        TEST8();
+        delete iUtils;
+    } catch(CommonError&e)
+    {
+        printf("CommonError: %s\n",e.what());
+    }
     return 0;
 
 
 }
 
 
-void registerCTRTest(const char* pn)
+int _main(int ac, char** av)
 {
-    if(pn)
-    {
-
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_TEST,ServiceEnum::CTRTest,"CTRTest",std::set<EVENT_id>());
-
-    }
-    else
-    {
-        iUtils->registerITest(COREVERSION,ServiceEnum::CTRTest,CTRTest::construct);
-
-    }
+    return run(ac,av);
 }

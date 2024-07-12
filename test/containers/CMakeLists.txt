@@ -1,13 +1,18 @@
 #cmake_minimum_required (VERSION 2.6)
 
-include_directories(../../lib/miniupnp-master)
 
-add_library(test-containers SHARED
-containers_test.cpp
+
+add_executable(test-containers1 
 containers_test_service.cpp
+main.cpp
+
 )
-target_link_libraries(test-containers megatron-main megatron-core  z pthread ${DL})
+target_link_libraries(test-containers1 megatron-main megatron-core zsingle crypto  z pthread ${DL})
 
 
-install(TARGETS test-containers DESTINATION ${PLUGIN_TARGET_DIR})
+#install(TARGETS test-containers1 DESTINATION ${PLUGIN_TARGET_DIR} )
+
+add_test(NAME test-containers1
+         COMMAND test-containers1)
+
 

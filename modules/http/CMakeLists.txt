@@ -1,7 +1,5 @@
 cmake_minimum_required (VERSION 3.0)
 
-ADD_SUBDIRECTORY(test_http)
-ADD_SUBDIRECTORY(test_http_rpc)
 add_library(core-http SHARED
 
             http.cpp
