@@ -197,7 +197,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
     {
         std::string head;
         {
-            M_LOCK(evt->esi->inBuffer_);
+            W_LOCK(evt->esi->inBuffer_.lk);
             if (!W.___ptr->__gets$(head,"\r\n\r\n", evt->esi->inBuffer_._mx_data))
             {
                 return true;
@@ -293,7 +293,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                     return true;
                 }
                 {
-                    M_LOCK(evt->esi->inBuffer_);
+                    W_LOCK(evt->esi->inBuffer_.lk);
                     if (!W->__readbuf$(W->postContent,clen, evt->esi->inBuffer_._mx_data)) return true;
                 }
                 W->split_params(W->postContent);
@@ -316,7 +316,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                 {
 
                     {
-                        M_LOCK(evt->esi->inBuffer_);
+                        W_LOCK(evt->esi->inBuffer_.lk);
                         if (!W->__gets$(sbuf,ebound, evt->esi->inBuffer_._mx_data)) return true;
                     }
 

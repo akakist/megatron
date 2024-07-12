@@ -57,7 +57,7 @@ bool OscarSecure::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                 {
                     XTRY;
                     {
-                        M_LOCK(evt->esi->inBuffer_);
+                        W_LOCK(evt->esi->inBuffer_.lk);
                         if(evt->esi->inBuffer_._mx_data.size()==0)
                         {
                             return true;

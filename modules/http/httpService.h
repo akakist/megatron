@@ -91,11 +91,6 @@ namespace HTTP
         _lastModified lastModified;
 
 
-        struct _senderIo: public Mutexable
-        {
-            std::map<int64_t,std::pair<REF_getter<HTTP::Request>,std::vector<std::string> > > container;
-        };
-        _senderIo senderIo;
         IInstance *iInstance;
     };
 };
