@@ -47,7 +47,7 @@ void string_alloc()
     for(int i=0;i< N;i++)
     {
         auto p=new std::string();
-        p->resize(1000000);
+        p->reserve(1000000);
         malloced[i]=p;
     }
 }
