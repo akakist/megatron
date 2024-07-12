@@ -44,7 +44,7 @@ bool testTimer::Service::handleEvent(const REF_getter<Event::Base>& e)
                 samples.erase(data);
                 if(samples.empty())
                 {
-                    iUtils->setTerminate();
+                    iUtils->setTerminate(0);
                 }
             }
 

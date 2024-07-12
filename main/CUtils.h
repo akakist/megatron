@@ -221,9 +221,14 @@ public:
     void unregisterInstance(IInstance *i);
     IInstance* createNewInstance(const std::string& name);
 
-    bool m_isTerminating;
-    void setTerminate();
+    bool m_isTerminating=false;
+    int m_exit_code=0;
+    void setTerminate(int exit_flag);
     bool isTerminating();
+    int getExitFlag()
+    {
+        return m_exit_code;
+    }
 
     void load_plugins_info(const std::set<std::string>& bases);
 

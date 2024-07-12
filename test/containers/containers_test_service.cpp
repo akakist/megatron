@@ -400,6 +400,7 @@ int run(int ac, char** av)
     } catch(CommonError&e)
     {
         printf("CommonError: %s\n",e.what());
+        return 1;
     }
     return 0;
 

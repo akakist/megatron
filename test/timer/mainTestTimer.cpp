@@ -28,8 +28,10 @@ int mainTestTimer(int argc, char** argv )
         {
             sleep(1);
         }
+        auto ef=iUtils->getExitFlag();
+
         delete iUtils;
-        return 0;
+        return ef;
 
     } catch (CommonError& e)
     {

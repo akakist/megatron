@@ -833,7 +833,7 @@ bool  SocketIO::Service::on_AddToListenTCP(const socketEvent::AddToListenTCP*ev)
 #else
         logErr2("Server: bind()  failed: errno %d %s %s", errno, strerror(errno),ev->addr.dump().c_str());
 #endif
-        iUtils->setTerminate();
+        iUtils->setTerminate(1);
         return true;
     }
 

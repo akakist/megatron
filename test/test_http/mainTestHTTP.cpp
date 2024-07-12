@@ -62,7 +62,8 @@ int mainTestHTTP(int argc, char** argv )
         }
 
         usleep(1000000);
-        system("ab -n 1000000  -k -c 100  http://127.0.0.1:8088/");
+        auto ef=system("ab -n 1000000  -k -c 100  http://127.0.0.1:8088/");
+        iUtils->setTerminate(ef);
 //        system("ab -n 1000000   -c 10  http://127.0.0.1:8088/");
 //        sleep(1);
         delete iUtils;

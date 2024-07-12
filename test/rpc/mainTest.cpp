@@ -92,6 +92,7 @@ int mainTest(int argc, char** argv )
         {
             usleep(10000);
         }
+        iUtils->setTerminate(0);
         delete iUtils;
         return 0;
 

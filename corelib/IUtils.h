@@ -222,8 +222,10 @@ public:
     virtual void registerInstance(IInstance *i)=0;
     virtual void unregisterInstance(IInstance *i)=0;
     virtual IInstance* createNewInstance(const std::string& name)=0;
-    virtual void setTerminate()=0;
+    virtual void setTerminate(int exit_flag)=0;
     virtual bool isTerminating()=0;
+    virtual int getExitFlag()=0;
+
     virtual  void load_plugins_info(const std::set<std::string>& bases)=0;
 
     virtual REF_getter<_addrInfos> getAddrInfos()=0;

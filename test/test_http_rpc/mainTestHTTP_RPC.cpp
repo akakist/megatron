@@ -104,7 +104,8 @@ int mainTestHTTP_RPC(int argc, char** argv )
         }
 
         sleep(2);
-        system("ab -n 100000 -k -c 200  http://127.0.0.1:8088/");
+        auto ef=system("ab -n 100000 -k -c 200  http://127.0.0.1:8088/");
+        iUtils->setTerminate(ef);
         sleep(1);
         delete iUtils;
         return 0;

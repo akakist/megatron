@@ -1737,9 +1737,10 @@ IInstance* CUtils::createNewInstance(const std::string& nm)
     }
     return ins;
 }
-void CUtils::setTerminate()
+void CUtils::setTerminate(int exit_flag)
 {
     m_isTerminating=true;
+    m_exit_code=exit_flag;
 }
 bool CUtils::isTerminating()
 {

@@ -154,7 +154,7 @@ void onterm(int signum)
 
             exTime=time(NULL);
             ex=true;
-            iUtils->setTerminate();
+            iUtils->setTerminate(1);
 
             tc->print_term(signum);
 //            if(iUtils)
