@@ -3,13 +3,6 @@
 #include "configObj.h"
 #include "CUtils.h"
 #include <unistd.h>
-//bool done_test_timer=false;
-void registerRPCService(const char* pn);
-void registerSocketModule(const char* pn);
-void registerTimerService(const char* pn);
-void registerSSL(const char* pn);
-void registerOscarModule(const char* pn);
-void registerOscarSecureModule(const char* pn);
 void registerTestTimer(const char* pn);
 void registerTimerService(const char* pn);
 
@@ -18,12 +11,6 @@ int mainTestTimer(int argc, char** argv )
     try {
         iUtils=new CUtils(argc, argv, "timerTest");
 
-        registerRPCService(NULL);
-        registerSocketModule(NULL);
-        registerTimerService(NULL);
-        registerSSL(NULL);
-        registerOscarModule(NULL);
-        registerOscarSecureModule(NULL);
         registerTimerService(NULL);
         registerTestTimer(NULL);
 
@@ -37,8 +24,10 @@ int mainTestTimer(int argc, char** argv )
             instance1->setConfig(cnf1);
             instance1->initServices();
         }
-
-        usleep(1000000);
+        while(!iUtils->isTerminating())
+        {
+            sleep(1);
+        }
         delete iUtils;
         return 0;
 

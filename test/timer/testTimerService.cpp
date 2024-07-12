@@ -16,9 +16,8 @@ bool testTimer::Service::on_startService(const systemEvent::startService*)
 
     for(int i=0;i<10;i++)
     {
-        std::string ss((char*)&i,sizeof(i));
         sendEvent(ServiceEnum::Timer,new timerEvent::SetAlarm(1,toRef(std::to_string(i)),toRef("any additional data "+std::to_string(i)),0.1*i,ListenerBase::serviceId));
-        samples.insert(ss);
+        samples.insert(std::to_string(i));
     }
 
     return true;
@@ -44,10 +43,12 @@ bool testTimer::Service::handleEvent(const REF_getter<Event::Base>& e)
                 logErr2("-> %d %s %s",E->tid,data.c_str(),cookie.c_str());
                 samples.erase(data);
                 if(samples.empty())
+                {
                     iUtils->setTerminate();
+                }
             }
 
-            /// say engine we handled event
+            /// say engine we handled event, try return false to see behaviour
             return true;
         }
 
