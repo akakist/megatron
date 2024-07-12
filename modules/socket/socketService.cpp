@@ -48,7 +48,7 @@ SocketIO::Service::~Service()
 
 
     {
-        WLocker lk(m_io_socks_pollers_.lock);
+        W_LOCK(m_io_socks_pollers_.lock);
         m_io_socks_pollers_.socks_pollers_.clear();
     }
 }
@@ -71,7 +71,7 @@ SocketIO::Service::Service(const SERVICE_id& id, const std::string& nm, IInstanc
             REF_getter<SocketsContainerForSocketIO> MS=new SocketsContainerForSocketIO;
 
             {
-                WLocker lk(m_io_socks_pollers_.lock);
+                W_LOCK(m_io_socks_pollers_.lock);
                 m_io_socks_pollers_.socks_pollers_.push_back(MS);
                 m_io_socks_pollers_.for_threads_.push_back(MS);
             }
@@ -470,7 +470,7 @@ void SocketIO::Service::worker()
 #endif
     REF_getter<SocketsContainerForSocketIO> MS(NULL);
     {
-        WLocker lk(m_io_socks_pollers_.lock);
+        W_LOCK(m_io_socks_pollers_.lock);
         if(m_io_socks_pollers_.for_threads_.empty())
             throw CommonError("if(m_io_socks_pollers.for_threads.empty())");
         MS=*m_io_socks_pollers_.for_threads_.begin();

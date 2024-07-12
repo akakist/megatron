@@ -49,7 +49,7 @@ namespace HTTP
         bool on_RegisterProtocol(const httpEvent::RegisterProtocol*e)
         {
 
-            WLocker aaa(mx.lk);
+            W_LOCK(mx.lk);
             mx.protocols.insert(std::make_pair(e->url,e->protocol));
 
             return true;

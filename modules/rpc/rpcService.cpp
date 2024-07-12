@@ -80,7 +80,7 @@ bool RPC::Service::on_Connected(const oscarEvent::Connected* E)
     msockaddr_in addr;
     std::set<route_t> subscribers;
     {
-        RLocker lk(sessions.sa2sess_.lock_);
+        R_LOCK(sessions.sa2sess_.lock_);
         if(!E->esi->request_for_connect_.has_value())
             throw CommonError("if(!E->esi->request_for_connect.has_value())");
         auto it=sessions.sa2sess_.container_.find(*E->esi->request_for_connect_);
@@ -92,7 +92,7 @@ bool RPC::Service::on_Connected(const oscarEvent::Connected* E)
         S=it->second;
     }
     {
-        RLocker l(sessions.subscribers_.lock_);
+        R_LOCK(sessions.subscribers_.lock_);
         subscribers=sessions.subscribers_.container_;
 
 
@@ -232,7 +232,7 @@ void RPC::Service::flushOutCache(const REF_getter<Session> & S)
     {
         std::deque<REF_getter<refbuffer> > d;
         {
-            WLocker l(S->outCache_->lk);
+            W_LOCK(S->outCache_->lk);
             d=std::move(S->outCache_->container);
         }
         S->outCache_=nullptr;
@@ -258,7 +258,7 @@ void RPC::Service::addSendPacket(const REF_getter<Session>&S, const REF_getter<r
     {
         if(!S->outCache_.valid())
             S->outCache_=new outCache;
-        WLocker l(S->outCache_->lk);
+        W_LOCK(S->outCache_->lk);
         S->outCache_->container.push_back(P);
         return;
     }
@@ -282,7 +282,7 @@ bool RPC::Service::on_PassPacket(const rpcEvent::PassPacket* E)
 
     REF_getter<Session> S(NULL);
     {
-        RLocker lk(sessions.sock2sess_.lock_);
+        R_LOCK(sessions.sock2sess_.lock_);
 
         auto it=sessions.sock2sess_.container_.find(E->socketIdTo);
         if(it!=sessions.sock2sess_.container_.end())
@@ -296,7 +296,7 @@ bool RPC::Service::on_PassPacket(const rpcEvent::PassPacket* E)
         addSendPacket(S,o.asString());
     }
     else{
-        WLocker aaa(sessions.passCache_.lock_);
+        W_LOCK(sessions.passCache_.lock_);
         sessions.passCache_.passCache[E->socketIdTo].push_back(o.asString());
     }
 
@@ -309,7 +309,7 @@ bool RPC::Service::on_NotifyBindAddress(const oscarEvent::NotifyBindAddress*e)
     MUTEX_INSPECTOR;
 
     {
-        WLocker l(sharedAddr.lk);
+        W_LOCK(sharedAddr.lk);
         sharedAddr.m_bindAddr_mainSH.insert(e->addr);
     }
     flushAll();
@@ -353,16 +353,15 @@ bool RPC::Service::on_Accepted(const oscarEvent::Accepted* E)
             REF_getter<Session> S=new Session(E->esi->id_,E->esi);
             std::deque<REF_getter<refbuffer>> d;
             {
-                WLocker lk(sessions.sock2sess_.lock_);
-
+                W_LOCK(sessions.sock2sess_.lock_);
                 sessions.sock2sess_.container_.emplace(E->esi->id_,S);
             }
             {
-                RLocker l(sessions.subscribers_.lock_);
+                R_LOCK(sessions.subscribers_.lock_);
                 subscribers=sessions.subscribers_.container_;
             }
             {
-                WLocker l(sessions.passCache_.lock_);
+                W_LOCK(sessions.passCache_.lock_);
                 d=std::move(sessions.passCache_.passCache[E->esi->id_]);
                 sessions.passCache_.passCache.erase(E->esi->id_);
             }
@@ -396,7 +395,7 @@ bool RPC::Service::on_SendPacket(const rpcEvent::SendPacket* E)
     REF_getter<Session> S(NULL);
     {
         {
-            RLocker lk(sessions.sa2sess_.lock_);
+            R_LOCK(sessions.sa2sess_.lock_);
             auto it=sessions.sa2sess_.container_.find(E->addressTo);
             if(it!=sessions.sa2sess_.container_.end())
                 S=it->second;
@@ -408,7 +407,7 @@ bool RPC::Service::on_SendPacket(const rpcEvent::SendPacket* E)
             msockaddr_in addressTo=E->addressTo;
             S=new Session(sockId,NULL);
             {
-                WLocker lk(sessions.sa2sess_.lock_);
+                W_LOCK(sessions.sa2sess_.lock_);
                 sessions.sa2sess_.container_.emplace(E->addressTo,S);
             }
             sendEvent(myOscarListener,new oscarEvent::Connect(sockId,E->addressTo,"RPC",dynamic_cast<ListenerBase*>(this)));
@@ -451,7 +450,7 @@ UnknownBase* RPC::Service::construct(const SERVICE_id& id, const std::string&  n
 
 bool RPC::Service::on_UnsubscribeNotifications(const rpcEvent::UnsubscribeNotifications* E)
 {
-    WLocker lk(sessions.subscribers_.lock_);
+   W_LOCK(sessions.subscribers_.lock_);
 
     sessions.subscribers_.container_.erase(E->route);
     return true;
@@ -460,7 +459,7 @@ bool RPC::Service::on_UnsubscribeNotifications(const rpcEvent::UnsubscribeNotifi
 
 bool RPC::Service::on_SubscribeNotifications(const rpcEvent::SubscribeNotifications* E)
 {
-    WLocker lk(sessions.subscribers_.lock_);
+    W_LOCK(sessions.subscribers_.lock_);
     sessions.subscribers_.container_.insert(poppedFrontRoute(E->route));
     return true;
 }
@@ -493,7 +492,7 @@ unsigned short RPC::Service::getExternalListenPortMain()
     MUTEX_INSPECTOR;
     bool cond=false;
     {
-        RLocker l(sharedAddr.lk);
+        R_LOCK(sharedAddr.lk);
         cond=sharedAddr.m_bindAddr_mainSH.empty();
     }
     while(cond)
@@ -512,7 +511,7 @@ unsigned short RPC::Service::getExternalListenPortMain()
 
     }
     {
-        RLocker l(sharedAddr.lk);
+        R_LOCK(sharedAddr.lk);
         if(sharedAddr.m_bindAddr_mainSH.size()==0)
         {
             logErr2("@@ %s %d ret 0",__PRETTY_FUNCTION__,__LINE__);
@@ -526,18 +525,18 @@ std::set<msockaddr_in> RPC::Service::getInternalListenAddrs()
     MUTEX_INSPECTOR;
     bool cond=false;
     {
-        RLocker l(sharedAddr.lk);
+        R_LOCK(sharedAddr.lk);
         cond= sharedAddr.m_bindAddr_mainSH.empty();
     }
     while(cond)
     {
         usleep(10000);
         {
-            RLocker l(sharedAddr.lk);
+            R_LOCK(sharedAddr.lk);
             cond= sharedAddr.m_bindAddr_mainSH.empty();
         }
     }
-    RLocker l(sharedAddr.lk);
+    R_LOCK(sharedAddr.lk);
     return sharedAddr.m_internalAddr;
 
 }
@@ -545,13 +544,13 @@ void RPC::Service::flushAll()
 {
     std::set<REF_getter<Session> > s;
     {
-        RLocker lk(sessions.sock2sess_.lock_);
+        R_LOCK(sessions.sock2sess_.lock_);
         for(auto& z: sessions.sock2sess_.container_)
             s.insert(z.second);
 
     }
     {
-        RLocker l(sessions.sa2sess_.lock_);
+        R_LOCK(sessions.sa2sess_.lock_);
         for(auto& z: sessions.sa2sess_.container_)
             s.insert(z.second);
     }
@@ -571,11 +570,11 @@ bool RPC::Service::on_ConnectFailed(const oscarEvent::ConnectFailed*e)
         throw CommonError("if(!e->esi->request_for_connect.valid())");
 
     {
-        WLocker lk(sessions.subscribers_.lock_);
+        W_LOCK(sessions.subscribers_.lock_);
         subscribers=sessions.subscribers_.container_;
     }
     {
-        WLocker l(sessions.sa2sess_.lock_);
+        W_LOCK(sessions.sa2sess_.lock_);
         sessions.sa2sess_.container_.erase(*e->esi->request_for_connect_);
     }
 
@@ -590,7 +589,7 @@ bool RPC::Service::on_Disconnected(const oscarEvent::Disconnected* e)
     MUTEX_INSPECTOR;
     std::set<route_t> subscribers;
     {
-        RLocker lk(sessions.subscribers_.lock_);
+        R_LOCK(sessions.subscribers_.lock_);
         subscribers=sessions.subscribers_.container_;
     }
 
@@ -604,8 +603,7 @@ bool RPC::Service::on_Disconnected(const oscarEvent::Disconnected* e)
         passEvent(new rpcEvent::Disconnected(e->esi,*e->esi->request_for_connect_,e->reason,i));
     }
     {
-        WLocker lk(sessions.sa2sess_.lock_);
-
+        W_LOCK(sessions.sa2sess_.lock_);
         sessions.sa2sess_.container_.erase(*e->esi->request_for_connect_);
     }
 
@@ -617,7 +615,7 @@ bool RPC::Service::on_Disaccepted(const oscarEvent::Disaccepted*e)
 
     std::set<route_t> subscribers;
     {
-        RLocker lk(sessions.subscribers_.lock_);
+        R_LOCK(sessions.subscribers_.lock_);
 
         subscribers=sessions.subscribers_.container_;
     }
@@ -627,7 +625,7 @@ bool RPC::Service::on_Disaccepted(const oscarEvent::Disaccepted*e)
         passEvent(new rpcEvent::Disaccepted(e->esi,e->reason,i));
     }
     {
-        WLocker lk(sessions.sock2sess_.lock_);
+        W_LOCK(sessions.sock2sess_.lock_);
         sessions.sock2sess_.container_.erase(e->esi->id_);
     }
 

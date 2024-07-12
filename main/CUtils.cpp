@@ -813,7 +813,7 @@ std::string CUtils::getPercent(const real& numerator, const real& denumerator)
 int CUtils::getHostByName(const char* hostname,unsigned int &out)
 {
     {
-        RLocker asdsdd(hostnames.lk);
+        R_LOCK(hostnames.lk);
         auto i=hostnames.cache.find(hostname);
         if(i!=hostnames.cache.end())
         {
@@ -829,7 +829,7 @@ int CUtils::getHostByName(const char* hostname,unsigned int &out)
     }
     out=*((unsigned int *)(hostEnt->h_addr));
     {
-        WLocker ffff(hostnames.lk);
+        W_LOCK(hostnames.lk);
         hostnames.cache[hostname]=out;
     }
     return 0;
@@ -1286,7 +1286,7 @@ Ifaces::Base* CUtils::queryIface(const SERVICE_id &id)
 {
     if(m_isTerminating) throw CommonError("terminating");
     {
-        RLocker asdfasd(local.ifaces.lk);
+        R_LOCK(local.ifaces.lk);
         auto i=local.ifaces.container.find(id);
         if(i==local.ifaces.container.end())
         {
@@ -1474,7 +1474,7 @@ void CUtils::registerPlugingInfo(const VERSION_id& version, const char* pluginFi
     }
     if(pt==IUtils::PLUGIN_TYPE_SERVICE)
     {
-        WLocker asesdffds (local.service_names.lk);
+        W_LOCK(local.service_names.lk);
         local.service_names.id2name[id]=name;
         local.service_names.name2id[name]=id;
     }
@@ -1493,7 +1493,7 @@ void CUtils::registerService(const VERSION_id& vid, const SERVICE_id& id, unknow
 
     XTRY;
     {
-        WLocker asdfsdf(local.service_constructors.lk);
+        W_LOCK(local.service_constructors.lk);
         if(local.service_constructors.container.count(id))
         {
             DBG(printf(BLUE("Service '%s' already registered"),literalName.c_str()));
@@ -1506,7 +1506,7 @@ void CUtils::registerService(const VERSION_id& vid, const SERVICE_id& id, unknow
 
     }
     {
-        WLocker asdfasdf(local.service_names.lk);
+        W_LOCK(local.service_names.lk);
         local.service_names.id2name[id]=literalName;
         local.service_names.name2id[literalName]=id;
     }
@@ -1527,7 +1527,7 @@ REF_getter<Event::Base> CUtils::unpackEvent(inBuffer&b)
     event_static_constructor esc=nullptr;
 
     {
-        RLocker rkr(local.event_constructors.lk);
+        R_LOCK(local.event_constructors.lk);
         auto i=local.event_constructors.container.find(id);
         if(i!=local.event_constructors.container.end())
         {
@@ -1560,7 +1560,7 @@ REF_getter<Event::Base> CUtils::unpackEvent(inBuffer&b)
         }
         {
 
-            RLocker r(local.event_constructors.lk);
+            R_LOCK(local.event_constructors.lk);
             auto i=local.event_constructors.container.find(id);
             if(i!=local.event_constructors.container.end())
             {
@@ -1594,7 +1594,7 @@ void CUtils::packEvent(outBuffer &b, const REF_getter<Event::Base> &e)const
 std::string CUtils::serviceName(const SERVICE_id& id) const
 {
     XTRY;
-    RLocker asdfsdf(local.service_names.lk);
+    R_LOCK(local.service_names.lk);
     {
         auto i=local.service_names.id2name.find(id);
         if(i!=local.service_names.id2name.end())
@@ -1609,8 +1609,7 @@ SERVICE_id CUtils::serviceIdByName(const std::string& name)const
     MUTEX_INSPECTOR;
     XTRY;
     {
-        RLocker dddd(local.service_names.lk);
-
+        R_LOCK(local.service_names.lk);
         auto i=local.service_names.name2id.find(name);
         if(i!=local.service_names.name2id.end())
             return i->second;
@@ -1661,7 +1660,7 @@ void CUtils::registerEvent(event_static_constructor ec)
         return;
     }
     {
-        WLocker l(local.event_constructors.lk);
+        W_LOCK(local.event_constructors.lk);
         local.event_constructors.container.insert(std::make_pair(e->id,ec));
     }
 
@@ -1671,7 +1670,7 @@ void CUtils::registerEvent(event_static_constructor ec)
 bool CUtils::isServiceRegistered(const SERVICE_id& svs)
 {
     {
-        RLocker sdfsdf(local.service_constructors.lk);
+        R_LOCK(local.service_constructors.lk);
         if(local.service_constructors.container.count(svs))
             return true;
     }
@@ -1697,7 +1696,7 @@ void CUtils::registerIface(const VERSION_id& vid,const SERVICE_id& id, Ifaces::B
     }
 
 
-    WLocker sdsdf(local.ifaces.lk);
+    W_LOCK(local.ifaces.lk);
     auto i=local.ifaces.container.find(id);
     if(i!=local.ifaces.container.end())
     {

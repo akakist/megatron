@@ -23,7 +23,7 @@ struct Utils_local
             decltype(container) ifs;
 
             {
-                WLocker asdas(lk);
+                W_LOCK(lk);
                 ifs=container;
                 container.clear();
 
@@ -68,7 +68,7 @@ struct Utils_local
             MUTEX_INSPECTOR;
 
 
-            WLocker dddd(lk);
+            W_LOCK(lk);
             name2id.clear();
             id2name.clear();
         }
@@ -81,7 +81,7 @@ struct Utils_local
         {
 
             MUTEX_INSPECTOR;
-            WLocker asasd(lk);
+            W_LOCK(lk);
 
             container.clear();
         }
@@ -94,7 +94,7 @@ struct Utils_local
         {
 
             MUTEX_INSPECTOR;
-            WLocker aa(lk);
+            W_LOCK(lk);
 
             container.clear();
         }

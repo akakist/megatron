@@ -261,4 +261,6 @@ public:
         m_lock->rdlock();
     }
 };
+#define R_LOCK(a) RLocker zzz_dummy_stackparam_lock(a)
+#define W_LOCK(a) WLocker zzz1_dummy_stackparam_lock(a)
 

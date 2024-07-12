@@ -143,7 +143,7 @@ void CInstance::sendEvent(ListenerBase *l,  const REF_getter<Event::Base>&e)
 UnknownBase* CInstance::getServiceNoCreate(const SERVICE_id& svs)
 {
 //    if(m_terminating)return nullptr;
-    RLocker lk(services.m_lock);
+    R_LOCK(services.m_lock);
     auto i=services.container.find(svs);
     UnknownBase* u=NULL;
     if(i==services.container.end())
@@ -165,7 +165,7 @@ UnknownBase* CInstance::getServiceOrCreate(const SERVICE_id& svs)
     UnknownBase* u=nullptr;
     {
         XTRY;
-        RLocker lk(services.m_lock);
+        R_LOCK(services.m_lock);
         auto i=services.container.find(svs);
         if(i==services.container.end())
         {
@@ -204,7 +204,7 @@ void CInstance::forwardEvent(const SERVICE_id& svs,  const REF_getter<Event::Bas
         UnknownBase*u=nullptr;
         {
             XTRY;
-            RLocker lk(services.m_lock);
+            R_LOCK(services.m_lock);
             auto i=services.container.find(svs);
             if(i==services.container.end())
             {
@@ -282,7 +282,7 @@ UnknownBase* CInstance::initService(const SERVICE_id& sid)
         }
         {
             MUTEX_INSPECTOR;
-            RLocker ldddd(locals->service_constructors.lk);
+            R_LOCK(locals->service_constructors.lk);
             auto i=locals->service_constructors.container.find(sid);
             if(i==locals->service_constructors.container.end())
             {
@@ -323,7 +323,7 @@ UnknownBase* CInstance::initService(const SERVICE_id& sid)
             m_utils->registerPluginDLL(pn);
             {
                 MUTEX_INSPECTOR;
-                RLocker sdfsdf(locals->service_constructors.lk);
+                R_LOCK(locals->service_constructors.lk);
                 auto i=locals->service_constructors.container.find(sid);
                 if(i==locals->service_constructors.container.end())
                 {
@@ -342,7 +342,7 @@ UnknownBase* CInstance::initService(const SERVICE_id& sid)
         {
             {
                 MUTEX_INSPECTOR;
-                RLocker lk(services.m_lock);
+                R_LOCK(services.m_lock);
                 auto iii=services.container.find(sid);
                 if(iii!=services.container.end())
                 {
@@ -380,7 +380,7 @@ UnknownBase* CInstance::initService(const SERVICE_id& sid)
                     }
                 }
                 {
-                    WLocker lk(services.m_lock);
+                    W_LOCK(services.m_lock);
                     services.container.insert(std::make_pair(sid,u));
                 }
             }
@@ -443,7 +443,7 @@ void CInstance::deinitServices()
     {
         MUTEX_INSPECTOR;
         {
-            WLocker lk(services.m_lock);
+            W_LOCK(services.m_lock);
             svs=services.container;
             services.container.clear();
         }

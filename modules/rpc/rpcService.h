@@ -103,15 +103,15 @@ namespace RPC
        void clear()
         {
             {
-                WLocker l(sa2sess_.lock_);
+                W_LOCK(sa2sess_.lock_);
                 sa2sess_.container_.clear();
             }
             {
-                WLocker l(subscribers_.lock_);
+                W_LOCK(subscribers_.lock_);
                 subscribers_.container_.clear();
             }
             {
-                WLocker l(sock2sess_.lock_);
+                W_LOCK(sock2sess_.lock_);
                 sock2sess_.container_.clear();
             }
         }
