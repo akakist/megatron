@@ -240,14 +240,14 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
             {
                 return true;
             }
-            std::string k=iUtils->strupper(line.substr(0, pop));
-            std::string v=line.substr(pop + 2, line.length() - pop - 2);
+            std::string k=std::move(line.substr(0, pop));
+            std::string v=std::move(line.substr(pop + 2, line.length() - pop - 2));
             W->headers[k]=v;
         }
-        if (W->headers.count("COOKIE"))
+        if (W->headers.count("Cookie"))
         {
 
-            std::deque <std::string> v = splitStr("; ", W->headers["COOKIE"]);
+            std::deque <std::string> v = splitStr("; ", W->headers["Cookie"]);
             for (unsigned int i = 0; i < v.size(); i++)
             {
                 std::string q = v[i];
@@ -266,7 +266,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                 W->in_cookies[k] = v;
             }
         }
-        W->original_url=W->url;
+//        W->original_url=W->url;
         {
 
             std::string::size_type qp = W->url.find("?", 0);
@@ -287,10 +287,10 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         if (W->METHOD == "POST")
         {
 
-            if (W->headers["CONTENT-TYPE"].find("multipart/form", 0) == std::string::npos)
+            if (W->headers["Content-Type"].find("multipart/form", 0) == std::string::npos)
             {
 
-                size_t clen = atoi(W->headers["CONTENT-LENGTH"].c_str());
+                size_t clen = atoi(W->headers["Content-Length"].c_str());
                 if (clen <= 0 || clen > m_maxPost)
                 {
                     return true;
@@ -306,7 +306,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 
 
                 //Multipart form
-                const std::string &t= W->headers["CONTENT-TYPE"];
+                const std::string &t= W->headers["Content-Type"];
                 std::string::size_type pz = t.find("boundary=", 0);
                 if (pz == std::string::npos)
                 {
@@ -331,8 +331,8 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                         std::string::size_type pos=sbuf.find(bound);
                         if (pos==std::string::npos)
                         {
-                            s=sbuf;
-                            sbuf="";
+                            s=std::move(sbuf);
+                            sbuf.clear();
                         }
                         else
                         {
@@ -429,9 +429,9 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         }
         W->parse_state.insert(2);
     }
-    if(W->headers.count("CONNECTION"))
+    if(W->headers.count("Connection"))
     {
-        if(iUtils->strlower(W->headers["CONNECTION"])=="keep-alive")
+        if(W->headers["Connection"]=="Keep-Alive")
         {
             W->isKeepAlive=true;
         }
@@ -639,7 +639,7 @@ std::string datef(const time_t &__t)
     }
 
     F->contentLength=0;
-    if (!W->headers.count("RANGE"))
+    if (!W->headers.count("Range"))
     {
 
         F->startb=0;
@@ -654,7 +654,7 @@ std::string datef(const time_t &__t)
         F->startb=0;
         F->endb=F->fileSize-1;
         F->hasRange=true;
-        std::string s = W->headers["RANGE"];
+        std::string s = W->headers["Range"];
         size_t n = s.find("=", 0);
         if (n != std::string::npos)
         {

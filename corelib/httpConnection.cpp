@@ -1,4 +1,5 @@
 #include "IUtils.h"
+#include "splitStr.h"
 #include <unistd.h>
 #define _FILE_OFFSET_BITS 64
 #ifndef _LARGEFILE64_SOURCE
@@ -79,7 +80,7 @@ std::string HTTP::get_name_of_http_code(int code)
 }
 void HTTP::Request::split_params(const std::string & s)
 {
-    std::vector <std::string> pr = iUtils->splitString("&", s);
+    std::deque <std::string> pr = splitStr("&", s);
     for (unsigned int i = 0; i < pr.size(); i++)
     {
         std::string p = pr[i];

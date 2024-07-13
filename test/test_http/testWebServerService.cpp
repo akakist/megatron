@@ -117,7 +117,7 @@ bool testWebServer::Service::on_RequestIncoming(const httpEvent::RequestIncoming
 
     HTTP::Response resp(getIInstance());
     {
-        bool keepAlive=e->req->headers["CONNECTION"]=="Keep-Alive";
+        bool keepAlive=e->req->headers["Connection"]=="Keep-Alive";
         if(keepAlive)
         {
             resp.http_header_out["Connection"]="Keep-Alive";

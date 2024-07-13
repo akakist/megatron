@@ -56,7 +56,7 @@ namespace HTTP
 
         std::string METHOD;
         std::string url;
-        std::string original_url;
+//        std::string original_url;
         std::string original_params;
         std::string postContent;
         std::deque<std::string> vurl;
