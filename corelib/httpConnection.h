@@ -54,7 +54,7 @@ namespace HTTP
         std::map<std::string,std::vector<std::string> > v_params;/** for multiple select */
         std::string peer_ipaddress;
 
-        const std::string METHOD;
+        std::string METHOD;
         std::string url;
         std::string original_url;
         std::string original_params;

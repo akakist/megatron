@@ -207,30 +207,33 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         if (dq.size())
         {
 
-            std::string fl=dq[0];
+            std::string fl=std::move(dq[0]);
             dq.pop_front();
-            std::string::size_type pom = fl.find(" ", 0);
-            if (pom == std::string::npos)
+            std::string::size_type pz = fl.find(" ", 0);
+            if (pz == std::string::npos)
             {
                 return true;
             }
-            (std::string&)W->METHOD =iUtils->strupper(fl.substr(0, pom));
+            W->METHOD =fl.substr(0, pz);
 
-            if (W->METHOD != "GET" && W->METHOD != "POST")
-            {
-                return true;
-            }
+//            if (W->METHOD != "GET" && W->METHOD != "POST")
+//            {
+//                logErr2("if (W->METHOD != GET && W->METHOD != POST)");
+//                return true;
+//            }
 
-            W->url = fl.substr(pom + 1, fl.find(" ", pom + 1) - pom - 1);
-            W->url = iUtils->unescapeURL(W->url);
-            if (W->url.find("..", 0) != std::string::npos)
-            {
-                return true;
-            }
+//            auto pzProto=fl.find(" ",pz+1);
+            W->url = fl.substr(pz + 1, fl.find(" ", pz + 1) - pz - 1);
+//            W->url = fl.substr(pz + 1);
+//            W->url = iUtils->unescapeURL(W->url);
+//            if (W->url.find("..", 0) != std::string::npos)
+//            {
+//                return true;
+//            }
         }
         while (dq.size())
         {
-            std::string	line=dq[0];
+            std::string	line=std::move(dq[0]);
             dq.pop_front();
             std::string::size_type pop = line.find(":", 0);
             if (pop == std::string::npos)
@@ -244,7 +247,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         if (W->headers.count("COOKIE"))
         {
 
-            std::vector <std::string> v = iUtils->splitString("; ", W->headers["COOKIE"]);
+            std::deque <std::string> v = splitStr("; ", W->headers["COOKIE"]);
             for (unsigned int i = 0; i < v.size(); i++)
             {
                 std::string q = v[i];
