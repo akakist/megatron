@@ -268,4 +268,5 @@ std::string epoll_socket_info::_inBuffer::extract_all()
     std::string ret=_mx_data;
     _mx_data.clear();
     return ret;
+
 }

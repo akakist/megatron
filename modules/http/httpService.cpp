@@ -207,7 +207,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         if (dq.size())
         {
 
-            std::string fl=std::move(dq[0]);
+            std::string fl=dq[0];
             dq.pop_front();
             std::string::size_type pz = fl.find(" ", 0);
             if (pz == std::string::npos)
@@ -233,15 +233,15 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         }
         while (dq.size())
         {
-            std::string	line=std::move(dq[0]);
+            std::string	line=dq[0];
             dq.pop_front();
             std::string::size_type pop = line.find(":", 0);
             if (pop == std::string::npos)
             {
                 return true;
             }
-            std::string k=std::move(line.substr(0, pop));
-            std::string v=std::move(line.substr(pop + 2, line.length() - pop - 2));
+            std::string k=line.substr(0, pop);
+            std::string v=line.substr(pop + 2, line.length() - pop - 2);
             W->headers[k]=v;
         }
         if (W->headers.count("Cookie"))
@@ -331,7 +331,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                         std::string::size_type pos=sbuf.find(bound);
                         if (pos==std::string::npos)
                         {
-                            s=std::move(sbuf);
+                            s=sbuf;
                             sbuf.clear();
                         }
                         else

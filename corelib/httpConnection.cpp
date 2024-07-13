@@ -89,7 +89,8 @@ void HTTP::Request::split_params(const std::string & s)
         {
             continue;
         }
-        std::string val = iUtils->unescapeURL(p.substr(pp + 1, p.length() - pp - 1));
+//        std::string val = iUtils->unescapeURL(p.substr(pp + 1, p.length() - pp - 1));
+        std::string val = p.substr(pp + 1, p.length() - pp - 1);
         std::string key = p.substr(0, pp);
         params[key] = val;
         v_params[key].push_back(val);
@@ -140,7 +141,7 @@ std::string HTTP::Response::build_html_response()
             r += "; charset: " + http_charset;
         http_header_out["Content-Type"] = r;
     }
-    if (http_header_out.find("Connection") == http_header_out.end())
+    if (!http_header_out.count("Connection"))
         http_header_out["Connection"] = "close";
 
     http_header_out["Server"] = "Web Server";
