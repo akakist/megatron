@@ -16,7 +16,7 @@
 #include <version_mega.h>
 #include <st_malloc.h>
 #include <logging.h>
-
+#include "splitStr.h"
 //#endif
 #include <stdlib.h>
 #include <fcntl.h>
@@ -203,7 +203,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                 return true;
             }
         }
-        std::deque<std::string> dq=iUtils->splitStringDQ("\r\n",head);
+        std::deque<std::string> dq=splitStr("\r\n",head);//iUtils->splitStringDQ("\r\n",head);
         if (dq.size())
         {
 
