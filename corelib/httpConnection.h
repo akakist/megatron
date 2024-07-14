@@ -64,8 +64,6 @@ namespace HTTP
         Request();
         void split_params(const std::string & s);
 
-//        bool __gets$(std::string& dst,const std::string& delim, std::string& data);/// true if success
-        bool __readbuf$(std::string& dst,size_t sz, std::string& data); ///true if success
 
         std::set<int> parse_state;
         time_t m_last_io_time;

@@ -306,7 +306,16 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                 }
                 {
                     W_LOCK(evt->esi->inBuffer_.lk);
-                    if (!W->__readbuf$(W->postContent,clen, evt->esi->inBuffer_._mx_data)) return true;
+                    if(evt->esi->inBuffer_._mx_data.size()==clen)
+                    {
+                        W->postContent=std::move(evt->esi->inBuffer_._mx_data);
+                        evt->esi->inBuffer_._mx_data.clear();
+                    }
+                    else
+                    {
+                        W->postContent=evt->esi->inBuffer_._mx_data.substr(0,clen);
+                        evt->esi->inBuffer_._mx_data=evt->esi->inBuffer_._mx_data.substr(clen);
+                    }
                 }
                 W->split_params(W->postContent);
             }

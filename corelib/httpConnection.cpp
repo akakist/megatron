@@ -247,63 +247,15 @@ void HTTP::Response::makeResponse(const REF_getter<epoll_socket_info>& esi)
     std::string out = build_html_response();
     esi->markedToDestroyOnSend_=true;
     esi->write_(out);
-//    iInstance->sendEvent(ServiceEnum::Socket, new socketEvent::Write(esi,toRef(out)));
 
 }
 void HTTP::Response::makeResponsePersistent(const REF_getter<epoll_socket_info> &esi)
 {
     std::string out = build_html_response_wo_content_length();
     esi->write_(out);
-//  iInstance->sendEvent(ServiceEnum::Socket, new socketEvent::Write(esi,toRef(out)));
 }
 
-#ifdef KALL
-bool HTTP::Request::__gets$(std::string& dst,const std::string& delim, std::string& data)
-{
-    dst.clear();
-    {
-        {
-            std::string &indata=data;
 
-            size_t pos=indata.find(delim);
-            if (pos!=std::string::npos)
-            {
-                dst=indata.substr(0,pos);
-                size_t delimsz=delim.size();
-                indata.erase(0,pos+delimsz);
-                return true;
-            }
-            else return false;
-        }
-    }
-    return false;
-}
-#endif
-bool HTTP::Request::__readbuf$(std::string& dst,size_t sz, std::string& data)
-{
-    dst.clear();
-
-    {
-        {
-            std::string &indata=data;
-            if (indata.size()==sz)
-            {
-                dst=indata;
-                indata.clear();
-                return true;
-            }
-            else if (indata.size()>sz)
-            {
-                dst=indata.substr(0,sz);
-                indata.erase(0,sz);
-
-                return true;
-            }
-            return false;
-        }
-    }
-    return false;
-}
 HTTP::Request::_fileresponse::~_fileresponse()
 {
     if(m_fd!=-1)
