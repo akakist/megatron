@@ -257,6 +257,7 @@ void HTTP::Response::makeResponsePersistent(const REF_getter<epoll_socket_info> 
 //  iInstance->sendEvent(ServiceEnum::Socket, new socketEvent::Write(esi,toRef(out)));
 }
 
+#ifdef KALL
 bool HTTP::Request::__gets$(std::string& dst,const std::string& delim, std::string& data)
 {
     dst.clear();
@@ -277,6 +278,7 @@ bool HTTP::Request::__gets$(std::string& dst,const std::string& delim, std::stri
     }
     return false;
 }
+#endif
 bool HTTP::Request::__readbuf$(std::string& dst,size_t sz, std::string& data)
 {
     dst.clear();

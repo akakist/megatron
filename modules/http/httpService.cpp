@@ -198,10 +198,19 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         std::string head;
         {
             W_LOCK(evt->esi->inBuffer_.lk);
-            if (!W.___ptr->__gets$(head,"\r\n\r\n", evt->esi->inBuffer_._mx_data))
+            auto &data=evt->esi->inBuffer_._mx_data;
+            auto pz=data.find("\r\n\r\n");
+            if(pz!=std::string::npos)
             {
-                return true;
+                head=data.substr(0,pz);
+                data=data.substr(pz+4);
             }
+            else
+                return true;
+//            if (!W.___ptr->__gets$(head,"\r\n\r\n", evt->esi->inBuffer_._mx_data))
+//            {
+//                return true;
+//            }
         }
         std::deque<std::string> dq=splitStr("\r\n",head);//iUtils->splitStringDQ("\r\n",head);
         if (dq.size())
@@ -320,7 +329,17 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 
                     {
                         W_LOCK(evt->esi->inBuffer_.lk);
-                        if (!W->__gets$(sbuf,ebound, evt->esi->inBuffer_._mx_data)) return true;
+                        auto &data=evt->esi->inBuffer_._mx_data;
+                        auto pz=data.find(ebound);
+                        if(pz!=std::string::npos)
+                        {
+                            sbuf=data.substr(0,pz);
+                            data=data.substr(pz+ebound.size());
+                        }
+                        else
+                            return true;
+
+//                        if (!W->__gets$(sbuf,ebound, evt->esi->inBuffer_._mx_data)) return true;
                     }
 
                     while (sbuf.size())
