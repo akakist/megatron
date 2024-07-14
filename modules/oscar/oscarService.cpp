@@ -214,7 +214,7 @@ void Oscar::Service::sendPacketPlain(const Oscar::StartByte& startByte, const RE
     outBuffer O2;
     O2.put_8(startByte);
     O2<<o.asString();
-    esi->write_(O2.asString());
+    esi->write_(O2.asString()->asString());
     XPASS;
 }
 void Oscar::Service::sendPacketPlain(const Oscar::StartByte& startByte, const REF_getter<epoll_socket_info>& esi, const REF_getter<refbuffer> &o)
@@ -224,7 +224,7 @@ void Oscar::Service::sendPacketPlain(const Oscar::StartByte& startByte, const RE
     outBuffer O2;
     O2.put_8(startByte);
     O2<<o;
-    esi->write_(O2.asString());
+    esi->write_(O2.asString()->asString());
     XPASS;
 }
 bool Oscar::Service::on_startService(const systemEvent::startService*)

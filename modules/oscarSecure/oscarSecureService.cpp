@@ -269,7 +269,7 @@ void OscarSecure::Service::sendPacketPlain(const OscarSecure::StartByte& startBy
     outBuffer O2;
     O2.put_8(startByte);
     O2<<o.asString();
-    esi->write_(O2.asString());
+    esi->write_(O2.asString()->asString());
 
     XPASS;
 }
@@ -280,7 +280,7 @@ void OscarSecure::Service::sendPacketPlain(const OscarSecure::StartByte& startBy
     outBuffer O2;
     O2.put_8(startByte);
     O2<<o;
-    esi->write_(O2.asString());
+    esi->write_(O2.asString()->asString());
     XPASS;
 }
 

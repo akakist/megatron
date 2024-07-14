@@ -29,8 +29,9 @@ class   socketBuffersOut
 {
     RWLock lk;
     std::string container_;
+    size_t cur_begin=0;
 public:
-    void append(epoll_socket_info *esi, const char* data, size_t sz);
+    void append(epoll_socket_info *esi, const std::string &s);
     size_t size();
     int send(const SOCKET_fd &fd, epoll_socket_info *esi);
 };
@@ -151,7 +152,7 @@ public:
     /// write buffer
     void write_(const char *s, const size_t &sz);
     void write_(const std::string&s);
-    void write_(const REF_getter<refbuffer>&s);
+//    void write_(const REF_getter<refbuffer>&s);
 
     void close(const std::string & reason);
 

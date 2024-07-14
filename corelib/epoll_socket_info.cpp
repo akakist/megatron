@@ -70,7 +70,7 @@ void epoll_socket_info::write_(const std::string&s)
         XTRY;
         {
             XTRY;
-            outBuffer_.append(this,s.data(),s.size());
+            outBuffer_.append(this,s);
             XPASS;
         }
         XPASS;
@@ -85,6 +85,7 @@ void epoll_socket_info::write_(const char *s, const size_t &sz)
 
     XPASS;
 }
+#ifdef KALL
 void epoll_socket_info::write_(const REF_getter<refbuffer> &s)
 {
     MUTEX_INSPECTOR;
@@ -93,13 +94,12 @@ void epoll_socket_info::write_(const REF_getter<refbuffer> &s)
 
     XPASS;
 }
-
+#endif
 void epoll_socket_info::close(const std::string & reason)
 {
     MUTEX_INSPECTOR;
 
     DBG(logErr2("epoll_socket_info::close %s",reason.c_str()));
-//    printf("epoll_socket_info::close %s %s\n",reason.c_str(),socketDescription);
     XTRY;
     std::string sType;
     if(CONTAINER(fd_)==-1)
@@ -170,11 +170,13 @@ epoll_socket_info::~epoll_socket_info()
 
 
 
-void socketBuffersOut::append(epoll_socket_info* esi,const char* data, size_t sz)
+void socketBuffersOut::append(epoll_socket_info* esi,const std::string&s)
 {
     MUTEX_INSPECTOR;
-    W_LOCK(lk);
-    container_+=std::string(data,sz);
+    {
+        W_LOCK(lk);
+        container_+=s;
+    }
     esi->multiplexor_->sockStartWrite(esi);
 
 }

@@ -537,7 +537,7 @@ bool HTTP::Service::on_NotifyOutBufferEmpty(const socketEvent::NotifyOutBufferEm
                 return true;
             }
 
-            e->esi->write_(toRef((uint8_t*)buf.buf,res));
+            e->esi->write_((char*)buf.buf,res);
             F->written_bytes+=res;
             return true;
         }
@@ -606,7 +606,7 @@ std::string datef(const time_t &__t)
             a.append("Server: nginx/1.2.6 (Ubuntu)\r\n");
             a.append("Connection: close\r\n");
             a.append("\r\n");
-            esi->write_(toRef(a));
+            esi->write_(a);
             return -1;
         }
 
