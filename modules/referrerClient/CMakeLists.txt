@@ -2,7 +2,6 @@
 add_definitions(-DWITH_IO)
 
 
-ADD_SUBDIRECTORY(test)
 
 add_library(ReferrerClient SHARED
 

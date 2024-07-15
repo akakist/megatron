@@ -1453,11 +1453,11 @@ void CUtils::registerPlugingInfo(const VERSION_id& version, const char* pluginFi
         M_LOCK(local.pluginInfo);
         switch (pt) {
         case IUtils::PLUGIN_TYPE_IFACE:
-            DBG(printf(BLUE("added iface info %s %s -> %s"),id.dump().c_str(),name,pluginFileName));
+            DBG(printf(BLUE("added iface info %s %s -> %s"),iUtils->genum_name(id),name,pluginFileName));
             local.pluginInfo.ifaces[id]=pluginFileName;
             break;
         case IUtils::PLUGIN_TYPE_SERVICE:
-            DBG(printf(BLUE("added service info %s %s -> %s"),id.dump().c_str(),name,pluginFileName));
+            DBG(printf(BLUE("added service info %s %s -> %s"),iUtils->genum_name(id),name,pluginFileName));
             local.pluginInfo.services[id]=pluginFileName;
             for(auto& z:evts)
             {

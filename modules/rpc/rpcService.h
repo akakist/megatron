@@ -36,7 +36,7 @@ namespace RPC
         RWLock lk;
 
     };
-    struct Session: public Refcountable, WebDumpable
+    struct Session: public Refcountable, public WebDumpable
     {
 
         SOCKET_id socketId;

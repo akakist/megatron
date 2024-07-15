@@ -9,7 +9,7 @@
 namespace ServiceEnum
 {
     const SERVICE_id RPC(genum_RPC);
-    const SERVICE_id ObjectProxyPolled(genum_ObjectProxyThreaded);
+    const SERVICE_id ObjectProxyPolled(genum_ObjectProxyPolled);
     const SERVICE_id ObjectProxyThreaded(genum_ObjectProxyThreaded);
 
 }

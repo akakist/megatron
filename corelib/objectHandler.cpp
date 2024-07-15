@@ -82,7 +82,9 @@ ObjectHandlerPolled::ObjectHandlerPolled(const std::string &name, IInstance* _if
     XTRY;
 
     if(!objectProxy)
+    {
         throw  CommonError("if(!objectProxy)");
+    }
     objectProxy->addObjectHandler(this);
     XPASS;
 }
@@ -92,8 +94,23 @@ ObjectHandlerThreaded::ObjectHandlerThreaded(const std::string& name, IInstance 
                  (_if->getServiceOrCreate(ServiceEnum::ObjectProxyThreaded)))
 {
     XTRY;
+
+    auto svs=_if->getServiceOrCreate(ServiceEnum::ObjectProxyThreaded);
+    if(svs==nullptr)
+        logErr2("cannot getServiceOrCreate(ServiceEnum::ObjectProxyThreaded)");
+    logErr2("svs OK");
+
+    objectProxy=dynamic_cast<IObjectProxyThreaded*>
+                (svs);
     if(!objectProxy)
+    {
+        logErr2("dynamic_cast<IObjectProxyThreaded*>  (svs); failed");
+    }
+
+    if(!objectProxy)
+    {
         throw  CommonError("if(!objectProxy)");
+    }
     objectProxy->addObjectHandler(this);
     XPASS;
 }

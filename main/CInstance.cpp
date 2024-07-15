@@ -159,7 +159,10 @@ UnknownBase* CInstance::getServiceNoCreate(const SERVICE_id& svs)
 
 UnknownBase* CInstance::getServiceOrCreate(const SERVICE_id& svs)
 {
-    if(m_terminating)return nullptr;
+    if(m_terminating)
+    {
+        return nullptr;
+    }
 
     XTRY;
     UnknownBase* u=nullptr;
@@ -253,7 +256,6 @@ Mutex initServiceMX;
 UnknownBase* CInstance::initService(const SERVICE_id& sid)
 {
     MUTEX_INSPECTOR;
-//    M_LOCK(initService_MX);
     {
         if(m_terminating)return NULL;
         Utils_local * locals = m_utils->getLocals();
@@ -360,7 +362,7 @@ UnknownBase* CInstance::initService(const SERVICE_id& sid)
                         MUTEX_INSPECTOR;
                         name=iUtils->serviceName(sid);
                     }
-                    DBG(logErr2("running service %s",name.c_str()));
+                    logErr2("running service %s",name.c_str());
                     if(!config_z)
                         throw CommonError("if(!config_z) %s %d",__FILE__,__LINE__);
                     CFG_PUSH(name,config_z);
@@ -401,7 +403,6 @@ UnknownBase* CInstance::initService(const SERVICE_id& sid)
             logErr2("startService std::exception %s",e.what());
             return NULL;
         }
-
         return u;
         XPASS;
     }

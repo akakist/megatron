@@ -41,6 +41,9 @@ link_directories(${OPENSSL_LIB_DIR})
 include_directories(${OPENSSL_INCLUDE_DIR} local /usr/local lib/jsoncpp-0.5.0/include . corelib lib/SQLiteCpp lib main lib/sqlite3)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fPIC -O3")
 
+#add_definitions(  -D__WITH_ZLIB  -DUSE_JSONASSERT -DQT_NO_VERSION_TAGGING -DDEBUG  -DMUTEX_INSPECTOR_DEBUG)
+#-DDEBUG  -DMUTEX_INSPECTOR_DEBUG
+
 
 SET(CAPS_IP "x.testquant.com")
 SET(PORT 10100)
@@ -58,6 +61,7 @@ SET(LOG_TARGET_DIR ${PROJECT_BASE_DIR}/log)
 SET(DATA_TARGET_DIR ${PROJECT_BASE_DIR}/data)
 SET(CONFIG_TARGET_DIR ${PROJECT_BASE_DIR}/conf)
 SET(CACHE_TARGET_DIR ${PROJECT_BASE_DIR}/cache)
+
 
 
 CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/megatron_config.h.in"
