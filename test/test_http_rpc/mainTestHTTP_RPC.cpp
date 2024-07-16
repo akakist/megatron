@@ -13,12 +13,14 @@ void registerOscarSecureModule(const char* pn);
 void registerHTTPModule(const char* pn);
 void registerprodtestServerService(const char* pn);
 void registerprodtestServerWebService(const char* pn);
+#ifdef WEBDUMP
 void registerWebHandlerModule(const char* pn);
+#endif
 
 int mainTestHTTP_RPC(int argc, char** argv )
 {
     try {
-        iUtils=new CUtils(argc, argv, "httpTest");
+        iUtils=new CUtils(argc, argv, "HTTP_RPC_test");
 
         registerRPCService(NULL);
         registerSocketModule(NULL);
@@ -30,7 +32,9 @@ int mainTestHTTP_RPC(int argc, char** argv )
         registerHTTPModule(NULL);
         registerprodtestServerService(NULL);
         registerprodtestServerWebService(NULL);
+#ifdef WEBDUMP
         registerWebHandlerModule(NULL);
+#endif
 
 
         printf(GREEN("RUN TEST %s"),__PRETTY_FUNCTION__);
@@ -40,19 +44,16 @@ int mainTestHTTP_RPC(int argc, char** argv )
             ConfigObj *cnf1=new ConfigObj("prodtestServer",
                                           "\nRPC.ConnectionActivity=600.000000"
                                           "\nRPC.IterateTimeoutSec=60.000000"
-                                          "\nRPC.ListenerBuffered.MaxThreadsCount=10"
                                           "\nStart=prodtestServer,RPC"
-                                          "\nOscarSecure.ListenerBuffered.MaxThreadsCount=10"
                                           "\nOscarSecure.RSA_keysize=256"
                                           "\nOscarSecure.maxPacketSize=33554432"
                                           "\nRPC.BindAddr_MAIN=INADDR_ANY:2000"
                                           "\nRPC.BindAddr_RESERVE=NONE"
                                           "\nRPC.oscarType=Oscar"
-                                          "\nSocketIO.ListenerBuffered.MaxThreadsCount=10"
                                           "\nSocketIO.listen_backlog=128"
                                           "\nSocketIO.size=1024"
                                           "\nSocketIO.timeout_millisec=10"
-                                          "\nWebHandler.bindAddr=INADDR_ANY:6002"
+                                          "\nWebHandler.bindAddr=INADDR_ANY:NONE"
 
                                           "\n# http listen address"
                                           "\nHTTP.max_post=1000000"
@@ -75,18 +76,15 @@ int mainTestHTTP_RPC(int argc, char** argv )
                                           "\nRPC.IterateTimeoutSec=60.000000"
                                           "\nRPC.ListenerBuffered.MaxThreadsCount=10"
                                           "\nStart=prodtestServerWeb,RPC"
-                                          "\nOscarSecure.ListenerBuffered.MaxThreadsCount=10"
                                           "\nOscarSecure.RSA_keysize=256"
                                           "\nOscarSecure.maxPacketSize=33554432"
                                           "\nRPC.BindAddr_MAIN=INADDR_ANY:0"
                                           "\nRPC.BindAddr_RESERVE=NONE"
                                           "\nRPC.oscarType=Oscar"
-                                          "\nSocketIO.ListenerBuffered.MaxThreadsCount=10"
                                           "\nSocketIO.listen_backlog=128"
                                           "\nSocketIO.size=1024"
                                           "\nSocketIO.timeout_millisec=10"
                                           "\nWebHandler.bindAddr=INADDR_ANY:6001"
-
                                           "\n# http listen address"
                                           "\ntestHTTP.bindAddr=0.0.0.0:8088"
                                           "\nHTTP.max_post=1000000"

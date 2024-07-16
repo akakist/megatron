@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "EVENT_id.h"
 #include "SERVICE_id.h"
 #include "epoll_socket_info.h"
@@ -90,4 +89,3 @@ namespace webHandlerEvent
     };
 
 };
-

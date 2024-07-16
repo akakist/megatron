@@ -321,12 +321,14 @@ void SocketIO::Service::onEPOLLOUT(const REF_getter<epoll_socket_info>&__EV_,con
             logErr2("socket not found %d (%s %d)",CONTAINER(esi->id_),__FILE__,__LINE__);
             return;
         }
+        esi->inConnection_=false;
         if(esi->outBuffer_.size()==0)
             MS->multiplexor_->sockStopWrite(esi.get());
 
-//        route_t r=;
         passEvent(new socketEvent::Connected(esi, esi->m_route));
-        esi->inConnection_=false;
+
+//        if(esi->inBuffer_.size())
+//            passEvent(new socketEvent::StreamRead(esi, esi->m_route));
         return;
         XPASS;
     }

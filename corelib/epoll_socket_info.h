@@ -46,7 +46,10 @@ class epoll_socket_info;
 */
 struct NetworkMultiplexor;
 
-class epoll_socket_info:public Refcountable, public WebDumpable
+class epoll_socket_info:public Refcountable
+#ifdef WEBDUMP
+        , public WebDumpable
+#endif
 {
 
 public:

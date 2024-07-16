@@ -56,12 +56,12 @@ bool  Service::on_startService(const systemEvent::startService* )
 //        sendEvent(ServiceEnum::Telnet, new telnetEvent::RegisterCommand("services/referrer", "dumpPipes", "show pipes info","", ListenerBase::serviceId));
     }
 
-
-    if(iUtils->isServiceRegistered(ServiceEnum::WebHandler))
+#ifdef WEBDUMP
     {
         sendEvent(ServiceEnum::WebHandler, new webHandlerEvent::RegisterDirectory("dfs","DFS"));
         sendEvent(ServiceEnum::WebHandler, new webHandlerEvent::RegisterHandler("dfs/referrer","Referrer",ListenerBase::serviceId));
     }
+#endif
 
     return true;
 }

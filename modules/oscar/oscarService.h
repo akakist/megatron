@@ -16,10 +16,7 @@ namespace Oscar
 {
     enum StartByte
     {
-        SB_HELLO		=0x00,
         SB_SINGLEPACKET	=0x01,
-        SB_ACK			=0x02,
-        SB_MULTIPACKET	=0x03,
     };
     namespace Packet
     {

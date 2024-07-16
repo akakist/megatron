@@ -7,7 +7,10 @@
 #include "epoll_socket_info.h"
 
 namespace dfsReferrer {
-    struct _uplinkConnectionState: public Refcountable,public WebDumpable
+    struct _uplinkConnectionState: public Refcountable
+#ifdef WEBDUMP
+            ,public WebDumpable
+#endif
     {
         Json::Value wdump();
         std::string wname() {

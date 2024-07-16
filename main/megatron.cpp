@@ -30,7 +30,9 @@
 void registerHTTPModule(const char*);
 void registerSqliteModule(const char*);
 void registerTelnetService(const char*);
+#ifdef WEBDUMP
 void registerWebHandlerModule(const char*);
+#endif
 void registerErrorDispatcherService(const char*);
 #endif
 

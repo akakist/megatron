@@ -184,6 +184,7 @@ bool prodtestWebServer::Service::on_AddTaskRSP(const prodtestEvent::AddTaskRSP*e
 {
     if(e->count==0)
     {
+
         HTTP::Response resp(getIInstance());
         auto S=get_session(e->session);
         bool keepAlive=S->req->headers["Connection"]=="Keep-Alive";

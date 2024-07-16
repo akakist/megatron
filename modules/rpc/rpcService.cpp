@@ -155,7 +155,7 @@ bool RPC::Service::on_PacketOnAcceptor(const oscarEvent::PacketOnAcceptor*E)
 
 bool RPC::Service::on_PacketOnConnector(const oscarEvent::PacketOnConnector* E)
 {
-
+//    logErr2("@@ %s",__PRETTY_FUNCTION__);
 
     MUTEX_INSPECTOR;
 
@@ -164,21 +164,28 @@ bool RPC::Service::on_PacketOnConnector(const oscarEvent::PacketOnConnector* E)
         int direction;
         buf>>direction;
 
+
         if(direction=='p')
         {
             MUTEX_INSPECTOR;
             REF_getter<Event::Base> e=iUtils->unpackEvent(buf);
             if(!e.valid())
             {
+                logErr2("if(!e.valid()) %s %d",__FILE__,__LINE__);
                 return true;
             }
+
 
             REF_getter<Route> r=e->route.pop_front();
             if(r->type==Route::LOCALSERVICE)
             {
                 LocalServiceRoute* l=(LocalServiceRoute*) r.get();
                 if(!E->esi->request_for_connect_.has_value())
+                {
+                    logErr2("if(!E->esi->request_for_connect.valid())");
                     throw CommonError("if(!E->esi->request_for_connect.valid())");
+                }
+
 
                 sendEvent(l->id,new rpcEvent::IncomingOnConnector(E->esi,*E->esi->request_for_connect_,e));
             }
@@ -196,6 +203,7 @@ bool RPC::Service::on_PacketOnConnector(const oscarEvent::PacketOnConnector* E)
             REF_getter<Event::Base> e=iUtils->unpackEvent(buf);
             if(!e.valid())
             {
+                logErr2("if(!e.valid())");
                 return true;
             }
 
@@ -207,6 +215,7 @@ bool RPC::Service::on_PacketOnConnector(const oscarEvent::PacketOnConnector* E)
                 sendEvent(dst,new rpcEvent::IncomingOnConnector(E->esi,*E->esi->request_for_connect_,e));
             }
         }
+        else throw CommonError("invalid direction");
     }
     catch(std::exception &e)
     {
@@ -323,8 +332,10 @@ bool RPC::Service::on_startService(const systemEvent::startService* )
                 sendEvent(myOscarListener,new oscarEvent::AddToListenTCP(newid,item,"RPC_DL",dynamic_cast<ListenerBase*>(this)));
             }
     }
+#ifdef WEBDUMP
     sendEvent(ServiceEnum::WebHandler, new webHandlerEvent::RegisterDirectory("rpc","RPC"));
     sendEvent(ServiceEnum::WebHandler, new webHandlerEvent::RegisterHandler("rpc/details","Dump state",ListenerBase::serviceId));
+#endif
 
 
     XPASS;

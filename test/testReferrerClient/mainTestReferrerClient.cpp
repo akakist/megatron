@@ -17,7 +17,9 @@ void registerDFSCapsService(const char* pn);
 void registerGEOIP(const char* pn);
 void registerReferrerClientService(const char* pn);
 void registerObjectProxyModule(const char* pn);
+#ifdef WEBDUMP
 void registerWebHandlerModule(const char* pn);
+#endif
 int mainTestReferrerClient(int argc, char** argv )
 {
     try {
@@ -34,7 +36,9 @@ int mainTestReferrerClient(int argc, char** argv )
         registerGEOIP(NULL);
         registerReferrerClientService(NULL);
         registerObjectProxyModule(NULL);
+#ifdef WEBDUMP
         registerWebHandlerModule(NULL);
+#endif
         iUtils->registerEvent(dfsCapsEvent::RegisterMyRefferrerNodeREQ::construct);
 
         printf(GREEN("RUN TEST %s"),__PRETTY_FUNCTION__);

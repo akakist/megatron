@@ -7,7 +7,10 @@
 
 namespace dfsReferrer
 {
-    struct _uriReferals: public Refcountable,public WebDumpable
+    struct _uriReferals: public Refcountable
+#ifdef WEBDUMP
+            ,public WebDumpable
+#endif
     {
 
         REF_getter<linkInfoDownReferrer> getDownlinkOrNull(const SOCKET_id& id);

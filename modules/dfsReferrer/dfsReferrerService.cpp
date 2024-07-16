@@ -105,12 +105,12 @@ bool  dfsReferrer::Service::on_startService(const systemEvent::startService* )
 //        sendEvent(ServiceEnum::Telnet, new telnetEvent::RegisterCommand("services/referrer", "dumpPipes", "show pipes info","", ListenerBase::serviceId));
     }
 
-
-    if(iUtils->isServiceRegistered(ServiceEnum::WebHandler))
+#ifdef WEBDUMP
     {
         sendEvent(ServiceEnum::WebHandler, new webHandlerEvent::RegisterDirectory("dfs","DFS"));
         sendEvent(ServiceEnum::WebHandler, new webHandlerEvent::RegisterHandler("dfs/referrer","Referrer",ListenerBase::serviceId));
     }
+#endif
 
 
 
@@ -413,8 +413,10 @@ bool dfsReferrer::Service::handleEvent(const REF_getter<Event::Base>& ev)
         return on_TickTimer((const timerEvent::TickTimer*)ev.get());
     if( timerEventEnum::TickAlarm==ID)
         return on_TickAlarm((const timerEvent::TickAlarm*)ev.get());
+#ifdef WEBDUMP
     if( webHandlerEventEnum::RequestIncoming==ID)
         return(this->on_RequestIncoming((const webHandlerEvent::RequestIncoming*)ev.get()));
+#endif
     if( telnetEventEnum::CommandEntered==ID)
         return on_CommandEntered((const telnetEvent::CommandEntered*)ev.get());
 
@@ -734,6 +736,7 @@ bool dfsReferrer::Service::on_TickAlarm(const timerEvent::TickAlarm* e)
     return false;
 }
 
+#ifdef WEBDUMP
 bool dfsReferrer::Service::on_RequestIncoming(const webHandlerEvent::RequestIncoming* e)
 {
     MUTEX_INSPECTOR;
@@ -747,6 +750,7 @@ bool dfsReferrer::Service::on_RequestIncoming(const webHandlerEvent::RequestInco
     return true;
 
 }
+#endif
 
 bool dfsReferrer::Service::on_Binded(const rpcEvent::Binded*e)
 {

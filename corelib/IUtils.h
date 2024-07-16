@@ -212,9 +212,11 @@ public:
     virtual SERVICE_id serviceIdByName(const std::string& name)const=0;
     virtual bool isServiceRegistered(const SERVICE_id& svs)=0;
 
+#ifdef WEBDUMP
     virtual void setWebDumpableHandler(WebDumpable* h)=0;
     virtual void removeWebDumpableHandler(WebDumpable* h)=0;
     virtual std::string dumpWebDumpable(WebDumpable* )=0;
+#endif
 
     virtual Utils_local *getLocals()=0;
 

@@ -1,5 +1,5 @@
-#ifndef _____HTTP___SERVICE______H
-#define _____HTTP___SERVICE______H
+#pragma once
+#ifdef WEBDUMP
 #include <REF.h>
 #include <route_t.h>
 #include <IUtils.h>
@@ -190,4 +190,5 @@ namespace WebHandler
         bool on_startService(const systemEvent::startService*);
     };
 };
+#endif
 #endif

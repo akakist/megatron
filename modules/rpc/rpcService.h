@@ -43,7 +43,10 @@ namespace RPC
         }
 
     };
-    struct Session: public Refcountable, public WebDumpable
+    struct Session: public Refcountable
+#ifdef WEBDUMP
+            , public WebDumpable
+#endif
     {
 
         SOCKET_id socketId;
@@ -57,7 +60,9 @@ namespace RPC
         {
             Json::Value v;
             v["socketId"]=std::to_string(CONTAINER(socketId));
+#ifdef WEBDUMP
             v["esi"]=esi->getWebDumpableLink("esi");
+#endif
             v["outCache_"]=outCache_.jdump();
             return v;
         }
@@ -107,7 +112,9 @@ namespace RPC
                 R_LOCK(lock_);
                 for(auto &z: container_)
                 {
+#ifdef WEBDUMP
                     j[std::to_string(z.first)]=z.second->getWebDumpableLink("Session");
+#endif
                 }
                 return j;
             }
@@ -125,7 +132,9 @@ namespace RPC
                 R_LOCK(lock_);
                 for(auto &z: container_)
                 {
+#ifdef WEBDUMP
                     j[z.first.dump()]=z.second->getWebDumpableLink("Session");
+#endif
                 }
                 return j;
             }

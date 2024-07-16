@@ -137,7 +137,7 @@ void logErr2(const char* fmt, ...)
 
 #if !defined __MOBILE__
 
-        if(1)
+        if(0)
         {
             if(!__logLock) __logLock=new Mutex;
             M_LOCK(__logLock);
@@ -174,11 +174,6 @@ void logErr2(const char* fmt, ...)
 #endif
     }
 #if !defined(_WIN32) && !defined(__ANDROID__)
-    if(0) {
-        va_list ap;
-        va_start(ap,fmt);
-        vsyslog(LOG_ERR,fmt,ap);
-    }
 #endif
 }
 

@@ -1622,7 +1622,7 @@ SERVICE_id CUtils::serviceIdByName(const std::string& name)const
 
 
 
-
+#ifdef WEBDUMP
 void CUtils::setWebDumpableHandler(WebDumpable *h)
 {
     M_LOCK(webDumping);
@@ -1646,7 +1646,7 @@ std::string CUtils::dumpWebDumpable(WebDumpable *h)
     }
     return "unknown WebDumpable";
 }
-
+#endif
 
 void CUtils::registerEvent(event_static_constructor ec)
 {

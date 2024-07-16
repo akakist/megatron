@@ -337,10 +337,11 @@ bool OscarSecure::Service::on_Connected(const socketEvent::Connected*e)
 }
 bool OscarSecure::Service::on_startService(const systemEvent::startService* )
 {
-    if(iUtils->isServiceRegistered(ServiceEnum::WebHandler))
+#ifdef WEBDUMP
     {
         sendEvent(ServiceEnum::WebHandler, new webHandlerEvent::RegisterHandler("oscarSecure","OscarSecure",ListenerBase::serviceId));
     }
+#endif
 
     return true;
 }
