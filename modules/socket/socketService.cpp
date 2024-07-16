@@ -202,6 +202,9 @@ void SocketIO::Service::onEPOLLIN_STREAMTYPE_CONNECTED_or_STREAMTYPE_ACCEPTED(
         logErr2("invalid case %s %d %s",__FILE__,__LINE__,_DMI().c_str());
         return;
     }
+    /// bug fix - cannot receive data while connected not thrown
+//    if(esi->inConnection_)
+//        return;
     r=::recv(fd,(char*)buf.buf,READBUFSIZE,0);
     if (r==0 )
     {
@@ -638,7 +641,33 @@ void SocketIO::Service::worker()
                 }
                 auto& l=evList[i];
 
-                if(l.filter==EVFILT_READ)
+                if(l.filter==EVFILT_WRITE)
+                {
+                    MUTEX_INSPECTOR;
+
+                    S_LOG("EVFILT_WRITE");
+//                    if(l.flags&EV_ADD)
+                    {
+                        S_LOG("EV_ADD");
+                        if(l.flags & EV_EOF)
+                        {
+                            closeSocket(esi,"EV_EOF4",0,MS);
+                            MS->remove(esi->id_);
+                        }
+                        else if(l.flags & EV_ERROR)
+                        {
+                            closeSocket(esi,"EV_EOF6",l.data,MS);
+                            MS->remove(esi->id_);
+                        }
+                        else
+                        {
+                            MUTEX_INSPECTOR;
+                            onEPOLLOUT(esi,MS);
+                            continue;
+                        }
+                    }
+                }
+                else if(l.filter==EVFILT_READ)
                 {
                     MUTEX_INSPECTOR;
                     S_LOG("EVFILT_READ");
@@ -665,32 +694,6 @@ void SocketIO::Service::worker()
                         }
                     }
 
-                }
-                else if(l.filter==EVFILT_WRITE)
-                {
-                    MUTEX_INSPECTOR;
-
-                    S_LOG("EVFILT_WRITE");
-//                    if(l.flags&EV_ADD)
-                    {
-                        S_LOG("EV_ADD");
-                        if(l.flags & EV_EOF)
-                        {
-                            closeSocket(esi,"EV_EOF4",0,MS);
-                            MS->remove(esi->id_);
-                        }
-                        else if(l.flags & EV_ERROR)
-                        {
-                            closeSocket(esi,"EV_EOF6",l.data,MS);
-                            MS->remove(esi->id_);
-                        }
-                        else
-                        {
-                            MUTEX_INSPECTOR;
-                            onEPOLLOUT(esi,MS);
-                            continue;
-                        }
-                    }
                 }
                 else logErr2("invalid case %s %d",__FILE__,__LINE__);
 

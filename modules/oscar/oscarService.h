@@ -66,9 +66,6 @@ namespace Oscar
         void sendPacketPlain(const Oscar::StartByte& startByte, const REF_getter<epoll_socket_info>& esi, const REF_getter<refbuffer> &o);
 
         void processRequest(const SOCKET_id&  socketId, const std::string& buf,const route_t & route);
-
-        bool processInboundSocketBuffer(const REF_getter<epoll_socket_info> &esim, const route_t &route);
-
         Json::Value jdump()
         {
             Json::Value v;
