@@ -34,6 +34,11 @@ public:
     void append(epoll_socket_info *esi, const std::string &s);
     size_t size();
     int send(const SOCKET_fd &fd, epoll_socket_info *esi);
+    std::string getAll()
+    {
+        R_LOCK(lk);
+        return container_;
+    }
 };
 class epoll_socket_info;
 /**

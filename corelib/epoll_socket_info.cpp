@@ -37,18 +37,29 @@ Json::Value epoll_socket_info::__jdump()
     default:
         throw CommonError("invalid streamtype %s %d",__FILE__,__LINE__);
     }
+
+    v["outBufferSize"]=(int)outBuffer_.size();
+    v["inBufferSize"]=(int)inBuffer_.size();
+    if(outBuffer_.size())
     {
-        v["outBufferSize"]=(int)outBuffer_.size();
+        auto s=outBuffer_.getAll();
+        v["outBuffer"]=iUtils->bin2hex(s);
+    }
+    if(inBuffer_.size())
+    {
+        std::string s;
         {
             R_LOCK(inBuffer_.lk);
-            v["inBufferSize"]=(int)inBuffer_._mx_data.size();
+            s=inBuffer_._mx_data;
         }
+        v["inBuffer"]=iUtils->bin2hex(s);
+
     }
+
+
     v["in connection"]=inConnection_;
     v["dst route"]=m_route.dump();
     v["closed"]=closed();
-    v["outbuffer size"]=(int)outBuffer_.size();
-    v["inbuffer size"]=(int)inBuffer_.size();
     v["socketDescription"]=socketDescription_;
     XPASS;
     return v;
@@ -230,7 +241,6 @@ epoll_socket_info::epoll_socket_info(const int &_socketType, const STREAMTYPE &_
     m_route(_route),
     markedToDestroyOnSend_(false),
     inConnection_(false),
-//    maxOutBufferSize(_maxOutBufferSize),
     socketDescription_(_socketDescription),
     multiplexor_(_multiplexor)
 #ifdef HAVE_KQUEUE

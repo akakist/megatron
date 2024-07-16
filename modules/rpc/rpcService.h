@@ -14,10 +14,10 @@
 
 #include "Events/System/Net/rpcEvent.h"
 #include "Events/System/Net/oscarEvent.h"
-#include "Events/Tools/webHandlerEvent.h"
 
 #include <Events/System/timerEvent.h>
 #include <Events/System/Run/startServiceEvent.h>
+#include <Events/Tools/webHandlerEvent.h>
 
 namespace RPC
 {
@@ -35,21 +35,30 @@ namespace RPC
         std::deque<REF_getter<refbuffer> >  container;
         RWLock lk;
 
+        Json::Value jdump()
+        {
+            Json::Value j;
+            j["container.size()"]=(int)container.size();
+            return j;
+        }
+
     };
     struct Session: public Refcountable, public WebDumpable
     {
 
         SOCKET_id socketId;
         REF_getter<epoll_socket_info> esi;
-        REF_getter<outCache> outCache_;
+        outCache outCache_;
 
         Session(SOCKET_id sockId,const REF_getter<epoll_socket_info>& _esi):socketId(sockId),
-            esi(_esi),outCache_(nullptr) {}
+            esi(_esi) {}
 
         Json::Value jdump()
         {
             Json::Value v;
             v["socketId"]=std::to_string(CONTAINER(socketId));
+            v["esi"]=esi->getWebDumpableLink("esi");
+            v["outCache_"]=outCache_.jdump();
             return v;
         }
         std::string wname()
@@ -72,7 +81,17 @@ namespace RPC
 
         struct subscr {
         RWLock lock_;
-        std::set<route_t> container_;
+            std::set<route_t> container_;
+            Json::Value jdump()
+            {
+                Json::Value j;
+                R_LOCK(lock_);
+                for(auto &z: container_)
+                {
+                    j.append(z.dump());
+                }
+                return j;
+            }
         };
 
         subscr subscribers_;
@@ -82,6 +101,17 @@ namespace RPC
 
             RWLock lock_;
             std::map<SOCKET_id, REF_getter<Session> > container_;
+            Json::Value jdump()
+            {
+                Json::Value j;
+                R_LOCK(lock_);
+                for(auto &z: container_)
+                {
+                    j[std::to_string(z.first)]=z.second->getWebDumpableLink("Session");
+                }
+                return j;
+            }
+
         };
         sock2sess sock2sess_;
 
@@ -89,6 +119,17 @@ namespace RPC
         {
             RWLock lock_;
             std::map<msockaddr_in,REF_getter<Session> > container_;
+            Json::Value jdump()
+            {
+                Json::Value j;
+                R_LOCK(lock_);
+                for(auto &z: container_)
+                {
+                    j[z.first.dump()]=z.second->getWebDumpableLink("Session");
+                }
+                return j;
+            }
+
 
         };
         sa2sess sa2sess_;
@@ -97,10 +138,30 @@ namespace RPC
         struct passCache{
             RWLock lock_;
             std::map<SOCKET_id,std::deque<REF_getter<refbuffer>>>passCache;
+            Json::Value jdump()
+            {
+                Json::Value j;
+                R_LOCK(lock_);
+                for(auto &z: passCache)
+                {
+                    j[std::to_string(z.first)]=(int)z.second.size();
+                }
+                return j;
+            }
         };
         passCache passCache_;
 
-       void clear()
+        Json::Value jdump()
+        {
+            Json::Value j;
+            j["passCache_"]=passCache_.jdump();
+            j["sa2sess_"]=sa2sess_.jdump();
+            j["sock2sess_"]=sock2sess_.jdump();
+            j["subscribers_"]=subscribers_.jdump();
+            return j;
+        }
+
+        void clear()
         {
             {
                 W_LOCK(sa2sess_.lock_);
@@ -126,7 +187,7 @@ namespace RPC
     {
 
 
-        SERVICE_id myOscar;
+        std::string myOscar;
         const real iterateTimeout_;
 
         ListenerBase* myOscarListener;
@@ -177,6 +238,7 @@ namespace RPC
 
 
         bool on_TickAlarm(const timerEvent::TickAlarm*);
+        bool on_RequestIncoming(const webHandlerEvent::RequestIncoming*);
 
 
 
@@ -198,10 +260,39 @@ namespace RPC
 
         Service(const SERVICE_id &svs, const std::string&  nm,  IInstance *ifa);
         static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa);
+
         ~Service();
+
+        struct _evcount
+        {
+            RWLock lk;
+            std::map<EVENT_id,int> ev_handled;
+            void inc(EVENT_id id)
+            {
+                W_LOCK(lk);
+                ev_handled[id]++;
+            }
+            Json::Value jdump()
+            {
+                Json::Value j;
+                std::map<EVENT_id,int> m;
+                {
+                    R_LOCK(lk);
+                    m=ev_handled;
+                }
+                for(auto &z: m)
+                {
+                    j[iUtils->genum_name(z.first)]=z.second;
+                }
+                return j;
+            }
+        };
+        _evcount evcount;
+
 
     };
 }
 
 
 #endif
+

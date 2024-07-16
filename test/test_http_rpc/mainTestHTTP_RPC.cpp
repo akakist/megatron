@@ -13,6 +13,8 @@ void registerOscarSecureModule(const char* pn);
 void registerHTTPModule(const char* pn);
 void registerprodtestServerService(const char* pn);
 void registerprodtestServerWebService(const char* pn);
+void registerWebHandlerModule(const char* pn);
+
 int mainTestHTTP_RPC(int argc, char** argv )
 {
     try {
@@ -28,6 +30,8 @@ int mainTestHTTP_RPC(int argc, char** argv )
         registerHTTPModule(NULL);
         registerprodtestServerService(NULL);
         registerprodtestServerWebService(NULL);
+        registerWebHandlerModule(NULL);
+
 
         printf(GREEN("RUN TEST %s"),__PRETTY_FUNCTION__);
 
@@ -43,11 +47,12 @@ int mainTestHTTP_RPC(int argc, char** argv )
                                           "\nOscarSecure.maxPacketSize=33554432"
                                           "\nRPC.BindAddr_MAIN=INADDR_ANY:2000"
                                           "\nRPC.BindAddr_RESERVE=NONE"
+                                          "\nRPC.oscarType=Oscar"
                                           "\nSocketIO.ListenerBuffered.MaxThreadsCount=10"
                                           "\nSocketIO.listen_backlog=128"
                                           "\nSocketIO.size=1024"
                                           "\nSocketIO.timeout_millisec=10"
-                                          "\nWebHandler.bindAddr=NONE"
+                                          "\nWebHandler.bindAddr=INADDR_ANY:6002"
 
                                           "\n# http listen address"
                                           "\nHTTP.max_post=1000000"
@@ -75,11 +80,12 @@ int mainTestHTTP_RPC(int argc, char** argv )
                                           "\nOscarSecure.maxPacketSize=33554432"
                                           "\nRPC.BindAddr_MAIN=INADDR_ANY:0"
                                           "\nRPC.BindAddr_RESERVE=NONE"
+                                          "\nRPC.oscarType=Oscar"
                                           "\nSocketIO.ListenerBuffered.MaxThreadsCount=10"
                                           "\nSocketIO.listen_backlog=128"
                                           "\nSocketIO.size=1024"
                                           "\nSocketIO.timeout_millisec=10"
-                                          "\nWebHandler.bindAddr=NONE"
+                                          "\nWebHandler.bindAddr=INADDR_ANY:6001"
 
                                           "\n# http listen address"
                                           "\ntestHTTP.bindAddr=0.0.0.0:8088"
@@ -104,7 +110,9 @@ int mainTestHTTP_RPC(int argc, char** argv )
         }
 
         sleep(2);
-        auto ef=system("ab -n 100000 -k -c 200  http://127.0.0.1:8088/");
+        auto ef=system("ab -n 1000000 -k -c 200  http://127.0.0.1:8088/");
+        if(ef!=0)
+            sleep(60*60);
         iUtils->setTerminate(ef);
         sleep(1);
         delete iUtils;
