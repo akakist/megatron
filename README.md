@@ -1,11 +1,14 @@
-**Megatron**
+***Megatron***
 
-Service-oriented framework in C++.
+**Service-oriented framework in C++**
 
 Let's consider a typical situation in which many fairly experienced programmers find themselves.
 We need to make a timer.
-They do it this way: they create a new thread, throw a lambda function into it, wait for a timeout in the thread and execute the lambda.
+
+They do it this way: create a new thread, throw a lambda function into it, wait for a timeout in the thread and execute the lambda.
+
 What are the consequences of such an action?
+
 1. Lambda is executed in another thread.
 2. All variables that are shared by the class from which the timer was called must be protected with mutexes.
 3. Then you need to fight deadlocks.
@@ -17,44 +20,52 @@ Is the game worth the candle?
 Isn't it easier to immediately apply a reasonable architectural approach so that the timer does not create new threads?
 But besides the timer, there are many more useful things, but it’s absolutely impossible to do without a timer.
 
-Solution:
+**Solution**
 
 A service is a module that has an event processing function.
+
 The service sends a request to the timer service like give me an alert in a second.
+
 The request to the timer is placed in the event queue, removed from it and processed by the service.
-Then the timer sends a return event to the consumer service and this event also gets into the event queue and is then processed in handleEvent.
+
+Then the timer sends a backroute event to the consumer service and this event also gets into the event queue and is then processed in handleEvent.
+
 What do we have? Each service has only one mutex on the event queue and locks on push and pop. This is much easier to do than blocking the use of absolutely all class members.
 handleEvent runs in one thread, so there is no need to protect it with a mutex.
 
-What can Megatron do?
+*What can Megatron do?*
 
-Compile it and in the build/bin subdirectory find test_http
+Compile it and in the ``build/bin`` subdirectory find ``test_http``
+
 It runs the apach benchmark on the megatron web server.
-Result: 270 thousand requests per second. Compare with nginx - 195 thousand.
+
+Result: 270 thousand requests per second (currently 330k). Compare with nginx - 195 thousand.
 We think what's wrong, our server produces text from memory, and nginx - from disk. We make sure that the same file is returned from disk - we have a result of 197.5 thousand requests.
 It works faster than nginx, all other things being equal, by a little more than 1%. And this is in C++!
 Even if the software is 20% slower than Nginx, then this is already a good result, but here it is faster.
 
-RPC
+**RPC**
 
 Megatron can transmit events over the network to another node. The client-server architecture is built using 2 calls - sendEvent(destaddr....), and on the server - passEvent() - send via the reverse route.
+
 We just take it and implement it in 5 minutes. Moreover, if we created a cloud and the event passed through several nodes, then it will return via the reverse route. Moreover, you can send an event from the GUI window class,
+
 if the class is inherited from one class and the response is also returned to this GUI class.
 
-You can spend half an hour implementing a display to show some technological parameters that are on the server.
+You can spend half an hour implementing a display to show some hardware parameters that are on the embedded device.
 
-In build/bin there is a test test_http_rpc
+*In build/bin there is a test test_http_rpc*
 
 This is an HTTP server that accepts a request, then makes a request to another node, waits for a response and then makes a response to the initially received HTTP request.
 Rate the speed, it showed me 117 thousand requests per second.
-Once again, this means receiving an HTTP request, sending a request to a third-party server, waiting for a response from it, and responding to the HTTP client.
-Let's build a similar system on Apache Kafka, what will the speed be? I'll check later. Even if Apache Kafka is not worse in quality than Nginx, then there will be one extra passage of the event to the broker.
-
-That is, we have that in Megatron the broker is linked with handleEvent and there is no need to waste time pulling events over the network from the broker.
 
 
+That is, we have that in Megatron the broker is linked with handleEvent and there is no need to waste time pulling events over the network from the broker, like apache kafka.
 
-Other goodies:
+
+
+**Other goodies**
+
 Telnet service. Any service can order console commands from this service, which will be sent to the customer when the user enters it on the console.
 This way you can organize the management of the backend or just view some of the internals.
 Much like on various devices.
@@ -103,9 +114,9 @@ In the service model, the functionality of the application is determined by the 
 Let's look at the configs
 
 
-pay attention to Start=RPC
+pay attention to ``Start=RPC``
 
-Edit the line: Start=RPC,prodtestServerWeb
+Edit the line: ``Start=RPC,prodtestServerWeb``
 
 This means that after launching Megatron, we forcibly start 2 services.
 The rest of the services start automatically, pushing elbows (receiving events). The services seem to push each other and start.
@@ -115,13 +126,16 @@ It will not be possible to push him from the outside.
 
 Literal service names are defined in the service registration function.
 
- iUtils->registerService(COREVERSION,ServiceEnum::prodtestServerWeb,prodtestWebServer::Service::construct, "prodtestServerWeb");
+``
+iUtils->registerService(COREVERSION,ServiceEnum::prodtestServerWeb,
+ prodtestWebServer::Service::construct, "prodtestServerWeb");
+``
 
- Read more about registering the service.
+**More about registering the service**
 
 There are 2 registrations.
 
-1. PluginInfo - megatron scans the plugins directory, dlopens them and if there is a registerModule function, calls it with the file path parameter. Then it does dlclose.
+1. PluginInfo - megatron scans the plugins directory, ``dl_opens`` them and if there is a registerModule function, calls it with the file path parameter. Then it does dlclose.
  When a message arrives at this service, Megatron knows that this service is located in this file. It loads it and calls registerModule where pn is nullptr.
 
 2. RegisterService is called, the service is registered and starts. The startService event arrives at the event handler. The service name that is used in the config is
@@ -133,7 +147,8 @@ This way you can simply make a config, changing the created parameters to the re
 IPv6 support is available, binding addresses or remote hosts can be specified separated by commas, you can set the port to ipv6 and ipv4.
 
 
-Why is this config format used SocketIO.maxOutBufferSize=8388608 and not yaml, for example.
+Why is this config format used ``SocketIO.maxOutBufferSize=8388608`` and not yaml?
+
 The point is that sorting is possible; the fact that the name of the parameter is preceded by the name of the service is not so important; for me personally, this method of specifying a parameter is more obvious and there is no need to guess anything.
 
 In the function for reading a config parameter from the service code, you need to specify a line of description for the parameter,
@@ -146,18 +161,17 @@ Therefore, the decision arose to register all events that occur in this code.
 eventgen.sh scans the code and compiles a header that contains an event registration function that needs to be called near the call to the service registration function.
 Inside the script there is a reference to the binary; you need to build it manually.
 
-We create our own service.
+**Create our own service**
 
 Copy-paste some ready-made service inherited from ListenerBuffered1Thread. This is essential if you don’t want to bother with multithreading inside the service.
 Next, we change the names and create our own functionality.
 We specified it in the config in the Start field and launch Megatron.
 Examples of configs are hardcoded in the tests, you can see more there.
 
-Cloud
+**Cloud**
 
 Megatron allows you to create a hierarchical cloud of nodes using the dfsReferrer service. There are tests for creating a cloud, where you can see the logic.
-The dfsCaps service is also used there,
-but it is now simplified, the geoIP functionality has been removed from it. The choice of uplink is carried out randomly.
+The dfsCaps service is also used there, but it is now simplified, the geoIP functionality has been removed from it. The choice of uplink is carried out randomly.
 
 
 
@@ -165,7 +179,5 @@ PS. The victory over nginx is dedicated to the programmers who made the Buran sp
 They did something on the IBM 360 of 1964 that they cannot do now, with computers a million times more powerful. I tried to find and repeat their logic.
 In principle, the logic of Megatron somewhat repeats the logic of the DRAGON language, only without the graphic part,
 but with the help of megatron you can implement activity diagrams almost in a visual form.
-
-ZZY: I measured it with a server on MacOS, my speed is 2 times faster, the first measurement was with the server in debug mode, it is there by default..
 
 
