@@ -1,166 +1,171 @@
 **Megatron**
 
-Сервисно-оринтироеанный фреймворк на C++.
+Service-oriented framework in C++.
 
-Рассмотрим типичную ситуацию, в которой бывают очень многие достаточно опытные программисты.
-Нужно сделать таймер.
-Eго делают так - создают новый поток, в него кидают лямбда функцию, в потоке ждут таймаут и выполняют лямбду.
-Какие последствия такого действия?
-1. Лямбда выполняется в другом потоке.
-2. Все переменные, которые совместно используются классом, из которого вызвали таймер, нужно защитить мьютексами.
-3. Затем нужно бороться с дедлоками.
-В итоге ради реализации тривиального таймера мы создали такой ужас в коде, который исправить практически невозможно.
-Причем сначала мы будем делать без мьютексов. Без нагрузки оно будет работать. Под нагрузкой - падать.
-Затем мы пытаемся защититься мьютексами от одновременного доступа из двух потоков.
-Все равно падает, подвисает на дедлоках. Дальше мы боремся с дедлоками. Все это время состояние проекта - осталось чуть-чуть исправить, а на деле - можно смело выбрасывать.
-Стоит ли игра свеч?
-Не проще ли сразу применить разумный архитектурный подход, чтобы таймер не создавал новые потоки.
-А ведь кроме таймера есть еще много полезных вещей, но без таймера обойтись уж совсем невозможно.
+Let's consider a typical situation in which many fairly experienced programmers find themselves.
+We need to make a timer.
+They do it this way: they create a new thread, throw a lambda function into it, wait for a timeout in the thread and execute the lambda.
+What are the consequences of such an action?
+1. Lambda is executed in another thread.
+2. All variables that are shared by the class from which the timer was called must be protected with mutexes.
+3. Then you need to fight deadlocks.
+As a result, for the sake of implementing a trivial timer, we created such a horror in the code that it is almost impossible to fix.
+And first we will do it without mutexes. It will work without load. Under load - fall.
+We then try to protect ourselves with mutexes from simultaneous access from two threads.
+It still falls and hangs on deadlocks. Next we fight deadlocks. All this time, the state of the project remains to be slightly corrected, but in reality it can be safely thrown away.
+Is the game worth the candle?
+Isn't it easier to immediately apply a reasonable architectural approach so that the timer does not create new threads?
+But besides the timer, there are many more useful things, but it’s absolutely impossible to do without a timer.
 
-Решение:
+Solution:
 
-Сервис - это модуль, который имеет функцию обработки событий. 
-Сервис посылает запрос сервису таймеру типа дай мне алерт через секунду.
-Запрос к таймеру ложится в очередь событий, выгребается из нее и обрабатывается сервисом.
-Дальше таймер посылает обратное событие в сервис консьюмер и это событие тоже попадает в очередь событий и потом обрабатывается в handleEvent.
-Что имеем? Каждый сервис имеет только один мьютекс на очереди событий и блокировки на push и pop. Это сделать куда проще, чем блокировать использование абсолютно всех членов класса. 
-handleEvent выполняется в одном потоке, поэтому защищать мьютексом нет необходимости.
+A service is a module that has an event processing function.
+The service sends a request to the timer service like give me an alert in a second.
+The request to the timer is placed in the event queue, removed from it and processed by the service.
+Then the timer sends a return event to the consumer service and this event also gets into the event queue and is then processed in handleEvent.
+What do we have? Each service has only one mutex on the event queue and locks on push and pop. This is much easier to do than blocking the use of absolutely all class members.
+handleEvent runs in one thread, so there is no need to protect it with a mutex.
 
-Что может Мегатрон?
+What can Megatron do?
 
-Скомпиляйте его и подкаталоге build/bin найдите test_http
-Он гоняет apach benchmark на вебсервер мегатрона.
-Результат: 270 тыс запросов в секунду. Сравниваем с nginx - 195 тыс.
-Думаем в чем дело, наш сервер выдает текст из памяти, а nginx - с диска. Делаем чтобы отдавал с диска тот же файл - у нас результат 197,5 тыс запросов.
-Работает быстрее чем nginx при прочих равных условиях чуть больше, чем на 1%. И это на C++!
-Даже если софт медленнее нгинкса на 20%, то это уже хороший результат, а тут быстрее.
+Compile it and in the build/bin subdirectory find test_http
+It runs the apach benchmark on the megatron web server.
+Result: 270 thousand requests per second. Compare with nginx - 195 thousand.
+We think what's wrong, our server produces text from memory, and nginx - from disk. We make sure that the same file is returned from disk - we have a result of 197.5 thousand requests.
+It works faster than nginx, all other things being equal, by a little more than 1%. And this is in C++!
+Even if the software is 20% slower than Nginx, then this is already a good result, but here it is faster.
 
 RPC
 
-Мегатрон умеет передавать события по сети на другой нод. Клиент серверная архитектура строится при помощи 2 вызовов - sendEvent(destaddr....), а на сервере - passEvent() - отправить обратным маршрутом.
-Просто берем и за 5 минут реализуем. При этом если мы создали облако и событие прошло через несколько нодов, то оно вернется обратным маршрутом. Причем можно послать событие из класса окна GUI, 
-если класс отнаследовать от одного класса и вернется ответ также в этот класс GUI.
+Megatron can transmit events over the network to another node. The client-server architecture is built using 2 calls - sendEvent(destaddr....), and on the server - passEvent() - send via the reverse route.
+We just take it and implement it in 5 minutes. Moreover, if we created a cloud and the event passed through several nodes, then it will return via the reverse route. Moreover, you can send an event from the GUI window class,
+if the class is inherited from one class and the response is also returned to this GUI class.
 
-Можно потратить полчаса на реализацию дисплея для отображения каких-то технологических параметров, которые лежат на сервере.
+You can spend half an hour implementing a display to show some technological parameters that are on the server.
 
-В build/bin есть тест test_http_rpc
-Это хттп сервер, который принимает запрос, затем делает запрос на другой нод, ждет ответ и затем делает ответ на изначально пришедший хттп запрос.
-Оцените скорость, у меня показало 117 тыс запросов в сек.
-Eще раз - это прием хттп запроса, запрос стороннему серверу, ожидание от него ответа и ответ хттп клиенту. 
-Давайте соберем аналогичную систему на Апач кафка, какая там будет скорость? Позже проверю. Даже если Апач кафка не хуже по качеству нгинкса, то там будет одно лишнее прохождение евента до брокера.
+In build/bin there is a test test_http_rpc
 
-То есть мы имеем, что в мегатроне брокер слинкован с handleEvent и не нужно тратить время на вытягивание евентов по сети из брокера.
+This is an HTTP server that accepts a request, then makes a request to another node, waits for a response and then makes a response to the initially received HTTP request.
+Rate the speed, it showed me 117 thousand requests per second.
+Once again, this means receiving an HTTP request, sending a request to a third-party server, waiting for a response from it, and responding to the HTTP client.
+Let's build a similar system on Apache Kafka, what will the speed be? I'll check later. Even if Apache Kafka is not worse in quality than Nginx, then there will be one extra passage of the event to the broker.
 
-Другие плюшки:
-Сервис телнет. Eму любой сервис может заказать консольные команды, которые прилетят к заказчику, когда юзер введет ее на консоли. 
-Так можно организовать управление бекендом либо просто просматривать какие-то внутренности. 
-Примерно как на различных девайсах.
-В телнете автоматом организован help из всех зарегистрированных команд с их описанием и разбиение на каталоги.
-
-Тест под телнет называется test_telnet. При запуске стартует сервер, а также изнутри запускается на него telnet client и можно поиграться.
-
-Исходники тут: modules/telnet/demo
+That is, we have that in Megatron the broker is linked with handleEvent and there is no need to waste time pulling events over the network from the broker.
 
 
-Система плагинов
 
-Пока мы рассмотрели standalone тесты. В них влинкованы все сервисы, проведена регистрация сервисов ручками, 
-даже config file заембедден в код. 
-Это чтобы не нужно было настраивать тест каждый раз.
+Other goodies:
+Telnet service. Any service can order console commands from this service, which will be sent to the customer when the user enters it on the console.
+This way you can organize the management of the backend or just view some of the internals.
+Much like on various devices.
+In telnet, help is automatically organized from all registered commands with their description and division into directories.
 
-Стандартный режим работы мегатрона - это плагинный. Плагин - это бинарник одного или нескольких сервисов. 
-Выполняется в виде динамической библиотеки длл.
-Посмотрите код сервиса, например modules/socket
+The telnet test is called test_telnet. When you start, the server starts, and also the telnet client is launched on it from the inside and you can play around.
+
+Sources here: modules/telnet/demo
+
+
+
+Plugin system
+
+So far we have looked at standalone tests. All services are linked into them, services are registered manually,
+even the config file is embedded in the code.
+This is so that you don’t have to set up the test every time.
+
+Megatron's standard operating mode is plug-in. A plugin is a binary of one or more services.
+Executed as a dynamic dll library.
+Look at the service code, for example modules/socket
 socket.cpp
-registerModule - эта функция выполняется при загрузке длл и в качестве параметра 
-идет iUtils - это указатель на все глобальные данные мегатрона. 
-Сервсис выполняет действия по регистрации самого себя в фабрике сервисов, а также дает понять мегатрону, 
-что такие-то сервисы лежат в этом плагине.
-Eсли по сети прилетает евент в этот сервис, то система загружает плагин и посылает сервису евент startService, 
-на которую делаются различные инициализации  типа установки таймеров и т.п.
+registerModule - this function is executed when the dll is loaded and as a parameter
+goes iUtils - this is a pointer to all megatron global data.
+Service performs actions to register itself in the service factory, and also makes it clear to Megatron that
+that such and such services are contained in this plugin.
+If an event arrives over the network to this service, the system loads the plugin and sends the startService event to the service,
+on which various initializations are made, such as setting timers, etc.
 
-Сделайте make install и увидите, что мегатрон установился в каталог ~/bin-10100
 
-В нем есть папки - bin - там лежат exe. 
-пробуем запустить  mt-main-10100.exe
+Do make install and you will see that Megatron is installed in the ~/bin-10100 directory
 
-Идем в каталог ../conf и видим там mt-main-10100.conf
+It contains folders - bin - there are exe files there.
+try to run mt-main-10100.exe
 
-Снова в bin.
-Делаем симлинк mt-main-10100.exe mt-main-10100-web.exe
+We go to the ../conf directory and see mt-main-10100.conf there
 
-Запускаем mt-main-10100-web.exe
+Back in bin.
+Making a symlink mt-main-10100.exe mt-main-10100-web.exe
 
-Смотрим в конфе, появился mt-main-10100-web.conf
-То есть на каждый идентичный бинарник мы получили 2 разных конфига. По сути это 2 разных приложения. Пускалка у них идентична по бинарнику, но конфиги разные, соответственно работать будут по разному.
-В сервисной модели функционал приложение определяется набором сервисов, которые стартовали. Сама пускалка идентична для всех нодов.
+Run mt-main-10100-web.exe
 
-Смотрим конфиги
+We look in the conf, mt-main-10100-web.conf has appeared
+That is, for each identical binary we received 2 different configs. Essentially these are 2 different applications. Their launcher is identical in binary, but the configs are different, so they will work differently.
+In the service model, the functionality of the application is determined by the set of services that have started. The launcher itself is identical for all nodes.
 
-обращаем внимание на Start=RPC
+Let's look at the configs
 
-Правим строчку: Start=RPC,prodtestServerWeb
 
-Это означает, что мы после запуска мегатрона принудительно стартуем 2 сервиса.
-Остальные сервисы стартуют автоматически, толкаясь локтями (получая евенты). Сервисы как бы расталкивают друг друга и стартуют.
+pay attention to Start=RPC
 
-Почему нужно руками запустить prodtestServerWeb? Нам нужно чтобы он прибиндился к порту и ожидал соединения, 
-извне подтолкнуть его не получится.
+Edit the line: Start=RPC,prodtestServerWeb
 
-Литеральные имена сервисов определяются в функции регистрации сервиса.
+This means that after launching Megatron, we forcibly start 2 services.
+The rest of the services start automatically, pushing elbows (receiving events). The services seem to push each other and start.
+
+Why do you need to run prodtestServerWeb manually? We need it to bind to the port and wait for a connection,
+It will not be possible to push him from the outside.
+
+Literal service names are defined in the service registration function.
 
  iUtils->registerService(COREVERSION,ServiceEnum::prodtestServerWeb,prodtestWebServer::Service::construct, "prodtestServerWeb");
 
-Подробнее о регистрации сервиса.
+ Read more about registering the service.
 
-В ней проводится 2 регистрации.
+There are 2 registrations.
 
-1. ПлагинИнфо - мегатрон сканирует каталог plugins делает dlopen для них и если есть функция registerModule, то вызывает ее с параметром пути файла. Затем он делает dlclose.
- При прилете сообщения к этому сервису мегатрон знает, что данный сервис находится в этом файле. Он его подгружает и вызывает registerModule где pn - nullptr.
- 
-2. Идет вызов registerService, сервис регистрируется и стартует. В обработчик евентов прилетает евент startService. Имя сервиса, которое используется в конфиге то, 
-что мы указали при регистрации.
+1. PluginInfo - megatron scans the plugins directory, dlopens them and if there is a registerModule function, calls it with the file path parameter. Then it does dlclose.
+ When a message arrives at this service, Megatron knows that this service is located in this file. It loads it and calls registerModule where pn is nullptr.
 
-После того, как сервис стартовал, ему не хватает каких-то параметров и он дописывает их список с дефолтовыми значениями в конфиг файл.
-Так можно просто делать конфиг, меняя созданные параметры на нужные. Адреса нодов можно менять, порты и все что нужно.
+2. RegisterService is called, the service is registered and starts. The startService event arrives at the event handler. The service name that is used in the config is
+what we indicated during registration.
 
-Поддержка IPv6 имеется, адреса биндинга или удаленных хостов можно указывать через запятую, можно повесить порт на ipv6 и ipv4.
+After the service has started, it lacks some parameters and adds a list of them with default values ​​to the config file.
+This way you can simply make a config, changing the created parameters to the required ones. Node addresses, ports and everything you need can be changed.
 
-
-Почему использован такой формат конфига SocketIO.maxOutBufferSize=8388608 , а не yaml, например. 
-Дело в возможности сортировки, то что перед именем параметра стоит имя сервиса - не так существенно, лично для меня такой способ задания параметра более очевидный и не надо ничего домысливать.
-
-В функции чтения параметра конфига из кода сервиса нужно указывать строчку описания параметра, 
-она автоматически выводится в конфиг перед параметром и после сортировки теряет смысл.
-
-В кодах сервисом можно увидеть такой файл eventgen.sh. Что это такое? Это автоматическая сборка информации об евентах, которые использует сервис. Для чего?
-Eсли мы приняли евент из сети, то для обработки евент должен быть зарегистрирован в системе, иначе будет ошибка. Пока все евенты вы не зарегистрируете, 
-придется тестить и ловить незарегистрированные. Тот же самый евент может быть зарегистрирован другим сервисом и вы не поймаете ошибку, а где-то на проде поймаете.
-Поэтому возникло решение регистрировать вообще все события, которые встречаются в этом коде. 
-eventgen.sh сканирует код и составляет хидер, в котором есть функция регистрации событий, которую нужно вызвать около вызова функции регистрации сервиса.
-Внутри скрипта отсылка на бинарник, нужно его сбилдить руками.
-
-Делаем свой сервис.
-
-Копипастим какой-то готовый сервис, унаследованный от ListenerBuffered1Thread. Это существенно, если не хотите возиться с многопоточностью внутри сервиса.
-Далее меняем имена и делаем свой функционал.
-Указали его в конфиге в поле Start и запускаем мегатрон.
-Примеры конфигов захардкодлены в тестах, можно там посмотреть еще.
-
-Облако
-
-Мегатрон позволяет создавать иерархическое облако нодов при помощи сервиса dfsReferrer. Eсть тесты для создания облака, там можно посмотреть логику. 
-Также там используется сервис dfsCaps, 
-но он сейчас упрощен, из него выброшен функционал geoIP. Выбор аплинка осуществляется рандомно.
+IPv6 support is available, binding addresses or remote hosts can be specified separated by commas, you can set the port to ipv6 and ipv4.
 
 
+Why is this config format used SocketIO.maxOutBufferSize=8388608 and not yaml, for example.
+The point is that sorting is possible; the fact that the name of the parameter is preceded by the name of the service is not so important; for me personally, this method of specifying a parameter is more obvious and there is no need to guess anything.
 
-ЗЫ. Победа над nginx посвящается программистам, которые делали космический челнок Буран. 
-Они сотворили на IBM 360 образца 1964г то, что не могут сделать сейчас, имея компьютеры в миллион раз мощнее. Я пытался нащупать и повторить их логику. 
-В принципе логика, мегатрона в чем-то повторяет логику языка ДРАКОН, только без графической части, 
-но с помощью мегатрона можно реализовать диаграммы активности почти что в визуальном виде.
+In the function for reading a config parameter from the service code, you need to specify a line of description for the parameter,
+it is automatically displayed in the config before the parameter and after sorting it loses its meaning.
 
-ЗЗЫ: Померялся с усервером на макоси, у меня быстрее в 2 раза, первый замер был с усервером в дебужном режиме, он там стоит по умолчанию..
+In the service codes you can see the following file eventgen.sh. What it is? This is an automatic collection of information about events that the service uses. For what?
+If we received an event from the network, then for processing the event must be registered in the system, otherwise there will be an error. Until you register all events,
+you'll have to test and catch unregistered ones. The same event can be registered by another service and you will not catch the error, but somewhere in the production you will catch it.
+Therefore, the decision arose to register all events that occur in this code.
+eventgen.sh scans the code and compiles a header that contains an event registration function that needs to be called near the call to the service registration function.
+Inside the script there is a reference to the binary; you need to build it manually.
 
+We create our own service.
+
+Copy-paste some ready-made service inherited from ListenerBuffered1Thread. This is essential if you don’t want to bother with multithreading inside the service.
+Next, we change the names and create our own functionality.
+We specified it in the config in the Start field and launch Megatron.
+Examples of configs are hardcoded in the tests, you can see more there.
+
+Cloud
+
+Megatron allows you to create a hierarchical cloud of nodes using the dfsReferrer service. There are tests for creating a cloud, where you can see the logic.
+The dfsCaps service is also used there,
+but it is now simplified, the geoIP functionality has been removed from it. The choice of uplink is carried out randomly.
+
+
+
+PS. The victory over nginx is dedicated to the programmers who made the Buran space shuttle.
+They did something on the IBM 360 of 1964 that they cannot do now, with computers a million times more powerful. I tried to find and repeat their logic.
+In principle, the logic of Megatron somewhat repeats the logic of the DRAGON language, only without the graphic part,
+but with the help of megatron you can implement activity diagrams almost in a visual form.
+
+ZZY: I measured it with a server on MacOS, my speed is 2 times faster, the first measurement was with the server in debug mode, it is there by default..
 
 
