@@ -4,7 +4,8 @@ project (dfsCoreModules)
 
 
 
-#ADD_SUBDIRECTORY(errorDispatcher)
+ADD_SUBDIRECTORY(errorDispatcher)
+ADD_SUBDIRECTORY(logger)
 ADD_SUBDIRECTORY(http)
 #ADD_SUBDIRECTORY(sqlite)
 IF(ENABLE_MYSQL)

@@ -333,11 +333,11 @@ bool  dfsReferrer::Service::on_IncomingOnConnector(const rpcEvent::IncomingOnCon
 
     auto& IDC=evt->e->id;
     if( dfsReferrerEventEnum::ToplinkDeliverRSP==IDC)
-        return on_ToplinkDeliverRSP(dynamic_cast<const dfsReferrerEvent::ToplinkDeliverRSP* > (evt->e.get()));
+        return on_ToplinkDeliverRSP(static_cast<const dfsReferrerEvent::ToplinkDeliverRSP* > (evt->e.get()));
     if( dfsReferrerEventEnum::Pong==IDC) /// connector
-        return on_Pong(dynamic_cast<const dfsReferrerEvent::Pong* > (evt->e.get()),evt->esi);
+        return on_Pong(static_cast<const dfsReferrerEvent::Pong* > (evt->e.get()),evt->esi);
     if( dfsReferrerEventEnum::UpdateConfigRSP==IDC)
-        return on_UpdateConfigRSP(dynamic_cast<const dfsReferrerEvent::UpdateConfigRSP* > (evt->e.get()));
+        return on_UpdateConfigRSP(static_cast<const dfsReferrerEvent::UpdateConfigRSP* > (evt->e.get()));
 
 
     XTRY
@@ -374,11 +374,11 @@ bool  dfsReferrer::Service::on_IncomingOnAcceptor(const rpcEvent::IncomingOnAcce
     if( dfsReferrerEventEnum::SubscribeNotifications==IDA)
         return on_SubscribeNotifications((const dfsReferrerEvent::SubscribeNotifications*)evt->e.get());
     if( dfsReferrerEventEnum::ToplinkDeliverREQ==IDA)        /// forwading
-        return on_ToplinkDeliverREQ(dynamic_cast<const dfsReferrerEvent::ToplinkDeliverREQ* > (evt->e.get()),evt);
+        return on_ToplinkDeliverREQ(static_cast<const dfsReferrerEvent::ToplinkDeliverREQ* > (evt->e.get()),evt);
     if( dfsReferrerEventEnum::Ping==IDA)/// acceptor
-        return on_Ping(dynamic_cast<const dfsReferrerEvent::Ping* > (evt->e.get()),evt->esi);
+        return on_Ping(static_cast<const dfsReferrerEvent::Ping* > (evt->e.get()),evt->esi);
     if( dfsReferrerEventEnum::UpdateConfigRSP==IDA)
-        return on_UpdateConfigRSP(dynamic_cast<const dfsReferrerEvent::UpdateConfigRSP* > (evt->e.get()));
+        return on_UpdateConfigRSP(static_cast<const dfsReferrerEvent::UpdateConfigRSP* > (evt->e.get()));
 
 
     logErr2("unhandled event %s %s %d",iUtils->genum_name(evt->e->id),__FILE__,__LINE__);

@@ -334,21 +334,21 @@ bool Service::handleEvent(const REF_getter<Event::Base>& ev)
         return true;
     }
     if( rpcEventEnum::Disconnected==ID)
-        return(this->on_Disconnected(dynamic_cast<const rpcEvent::Disconnected*>(ev.get())));
+        return(this->on_Disconnected(static_cast<const rpcEvent::Disconnected*>(ev.get())));
     if( rpcEventEnum::ConnectFailed==ID)
-        return(this->on_ConnectFailed(dynamic_cast<const rpcEvent::ConnectFailed*>(ev.get())));
+        return(this->on_ConnectFailed(static_cast<const rpcEvent::ConnectFailed*>(ev.get())));
     if( rpcEventEnum::Connected==ID)
-        return(this->on_Connected(dynamic_cast<const rpcEvent::Connected*>(ev.get())));
+        return(this->on_Connected(static_cast<const rpcEvent::Connected*>(ev.get())));
     if( rpcEventEnum::IncomingOnConnector==ID)
-        return(this->on_IncomingOnConnector(dynamic_cast<const rpcEvent::IncomingOnConnector*>(ev.get())));
+        return(this->on_IncomingOnConnector(static_cast<const rpcEvent::IncomingOnConnector*>(ev.get())));
     if( dfsReferrerEventEnum::SubscribeNotifications==ID)
-        return on_SubscribeNotifications(dynamic_cast<const dfsReferrerEvent::SubscribeNotifications*>(ev.get()));
+        return on_SubscribeNotifications(static_cast<const dfsReferrerEvent::SubscribeNotifications*>(ev.get()));
     if( dfsReferrerEventEnum::ToplinkDeliverRSP==ID)
-        return on_ToplinkDeliverRSP(dynamic_cast<const dfsReferrerEvent::ToplinkDeliverRSP* > (ev.get()));
+        return on_ToplinkDeliverRSP(static_cast<const dfsReferrerEvent::ToplinkDeliverRSP* > (ev.get()));
     if( dfsReferrerEventEnum::ToplinkDeliverREQ==ID)       /// forwading
-        return on_ToplinkDeliverREQ(dynamic_cast<const dfsReferrerEvent::ToplinkDeliverREQ* > (ev.get()));
+        return on_ToplinkDeliverREQ(static_cast<const dfsReferrerEvent::ToplinkDeliverREQ* > (ev.get()));
     if( dfsReferrerEventEnum::InitClient==ID)       /// forwading
-        return on_InitClient(dynamic_cast<const dfsReferrerEvent::InitClient* > (ev.get()));
+        return on_InitClient(static_cast<const dfsReferrerEvent::InitClient* > (ev.get()));
 
     logErr2("unhandled event t t %s %s %d",iUtils->genum_name(ev->id),__FILE__,__LINE__);
     XPASS;

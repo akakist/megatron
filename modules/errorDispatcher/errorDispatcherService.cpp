@@ -97,20 +97,20 @@ bool ErrorDispatcher::Service::handleEvent(const REF_getter<Event::Base>& e)
     XTRY;
     auto &ID=e->id;
 
-    auto z=dynamic_cast<const errorDispatcherEvent::Subscribe*>(e.get());
+    auto z=static_cast<const errorDispatcherEvent::Subscribe*>(e.get());
     if(z)
         return on_errorDispatcherSubscribe(z);
 
     if( errorDispatcherEventEnum::Subscribe==ID)
-        return on_errorDispatcherSubscribe(dynamic_cast<const errorDispatcherEvent::Subscribe* > (e.get()));
+        return on_errorDispatcherSubscribe(static_cast<const errorDispatcherEvent::Subscribe* > (e.get()));
     if( errorDispatcherEventEnum::Unsubscribe==ID)
-        return on_errorDispatcherUnsubscribeAll(dynamic_cast<const errorDispatcherEvent::Unsubscribe* > (e.get()));
+        return on_errorDispatcherUnsubscribeAll(static_cast<const errorDispatcherEvent::Unsubscribe* > (e.get()));
     if( errorDispatcherEventEnum::SendMessage==ID)
-        return on_errorDispatcherSendMessage(dynamic_cast<const errorDispatcherEvent::SendMessage* > (e.get()));
+        return on_errorDispatcherSendMessage(static_cast<const errorDispatcherEvent::SendMessage* > (e.get()));
     if( systemEventEnum::startService==ID)
-        return on_startService(dynamic_cast<const systemEvent::startService*>(e.get()));
+        return on_startService(static_cast<const systemEvent::startService*>(e.get()));
     if( rpcEventEnum::IncomingOnAcceptor==ID)
-        return(this->on_IncomingOnAcceptor(dynamic_cast<const rpcEvent::IncomingOnAcceptor*>(e.get())));
+        return(this->on_IncomingOnAcceptor(static_cast<const rpcEvent::IncomingOnAcceptor*>(e.get())));
 
     logErr2("ErrorDispatcher: unhandled event %s %s %d",iUtils->genum_name(e->id),__FILE__,__LINE__);
     XPASS;
