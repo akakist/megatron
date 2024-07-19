@@ -1,5 +1,4 @@
-#ifndef ___________RPC__SERVER__H12
-#define ___________RPC__SERVER__H12
+#pragma once
 #include "listenerBuffered1Thread.h"
 #include "broadcaster.h"
 #include "REF.h"
@@ -171,4 +170,3 @@ namespace referrerClient
 
 }
 
-#endif

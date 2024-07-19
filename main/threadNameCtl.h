@@ -1,5 +1,4 @@
-#ifndef ____________THREAD_NAME_CTLR____HHH
-#define ____________THREAD_NAME_CTLR____HHH
+#pragma once
 #include "mutexable.h"
 #ifdef _MCS_VER
 #endif
@@ -30,4 +29,3 @@ public:
     void pop_mi(const pthread_t& pt);
 };
 
-#endif

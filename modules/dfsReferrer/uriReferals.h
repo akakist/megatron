@@ -1,5 +1,4 @@
-#ifndef ______________________UEIREFERERALS___H
-#define ______________________UEIREFERERALS___H
+#pragma once
 #include "REF.h"
 #include "webDumpable.h"
 #include "linkinfo.h"
@@ -57,4 +56,3 @@ namespace dfsReferrer
     };
 
 }
-#endif

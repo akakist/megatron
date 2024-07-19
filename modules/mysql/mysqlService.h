@@ -1,5 +1,4 @@
-#ifndef _________________DBH__mysql___HH___
-#define _________________DBH__mysql___HH___
+#pragma once
 #include <string>
 #include <vector>
 #include <deque>
@@ -69,4 +68,3 @@ public:
     std::deque<REF_getter<DBH> > container_MX;
 
 };
-#endif

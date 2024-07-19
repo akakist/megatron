@@ -1,6 +1,4 @@
-#ifndef ___________PP__SERVER__H
-#define ___________PP__SERVER__H
-
+#pragma once
 #include "IUtils.h"
 #include "pollable.h"
 #include <unknown.h>
@@ -121,4 +119,3 @@ namespace ObjectProxy
     };
 
 }
-#endif

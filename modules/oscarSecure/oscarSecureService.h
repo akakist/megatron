@@ -1,6 +1,4 @@
-#ifndef ___________PP__SERVER__H
-#define ___________PP__SERVER__H
-
+#pragma once
 
 #include <unknown.h>
 #include <listenerBuffered1Thread.h>
@@ -98,4 +96,3 @@ namespace OscarSecure
 }
 
 
-#endif

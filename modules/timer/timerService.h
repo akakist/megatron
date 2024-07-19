@@ -1,5 +1,4 @@
-#ifndef ____SEVICE_TIMERR___H___
-#define ____SEVICE_TIMERR___H___
+#pragma once
 #include "mutexable.h"
 #include "unknown.h"
 #include "SERVICE_id.h"
@@ -117,4 +116,3 @@ namespace Timer
         bool m_isTerminating;
     };
 };
-#endif

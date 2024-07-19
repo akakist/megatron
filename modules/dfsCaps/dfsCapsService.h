@@ -1,5 +1,4 @@
-#ifndef ___________RPC__SERVER__H_OUT_PROXY__ZZ
-#define ___________RPC__SERVER__H_OUT_PROXY__ZZ
+#pragma once
 #include "Events/Tools/webHandlerEvent.h"
 #include "broadcaster.h"
 #include "REF.h"
@@ -73,4 +72,3 @@ namespace dfsCaps
 }
 
 
-#endif

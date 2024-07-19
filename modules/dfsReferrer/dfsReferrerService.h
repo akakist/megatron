@@ -1,5 +1,4 @@
-#ifndef ___________RPC__SERVER__H
-#define ___________RPC__SERVER__H
+#pragma once
 
 #include "event_mt.h"
 #include <IInstance.h>
@@ -213,4 +212,3 @@ namespace dfsReferrer
 
 }
 
-#endif

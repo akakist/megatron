@@ -1,5 +1,4 @@
-#ifndef _______________MEGATRON____H
-#define _______________MEGATRON____H
+#pragma once
 #include "IConfigObj.h"
 #include <stdlib.h>
 #include "IInstance.h"
@@ -21,4 +20,3 @@ public:
 
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef ______________UPLINKCONNECTIONSTATE_H
-#define ______________UPLINKCONNECTIONSTATE_H
+#pragma once
 
 #include "REF.h"
 #include "webDumpable.h"
@@ -55,4 +54,3 @@ namespace dfsReferrer {
     };
 
 }
-#endif // UPLINKCONNECTIONSTATE_H

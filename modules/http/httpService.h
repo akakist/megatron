@@ -1,5 +1,4 @@
-#ifndef _____HTTP___SERVICE______H
-#define _____HTTP___SERVICE______H
+#pragma once
 
 #include "unknown.h"
 
@@ -94,4 +93,3 @@ namespace HTTP
         IInstance *iInstance;
     };
 };
-#endif

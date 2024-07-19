@@ -1,5 +1,4 @@
-#ifndef ___________RPC__SERVER__H
-#define ___________RPC__SERVER__H
+#pragma once
 #include <REF.h>
 #include <webDumpable.h>
 #include <SOCKET_id.h>
@@ -303,5 +302,4 @@ namespace RPC
 }
 
 
-#endif
 

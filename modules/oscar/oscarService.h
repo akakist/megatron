@@ -1,6 +1,4 @@
-#ifndef ___________PP__SERVER__H
-#define ___________PP__SERVER__H
-
+#pragma once
 #include <REF.h>
 #include <SOCKET_id.h>
 #include <epoll_socket_info.h>
@@ -82,4 +80,3 @@ namespace Oscar
         IInstance* iInstance;
     };
 }
-#endif

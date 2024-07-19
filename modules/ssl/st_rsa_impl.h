@@ -1,5 +1,4 @@
-#ifndef ___________________ST_RSA_IMPL_H
-#define ___________________ST_RSA_IMPL_H
+#pragma once
 
 #include <stdint.h>
 #include "commonError.h"
@@ -86,4 +85,3 @@ public:
 
 
 
-#endif // ST_RSA_IMPL_H

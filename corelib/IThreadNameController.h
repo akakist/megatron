@@ -1,6 +1,4 @@
-#ifndef ____________IThreadNameController_h
-#define ____________IThreadNameController_h
-
+#pragma once
 #include <string>
 #ifdef _WIN32
 #else
@@ -24,5 +22,4 @@ public:
     virtual void push_mi(const pthread_t& pt, mutex_inspector_entry* e)=0;
     virtual void pop_mi(const pthread_t& pt)=0;
 };
-#endif
 

@@ -1,5 +1,4 @@
-#ifndef _________________DBH__postgers___HH___
-#define _________________DBH__postgers___HH___
+#pragma once
 #include <string>
 #include <vector>
 #include <postgresql/libpq-fe.h>
@@ -65,4 +64,3 @@ public:
     mysqlConf cfg;
 
 };
-#endif

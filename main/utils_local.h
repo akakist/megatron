@@ -1,5 +1,4 @@
-#ifndef UTILS_LOCAL_H
-#define UTILS_LOCAL_H
+#pragma once
 #include "mutexable.h"
 #include "SERVICE_id.h"
 #include "ifaces.h"
@@ -115,4 +114,3 @@ struct Utils_local
     }
 
 };
-#endif // UTILS_LOCAL_H

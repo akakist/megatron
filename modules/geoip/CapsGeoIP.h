@@ -1,5 +1,4 @@
-#ifndef CAPSGEOIP_H
-#define CAPSGEOIP_H
+#pragma once
 #include <string>
 #include <algorithm>
 #include "IGEOIP.h"
@@ -26,4 +25,3 @@ public:
 
 };
 
-#endif // CAPSGEOIP_H

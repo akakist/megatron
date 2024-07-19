@@ -1,5 +1,4 @@
-#ifndef _________________CUTILS____H_HHH1
-#define _________________CUTILS____H_HHH1
+#pragma once
 #ifndef _WIN32
 #include <dlfcn.h>
 #include <IUtils.h>
@@ -317,5 +316,4 @@ public:
 
 
 };
-#endif
 
