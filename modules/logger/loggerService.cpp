@@ -27,7 +27,10 @@ static std::string getLogName()
 
 bool Logger::Service::on_startService(const systemEvent::startService* e)
 {
-    log_file=fopen(getLogName().c_str(),"w");
+    auto ln=getLogName();
+    log_file=fopen(ln.c_str(),"w");
+    if(log_file==nullptr)
+        throw CommonError("fopen failed: %s",ln.c_str());
     return true;
 }
 
@@ -84,7 +87,7 @@ bool Logger::Service::handleEvent(const REF_getter<Event::Base>& e)
     if( rpcEventEnum::IncomingOnAcceptor==ID)
         return(this->on_IncomingOnAcceptor(static_cast<const rpcEvent::IncomingOnAcceptor*>(e.get())));
 
-    logErr2("ErrorDispatcher: unhandled event %s %s %d",iUtils->genum_name(e->id),__FILE__,__LINE__);
+    logErr2("Logger: unhandled event %s %s %d",iUtils->genum_name(e->id),__FILE__,__LINE__);
     XPASS;
     return false;
 }
