@@ -93,7 +93,7 @@ SocketIO::Service::Service(const SERVICE_id& id, const std::string& nm, IInstanc
 
 }
 void SocketIO::Service::handle_accepted1(const SOCKET_fd &neu_fd,const REF_getter<epoll_socket_info> esi,
-                                         const REF_getter<SocketsContainerForSocketIO>& MS, const msockaddr_in& remote_sa)
+        const REF_getter<SocketsContainerForSocketIO>& MS, const msockaddr_in& remote_sa)
 {
     if(CONTAINER(neu_fd)!=-1)
     {
@@ -115,7 +115,7 @@ void SocketIO::Service::handle_accepted1(const SOCKET_fd &neu_fd,const REF_gette
 //            logErr2("getsockname: errno %d %s (%s %d)",errno,strerror(errno),__FILE__,__LINE__);
 //        }
 
-        if(1){
+        if(1) {
             MUTEX_INSPECTOR;
             int i = 1;
             if(setsockopt(CONTAINER(neu_fd),SOL_SOCKET,SO_REUSEADDR,(char *)&i,sizeof(i)))
@@ -125,7 +125,7 @@ void SocketIO::Service::handle_accepted1(const SOCKET_fd &neu_fd,const REF_gette
             }
         }
 
-        if(1){
+        if(1) {
             XTRY;
 #ifdef _WIN32
             u_long f = 1;
@@ -158,7 +158,7 @@ void SocketIO::Service::handle_accepted1(const SOCKET_fd &neu_fd,const REF_gette
 
         SOCKET_id _sid=iUtils->getSocketId();
         REF_getter<epoll_socket_info> nesi=new epoll_socket_info(SOCK_STREAM,epoll_socket_info::STREAMTYPE_ACCEPTED,_sid,neu_fd,esi->m_route,
-                esi->socketDescription_,MS2->multiplexor_);
+            esi->socketDescription_,MS2->multiplexor_);
 
         esi->remote_name_.emplace(remote_sa);
 
@@ -885,7 +885,7 @@ bool  SocketIO::Service::on_AddToConnectTCP(const socketEvent::AddToConnectTCP*e
         return true;
     }
     REF_getter<epoll_socket_info> nesi=new epoll_socket_info(SOCK_STREAM,epoll_socket_info::STREAMTYPE_CONNECTED,ev->socketId,sock,poppedFrontRoute(ev->route),
-            ev->socketDescription,MS->multiplexor_);
+        ev->socketDescription,MS->multiplexor_);
 
     nesi->inConnection_=true;
 

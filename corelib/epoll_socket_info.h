@@ -48,7 +48,7 @@ struct NetworkMultiplexor;
 
 class epoll_socket_info:public Refcountable
 #ifdef WEBDUMP
-        , public WebDumpable
+    , public WebDumpable
 #endif
 {
 
@@ -106,7 +106,7 @@ public:
     std::optional<msockaddr_in> local_name_;
     std::optional<msockaddr_in> remote_name_;
     /*
-*/
+    */
     msockaddr_in &local_name()
     {
         if(local_name_.has_value())

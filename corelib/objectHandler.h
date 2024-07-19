@@ -49,7 +49,7 @@ public:
     void sendEvent(const msockaddr_in & dstHost, const SERVICE_id & dstService, const REF_getter<Event::Base>& e);
     void sendEvent(const SERVICE_id & dstService, const REF_getter<Event::Base>& e);
 
-    
+
     ObjectHandlerPolled(const std::string& name,IInstance* _if);
     ~ObjectHandlerPolled();
 

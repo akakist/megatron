@@ -41,7 +41,7 @@ const char* CUtils::genum_name(int n)
 {
 
     return __gen_string123(n);
-    
+
 }
 
 std::map<std::string,std::string> CUtils::loadStringMapFromBuffer(const std::string &bod, const char *linedelim)

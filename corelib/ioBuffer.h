@@ -90,11 +90,11 @@ public:
     inBuffer& operator>>(float &);
 public:
     template <typename T,std::enable_if_t<std::is_arithmetic<T>::value, bool> = true >
-       inBuffer& operator>>(T &v)
-       {
-           v=get_PN();
-           return *this;
-       }
+    inBuffer& operator>>(T &v)
+    {
+        v=get_PN();
+        return *this;
+    }
 };
 /**
 * Класс байтового потока без битовых операций, но с темплейтами STL
@@ -165,11 +165,12 @@ public:
 public:
 
     template <typename T,std::enable_if_t<std::is_arithmetic<T>::value, bool> = true >
-      outBuffer& operator<<(const T& v)
-      {
-          put_PN(v);
-          return *this;
-      }};
+    outBuffer& operator<<(const T& v)
+    {
+        put_PN(v);
+        return *this;
+    }
+};
 
 template < class T > outBuffer & operator << (outBuffer& b,const std::vector < T > &v)
 {

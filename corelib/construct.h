@@ -2,7 +2,7 @@
 #include <string.h>
 #include "SERVICE_id.h"
 namespace Event {
-class Base;
+    class Base;
 
 }
 class route_t;

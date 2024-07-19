@@ -9,7 +9,7 @@
 namespace dfsReferrer {
     struct _uplinkConnectionState: public Refcountable
 #ifdef WEBDUMP
-            ,public WebDumpable
+        ,public WebDumpable
 #endif
     {
         Json::Value wdump();

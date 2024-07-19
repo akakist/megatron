@@ -6,9 +6,9 @@
 #include "IUtils.h"
 struct linkInfoDownReferrer: public Refcountable
 #ifdef WEBDUMP
-        ,public WebDumpable
+    ,public WebDumpable
 #endif
-        , public Mutexable
+    , public Mutexable
 {
     REF_getter<epoll_socket_info> esi_mx_;
     msockaddr_in externalAddr_mx_;

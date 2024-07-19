@@ -9,7 +9,7 @@ namespace dfsReferrer
 {
     struct _uriReferals: public Refcountable
 #ifdef WEBDUMP
-            ,public WebDumpable
+        ,public WebDumpable
 #endif
     {
 
