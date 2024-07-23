@@ -193,16 +193,16 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 
 
     W->m_last_io_time=time(NULL);
-    if (W->parse_state.count(1)==0)
+    if (W->header.size()==0)
     {
-        std::string head;
+//        std::string head;
         {
             W_LOCK(evt->esi->inBuffer_.lk);
             auto &data=evt->esi->inBuffer_._mx_data;
             auto pz=data.find("\r\n\r\n");
             if(pz!=std::string::npos)
             {
-                head=data.substr(0,pz);
+                W->header=data.substr(0,pz);
                 data=data.substr(pz+4);
             }
             else
@@ -212,11 +212,12 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 //                return true;
 //            }
         }
-        std::deque<std::string> dq=splitStr("\r\n",head);//iUtils->splitStringDQ("\r\n",head);
+        std::string_view h(W->header.data(),W->header.size());
+        auto dq=splitStr("\r\n",h);//iUtils->splitStringDQ("\r\n",head);
         if (dq.size())
         {
 
-            std::string fl=dq[0];
+            auto fl=dq[0];
             dq.pop_front();
             std::string::size_type pz = fl.find(" ", 0);
             if (pz == std::string::npos)
@@ -242,24 +243,24 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         }
         while (dq.size())
         {
-            std::string	line=dq[0];
+            auto line=dq[0];
             dq.pop_front();
             std::string::size_type pop = line.find(":", 0);
             if (pop == std::string::npos)
             {
                 return true;
             }
-            std::string k=line.substr(0, pop);
-            std::string v=line.substr(pop + 2, line.length() - pop - 2);
+            auto k=line.substr(0, pop);
+            auto v=line.substr(pop + 2, line.length() - pop - 2);
             W->headers[k]=v;
         }
         if (W->headers.count("Cookie"))
         {
 
-            std::deque <std::string> v = splitStr("; ", W->headers["Cookie"]);
+            auto v = splitStr("; ", W->headers["Cookie"]);
             for (unsigned int i = 0; i < v.size(); i++)
             {
-                std::string q = v[i];
+                auto q = v[i];
                 if (q == " ")
                 {
                     continue;
@@ -270,8 +271,8 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                 {
                     continue;
                 }
-                std::string k=q.substr(0, z);
-                std::string v=q.substr(z + 1, q.size() - z - 1);
+                auto k=q.substr(0, z);
+                auto v=q.substr(z + 1, q.size() - z - 1);
                 W->in_cookies[k] = v;
             }
         }
@@ -298,8 +299,21 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 
             if (W->headers["Content-Type"].find("multipart/form", 0) == std::string::npos)
             {
+                size_t clen=0;
 
-                size_t clen = atoi(W->headers["Content-Length"].c_str());
+                auto cl=W->headers["Content-Length"];
+                auto result = std::from_chars(cl.data(), cl.data() + cl.size(), clen);
+//                if (result.ec == std::errc::invalid_argument) {
+//                    std::cout << "Could not convert.";
+
+//                }
+//                size_t clen = atoi(W->headers["Content-Length"].c_str());
+                /*
+                  auto result = std::from_chars(sv.data(), sv.data() + sv.size(), i3);
+                  if (result.ec == std::errc::invalid_argument) {
+                      std::cout << "Could not convert.";
+
+                  }*/
                 if (clen <= 0 || clen > m_maxPost)
                 {
                     return true;
@@ -324,14 +338,15 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 
 
                 //Multipart form
-                const std::string &t= W->headers["Content-Type"];
+                auto t= W->headers["Content-Type"];
                 std::string::size_type pz = t.find("boundary=", 0);
                 if (pz == std::string::npos)
                 {
 
                     return true;
                 }
-                std::string bound = "--" + t.substr(pz + 9, t.length() - pz - 9);
+                auto bnd=t.substr(pz + 9, t.length() - pz - 9);
+                std::string bound = "--" + std::string(bnd.begin(),bnd.end());
                 std::string ebound = bound + "--";
                 std::string sbuf;
                 {
@@ -682,12 +697,14 @@ std::string datef(const time_t &__t)
         F->startb=0;
         F->endb=F->fileSize-1;
         F->hasRange=true;
-        std::string s = W->headers["Range"];
+        auto s = W->headers["Range"];
         size_t n = s.find("=", 0);
         if (n != std::string::npos)
         {
             F->hasRange= true;
-            std::vector <std::string> v = iUtils->splitString("-=", s.substr(n, s.size() - n));
+            auto sn=s.substr(n, s.size() - n);
+            auto ssn=std::string(sn.begin(),sn.end());
+            std::vector <std::string> v = iUtils->splitString("-=", ssn);
             if (v.size() >= 1)
             {
                 F->startb = atoll(v[0].c_str());
@@ -726,12 +743,13 @@ std::string datef(const time_t &__t)
     time_t last_modified;
     {
         M_LOCK(lastModified);
-        if(lastModified.container.count(W->url))
-            last_modified=lastModified.container[W->url];
+        auto url=std::string(W->url.begin(),W->url.end());
+        if(lastModified.container.count(url))
+            last_modified=lastModified.container[url];
         else
         {
             last_modified=time(NULL);
-            lastModified.container[W->url]=last_modified;
+            lastModified.container[url]=last_modified;
         }
 
     }

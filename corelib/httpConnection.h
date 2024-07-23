@@ -48,14 +48,15 @@ namespace HTTP
     {
 
     public:
-        std::map<std::string,std::string> headers;
-        std::map<std::string,std::string> in_cookies;
+        std::map<std::string_view,std::string_view> headers;
+        std::map<std::string_view,std::string_view> in_cookies;
         std::map<std::string,std::string> params;
         std::map<std::string,std::vector<std::string> > v_params;/** for multiple select */
         std::string peer_ipaddress;
 
-        std::string METHOD;
-        std::string url;
+        std::string header;
+        std::string_view METHOD;
+        std::string_view url;
 //        std::string original_url;
         std::string original_params;
         std::string postContent;

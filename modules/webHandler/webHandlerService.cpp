@@ -82,8 +82,8 @@ bool WebHandler::Service::on_RequestIncoming(const httpEvent::RequestIncoming* e
         cc.makeResponse(e->esi);
         return true;
     }
-
-    REF_getter<WebHandler::Node> N=root->getByPath(e->req->url);
+    auto url=std::string(e->req->url.begin(),e->req->url.end());
+    REF_getter<WebHandler::Node> N=root->getByPath(url);
     if(!N.valid())
     {
         DBG(logErr2("!N valid"));
