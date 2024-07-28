@@ -18,17 +18,6 @@ void ListenerBuffered::processEvent(const REF_getter<Event::Base>&e)
 {
     bool processed=false;
     try {
-        {
-
-
-//            for(auto& i:handlers)
-//            {
-//                if(i.first)
-//                {
-//                    if(i.first(e.get(),i.second))processed=true;
-//                }
-//            }
-        }
         if(!e.valid()) throw CommonError("!.valid()"+_DMI());
         if(!processed)
         {
