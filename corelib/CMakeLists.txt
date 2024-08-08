@@ -6,8 +6,6 @@
 
 add_library(megatron-core STATIC
             DBH.cpp
-            Integer.cpp
-            Rational.cpp
             _QUERY.cpp
             __crc32.cpp
             __crc64.cpp
@@ -43,14 +41,10 @@ add_library(megatron-core STATIC
             ../lib/jsoncpp-0.5.0/src/lib_json/json_reader.cpp
             ../lib/jsoncpp-0.5.0/src/lib_json/json_value.cpp
             ../lib/jsoncpp-0.5.0/src/lib_json/json_writer.cpp
-CHUNK_id.h
-CLASS_id.h
 CONTAINER.h
 CapsId.h
-DATA_id.h
 DBH.cpp
 DBH.h
-DB_id.h
 EVENT_id.h
 ErrorDispatcherHelper.h
 GlobalCookie_id.h
@@ -64,22 +58,15 @@ IRPC.h
 ISSL.h
 IThreadNameController.h
 IUtils.h
-Integer.cpp
-Integer.h
-JAVACOOKIE_id.h
 REF.h
 REF_nm.h
 RSA_id.h
-Rational.cpp
-Rational.h
 Real.h
-SEQ_id.h
 SERVICE_id.h
 SHA1_id.h
 SOCKET_fd.h
 SOCKET_id.h
 URI.h
-USER_id.h
 VERSION_id.h
 _QUERY.cpp
 _QUERY.h

@@ -11,7 +11,6 @@
 #include "mutexInspector.h"
 #include "Events/System/Run/startServiceEvent.h"
 #include "Events/System/timerEvent.h"
-#include "Integer.h"
 
 
 namespace Timer
@@ -62,7 +61,7 @@ namespace Timer
     {
         MutexC m_mutex;
         Condition m_condition;
-        std::map<Integer,std::deque<REF_getter<task> > > mx_nexts;
+        std::map<int64_t,std::deque<REF_getter<task> > > mx_nexts;
         _nexts()
             :m_condition(m_mutex)
         {

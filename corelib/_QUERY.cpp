@@ -66,12 +66,12 @@ QUERY& QUERY::operator << (const time_t&i)
 }
 #endif
 #endif
-QUERY& QUERY::operator << (const Rational& i)
-{
-    if (params_.size()>=MAX_PARAMS_IN_SQL) throw CommonError("QUERY params > %d", MAX_PARAMS_IN_SQL);
-    params_.push_back(i.toString());
-    return *this;
-}
+// QUERY& QUERY::operator << (const Rational& i)
+// {
+//     if (params_.size()>=MAX_PARAMS_IN_SQL) throw CommonError("QUERY params > %d", MAX_PARAMS_IN_SQL);
+//     params_.push_back(i.toString());
+//     return *this;
+// }
 QUERY& QUERY::operator << (const uint32_t i)
 {
     if (params_.size()>=MAX_PARAMS_IN_SQL) throw CommonError("QUERY params > %d", MAX_PARAMS_IN_SQL);

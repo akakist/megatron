@@ -768,7 +768,7 @@ int64_t CUtils::get_param_int64_t(std::deque<std::string> &tokens, const std::st
 }
 
 
-Integer CUtils::getNow()
+int64_t CUtils::getNow()
 {
 
     uint64_t now;
@@ -785,9 +785,7 @@ Integer CUtils::getNow()
 
     now=_1;
     now+=_2;
-    Integer v;
-    v.set(now);
-    return v;
+    return now;
 #else
     timeb tb;
     ftime(&tb);

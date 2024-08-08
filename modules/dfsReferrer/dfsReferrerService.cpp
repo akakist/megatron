@@ -437,7 +437,7 @@ bool dfsReferrer::Service::handleEvent(const REF_getter<Event::Base>& ev)
 
         reset_T_001_common_connect_failed();
 
-        int64_t now=iUtils->getNow().get();
+        int64_t now=iUtils->getNow();
         if(e->referrer_addresses.size()==0)
         {
             for(auto &x: rd.uplinkConnectionState->ponged_all)
@@ -694,7 +694,7 @@ bool dfsReferrer::Service::on_TickAlarm(const timerEvent::TickAlarm* e)
                                                  iInstance->globalCookie(),
                                                  getRpcExternalListenPortMain(iInstance),
                                                  getRpcInternalListenAddrs(iInstance),
-                                                 iUtils->getNow().get(),
+                                                 iUtils->getNow(),
                                                  rd.connection_sequence_id,
                                                  dfsReferrerEvent::Ping::CT_NODE,
                                                  ListenerBase::serviceId));
@@ -976,7 +976,7 @@ void dfsReferrer::Service::d6_on_T_011_resend_ping_PT_CAPS_LONG(const msockaddr_
                                          iInstance->globalCookie(),
                                          getRpcExternalListenPortMain(iInstance),
                                          getRpcInternalListenAddrs(iInstance),
-                                         iUtils->getNow().get(),
+                                         iUtils->getNow(),
                                          rd.connection_sequence_id,
                                          dfsReferrerEvent::Ping::CT_NODE,
                                          ListenerBase::serviceId));
@@ -1035,7 +1035,7 @@ bool dfsReferrer::Service::on_Pong(const dfsReferrerEvent::Pong* e, const REF_ge
 
     rd.uplinkConnectionState->nodeLevelInHierarhy=e->nodeLevelInHierarhy+1;
     rd.uplinkConnectionState->ponged_for_cleanup_sockets.insert(esi);
-    rd.uplinkConnectionState->ponged_all[iUtils->getNow().get()-e->ping_time].insert(std::make_pair(esi,e->visible_name_of_pinger));
+    rd.uplinkConnectionState->ponged_all[iUtils->getNow()-e->ping_time].insert(std::make_pair(esi,e->visible_name_of_pinger));
     if(rd.uplinkConnectionState->m_isTopServer && rd.uplinkConnectionState->nodeLevelInHierarhy!=0)
     {
         throw CommonError("if(uplinkConnectionState->m_isTopServer && uplinkConnectionState->nodeLevelInHierarhy!=0)");
@@ -1250,7 +1250,7 @@ void dfsReferrer::Service::d6_start(const msockaddr_in& sa)
                                          iInstance->globalCookie(),
                                          getRpcExternalListenPortMain(iInstance),
                                          getRpcInternalListenAddrs(iInstance),
-                                         iUtils->getNow().get(),
+                                         iUtils->getNow(),
                                          rd.connection_sequence_id,
                                          dfsReferrerEvent::Ping::CT_NODE,
                                          ListenerBase::serviceId));
@@ -1296,7 +1296,7 @@ void dfsReferrer::Service::STAGE_D21_PING_CAPS_start()
         auto internal=getRpcInternalListenAddrs(iInstance);
         auto gcid=iInstance->globalCookie();
         sendEvent(caps,ServiceEnum::DFSReferrer,
-                  new dfsReferrerEvent::Ping(dfsReferrer::PingType::PT_CACHED, gcid,external,internal,iUtils->getNow().get(),
+                  new dfsReferrerEvent::Ping(dfsReferrer::PingType::PT_CACHED, gcid,external,internal,iUtils->getNow(),
                                              rd.connection_sequence_id,
                                              dfsReferrerEvent::Ping::CT_NODE,
                                              ListenerBase::serviceId));
@@ -1347,7 +1347,7 @@ void dfsReferrer::Service::STAGE_D2_PING_NEIGHBOURS_start()
             sendEvent(i,ServiceEnum::DFSReferrer,
                       new dfsReferrerEvent::Ping(dfsReferrer::PingType::PT_CACHED, iInstance->globalCookie(),
                                                  getRpcExternalListenPortMain(iInstance),getRpcInternalListenAddrs(iInstance),
-                                                 iUtils->getNow().get(),
+                                                 iUtils->getNow(),
                                                  rd.connection_sequence_id,
                                                  dfsReferrerEvent::Ping::CT_NODE,
                                                  ListenerBase::serviceId));

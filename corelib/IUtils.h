@@ -8,7 +8,6 @@ extern IUtils * iUtils;
 #include <map>
 #include <deque>
 #include <set>
-#include "Integer.h"
 #include <sys/types.h>
 #include "msockaddr_in.h"
 #include "SERVICE_id.h"
@@ -125,7 +124,7 @@ public:
     virtual int64_t get_param_int64_t(std::deque<std::string> &tokens, const std::string& name)=0;
 
     /// get Time in microseconds (1/million part of second)
-    virtual Integer getNow()=0;
+    virtual int64_t getNow()=0;
 
     virtual std::string getPercent(const real& numerator, const real& denumerator)=0;
 

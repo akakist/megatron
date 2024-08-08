@@ -281,7 +281,7 @@ bool Service::handleEvent(const REF_getter<Event::Base>& ev)
 
         reset_T_001_common_connect_failed();
 
-        int64_t now=iUtils->getNow().get();
+        int64_t now=iUtils->getNow();
         if(e->referrer_addresses.size()==0)
         {
             for(auto &x: uplinkConnectionState->ponged_all)
@@ -489,7 +489,7 @@ bool Service::on_TickAlarm(const timerEvent::TickAlarm* e)
             sendEvent(remote_addr,ServiceEnum::DFSReferrer,
                       new dfsReferrerEvent::Ping(dfsReferrer::PingType::PT_MASTER_SHORT,
                                                  iInstance->globalCookie(),
-                                                 iUtils->getNow().get(),
+                                                 iUtils->getNow(),
                                                  connection_sequence_id,
                                                  dfsReferrerEvent::Ping::CT_CLIENT,
                                                  ListenerBase::serviceId));
@@ -682,7 +682,7 @@ void Service::d6_on_T_011_resend_ping_PT_CAPS_LONG(const msockaddr_in& remote_ad
     sendEvent(remote_addr,ServiceEnum::DFSReferrer,
               new dfsReferrerEvent::Ping(dfsReferrer::PingType::PT_MASTER_LONG,
                                          iInstance->globalCookie(),
-                                         iUtils->getNow().get(),
+                                         iUtils->getNow(),
                                          connection_sequence_id,
                                          dfsReferrerEvent::Ping::CT_CLIENT,
                                          ListenerBase::serviceId));
@@ -736,7 +736,7 @@ bool Service::on_Pong(const dfsReferrerEvent::Pong* e, const REF_getter<epoll_so
 
     uplinkConnectionState->nodeLevelInHierarhy=e->nodeLevelInHierarhy+1;
     uplinkConnectionState->ponged_for_cleanup_sockets.insert(esi);
-    uplinkConnectionState->ponged_all[iUtils->getNow().get()-e->ping_time].insert(std::make_pair(esi,e->visible_name_of_pinger));
+    uplinkConnectionState->ponged_all[iUtils->getNow()-e->ping_time].insert(std::make_pair(esi,e->visible_name_of_pinger));
     neighbours.add(esi->remote_name(),e->ping_time);
 #ifndef IGNORE_NAT
     if(sa.isNAT())
@@ -935,7 +935,7 @@ void Service::d6_start(const msockaddr_in& sa)
     sendEvent(sa,ServiceEnum::DFSReferrer,
               new dfsReferrerEvent::Ping(dfsReferrer::PingType::PT_CAPS_SHORT,
                                          iInstance->globalCookie(),
-                                         iUtils->getNow().get(),
+                                         iUtils->getNow(),
                                          connection_sequence_id,
                                          dfsReferrerEvent::Ping::CT_CLIENT,
                                          ListenerBase::serviceId));
@@ -970,7 +970,7 @@ void Service::STAGE_D21_PING_CAPS_start()
         auto gcid=iInstance->globalCookie();
         logErr2("sendEvent PT_CACHED %s",caps.dump().c_str());
         sendEvent(caps,ServiceEnum::DFSReferrer,
-                  new dfsReferrerEvent::Ping(dfsReferrer::PingType::PT_CACHED, gcid,iUtils->getNow().get(),
+                  new dfsReferrerEvent::Ping(dfsReferrer::PingType::PT_CACHED, gcid,iUtils->getNow(),
                                              connection_sequence_id,
                                              dfsReferrerEvent::Ping::CT_CLIENT,
                                              ListenerBase::serviceId));
@@ -1008,7 +1008,7 @@ void Service::STAGE_D2_PING_NEIGHBOURS_start()
 //            logErr2("dfsReferrer::PingType::PT_CACHED to %s",i.dump().c_str());
             sendEvent(i,ServiceEnum::DFSReferrer,
                       new dfsReferrerEvent::Ping(dfsReferrer::PingType::PT_CACHED, iInstance->globalCookie(),
-                                                 iUtils->getNow().get(),
+                                                 iUtils->getNow(),
                                                  connection_sequence_id,
                                                  dfsReferrerEvent::Ping::CT_CLIENT,
                                                  ListenerBase::serviceId));

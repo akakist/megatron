@@ -66,7 +66,7 @@ public:
     int get_param_int(std::deque<std::string> &tokens, const std::string& name);
     int64_t get_param_int64_t(std::deque<std::string> &tokens, const std::string& name);
 
-    Integer getNow();
+    int64_t getNow();
     std::string getPercent(const real &numerator, const real &denumerator);
 
 
