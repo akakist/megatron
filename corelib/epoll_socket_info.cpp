@@ -96,16 +96,6 @@ void epoll_socket_info::write_(const char *s, const size_t &sz)
 
     XPASS;
 }
-#ifdef KALL
-void epoll_socket_info::write_(const REF_getter<refbuffer> &s)
-{
-    MUTEX_INSPECTOR;
-    XTRY;
-    write_(std::string((char*)s->buffer,s->size_));
-
-    XPASS;
-}
-#endif
 void epoll_socket_info::close(const char* reason)
 {
     MUTEX_INSPECTOR;
