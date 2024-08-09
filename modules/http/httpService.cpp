@@ -22,6 +22,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include "events_http.hpp"
+#include "resplit.h"
 
 extern char mime_types[];
 extern int mime_types_sz;
@@ -58,14 +59,14 @@ HTTP::Service::Service(const SERVICE_id& id, const std::string&nm, IInstance* _i
                 W_LOCK(mx.lk);
                 mx.mime_types.clear();
             }
-            std::vector<std::string> v=iUtils->splitString("\r\n",bod);
+            std::vector<std::string> v=resplit(bod,std::regex("[\r\n]"));;
             for (size_t i=0; i<v.size(); i++)
             {
                 if (v[i].size())
                 {
                     if (v[i][0]=='#') continue;
                 }
-                std::deque<std::string> dq=iUtils->splitStringDQ("\t ",v[i]);
+                std::deque<std::string> dq=resplitDQ(v[i],std::regex("[\t ])"));
                 if (dq.size())
                 {
                     std::string typ=dq[0];
