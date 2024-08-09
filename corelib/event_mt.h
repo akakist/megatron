@@ -36,7 +36,7 @@ namespace Event
     };
 
 
-    /// base class for local events (without RPC)
+/// base class for local events (without RPC)
     class NoPacked:public Base
     {
     public:

@@ -24,7 +24,6 @@ public:
         return m_error.c_str();
     };
 };
-void logErr(const char* fmt, ...);
 void logErr2(const char* fmt, ...);
 void logRemote(const char *fmt, ...);
 

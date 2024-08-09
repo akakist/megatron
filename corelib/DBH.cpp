@@ -53,6 +53,8 @@ std::string DBH::insertString(const std::map<std::string,std::string>&m, const c
     MUTEX_INSPECTOR;
     std::string ret;
     std::vector<std::string> v1,v2;
+    v1.reserve(m.size());
+    v2.reserve(m.size());
     for(auto& i:m)
     {
         v1.push_back(i.first);
@@ -144,8 +146,8 @@ std::vector<std::string> DBH::select_1_row(const std::string&q)
     if(r->values.size())
         return r->values[0];
 
-    std::vector<std::string> ret;
-    return ret;
+    // std::vector<std::string> ret;
+    return std::vector<std::string>();
 
 }
 std::vector<std::string> DBH::select_1_row(const QUERY&q)
@@ -156,8 +158,8 @@ std::vector<std::string> DBH::select_1_row(const QUERY&q)
     if(r->values.size())
         return r->values[0];
 
-    std::vector<std::string> ret;
-    return ret;
+    // std::vector<std::string> ret;
+    return std::vector<std::string> ();
 
 }
 
@@ -166,6 +168,7 @@ std::vector<std::string> DBH::select_1_column(const QUERY&q)
     MUTEX_INSPECTOR;
     std::vector<std::string>  ret;
     REF_getter<QueryResult> r=exec(q);
+    ret.reserve(r->values.size());
     for(size_t i=0; i<r->values.size(); i++)
     {
         if(r->values[i].size()!=1) throw CommonError("if(r->values[i].size()!=1) "+q.prepare());
@@ -193,6 +196,7 @@ std::vector<std::string> DBH::select_1_column(const std::string&q)
     MUTEX_INSPECTOR;
     std::vector<std::string>  ret;
     REF_getter<QueryResult> r=exec(q);
+    ret.reserve(r->values.size());
     for(size_t i=0; i<r->values.size(); i++)
     {
         if(r->values[i].size()!=1) throw CommonError("if(r->values[i].size()!=1) "+q);

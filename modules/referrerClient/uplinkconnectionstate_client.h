@@ -1,6 +1,4 @@
-#ifndef ______________UPLINKCONNECTIONSTATE_H12
-#define ______________UPLINKCONNECTIONSTATE_H12
-
+#pragma once
 #include "REF.h"
 #include "webDumpable.h"
 #include "neighbours.h"
@@ -45,4 +43,3 @@ namespace referrerClient {
     };
 
 }
-#endif // UPLINKCONNECTIONSTATE_H

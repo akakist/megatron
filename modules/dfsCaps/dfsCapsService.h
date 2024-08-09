@@ -1,5 +1,4 @@
-#ifndef ___________RPC__SERVER__H_OUT_PROXY__ZZ
-#define ___________RPC__SERVER__H_OUT_PROXY__ZZ
+#pragma once
 #include "Events/Tools/webHandlerEvent.h"
 #include "broadcaster.h"
 #include "REF.h"
@@ -44,7 +43,9 @@ namespace dfsCaps
         real Distance(const std::pair<real,real> & c1,const std::pair<real,real> & c2);
         bool on_ToplinkDeliverREQ(const dfsReferrerEvent::ToplinkDeliverREQ* e);
         bool on_TickAlarm(const timerEvent::TickAlarm*);
+#ifdef WEBDUMP
         bool on_RequestIncoming(const webHandlerEvent::RequestIncoming*);
+#endif
 
         bool on_GetReferrersREQ(const dfsCapsEvent::GetReferrersREQ* e, const dfsReferrerEvent::ToplinkDeliverREQ *e_toplink);
         bool on_RegisterMyRefferrerNodeREQ(const dfsCapsEvent::RegisterMyRefferrerNodeREQ* e);
@@ -71,4 +72,3 @@ namespace dfsCaps
 }
 
 
-#endif

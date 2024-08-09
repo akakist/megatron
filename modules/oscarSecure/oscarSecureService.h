@@ -1,6 +1,4 @@
-#ifndef ___________PP__SERVER__H
-#define ___________PP__SERVER__H
-
+#pragma once
 
 #include <unknown.h>
 #include <listenerBuffered1Thread.h>
@@ -10,7 +8,6 @@
 #include <Events/System/Net/socketEvent.h>
 #include <Events/Tools/webHandlerEvent.h>
 #include <Events/System/Run/startServiceEvent.h>
-#include "oscarSecureUser.h"
 #include "st_rsa.h"
 namespace OscarSecure
 {
@@ -99,4 +96,3 @@ namespace OscarSecure
 }
 
 
-#endif

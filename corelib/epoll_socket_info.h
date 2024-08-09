@@ -25,13 +25,20 @@ struct P_msockaddr_in: public Refcountable
     }
 };
 
-class   socketBuffersOut: public Mutexable
+class   socketBuffersOut
 {
+    RWLock lk;
     std::string container_;
+    size_t cur_begin=0;
 public:
-    void append(epoll_socket_info *esi, const char* data, size_t sz);
+    void append(epoll_socket_info *esi, const std::string &s);
     size_t size();
     int send(const SOCKET_fd &fd, epoll_socket_info *esi);
+    std::string getAll()
+    {
+        R_LOCK(lk);
+        return container_;
+    }
 };
 class epoll_socket_info;
 /**
@@ -39,7 +46,10 @@ class epoll_socket_info;
 */
 struct NetworkMultiplexor;
 
-class epoll_socket_info:public Refcountable, public WebDumpable
+class epoll_socket_info:public Refcountable
+#ifdef WEBDUMP
+    , public WebDumpable
+#endif
 {
 
 public:
@@ -78,8 +88,9 @@ public:
     socketBuffersOut outBuffer_;
 
     /// in buffer
-    struct _inBuffer: public Mutexable
+    struct _inBuffer
     {
+        RWLock lk;
         std::string _mx_data;
         void append(const char* data, size_t size);
         size_t size();
@@ -95,7 +106,7 @@ public:
     std::optional<msockaddr_in> local_name_;
     std::optional<msockaddr_in> remote_name_;
     /*
-*/
+    */
     msockaddr_in &local_name()
     {
         if(local_name_.has_value())
@@ -149,7 +160,7 @@ public:
     /// write buffer
     void write_(const char *s, const size_t &sz);
     void write_(const std::string&s);
-    void write_(const REF_getter<refbuffer>&s);
+//    void write_(const REF_getter<refbuffer>&s);
 
     void close(const char *reason);
 

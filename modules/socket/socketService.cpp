@@ -48,7 +48,7 @@ SocketIO::Service::~Service()
 
 
     {
-        WLocker lk(m_io_socks_pollers_.lock);
+        W_LOCK(m_io_socks_pollers_.lock);
         m_io_socks_pollers_.socks_pollers_.clear();
     }
 }
@@ -71,7 +71,7 @@ SocketIO::Service::Service(const SERVICE_id& id, const std::string& nm, IInstanc
             REF_getter<SocketsContainerForSocketIO> MS=new SocketsContainerForSocketIO;
 
             {
-                WLocker lk(m_io_socks_pollers_.lock);
+                W_LOCK(m_io_socks_pollers_.lock);
                 m_io_socks_pollers_.socks_pollers_.push_back(MS);
                 m_io_socks_pollers_.for_threads_.push_back(MS);
             }
@@ -93,7 +93,7 @@ SocketIO::Service::Service(const SERVICE_id& id, const std::string& nm, IInstanc
 
 }
 void SocketIO::Service::handle_accepted1(const SOCKET_fd &neu_fd,const REF_getter<epoll_socket_info> esi,
-                                         const REF_getter<SocketsContainerForSocketIO>& MS, const msockaddr_in& remote_sa)
+        const REF_getter<SocketsContainerForSocketIO>& MS, const msockaddr_in& remote_sa)
 {
     if(CONTAINER(neu_fd)!=-1)
     {
@@ -115,7 +115,7 @@ void SocketIO::Service::handle_accepted1(const SOCKET_fd &neu_fd,const REF_gette
 //            logErr2("getsockname: errno %d %s (%s %d)",errno,strerror(errno),__FILE__,__LINE__);
 //        }
 
-        if(1){
+        if(1) {
             MUTEX_INSPECTOR;
             int i = 1;
             if(setsockopt(CONTAINER(neu_fd),SOL_SOCKET,SO_REUSEADDR,(char *)&i,sizeof(i)))
@@ -125,7 +125,7 @@ void SocketIO::Service::handle_accepted1(const SOCKET_fd &neu_fd,const REF_gette
             }
         }
 
-        if(1){
+        if(1) {
             XTRY;
 #ifdef _WIN32
             u_long f = 1;
@@ -158,7 +158,7 @@ void SocketIO::Service::handle_accepted1(const SOCKET_fd &neu_fd,const REF_gette
 
         SOCKET_id _sid=iUtils->getSocketId();
         REF_getter<epoll_socket_info> nesi=new epoll_socket_info(SOCK_STREAM,epoll_socket_info::STREAMTYPE_ACCEPTED,_sid,neu_fd,esi->m_route,
-                esi->socketDescription_,MS2->multiplexor_);
+            esi->socketDescription_,MS2->multiplexor_);
 
         esi->remote_name_.emplace(remote_sa);
 
@@ -202,6 +202,9 @@ void SocketIO::Service::onEPOLLIN_STREAMTYPE_CONNECTED_or_STREAMTYPE_ACCEPTED(
         logErr2("invalid case %s %d %s",__FILE__,__LINE__,_DMI().c_str());
         return;
     }
+    /// bug fix - cannot receive data while connected not thrown
+//    if(esi->inConnection_)
+//        return;
     r=::recv(fd,(char*)buf.buf,READBUFSIZE,0);
     if (r==0 )
     {
@@ -318,12 +321,14 @@ void SocketIO::Service::onEPOLLOUT(const REF_getter<epoll_socket_info>&__EV_,con
             logErr2("socket not found %d (%s %d)",CONTAINER(esi->id_),__FILE__,__LINE__);
             return;
         }
+        esi->inConnection_=false;
         if(esi->outBuffer_.size()==0)
             MS->multiplexor_->sockStopWrite(esi.get());
 
-//        route_t r=;
         passEvent(new socketEvent::Connected(esi, esi->m_route));
-        esi->inConnection_=false;
+
+//        if(esi->inBuffer_.size())
+//            passEvent(new socketEvent::StreamRead(esi, esi->m_route));
         return;
         XPASS;
     }
@@ -470,7 +475,7 @@ void SocketIO::Service::worker()
 #endif
     REF_getter<SocketsContainerForSocketIO> MS(NULL);
     {
-        WLocker lk(m_io_socks_pollers_.lock);
+        W_LOCK(m_io_socks_pollers_.lock);
         if(m_io_socks_pollers_.for_threads_.empty())
             throw CommonError("if(m_io_socks_pollers.for_threads.empty())");
         MS=*m_io_socks_pollers_.for_threads_.begin();
@@ -638,7 +643,33 @@ void SocketIO::Service::worker()
                 }
                 auto& l=evList[i];
 
-                if(l.filter==EVFILT_READ)
+                if(l.filter==EVFILT_WRITE)
+                {
+                    MUTEX_INSPECTOR;
+
+                    S_LOG("EVFILT_WRITE");
+//                    if(l.flags&EV_ADD)
+                    {
+                        S_LOG("EV_ADD");
+                        if(l.flags & EV_EOF)
+                        {
+                            closeSocket(esi,"EV_EOF4",0,MS);
+                            MS->remove(esi->id_);
+                        }
+                        else if(l.flags & EV_ERROR)
+                        {
+                            closeSocket(esi,"EV_EOF6",l.data,MS);
+                            MS->remove(esi->id_);
+                        }
+                        else
+                        {
+                            MUTEX_INSPECTOR;
+                            onEPOLLOUT(esi,MS);
+                            continue;
+                        }
+                    }
+                }
+                else if(l.filter==EVFILT_READ)
                 {
                     MUTEX_INSPECTOR;
                     S_LOG("EVFILT_READ");
@@ -665,32 +696,6 @@ void SocketIO::Service::worker()
                         }
                     }
 
-                }
-                else if(l.filter==EVFILT_WRITE)
-                {
-                    MUTEX_INSPECTOR;
-
-                    S_LOG("EVFILT_WRITE");
-//                    if(l.flags&EV_ADD)
-                    {
-                        S_LOG("EV_ADD");
-                        if(l.flags & EV_EOF)
-                        {
-                            closeSocket(esi,"EV_EOF4",0,MS);
-                            MS->remove(esi->id_);
-                        }
-                        else if(l.flags & EV_ERROR)
-                        {
-                            closeSocket(esi,"EV_EOF6",l.data,MS);
-                            MS->remove(esi->id_);
-                        }
-                        else
-                        {
-                            MUTEX_INSPECTOR;
-                            onEPOLLOUT(esi,MS);
-                            continue;
-                        }
-                    }
                 }
                 else logErr2("invalid case %s %d",__FILE__,__LINE__);
 
@@ -833,7 +838,7 @@ bool  SocketIO::Service::on_AddToListenTCP(const socketEvent::AddToListenTCP*ev)
 #else
         logErr2("Server: bind()  failed: errno %d %s %s", errno, strerror(errno),ev->addr.dump().c_str());
 #endif
-        iUtils->setTerminate();
+        iUtils->setTerminate(1);
         return true;
     }
 
@@ -880,7 +885,7 @@ bool  SocketIO::Service::on_AddToConnectTCP(const socketEvent::AddToConnectTCP*e
         return true;
     }
     REF_getter<epoll_socket_info> nesi=new epoll_socket_info(SOCK_STREAM,epoll_socket_info::STREAMTYPE_CONNECTED,ev->socketId,sock,poppedFrontRoute(ev->route),
-            ev->socketDescription,MS->multiplexor_);
+        ev->socketDescription,MS->multiplexor_);
 
     nesi->inConnection_=true;
 

@@ -2,6 +2,7 @@
 
 #include "configDB.h"
 #include "ioBuffer.h"
+#include <sstream>
 #define NEIGBOURS_DB_NAME "neighboursz"
 
 _neighbours::_neighbours(const std::string& _dbName):dbName(_dbName) {
@@ -34,6 +35,7 @@ void _neighbours::remove(const msockaddr_in& sa)
 std::vector<msockaddr_in> _neighbours::getAllAndClear()
 {
     std::vector<msockaddr_in> ret;
+    ret.reserve(sas.size());
     for(auto z: sas)
         ret.push_back(z);
     sas.clear();
@@ -45,6 +47,7 @@ std::vector<msockaddr_in> _neighbours::getAllAndClear()
 }
 void _neighbours::add(const msockaddr_in &sa, int pingTime)
 {
+
     sas.insert(sa);
     outBuffer o;
     o<<sas;

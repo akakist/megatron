@@ -1,5 +1,7 @@
 #include "IUtils.h"
+#include "splitStr.h"
 #include <unistd.h>
+#include <sstream>
 #define _FILE_OFFSET_BITS 64
 #ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
@@ -79,7 +81,7 @@ std::string HTTP::get_name_of_http_code(int code)
 }
 void HTTP::Request::split_params(const std::string & s)
 {
-    std::vector <std::string> pr = iUtils->splitString("&", s);
+    std::deque <std::string> pr = splitStr("&", s);
     for (unsigned int i = 0; i < pr.size(); i++)
     {
         std::string p = pr[i];
@@ -88,7 +90,8 @@ void HTTP::Request::split_params(const std::string & s)
         {
             continue;
         }
-        std::string val = iUtils->unescapeURL(p.substr(pp + 1, p.length() - pp - 1));
+//        std::string val = iUtils->unescapeURL(p.substr(pp + 1, p.length() - pp - 1));
+        std::string val = p.substr(pp + 1, p.length() - pp - 1);
         std::string key = p.substr(0, pp);
         params[key] = val;
         v_params[key].push_back(val);
@@ -130,8 +133,9 @@ std::string HTTP::make_http_header(const int code,std::map<std::string,std::stri
 }
 std::string HTTP::Response::build_html_response()
 {
-    std::string ret;
-    ret += "HTTP/1.1 " + std::to_string(http_code) + " " + HTTP::get_name_of_http_code(http_code) + "\r\n";
+//    std::string ret;
+    std::ostringstream ret;
+    ret << "HTTP/1.1 " << std::to_string(http_code) << " " << HTTP::get_name_of_http_code(http_code) << "\r\n";
     if (http_content_type != "")
     {
         std::string r = http_content_type;
@@ -139,7 +143,7 @@ std::string HTTP::Response::build_html_response()
             r += "; charset: " + http_charset;
         http_header_out["Content-Type"] = r;
     }
-    if (http_header_out.find("Connection") == http_header_out.end())
+    if (!http_header_out.count("Connection"))
         http_header_out["Connection"] = "close";
 
     http_header_out["Server"] = "Web Server";
@@ -147,25 +151,23 @@ std::string HTTP::Response::build_html_response()
 
     for (auto& i: http_header_out)
     {
-        ret += i.first + ": " + i.second + "\r\n";
+        ret << i.first << ": " << i.second << "\r\n";
     }
     if (out_cookies.size())
     {
         for (auto& i: out_cookies)
         {
-            std::string r;
-            r += "Set-Cookie: "+i.first;
-            r += "=";
-            r += i.second;
-            r += "; path=/\r\n";
-            ret+=r;
+            ret<< "Set-Cookie: " << i.first;
+            ret<< "=";
+            ret<< i.second;
+            ret<< "; path=/\r\n";
 
         }
     }
 
-    ret += "\r\n";
-    ret += content;
-    return ret;
+    ret << "\r\n";
+    ret << content;
+    return ret.str();
 }
 
 std::string HTTP::Response::build_html_response_wo_content_length()
@@ -183,7 +185,6 @@ std::string HTTP::Response::build_html_response_wo_content_length()
         http_header_out["Connection"] = "close";
 
     http_header_out["Server"] = "Web Server";
-//    http_header_out["Content-Length"] = std::to_string(content.size());
 
     for (auto& i: http_header_out)
     {
@@ -218,9 +219,6 @@ HTTP::Response::~Response()
 {
 
 }
-static Mutex dfs_mx;
-static std::map<std::string,int> dfs_url_2_fd;
-static std::map<int,std::string> dfs_fd_2_url;
 
 
 
@@ -231,7 +229,6 @@ HTTP::Request::Request()
     fileresponse(NULL)
     ,isKeepAlive(false),
     sendRequestIncomingIsSent(false)
-//  , isPersistent(false)
 {
 }
 HTTP::Response::Response(IInstance* _ins)
@@ -245,61 +242,15 @@ void HTTP::Response::makeResponse(const REF_getter<epoll_socket_info>& esi)
     std::string out = build_html_response();
     esi->markedToDestroyOnSend_=true;
     esi->write_(out);
-//    iInstance->sendEvent(ServiceEnum::Socket, new socketEvent::Write(esi,toRef(out)));
 
 }
 void HTTP::Response::makeResponsePersistent(const REF_getter<epoll_socket_info> &esi)
 {
     std::string out = build_html_response_wo_content_length();
     esi->write_(out);
-//  iInstance->sendEvent(ServiceEnum::Socket, new socketEvent::Write(esi,toRef(out)));
 }
 
-bool HTTP::Request::__gets$(std::string& dst,const std::string& delim, std::string& data)
-{
-    dst.clear();
-    {
-        {
-            std::string &indata=data;
 
-            size_t pos=indata.find(delim);
-            if (pos!=std::string::npos)
-            {
-                dst=indata.substr(0,pos);
-                size_t delimsz=delim.size();
-                indata.erase(0,pos+delimsz);
-                return true;
-            }
-            else return false;
-        }
-    }
-    return false;
-}
-bool HTTP::Request::__readbuf$(std::string& dst,size_t sz, std::string& data)
-{
-    dst.clear();
-
-    {
-        {
-            std::string &indata=data;
-            if (indata.size()==sz)
-            {
-                dst=indata;
-                indata.clear();
-                return true;
-            }
-            else if (indata.size()>sz)
-            {
-                dst=indata.substr(0,sz);
-                indata.erase(0,sz);
-
-                return true;
-            }
-            return false;
-        }
-    }
-    return false;
-}
 HTTP::Request::_fileresponse::~_fileresponse()
 {
     if(m_fd!=-1)

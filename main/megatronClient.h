@@ -1,5 +1,4 @@
-#ifndef _______________MEGATRONCLIENT____H
-#define _______________MEGATRONCLIENT____H
+#pragma once
 #include <stdlib.h>
 #include <string>
 
@@ -14,4 +13,3 @@ namespace Megatron {
 }
 
 
-#endif

@@ -42,17 +42,6 @@ void ListenerBuffered1Thread::processEvent(const REF_getter<Event::Base>&e)
     if(m_isTerminating) return;
     try {
         bool processed=false;
-        {
-
-
-//            for(auto& i:handlers)
-//            {
-//                if(i.first)
-//                {
-//                    if(i.first(e.get(),i.second))processed=true;
-//                }
-//            }
-        }
         if(!e.valid()) throw CommonError("!.valid() "+_DMI());
         if(!processed)
         {

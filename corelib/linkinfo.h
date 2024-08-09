@@ -4,7 +4,11 @@
 
 #include "webDumpable.h"
 #include "IUtils.h"
-struct linkInfoDownReferrer: public Refcountable,public WebDumpable, public Mutexable
+struct linkInfoDownReferrer: public Refcountable
+#ifdef WEBDUMP
+    ,public WebDumpable
+#endif
+    , public Mutexable
 {
     REF_getter<epoll_socket_info> esi_mx_;
     msockaddr_in externalAddr_mx_;

@@ -1,5 +1,4 @@
-#ifndef ______________________UEIREFERERALS___H
-#define ______________________UEIREFERERALS___H
+#pragma once
 #include "REF.h"
 #include "webDumpable.h"
 #include "linkinfo.h"
@@ -7,7 +6,10 @@
 
 namespace dfsReferrer
 {
-    struct _uriReferals: public Refcountable,public WebDumpable
+    struct _uriReferals: public Refcountable
+#ifdef WEBDUMP
+        ,public WebDumpable
+#endif
     {
 
         REF_getter<linkInfoDownReferrer> getDownlinkOrNull(const SOCKET_id& id);
@@ -54,4 +56,3 @@ namespace dfsReferrer
     };
 
 }
-#endif

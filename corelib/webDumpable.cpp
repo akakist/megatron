@@ -1,5 +1,6 @@
 #include "webDumpable.h"
 #include "IUtils.h"
+#ifdef WEBDUMP
 WebDumpable::~WebDumpable()
 {
     iUtils->removeWebDumpableHandler(this);
@@ -20,3 +21,4 @@ std::string WebDumpable::getWebDumpableLink(const int64_t& vname)
     std::string s((char*)&p,sizeof(p));
     return "<a href='/webdump?p="+iUtils->bin2hex(s)+"'>"+std::to_string(vname)+"</a>";
 }
+#endif

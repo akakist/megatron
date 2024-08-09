@@ -37,18 +37,29 @@ Json::Value epoll_socket_info::__jdump()
     default:
         throw CommonError("invalid streamtype %s %d",__FILE__,__LINE__);
     }
+
+    v["outBufferSize"]=(int)outBuffer_.size();
+    v["inBufferSize"]=(int)inBuffer_.size();
+    if(outBuffer_.size())
     {
-        v["outBufferSize"]=(int)outBuffer_.size();
-        {
-            M_LOCK(inBuffer_);
-            v["inBufferSize"]=(int)inBuffer_._mx_data.size();
-        }
+        auto s=outBuffer_.getAll();
+        v["outBuffer"]=iUtils->bin2hex(s);
     }
+    if(inBuffer_.size())
+    {
+        std::string s;
+        {
+            R_LOCK(inBuffer_.lk);
+            s=inBuffer_._mx_data;
+        }
+        v["inBuffer"]=iUtils->bin2hex(s);
+
+    }
+
+
     v["in connection"]=inConnection_;
     v["dst route"]=m_route.dump();
     v["closed"]=closed();
-    v["outbuffer size"]=(int)outBuffer_.size();
-    v["inbuffer size"]=(int)inBuffer_.size();
     v["socketDescription"]=socketDescription_;
     XPASS;
     return v;
@@ -70,7 +81,7 @@ void epoll_socket_info::write_(const std::string&s)
         XTRY;
         {
             XTRY;
-            outBuffer_.append(this,s.data(),s.size());
+            outBuffer_.append(this,s);
             XPASS;
         }
         XPASS;
@@ -85,6 +96,7 @@ void epoll_socket_info::write_(const char *s, const size_t &sz)
 
     XPASS;
 }
+#ifdef KALL
 void epoll_socket_info::write_(const REF_getter<refbuffer> &s)
 {
     MUTEX_INSPECTOR;
@@ -93,12 +105,12 @@ void epoll_socket_info::write_(const REF_getter<refbuffer> &s)
 
     XPASS;
 }
-
+#endif
 void epoll_socket_info::close(const char* reason)
 {
     MUTEX_INSPECTOR;
 
-    DBG(logErr2("epoll_socket_info::close %s",reason.c_str()));
+    DBG(logErr2("epoll_socket_info::close %s",reason));
     XTRY;
     std::string sType;
     if(CONTAINER(fd_)==-1)
@@ -169,18 +181,20 @@ epoll_socket_info::~epoll_socket_info()
 
 
 
-void socketBuffersOut::append(epoll_socket_info* esi,const char* data, size_t sz)
+void socketBuffersOut::append(epoll_socket_info* esi,const std::string&s)
 {
     MUTEX_INSPECTOR;
-    M_LOCK(this);
-    container_+=std::string(data,sz);
+    {
+        W_LOCK(lk);
+        container_+=s;
+    }
     esi->multiplexor_->sockStartWrite(esi);
 
 }
 size_t socketBuffersOut::size()
 {
     MUTEX_INSPECTOR;
-    M_LOCK(this);
+    R_LOCK(lk);
     return container_.size();
 }
 int socketBuffersOut::send(const SOCKET_fd &fd, epoll_socket_info* esi)
@@ -189,7 +203,7 @@ int socketBuffersOut::send(const SOCKET_fd &fd, epoll_socket_info* esi)
     int res=0;
     int restSize=0;
     {
-        M_LOCK(this);
+        W_LOCK(lk);
         if(container_.size())
         {
             res=::send(CONTAINER(fd),container_.data(),container_.size(),0);
@@ -227,7 +241,6 @@ epoll_socket_info::epoll_socket_info(const int &_socketType, const STREAMTYPE &_
     m_route(_route),
     markedToDestroyOnSend_(false),
     inConnection_(false),
-//    maxOutBufferSize(_maxOutBufferSize),
     socketDescription_(_socketDescription),
     multiplexor_(_multiplexor)
 #ifdef HAVE_KQUEUE
@@ -249,20 +262,23 @@ epoll_socket_info::epoll_socket_info(const int &_socketType, const STREAMTYPE &_
 
 void epoll_socket_info::_inBuffer::append(const char* data, size_t size)
 {
-    M_LOCK(this);
+    W_LOCK(lk);
     _mx_data.append(data,size);
 }
 size_t epoll_socket_info::_inBuffer::size()
 {
     MUTEX_INSPECTOR;
-    M_LOCK(this);
+    R_LOCK(lk);
     return _mx_data.size();
 }
 std::string epoll_socket_info::_inBuffer::extract_all()
 {
     MUTEX_INSPECTOR;
-    M_LOCK(this);
-    std::string ret=std::move(_mx_data);
+    W_LOCK(lk);
+//    return std::move(_mx_data);
+//    std::string ret=std::move(_mx_data);
+    std::string ret=_mx_data;
     _mx_data.clear();
     return ret;
+
 }

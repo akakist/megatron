@@ -9,7 +9,7 @@
 #endif
 #include "version_mega.h"
 //int Timer::task::total=0;
-Integer getNow()
+int64_t getNow()
 {
 
 
@@ -38,9 +38,7 @@ Integer getNow()
 
     now= static_cast<uint64_t>(_1);
     now+=_2;
-    Integer v;
-    v.set(now);
-    return v;
+    return now;
 #endif
 
 
@@ -144,7 +142,7 @@ void Timer::Service::worker()
                     while(1)
                     {
                         if(m_isTerminating) return;
-                        Integer itFirst;
+                        int64_t itFirst;
                         std::deque<REF_getter<task> > itSecondCopy;
                         auto n=nexts;
                         auto a=all;
@@ -157,7 +155,7 @@ void Timer::Service::worker()
                             if(m_isTerminating) return;
                             if(n->mx_nexts.size())
                             {
-                                Integer now=getNow();
+                                int64_t now=getNow();
                                 auto it2=n->mx_nexts.begin();
                                 itFirst=it2->first;
                                 std::deque<REF_getter<task> > &itSecondRef=it2->second;
@@ -167,15 +165,15 @@ void Timer::Service::worker()
 
                                     mtimespec ts;
                                     {
-                                        Integer tmp=itFirst;
+                                        int64_t tmp=itFirst;
                                         tmp/=1000000;
                                         {
-                                            ts.tv_sec=(time_t)tmp.get();
+                                            ts.tv_sec=(time_t)tmp;
                                             tmp=itFirst;
                                             tmp%=1000000;
                                             tmp*=1000;
                                         }
-                                        ts.tv_nsec=(long)tmp.get();
+                                        ts.tv_nsec=(long)tmp;
                                     }
 
                                     XTRY;
@@ -258,7 +256,7 @@ bool Timer::Service::on_SetTimer(const timerEvent::SetTimer* ev)
     REF_getter<task> t=new task(task::TYPE_TIMER,ev->tid,ev->data,ev->cookie,r,ev->delay_secs);
     a->add(t);
 
-    Integer tb=getNow();
+    auto tb=getNow();
     real d=ev->delay_secs;
     d*=1000000;
     tb+=d;
@@ -285,7 +283,7 @@ bool Timer::Service::on_SetAlarm(const timerEvent::SetAlarm* ev)
     r.pop_front();
     REF_getter<task> t=new task(task::TYPE_ALARM,ev->tid,ev->data,ev->cookie,r,ev->delay_secs);
     a->add(t);
-    Integer tb=getNow();
+    auto tb=getNow();
     real d=ev->delay_secs;
     d*=1000000;
     tb+=d;
@@ -327,7 +325,7 @@ bool Timer::Service::on_ResetAlarm(const timerEvent::ResetAlarm* ev)
     r.pop_front();
     REF_getter<task> t=new task(task::TYPE_ALARM,ev->tid,ev->data,ev->cookie,r,ev->delay_secs);
     a->replace(t);
-    Integer tb=getNow();
+    auto tb=getNow();
     real d=ev->delay_secs;
     d*=1000000;
     tb+=d;

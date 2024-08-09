@@ -17,7 +17,7 @@ RPC::Service::Service(const SERVICE_id &svs, const std::string&  nm, IInstance* 
     UnknownBase(nm),
     ListenerSimple(nm,ifa->getConfig(),svs),
     Broadcaster(ifa),
-    myOscar(ServiceEnum::Oscar),
+    myOscar(ifa->getConfig()->get_string("oscarType","Oscar","oscar type - Oscar || OscarSecure")),
     iterateTimeout_(ifa->getConfig()->get_real("IterateTimeoutSec",60,"")),
     m_connectionActivityTimeout(ifa->getConfig()->get_real("ConnectionActivity",600.0,"")),
     iInstance(ifa),
@@ -58,16 +58,6 @@ RPC::Service::Service(const SERVICE_id &svs, const std::string&  nm, IInstance* 
 RPC::Service::~Service()
 {
     m_isTerminating=true;
-    if(sharedAddr.m_internalAddr.size())
-    {
-        try {
-        }
-        catch(...)
-        {
-
-        }
-    }
-    //delete sessions;
     sessions.clear();
 
 }
@@ -80,7 +70,7 @@ bool RPC::Service::on_Connected(const oscarEvent::Connected* E)
     msockaddr_in addr;
     std::set<route_t> subscribers;
     {
-        RLocker lk(sessions.sa2sess_.lock_);
+        R_LOCK(sessions.sa2sess_.lock_);
         if(!E->esi->request_for_connect_.has_value())
             throw CommonError("if(!E->esi->request_for_connect.has_value())");
         auto it=sessions.sa2sess_.container_.find(*E->esi->request_for_connect_);
@@ -92,7 +82,7 @@ bool RPC::Service::on_Connected(const oscarEvent::Connected* E)
         S=it->second;
     }
     {
-        RLocker l(sessions.subscribers_.lock_);
+        R_LOCK(sessions.subscribers_.lock_);
         subscribers=sessions.subscribers_.container_;
 
 
@@ -165,7 +155,7 @@ bool RPC::Service::on_PacketOnAcceptor(const oscarEvent::PacketOnAcceptor*E)
 
 bool RPC::Service::on_PacketOnConnector(const oscarEvent::PacketOnConnector* E)
 {
-
+//    logErr2("@@ %s",__PRETTY_FUNCTION__);
 
     MUTEX_INSPECTOR;
 
@@ -174,21 +164,28 @@ bool RPC::Service::on_PacketOnConnector(const oscarEvent::PacketOnConnector* E)
         int direction;
         buf>>direction;
 
+
         if(direction=='p')
         {
             MUTEX_INSPECTOR;
             REF_getter<Event::Base> e=iUtils->unpackEvent(buf);
             if(!e.valid())
             {
+                logErr2("if(!e.valid()) %s %d",__FILE__,__LINE__);
                 return true;
             }
+
 
             REF_getter<Route> r=e->route.pop_front();
             if(r->type==Route::LOCALSERVICE)
             {
                 LocalServiceRoute* l=(LocalServiceRoute*) r.get();
                 if(!E->esi->request_for_connect_.has_value())
+                {
+                    logErr2("if(!E->esi->request_for_connect.valid())");
                     throw CommonError("if(!E->esi->request_for_connect.valid())");
+                }
+
 
                 sendEvent(l->id,new rpcEvent::IncomingOnConnector(E->esi,*E->esi->request_for_connect_,e));
             }
@@ -206,6 +203,7 @@ bool RPC::Service::on_PacketOnConnector(const oscarEvent::PacketOnConnector* E)
             REF_getter<Event::Base> e=iUtils->unpackEvent(buf);
             if(!e.valid())
             {
+                logErr2("if(!e.valid())");
                 return true;
             }
 
@@ -217,6 +215,7 @@ bool RPC::Service::on_PacketOnConnector(const oscarEvent::PacketOnConnector* E)
                 sendEvent(dst,new rpcEvent::IncomingOnConnector(E->esi,*E->esi->request_for_connect_,e));
             }
         }
+        else throw CommonError("invalid direction");
     }
     catch(std::exception &e)
     {
@@ -228,18 +227,15 @@ bool RPC::Service::on_PacketOnConnector(const oscarEvent::PacketOnConnector* E)
 }
 void RPC::Service::flushOutCache(const REF_getter<Session> & S)
 {
-    if(S->outCache_.valid())
+    std::deque<REF_getter<refbuffer> > d;
     {
-        std::deque<REF_getter<refbuffer> > d;
-        {
-            WLocker l(S->outCache_->lk);
-            d=std::move(S->outCache_->container);
-        }
-        S->outCache_=nullptr;
-        for(auto &p:d)
-        {
-            sendEvent(myOscarListener,new oscarEvent::SendPacket(S->esi,p,dynamic_cast<ListenerBase*>(this)));
-        }
+        W_LOCK(S->outCache_.lk);
+        d=S->outCache_.container;
+        S->outCache_.container.clear();
+    }
+    for(auto &p:d)
+    {
+        sendEvent(myOscarListener,new oscarEvent::SendPacket(S->esi,p,dynamic_cast<ListenerBase*>(this)));
     }
 
 }
@@ -256,10 +252,8 @@ void RPC::Service::addSendPacket(const REF_getter<Session>&S, const REF_getter<r
         need_cache=true;
     if(need_cache)
     {
-        if(!S->outCache_.valid())
-            S->outCache_=new outCache;
-        WLocker l(S->outCache_->lk);
-        S->outCache_->container.push_back(P);
+        W_LOCK(S->outCache_.lk);
+        S->outCache_.container.push_back(P);
         return;
     }
     else
@@ -282,7 +276,7 @@ bool RPC::Service::on_PassPacket(const rpcEvent::PassPacket* E)
 
     REF_getter<Session> S(NULL);
     {
-        RLocker lk(sessions.sock2sess_.lock_);
+        R_LOCK(sessions.sock2sess_.lock_);
 
         auto it=sessions.sock2sess_.container_.find(E->socketIdTo);
         if(it!=sessions.sock2sess_.container_.end())
@@ -296,7 +290,7 @@ bool RPC::Service::on_PassPacket(const rpcEvent::PassPacket* E)
         addSendPacket(S,o.asString());
     }
     else{
-        WLocker (sessions.passCache_.lock_);
+        W_LOCK(sessions.passCache_.lock_);
         sessions.passCache_.passCache[E->socketIdTo].push_back(o.asString());
     }
 
@@ -309,7 +303,7 @@ bool RPC::Service::on_NotifyBindAddress(const oscarEvent::NotifyBindAddress*e)
     MUTEX_INSPECTOR;
 
     {
-        WLocker l(sharedAddr.lk);
+        W_LOCK(sharedAddr.lk);
         sharedAddr.m_bindAddr_mainSH.insert(e->addr);
     }
     flushAll();
@@ -321,7 +315,8 @@ bool RPC::Service::on_startService(const systemEvent::startService* )
     MUTEX_INSPECTOR;
     XTRY;
 
-    myOscarListener=dynamic_cast<ListenerBase*>(iInstance->getServiceOrCreate(Service::myOscar));
+    auto svs=iUtils->serviceIdByName(myOscar);
+    myOscarListener=dynamic_cast<ListenerBase*>(iInstance->getServiceOrCreate(svs));
 
 
     {
@@ -337,6 +332,11 @@ bool RPC::Service::on_startService(const systemEvent::startService* )
                 sendEvent(myOscarListener,new oscarEvent::AddToListenTCP(newid,item,"RPC_DL",dynamic_cast<ListenerBase*>(this)));
             }
     }
+#ifdef WEBDUMP
+    sendEvent(ServiceEnum::WebHandler, new webHandlerEvent::RegisterDirectory("rpc","RPC"));
+    sendEvent(ServiceEnum::WebHandler, new webHandlerEvent::RegisterHandler("rpc/details","Dump state",ListenerBase::serviceId));
+#endif
+
 
     XPASS;
     return true;
@@ -353,17 +353,16 @@ bool RPC::Service::on_Accepted(const oscarEvent::Accepted* E)
             REF_getter<Session> S=new Session(E->esi->id_,E->esi);
             std::deque<REF_getter<refbuffer>> d;
             {
-                WLocker lk(sessions.sock2sess_.lock_);
-
+                W_LOCK(sessions.sock2sess_.lock_);
                 sessions.sock2sess_.container_.emplace(E->esi->id_,S);
             }
             {
-                RLocker l(sessions.subscribers_.lock_);
+                R_LOCK(sessions.subscribers_.lock_);
                 subscribers=sessions.subscribers_.container_;
             }
             {
-                WLocker l(sessions.passCache_.lock_);
-                d=std::move(sessions.passCache_.passCache[E->esi->id_]);
+                W_LOCK(sessions.passCache_.lock_);
+                d=sessions.passCache_.passCache[E->esi->id_];
                 sessions.passCache_.passCache.erase(E->esi->id_);
             }
 
@@ -396,7 +395,7 @@ bool RPC::Service::on_SendPacket(const rpcEvent::SendPacket* E)
     REF_getter<Session> S(NULL);
     {
         {
-            RLocker lk(sessions.sa2sess_.lock_);
+            R_LOCK(sessions.sa2sess_.lock_);
             auto it=sessions.sa2sess_.container_.find(E->addressTo);
             if(it!=sessions.sa2sess_.container_.end())
                 S=it->second;
@@ -408,8 +407,8 @@ bool RPC::Service::on_SendPacket(const rpcEvent::SendPacket* E)
             msockaddr_in addressTo=E->addressTo;
             S=new Session(sockId,NULL);
             {
-                WLocker lk(sessions.sa2sess_.lock_);
-                sessions.sa2sess_.container_.emplace(E->addressTo,S);
+                W_LOCK(sessions.sa2sess_.lock_);
+                sessions.sa2sess_.container_.insert({E->addressTo,S});
             }
             sendEvent(myOscarListener,new oscarEvent::Connect(sockId,E->addressTo,"RPC",dynamic_cast<ListenerBase*>(this)));
 
@@ -451,7 +450,7 @@ UnknownBase* RPC::Service::construct(const SERVICE_id& id, const std::string&  n
 
 bool RPC::Service::on_UnsubscribeNotifications(const rpcEvent::UnsubscribeNotifications* E)
 {
-    WLocker lk(sessions.subscribers_.lock_);
+   W_LOCK(sessions.subscribers_.lock_);
 
     sessions.subscribers_.container_.erase(E->route);
     return true;
@@ -460,7 +459,7 @@ bool RPC::Service::on_UnsubscribeNotifications(const rpcEvent::UnsubscribeNotifi
 
 bool RPC::Service::on_SubscribeNotifications(const rpcEvent::SubscribeNotifications* E)
 {
-    WLocker lk(sessions.subscribers_.lock_);
+    W_LOCK(sessions.subscribers_.lock_);
     sessions.subscribers_.container_.insert(poppedFrontRoute(E->route));
     return true;
 }
@@ -493,7 +492,7 @@ unsigned short RPC::Service::getExternalListenPortMain()
     MUTEX_INSPECTOR;
     bool cond=false;
     {
-        RLocker l(sharedAddr.lk);
+        R_LOCK(sharedAddr.lk);
         cond=sharedAddr.m_bindAddr_mainSH.empty();
     }
     while(cond)
@@ -512,7 +511,7 @@ unsigned short RPC::Service::getExternalListenPortMain()
 
     }
     {
-        RLocker l(sharedAddr.lk);
+        R_LOCK(sharedAddr.lk);
         if(sharedAddr.m_bindAddr_mainSH.size()==0)
         {
             logErr2("@@ %s %d ret 0",__PRETTY_FUNCTION__,__LINE__);
@@ -526,18 +525,18 @@ std::set<msockaddr_in> RPC::Service::getInternalListenAddrs()
     MUTEX_INSPECTOR;
     bool cond=false;
     {
-        RLocker l(sharedAddr.lk);
+        R_LOCK(sharedAddr.lk);
         cond= sharedAddr.m_bindAddr_mainSH.empty();
     }
     while(cond)
     {
         usleep(10000);
         {
-            RLocker l(sharedAddr.lk);
+            R_LOCK(sharedAddr.lk);
             cond= sharedAddr.m_bindAddr_mainSH.empty();
         }
     }
-    RLocker l(sharedAddr.lk);
+    R_LOCK(sharedAddr.lk);
     return sharedAddr.m_internalAddr;
 
 }
@@ -545,13 +544,13 @@ void RPC::Service::flushAll()
 {
     std::set<REF_getter<Session> > s;
     {
-        RLocker lk(sessions.sock2sess_.lock_);
+        R_LOCK(sessions.sock2sess_.lock_);
         for(auto& z: sessions.sock2sess_.container_)
             s.insert(z.second);
 
     }
     {
-        RLocker l(sessions.sa2sess_.lock_);
+        R_LOCK(sessions.sa2sess_.lock_);
         for(auto& z: sessions.sa2sess_.container_)
             s.insert(z.second);
     }
@@ -571,11 +570,11 @@ bool RPC::Service::on_ConnectFailed(const oscarEvent::ConnectFailed*e)
         throw CommonError("if(!e->esi->request_for_connect.valid())");
 
     {
-        WLocker lk(sessions.subscribers_.lock_);
+        W_LOCK(sessions.subscribers_.lock_);
         subscribers=sessions.subscribers_.container_;
     }
     {
-        WLocker l(sessions.sa2sess_.lock_);
+        W_LOCK(sessions.sa2sess_.lock_);
         sessions.sa2sess_.container_.erase(*e->esi->request_for_connect_);
     }
 
@@ -590,7 +589,7 @@ bool RPC::Service::on_Disconnected(const oscarEvent::Disconnected* e)
     MUTEX_INSPECTOR;
     std::set<route_t> subscribers;
     {
-        RLocker lk(sessions.subscribers_.lock_);
+        R_LOCK(sessions.subscribers_.lock_);
         subscribers=sessions.subscribers_.container_;
     }
 
@@ -604,8 +603,7 @@ bool RPC::Service::on_Disconnected(const oscarEvent::Disconnected* e)
         passEvent(new rpcEvent::Disconnected(e->esi,*e->esi->request_for_connect_,e->reason,i));
     }
     {
-        WLocker lk(sessions.sa2sess_.lock_);
-
+        W_LOCK(sessions.sa2sess_.lock_);
         sessions.sa2sess_.container_.erase(*e->esi->request_for_connect_);
     }
 
@@ -617,7 +615,7 @@ bool RPC::Service::on_Disaccepted(const oscarEvent::Disaccepted*e)
 
     std::set<route_t> subscribers;
     {
-        RLocker lk(sessions.subscribers_.lock_);
+        R_LOCK(sessions.subscribers_.lock_);
 
         subscribers=sessions.subscribers_.container_;
     }
@@ -627,7 +625,7 @@ bool RPC::Service::on_Disaccepted(const oscarEvent::Disaccepted*e)
         passEvent(new rpcEvent::Disaccepted(e->esi,e->reason,i));
     }
     {
-        WLocker lk(sessions.sock2sess_.lock_);
+        W_LOCK(sessions.sock2sess_.lock_);
         sessions.sock2sess_.container_.erase(e->esi->id_);
     }
 
@@ -642,6 +640,7 @@ bool RPC::Service::handleEvent(const REF_getter<Event::Base>& e)
     XTRY;
     //auto _this=this;
     auto& ID=e->id;
+    evcount.inc(ID);
     if(timerEventEnum::TickAlarm==ID)
         return on_TickAlarm((const timerEvent::TickAlarm*)e.get());
     if(timerEventEnum::TickTimer==ID)
@@ -672,7 +671,9 @@ bool RPC::Service::handleEvent(const REF_getter<Event::Base>& e)
         return on_startService((const systemEvent::startService*)e.get());
 
     if( rpcEventEnum::PassPacket==ID)
+    {
         return(this->on_PassPacket((const rpcEvent::PassPacket*)e.get()));
+    }
     if( rpcEventEnum::SendPacket==ID)
         return(this->on_SendPacket((const rpcEvent::SendPacket*)e.get()));
     if( rpcEventEnum::SubscribeNotifications==ID)
@@ -683,9 +684,35 @@ bool RPC::Service::handleEvent(const REF_getter<Event::Base>& e)
         return(this->on_Disconnected((const oscarEvent::Disconnected*)e.get()));
     if( oscarEventEnum::Disaccepted==ID)
         return(this->on_Disaccepted((const oscarEvent::Disaccepted*)e.get()));
-
+    if(webHandlerEventEnum::RequestIncoming==ID)
+        return on_RequestIncoming((webHandlerEvent::RequestIncoming*)e.get());
 
     XPASS;
     return false;
+
+}
+
+
+bool RPC::Service::on_RequestIncoming(const webHandlerEvent::RequestIncoming*e)
+{
+    HTTP::Response cc(iInstance);
+    cc.content+="<h1>RPC report</h1><p>";
+
+//    cc.content+"sessions.passCache_.passCache.size()"+
+//    std::to_string(sessions.passCache_.passCache.size());
+
+
+
+//    cc.content="sessions.sa2sess_.container_.size()"+ std::to_string(sessions.sa2sess_.container_.size());
+    Json::Value j;
+    j["sessions"]=sessions.jdump();
+    j["evcount"]=evcount.jdump();
+    cc.content="<pre>"+j.toStyledString()+"</pre>";
+
+
+
+    cc.makeResponse(e->esi);
+
+    return true;
 
 }

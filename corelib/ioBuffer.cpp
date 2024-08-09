@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "IUtils.h"
-#include "Rational.h"
 #include "ioBuffer.h"
 //#include "IInstance.h"
 #include "mutexInspector.h"
@@ -202,9 +201,9 @@ inBuffer& inBuffer::operator>>(double& p)
 
 
     XTRY;
-    Rational r;
+    std::string r;
     *this>>r;
-    p=r.v;
+    p=atof(r.c_str());
     XPASS;
     return *this;
 }
@@ -213,9 +212,9 @@ inBuffer& inBuffer::operator>>(float& p)
 
 
     XTRY;
-    Rational r;
+    std::string r;
     *this>>r;
-    p= static_cast<float>(r.v);
+    p= static_cast<float>(atof(r.c_str()));
     XPASS;
     return *this;
 }
@@ -242,8 +241,8 @@ outBuffer& outBuffer::operator<<(const double &c)
 {
 
     XTRY;
-    Rational r=c;
-    *this<<r;
+    auto s=std::to_string(c);
+    *this<<s;
     XPASS;
     return *this;
 }
@@ -251,8 +250,8 @@ outBuffer& outBuffer::operator<<(const float &c)
 {
 
     XTRY;
-    Rational r=c;
-    *this<<r;
+    auto s=std::to_string(c);
+    *this<<s;
     XPASS;
     return *this;
 }

@@ -1,5 +1,4 @@
-#ifndef __________________CONFIG_OBJ__HH____
-#define __________________CONFIG_OBJ__HH____
+#pragma once
 
 #include <IConfigObj.h>
 #include "Real.h"
@@ -58,4 +57,3 @@ private:
 
 
 
-#endif

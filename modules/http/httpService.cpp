@@ -16,7 +16,7 @@
 #include <version_mega.h>
 #include <st_malloc.h>
 #include <logging.h>
-
+#include "splitStr.h"
 //#endif
 #include <stdlib.h>
 #include <fcntl.h>
@@ -46,7 +46,7 @@ HTTP::Service::Service(const SERVICE_id& id, const std::string&nm, IInstance* _i
     m_maxPost= static_cast<size_t>(_if->getConfig()->get_int64_t("max_post", 1000000, ""));
     {
         {
-            WLocker aaa(mx.lk);
+            W_LOCK(mx.lk);
             mx.docUrls=_if->getConfig()->get_stringset("doc_urls","/pics,/html,/css","");
             mx.documentRoot=_if->getConfig()->get_string("document_root","./www","");
         }
@@ -55,7 +55,7 @@ HTTP::Service::Service(const SERVICE_id& id, const std::string&nm, IInstance* _i
             bod=std::string(mime_types, static_cast<unsigned int>(mime_types_sz));
 
             {
-                WLocker aaa(mx.lk);
+                W_LOCK(mx.lk);
                 mx.mime_types.clear();
             }
             std::vector<std::string> v=iUtils->splitString("\r\n",bod);
@@ -74,7 +74,7 @@ HTTP::Service::Service(const SERVICE_id& id, const std::string&nm, IInstance* _i
                     {
 
                         {
-                            WLocker aaa(mx.lk);
+                            W_LOCK(mx.lk);
                             mx.mime_types[dq[0]]=typ;
                         }
                         dq.pop_front();
@@ -97,7 +97,7 @@ bool HTTP::Service::on_NotifyBindAddress(const socketEvent::NotifyBindAddress*e)
 {
     MUTEX_INSPECTOR;
 
-    WLocker aaa(mx.lk);
+    W_LOCK(mx.lk);
     mx.bind_addrs.insert(e->addr);
     return true;
 }
@@ -126,7 +126,7 @@ bool HTTP::Service::on_startService(const systemEvent::startService*)
 bool HTTP::Service::on_GetBindPortsREQ(const httpEvent::GetBindPortsREQ *e)
 {
     MUTEX_INSPECTOR;
-    RLocker aaa(mx.lk);
+    R_LOCK(mx.lk);
     passEvent(new httpEvent::GetBindPortsRSP(mx.bind_addrs,poppedFrontRoute(e->route)));
     return true;
 }
@@ -169,7 +169,7 @@ bool HTTP::Service::handleEvent(const REF_getter<Event::Base>& evt)
         {
             MUTEX_INSPECTOR;
             const httpEvent::GetBindPortsREQ *e=(const httpEvent::GetBindPortsREQ *)E->e.get();
-            RLocker aaa(mx.lk);
+            R_LOCK(mx.lk);
             passEvent(new httpEvent::GetBindPortsRSP(mx.bind_addrs,poppedFrontRoute(e->route)));
             return true;
         }
@@ -197,36 +197,48 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
     {
         std::string head;
         {
-            M_LOCK(evt->esi->inBuffer_);
-            if (!W.___ptr->__gets$(head,"\r\n\r\n", evt->esi->inBuffer_._mx_data))
+            W_LOCK(evt->esi->inBuffer_.lk);
+            auto &data=evt->esi->inBuffer_._mx_data;
+            auto pz=data.find("\r\n\r\n");
+            if(pz!=std::string::npos)
             {
-                return true;
+                head=data.substr(0,pz);
+                data=data.substr(pz+4);
             }
+            else
+                return true;
+//            if (!W.___ptr->__gets$(head,"\r\n\r\n", evt->esi->inBuffer_._mx_data))
+//            {
+//                return true;
+//            }
         }
-        std::deque<std::string> dq=iUtils->splitStringDQ("\r\n",head);
+        std::deque<std::string> dq=splitStr("\r\n",head);//iUtils->splitStringDQ("\r\n",head);
         if (dq.size())
         {
 
             std::string fl=dq[0];
             dq.pop_front();
-            std::string::size_type pom = fl.find(" ", 0);
-            if (pom == std::string::npos)
+            std::string::size_type pz = fl.find(" ", 0);
+            if (pz == std::string::npos)
             {
                 return true;
             }
-            (std::string&)W->METHOD =iUtils->strupper(fl.substr(0, pom));
+            W->METHOD =fl.substr(0, pz);
 
-            if (W->METHOD != "GET" && W->METHOD != "POST")
-            {
-                return true;
-            }
+//            if (W->METHOD != "GET" && W->METHOD != "POST")
+//            {
+//                logErr2("if (W->METHOD != GET && W->METHOD != POST)");
+//                return true;
+//            }
 
-            W->url = fl.substr(pom + 1, fl.find(" ", pom + 1) - pom - 1);
-            W->url = iUtils->unescapeURL(W->url);
-            if (W->url.find("..", 0) != std::string::npos)
-            {
-                return true;
-            }
+//            auto pzProto=fl.find(" ",pz+1);
+            W->url = fl.substr(pz + 1, fl.find(" ", pz + 1) - pz - 1);
+//            W->url = fl.substr(pz + 1);
+//            W->url = iUtils->unescapeURL(W->url);
+//            if (W->url.find("..", 0) != std::string::npos)
+//            {
+//                return true;
+//            }
         }
         while (dq.size())
         {
@@ -237,14 +249,14 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
             {
                 return true;
             }
-            std::string k=iUtils->strupper(line.substr(0, pop));
+            std::string k=line.substr(0, pop);
             std::string v=line.substr(pop + 2, line.length() - pop - 2);
             W->headers[k]=v;
         }
-        if (W->headers.count("COOKIE"))
+        if (W->headers.count("Cookie"))
         {
 
-            std::vector <std::string> v = iUtils->splitString("; ", W->headers["COOKIE"]);
+            std::deque <std::string> v = splitStr("; ", W->headers["Cookie"]);
             for (unsigned int i = 0; i < v.size(); i++)
             {
                 std::string q = v[i];
@@ -263,7 +275,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                 W->in_cookies[k] = v;
             }
         }
-        W->original_url=W->url;
+//        W->original_url=W->url;
         {
 
             std::string::size_type qp = W->url.find("?", 0);
@@ -284,17 +296,26 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         if (W->METHOD == "POST")
         {
 
-            if (W->headers["CONTENT-TYPE"].find("multipart/form", 0) == std::string::npos)
+            if (W->headers["Content-Type"].find("multipart/form", 0) == std::string::npos)
             {
 
-                size_t clen = atoi(W->headers["CONTENT-LENGTH"].c_str());
+                size_t clen = atoi(W->headers["Content-Length"].c_str());
                 if (clen <= 0 || clen > m_maxPost)
                 {
                     return true;
                 }
                 {
-                    M_LOCK(evt->esi->inBuffer_);
-                    if (!W->__readbuf$(W->postContent,clen, evt->esi->inBuffer_._mx_data)) return true;
+                    W_LOCK(evt->esi->inBuffer_.lk);
+                    if(evt->esi->inBuffer_._mx_data.size()==clen)
+                    {
+                        W->postContent=std::move(evt->esi->inBuffer_._mx_data);
+                        evt->esi->inBuffer_._mx_data.clear();
+                    }
+                    else
+                    {
+                        W->postContent=evt->esi->inBuffer_._mx_data.substr(0,clen);
+                        evt->esi->inBuffer_._mx_data=evt->esi->inBuffer_._mx_data.substr(clen);
+                    }
                 }
                 W->split_params(W->postContent);
             }
@@ -303,7 +324,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 
 
                 //Multipart form
-                const std::string &t= W->headers["CONTENT-TYPE"];
+                const std::string &t= W->headers["Content-Type"];
                 std::string::size_type pz = t.find("boundary=", 0);
                 if (pz == std::string::npos)
                 {
@@ -316,8 +337,18 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                 {
 
                     {
-                        M_LOCK(evt->esi->inBuffer_);
-                        if (!W->__gets$(sbuf,ebound, evt->esi->inBuffer_._mx_data)) return true;
+                        W_LOCK(evt->esi->inBuffer_.lk);
+                        auto &data=evt->esi->inBuffer_._mx_data;
+                        auto pz=data.find(ebound);
+                        if(pz!=std::string::npos)
+                        {
+                            sbuf=data.substr(0,pz);
+                            data=data.substr(pz+ebound.size());
+                        }
+                        else
+                            return true;
+
+//                        if (!W->__gets$(sbuf,ebound, evt->esi->inBuffer_._mx_data)) return true;
                     }
 
                     while (sbuf.size())
@@ -329,7 +360,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                         if (pos==std::string::npos)
                         {
                             s=sbuf;
-                            sbuf="";
+                            sbuf.clear();
                         }
                         else
                         {
@@ -426,9 +457,9 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         }
         W->parse_state.insert(2);
     }
-    if(W->headers.count("CONNECTION"))
+    if(W->headers.count("Connection"))
     {
-        if(iUtils->strlower(W->headers["CONNECTION"])=="keep-alive")
+        if(W->headers["Connection"]=="Keep-Alive")
         {
             W->isKeepAlive=true;
         }
@@ -454,7 +485,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 std::string HTTP::Service::get_mime_type(const std::string& mime) const
 {
     MUTEX_INSPECTOR;
-    RLocker aaa(mx.lk);
+    R_LOCK(mx.lk);
     auto i=mx.mime_types.find(mime);
     if (i==mx.mime_types.end()) return "";
     else return i->second;
@@ -534,7 +565,7 @@ bool HTTP::Service::on_NotifyOutBufferEmpty(const socketEvent::NotifyOutBufferEm
                 return true;
             }
 
-            e->esi->write_(toRef((uint8_t*)buf.buf,res));
+            e->esi->write_((char*)buf.buf,res);
             F->written_bytes+=res;
             return true;
         }
@@ -603,7 +634,7 @@ std::string datef(const time_t &__t)
             a.append("Server: nginx/1.2.6 (Ubuntu)\r\n");
             a.append("Connection: close\r\n");
             a.append("\r\n");
-            esi->write_(toRef(a));
+            esi->write_(a);
             return -1;
         }
 
@@ -636,7 +667,7 @@ std::string datef(const time_t &__t)
     }
 
     F->contentLength=0;
-    if (!W->headers.count("RANGE"))
+    if (!W->headers.count("Range"))
     {
 
         F->startb=0;
@@ -651,7 +682,7 @@ std::string datef(const time_t &__t)
         F->startb=0;
         F->endb=F->fileSize-1;
         F->hasRange=true;
-        std::string s = W->headers["RANGE"];
+        std::string s = W->headers["Range"];
         size_t n = s.find("=", 0);
         if (n != std::string::npos)
         {
@@ -715,7 +746,7 @@ std::string datef(const time_t &__t)
     out.push_back("Date: "+datef(time(NULL))+"\r\n");
 
     {
-        RLocker aaa(mx.lk);
+        R_LOCK(mx.lk);
         auto i=mx.mime_types.find(exten);
         if(i!=mx.mime_types.end())
             out.push_back("Content-Type: "+i->second+"\r\n");
@@ -795,12 +826,12 @@ bool HTTP::Service::on_Disconnected(const socketEvent::Disconnected*e)
 REF_getter<HTTP::Request> HTTP::Service::getData(epoll_socket_info* esi)
 {
 
-    auto it=esi->additions_.find('http');
+    auto it=esi->additions_.find(ServiceEnum::HTTP);
     if(it==esi->additions_.end())
     {
         REF_getter<Refcountable> p=new HTTP::Request;
-        esi->additions_.insert(std::make_pair('http',p));
-        it=esi->additions_.find('http');
+        esi->additions_.insert(std::make_pair(ServiceEnum::HTTP,p));
+        it=esi->additions_.find(ServiceEnum::HTTP);
     }
     auto ret=dynamic_cast<HTTP::Request*>(it->second.get());
     if(ret==NULL)
@@ -810,11 +841,11 @@ REF_getter<HTTP::Request> HTTP::Service::getData(epoll_socket_info* esi)
 }
 void HTTP::Service::setData(epoll_socket_info* esi, const REF_getter<HTTP::Request> & p)
 {
-    esi->additions_.insert(std::make_pair('http',p.get()));
+    esi->additions_.insert(std::make_pair(ServiceEnum::HTTP,p.get()));
 
 }
 void HTTP::Service::clearData(epoll_socket_info* esi)
 {
-    esi->additions_.erase('http');
+    esi->additions_.erase(ServiceEnum::HTTP);
 
 }

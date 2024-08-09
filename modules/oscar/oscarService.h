@@ -1,6 +1,4 @@
-#ifndef ___________PP__SERVER__H
-#define ___________PP__SERVER__H
-
+#pragma once
 #include <REF.h>
 #include <SOCKET_id.h>
 #include <epoll_socket_info.h>
@@ -16,10 +14,7 @@ namespace Oscar
 {
     enum StartByte
     {
-        SB_HELLO		=0x00,
         SB_SINGLEPACKET	=0x01,
-        SB_ACK			=0x02,
-        SB_MULTIPACKET	=0x03,
     };
     namespace Packet
     {
@@ -85,4 +80,3 @@ namespace Oscar
         IInstance* iInstance;
     };
 }
-#endif

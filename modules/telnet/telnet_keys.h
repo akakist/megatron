@@ -1,5 +1,4 @@
-#ifndef ___TELNET_KEYES___H
-#define ___TELNET_KEYES___H
+#pragma once
 
 #define TKEY_F1      "\033\117\120"
 #define TKEY_F2      "\033\117\121"
@@ -35,4 +34,3 @@
 
 
 
-#endif

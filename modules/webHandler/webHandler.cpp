@@ -1,7 +1,7 @@
+#ifdef WEBDUMP
 #include "webHandlerService.h"
 #include <string>
 #include <map>
-
 IUtils *iUtils;
 void registerWebHandlerModule(const char*);
 
@@ -18,3 +18,4 @@ registerModule
 
 }
 
+#endif

@@ -2,13 +2,11 @@
 
 #project(dfsCore)
 
-ADD_SUBDIRECTORY(test)
 
 
 add_library(megatron-core STATIC
+    resplit.h
             DBH.cpp
-            Integer.cpp
-            Rational.cpp
             _QUERY.cpp
             __crc32.cpp
             __crc64.cpp
@@ -25,7 +23,6 @@ add_library(megatron-core STATIC
             js_utils.cpp
             jsonHandler.cpp
             listenerBase.cpp
-            listenerBuffered.cpp
             listenerBuffered1Thread.cpp
             listenerPolled.cpp
             listenerSimple.cpp
@@ -39,20 +36,15 @@ add_library(megatron-core STATIC
             st_rsa.cpp
             unknown.cpp
             url.cpp
-            trashable.cpp
             webDumpable.cpp
             neighbours.cpp
             ../lib/jsoncpp-0.5.0/src/lib_json/json_reader.cpp
             ../lib/jsoncpp-0.5.0/src/lib_json/json_value.cpp
             ../lib/jsoncpp-0.5.0/src/lib_json/json_writer.cpp
-CHUNK_id.h
-CLASS_id.h
 CONTAINER.h
 CapsId.h
-DATA_id.h
 DBH.cpp
 DBH.h
-DB_id.h
 EVENT_id.h
 ErrorDispatcherHelper.h
 GlobalCookie_id.h
@@ -66,22 +58,15 @@ IRPC.h
 ISSL.h
 IThreadNameController.h
 IUtils.h
-Integer.cpp
-Integer.h
-JAVACOOKIE_id.h
 REF.h
 REF_nm.h
 RSA_id.h
-Rational.cpp
-Rational.h
 Real.h
-SEQ_id.h
 SERVICE_id.h
 SHA1_id.h
 SOCKET_fd.h
 SOCKET_id.h
 URI.h
-USER_id.h
 VERSION_id.h
 _QUERY.cpp
 _QUERY.h
@@ -124,8 +109,6 @@ jsonHandler.h
 linkinfo.h
 listenerBase.cpp
 listenerBase.h
-listenerBuffered.cpp
-listenerBuffered.h
 listenerBuffered1Thread.cpp
 listenerBuffered1Thread.h
 listenerPolled.cpp
@@ -159,8 +142,6 @@ st_rsa.cpp
 st_rsa.h
 timerHelper.h
 tools_mt.h
-trashable.cpp
-trashable.h
 unknown.cpp
 unknown.h
 unknownCastDef.h

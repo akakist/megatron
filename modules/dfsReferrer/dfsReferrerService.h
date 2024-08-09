@@ -1,5 +1,4 @@
-#ifndef ___________RPC__SERVER__H
-#define ___________RPC__SERVER__H
+#pragma once
 
 #include "event_mt.h"
 #include <IInstance.h>
@@ -128,8 +127,9 @@ namespace dfsReferrer
 
         bool on_TickTimer(const timerEvent::TickTimer*);
         bool on_TickAlarm(const timerEvent::TickAlarm*);
-
+#ifdef WEBDUMP
         bool on_RequestIncoming(const webHandlerEvent::RequestIncoming*);
+#endif
         bool on_UpdateConfigREQ(const dfsReferrerEvent::UpdateConfigREQ*);
         bool on_UpdateConfigRSP(const dfsReferrerEvent::UpdateConfigRSP*);
 
@@ -212,4 +212,3 @@ namespace dfsReferrer
 
 }
 
-#endif

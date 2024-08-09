@@ -8,7 +8,6 @@ extern IUtils * iUtils;
 #include <map>
 #include <deque>
 #include <set>
-#include "Integer.h"
 #include <sys/types.h>
 #include "msockaddr_in.h"
 #include "SERVICE_id.h"
@@ -125,7 +124,7 @@ public:
     virtual int64_t get_param_int64_t(std::deque<std::string> &tokens, const std::string& name)=0;
 
     /// get Time in microseconds (1/million part of second)
-    virtual Integer getNow()=0;
+    virtual int64_t getNow()=0;
 
     virtual std::string getPercent(const real& numerator, const real& denumerator)=0;
 
@@ -212,9 +211,11 @@ public:
     virtual SERVICE_id serviceIdByName(const std::string& name)const=0;
     virtual bool isServiceRegistered(const SERVICE_id& svs)=0;
 
+#ifdef WEBDUMP
     virtual void setWebDumpableHandler(WebDumpable* h)=0;
     virtual void removeWebDumpableHandler(WebDumpable* h)=0;
     virtual std::string dumpWebDumpable(WebDumpable* )=0;
+#endif
 
     virtual Utils_local *getLocals()=0;
 
@@ -222,8 +223,10 @@ public:
     virtual void registerInstance(IInstance *i)=0;
     virtual void unregisterInstance(IInstance *i)=0;
     virtual IInstance* createNewInstance(const std::string& name)=0;
-    virtual void setTerminate()=0;
+    virtual void setTerminate(int exit_flag)=0;
     virtual bool isTerminating()=0;
+    virtual int getExitFlag()=0;
+
     virtual  void load_plugins_info(const std::set<std::string>& bases)=0;
 
     virtual REF_getter<_addrInfos> getAddrInfos()=0;

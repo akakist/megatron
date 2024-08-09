@@ -1,5 +1,4 @@
-#ifndef ______________UPLINKCONNECTIONSTATE_H
-#define ______________UPLINKCONNECTIONSTATE_H
+#pragma once
 
 #include "REF.h"
 #include "webDumpable.h"
@@ -7,7 +6,10 @@
 #include "epoll_socket_info.h"
 
 namespace dfsReferrer {
-    struct _uplinkConnectionState: public Refcountable,public WebDumpable
+    struct _uplinkConnectionState: public Refcountable
+#ifdef WEBDUMP
+        ,public WebDumpable
+#endif
     {
         Json::Value wdump();
         std::string wname() {
@@ -52,4 +54,3 @@ namespace dfsReferrer {
     };
 
 }
-#endif // UPLINKCONNECTIONSTATE_H

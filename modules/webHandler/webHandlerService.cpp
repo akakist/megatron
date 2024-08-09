@@ -1,3 +1,4 @@
+#ifdef WEBDUMP
 #include <stdlib.h>
 
 #ifndef _WIN32
@@ -164,3 +165,4 @@ void registerWebHandlerModule(const char* pn)
         regEvents_webHandler();
     }
 }
+#endif

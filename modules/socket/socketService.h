@@ -29,23 +29,23 @@ namespace SocketIO
         ~SocketsContainerForSocketIO();
         void remove(const SOCKET_id& sid)
         {
-            WLocker lock(lk);
+            W_LOCK(lk);
             container_.erase(sid);
 
         }
         std::map<SOCKET_id,REF_getter<epoll_socket_info> > getContainer()
         {
-            RLocker lock(lk);
+            R_LOCK(lk);
             return container_;
         }
         size_t count(const SOCKET_id& sid)
         {
-            RLocker lock(lk);
+            R_LOCK(lk);
             return container_.count(sid);
         }
         REF_getter<epoll_socket_info> getOrNull(const SOCKET_id& sid)
         {
-            RLocker lock(lk);
+            R_LOCK(lk);
             auto z=container_.find(sid);
             if(z==container_.end())
                 return NULL;
@@ -55,7 +55,7 @@ namespace SocketIO
 
         void add(const REF_getter<epoll_socket_info>& esi)
         {
-            WLocker lock(lk);
+            W_LOCK(lk);
             container_.insert(std::make_pair(esi->id_,esi));
         }
 
@@ -90,7 +90,7 @@ namespace SocketIO
             std::deque<REF_getter<SocketsContainerForSocketIO> > for_threads_;
             REF_getter<SocketsContainerForSocketIO> getPoller(SocketIO::Service* s)
             {
-                RLocker l(lock);
+                R_LOCK(lock);
                 if(socks_pollers_.size()!=s->n_workers_)
                     throw CommonError("if(m_socks_pollers.size()!=s->n_workers)");
                 {

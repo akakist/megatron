@@ -26,9 +26,6 @@ inline std::set<EVENT_id> getEvents_dfsCaps()
 	out.insert(rpcEventEnum::IncomingOnConnector);
 	out.insert(systemEventEnum::startService);
 	out.insert(timerEventEnum::TickAlarm);
-	out.insert(webHandlerEventEnum::RegisterDirectory);
-	out.insert(webHandlerEventEnum::RegisterHandler);
-	out.insert(webHandlerEventEnum::RequestIncoming);
 
 	return out;
 }
@@ -47,8 +44,5 @@ inline void regEvents_dfsCaps()
 	iUtils->registerEvent(rpcEvent::IncomingOnConnector::construct);
 	iUtils->registerEvent(systemEvent::startService::construct);
 	iUtils->registerEvent(timerEvent::TickAlarm::construct);
-	iUtils->registerEvent(webHandlerEvent::RegisterDirectory::construct);
-	iUtils->registerEvent(webHandlerEvent::RegisterHandler::construct);
-	iUtils->registerEvent(webHandlerEvent::RequestIncoming::construct);
 }
 #endif

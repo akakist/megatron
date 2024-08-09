@@ -30,7 +30,9 @@
 void registerHTTPModule(const char*);
 void registerSqliteModule(const char*);
 void registerTelnetService(const char*);
+#ifdef WEBDUMP
 void registerWebHandlerModule(const char*);
+#endif
 void registerErrorDispatcherService(const char*);
 #endif
 
@@ -126,8 +128,8 @@ bool megatron::findProcess(const char* _process)
     }
     QProcess tasklist;
     tasklist.start(
-        "tasklist",
-        QStringList() << "/NH");
+                "tasklist",
+                QStringList() << "/NH");
     tasklist.waitForFinished();
     QString output = tasklist.readAllStandardOutput();
     std::vector<std::string> v=splitString("\n\r",output.toStdString());

@@ -3,7 +3,7 @@
 
 #include <string>
 #include <deque>
-#include "Rational.h"
+#include "Real.h"
 
 #define MAX_PARAMS_IN_SQL		64
 /**
@@ -34,7 +34,6 @@ public:
     QUERY& operator << (const uint32_t);
     QUERY& operator << (const int64_t);
     QUERY& operator << (const uint64_t);
-    QUERY& operator << (const Rational&);
 #ifndef _LP64
 #if !defined(_WIN32) && !defined(__MACH__)
     QUERY& operator << (const time_t&);

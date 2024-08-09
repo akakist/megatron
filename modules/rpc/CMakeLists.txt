@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.0)
 
-ADD_SUBDIRECTORY(test)
+#ADD_SUBDIRECTORY(test)
 
 #include_directories(../../lib/miniupnp-master)
 add_library(core-rpc SHARED

@@ -40,6 +40,7 @@ inline std::set<msockaddr_in> getRpcInternalListenAddrs(IInstance* iInstance)
 inline std::string dump(const std::set<unsigned short> listenPort)
 {
     std::vector<std::string> v;
+    v.reserve(listenPort.size());
     for(auto& i:listenPort)
     {
         v.push_back(std::to_string(ntohs(i)));
@@ -49,6 +50,7 @@ inline std::string dump(const std::set<unsigned short> listenPort)
 inline std::string dump(const std::set<msockaddr_in> listenPort)
 {
     std::vector<std::string> v;
+    v.reserve(listenPort.size());
     for(auto& i:listenPort)
     {
         v.push_back(i.dump());
@@ -60,6 +62,7 @@ inline std::string dump(const std::set<msockaddr_in> listenPort)
 inline std::vector<std::string> conv_s2v(const std::set<std::string>&v)
 {
     std::vector<std::string> out;
+    out.reserve(v.size());
     for(auto& i:v)
     {
         out.push_back(i);

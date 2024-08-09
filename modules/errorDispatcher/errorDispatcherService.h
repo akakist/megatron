@@ -1,5 +1,4 @@
-#ifndef ____SEVICE_ERRDTIMERR___H___
-#define ____SEVICE_ERRDTIMERR___H___
+#pragma once
 #include "mutexable.h"
 #include "unknown.h"
 #include "SERVICE_id.h"
@@ -57,4 +56,3 @@ namespace ErrorDispatcher
 
     };
 };
-#endif

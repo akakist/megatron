@@ -1,5 +1,4 @@
-#ifndef _________________BUFFERVERIFY_H
-#define _________________BUFFERVERIFY_H
+#pragma once
 
 #include <string>
 #include "ioBuffer.h"
@@ -25,4 +24,3 @@ inline bool bufferVerify(const std::string& s)
 
 }
 
-#endif // BUFFERVERIFY_H

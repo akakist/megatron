@@ -1,5 +1,4 @@
-#ifndef ____SEVICE_TIMERR___H___
-#define ____SEVICE_TIMERR___H___
+#pragma once
 #include "mutexable.h"
 #include "unknown.h"
 #include "SERVICE_id.h"
@@ -12,7 +11,6 @@
 #include "mutexInspector.h"
 #include "Events/System/Run/startServiceEvent.h"
 #include "Events/System/timerEvent.h"
-#include "Integer.h"
 
 
 namespace Timer
@@ -63,7 +61,7 @@ namespace Timer
     {
         MutexC m_mutex;
         Condition m_condition;
-        std::map<Integer,std::deque<REF_getter<task> > > mx_nexts;
+        std::map<int64_t,std::deque<REF_getter<task> > > mx_nexts;
         _nexts()
             :m_condition(m_mutex)
         {
@@ -117,4 +115,3 @@ namespace Timer
         bool m_isTerminating;
     };
 };
-#endif

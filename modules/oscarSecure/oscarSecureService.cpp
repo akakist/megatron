@@ -57,7 +57,7 @@ bool OscarSecure::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                 {
                     XTRY;
                     {
-                        M_LOCK(evt->esi->inBuffer_);
+                        W_LOCK(evt->esi->inBuffer_.lk);
                         if(evt->esi->inBuffer_._mx_data.size()==0)
                         {
                             return true;
@@ -269,7 +269,7 @@ void OscarSecure::Service::sendPacketPlain(const OscarSecure::StartByte& startBy
     outBuffer O2;
     O2.put_8(startByte);
     O2<<o.asString();
-    esi->write_(O2.asString());
+    esi->write_(O2.asString()->asString());
 
     XPASS;
 }
@@ -280,7 +280,7 @@ void OscarSecure::Service::sendPacketPlain(const OscarSecure::StartByte& startBy
     outBuffer O2;
     O2.put_8(startByte);
     O2<<o;
-    esi->write_(O2.asString());
+    esi->write_(O2.asString()->asString());
     XPASS;
 }
 
@@ -337,10 +337,11 @@ bool OscarSecure::Service::on_Connected(const socketEvent::Connected*e)
 }
 bool OscarSecure::Service::on_startService(const systemEvent::startService* )
 {
-    if(iUtils->isServiceRegistered(ServiceEnum::WebHandler))
+#ifdef WEBDUMP
     {
         sendEvent(ServiceEnum::WebHandler, new webHandlerEvent::RegisterHandler("oscarSecure","OscarSecure",ListenerBase::serviceId));
     }
+#endif
 
     return true;
 }
@@ -435,12 +436,12 @@ bool OscarSecure::Service::on_Disconnected(const socketEvent::Disconnected*e)
 OscarSecureData* OscarSecure::Service::getData(epoll_socket_info* esi)
 {
 
-    auto it=esi->additions_.find('osca');
+    auto it=esi->additions_.find(ServiceEnum::OscarSecure);
     if(it==esi->additions_.end())
     {
         REF_getter<Refcountable> p=new OscarSecureData;
-        esi->additions_.insert(std::make_pair('osca',p));
-        it=esi->additions_.find('osca');
+        esi->additions_.insert(std::make_pair(ServiceEnum::OscarSecure,p));
+        it=esi->additions_.find(ServiceEnum::OscarSecure);
     }
     auto ret=dynamic_cast<OscarSecureData*>(it->second.get());
     if(ret==NULL)

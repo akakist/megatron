@@ -1,5 +1,5 @@
-#ifndef _____HTTP___SERVICE______H
-#define _____HTTP___SERVICE______H
+#pragma once
+#ifdef WEBDUMP
 #include <REF.h>
 #include <route_t.h>
 #include <IUtils.h>
@@ -183,8 +183,7 @@ namespace WebHandler
         static UnknownBase*construct(const SERVICE_id&id, const std::string& nm,IInstance* ifa);
         Service(const SERVICE_id& id, const std::string& nm, IInstance *ifa);
         virtual ~Service();
-//        bool init(IConfigObj*);
-//        bool deinit();
+
     protected:
         bool handleEvent(const REF_getter<Event::Base>& e);
         bool on_startService(const systemEvent::startService*);

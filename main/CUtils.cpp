@@ -37,11 +37,12 @@
 #include "CInstance.h"
 #include "threadNameCtl.h"
 #include "genum.hpp"
+#include "resplit.h"
 const char* CUtils::genum_name(int n)
 {
 
     return __gen_string123(n);
-    
+
 }
 
 std::map<std::string,std::string> CUtils::loadStringMapFromBuffer(const std::string &bod, const char *linedelim)
@@ -152,62 +153,69 @@ std::map<std::string,std::string> CUtils::loadStringMapFromFile(const std::strin
 }
 std::deque<std::string> CUtils::splitStringDQ(const char *seps, const std::string & src)
 {
+    std::string r=(std::string)"["+seps+"]";
+    return resplitDQ(src,std::regex(r));
 
 
-    std::deque<std::string> q;
-    std::vector<std::string> v=splitString(seps,src);
-    for (size_t i=0; i<v.size(); i++)
-    {
-        q.push_back(v[i]);
-    }
-    return q;
+    // std::deque<std::string> q;
+    // std::vector<std::string> v=splitString(seps,src);
+    
+    // for (size_t i=0; i<v.size(); i++)
+    // {
+    //     q.push_back(v[i]);
+    // }
+    // return q;
 }
 std::set < std::string> CUtils::splitStringSET(const char *seps, const std::string & src)
 {
-    std::set<std::string> q;
-    std::vector<std::string> v=splitString(seps,src);
-    for (size_t i=0; i<v.size(); i++)
-    {
-        q.insert(v[i]);
-    }
-    return q;
+    std::string r=(std::string)"["+seps+"]";
+    return resplitSET(src,std::regex(r));
+    // std::set<std::string> q;
+    // std::vector<std::string> v=splitString(seps,src);
+    // for (size_t i=0; i<v.size(); i++)
+    // {
+    //     q.insert(v[i]);
+    // }
+    // return q;
 }
 std::vector<std::string> CUtils::splitString(const char *seps, const std::string & src)
 {
 
+    std::string r=(std::string)"["+seps+"]";
+    return resplit(src,std::regex(r));
 
-    std::vector < std::string> res;
-    std::set<char>mm;
-    size_t l;
-    l =::strlen(seps);
-    for (unsigned int i = 0; i < l; i++)
-    {
-        mm.insert(seps[i]);
-    }
-    std::string tmp;
-    l = src.size();
+    // std::vector < std::string> res;
+    // std::set<char>mm;
+    // size_t l;
+    // l =::strlen(seps);
+    // for (unsigned int i = 0; i < l; i++)
+    // {
+    //     mm.insert(seps[i]);
+    // }
+    // std::string tmp;
+    // l = src.size();
 
-    for (unsigned int i = 0; i < l; i++)
-    {
+    // for (unsigned int i = 0; i < l; i++)
+    // {
 
-        if (!mm.count(src[i]))
-            tmp += src[i];
-        else
-        {
-            if (tmp.size())
-            {
-                res.push_back(tmp);
-                tmp.clear();
-            }
-        }
-    }
+    //     if (!mm.count(src[i]))
+    //         tmp += src[i];
+    //     else
+    //     {
+    //         if (tmp.size())
+    //         {
+    //             res.push_back(tmp);
+    //             tmp.clear();
+    //         }
+    //     }
+    // }
 
-    if (tmp.size())
-    {
-        res.push_back(tmp);
-        tmp.clear();
-    }
-    return res;
+    // if (tmp.size())
+    // {
+    //     res.push_back(tmp);
+    //     tmp.clear();
+    // }
+    // return res;
 }
 std::string CUtils::join(const char *pattern, const std::set < std::string> &st)
 {
@@ -768,7 +776,7 @@ int64_t CUtils::get_param_int64_t(std::deque<std::string> &tokens, const std::st
 }
 
 
-Integer CUtils::getNow()
+int64_t CUtils::getNow()
 {
 
     uint64_t now;
@@ -785,9 +793,7 @@ Integer CUtils::getNow()
 
     now=_1;
     now+=_2;
-    Integer v;
-    v.set(now);
-    return v;
+    return now;
 #else
     timeb tb;
     ftime(&tb);
@@ -813,7 +819,7 @@ std::string CUtils::getPercent(const real& numerator, const real& denumerator)
 int CUtils::getHostByName(const char* hostname,unsigned int &out)
 {
     {
-        RLocker asdsdd(hostnames.lk);
+        R_LOCK(hostnames.lk);
         auto i=hostnames.cache.find(hostname);
         if(i!=hostnames.cache.end())
         {
@@ -829,7 +835,7 @@ int CUtils::getHostByName(const char* hostname,unsigned int &out)
     }
     out=*((unsigned int *)(hostEnt->h_addr));
     {
-        WLocker ffff(hostnames.lk);
+        W_LOCK(hostnames.lk);
         hostnames.cache[hostname]=out;
     }
     return 0;
@@ -857,6 +863,7 @@ std::string CUtils::dump(const std::deque<msockaddr_in> &s)
 std::string CUtils::dump(const std::vector<msockaddr_in> &s)
 {
     std::vector<std::string> v;
+    v.reserve(s.size());
     for(auto& i: s)
     {
         v.push_back(i.dump());
@@ -866,6 +873,7 @@ std::string CUtils::dump(const std::vector<msockaddr_in> &s)
 std::string CUtils::dump(const std::set<std::pair<msockaddr_in,std::string> > &s)
 {
     std::vector<std::string> v;
+    v.reserve(s.size());
     for(auto& i: s)
     {
         v.push_back(i.first.dump()+":"+bin2hex(i.second));
@@ -875,6 +883,7 @@ std::string CUtils::dump(const std::set<std::pair<msockaddr_in,std::string> > &s
 std::string CUtils::dump(const std::map<SERVICE_id,std::set<msockaddr_in> > &s)
 {
     std::vector<std::string> v;
+    v.reserve(s.size());
     for(auto& i:s)
     {
         v.push_back(iUtils->serviceName(i.first)+"#"+dump(i.second));
@@ -885,6 +894,7 @@ std::string CUtils::dump(const std::map<SERVICE_id,std::set<msockaddr_in> > &s)
 std::string CUtils::dump(const std::map<msockaddr_in,std::set<SERVICE_id> > &s)
 {
     std::vector<std::string> v;
+    v.reserve(s.size());
     for(auto& i:s)
     {
         std::vector<std::string> vs;
@@ -1286,7 +1296,7 @@ Ifaces::Base* CUtils::queryIface(const SERVICE_id &id)
 {
     if(m_isTerminating) throw CommonError("terminating");
     {
-        RLocker asdfasd(local.ifaces.lk);
+        R_LOCK(local.ifaces.lk);
         auto i=local.ifaces.container.find(id);
         if(i==local.ifaces.container.end())
         {
@@ -1453,11 +1463,11 @@ void CUtils::registerPlugingInfo(const VERSION_id& version, const char* pluginFi
         M_LOCK(local.pluginInfo);
         switch (pt) {
         case IUtils::PLUGIN_TYPE_IFACE:
-            DBG(printf(BLUE("added iface info %s %s -> %s"),id.dump().c_str(),name,pluginFileName));
+            DBG(printf(BLUE("added iface info %s %s -> %s"),iUtils->genum_name(id),name,pluginFileName));
             local.pluginInfo.ifaces[id]=pluginFileName;
             break;
         case IUtils::PLUGIN_TYPE_SERVICE:
-            DBG(printf(BLUE("added service info %s %s -> %s"),id.dump().c_str(),name,pluginFileName));
+            DBG(printf(BLUE("added service info %s %s -> %s"),iUtils->genum_name(id),name,pluginFileName));
             local.pluginInfo.services[id]=pluginFileName;
             for(auto& z:evts)
             {
@@ -1474,7 +1484,7 @@ void CUtils::registerPlugingInfo(const VERSION_id& version, const char* pluginFi
     }
     if(pt==IUtils::PLUGIN_TYPE_SERVICE)
     {
-        WLocker asesdffds (local.service_names.lk);
+        W_LOCK(local.service_names.lk);
         local.service_names.id2name[id]=name;
         local.service_names.name2id[name]=id;
     }
@@ -1493,7 +1503,7 @@ void CUtils::registerService(const VERSION_id& vid, const SERVICE_id& id, unknow
 
     XTRY;
     {
-        WLocker asdfsdf(local.service_constructors.lk);
+        W_LOCK(local.service_constructors.lk);
         if(local.service_constructors.container.count(id))
         {
             DBG(printf(BLUE("Service '%s' already registered"),literalName.c_str()));
@@ -1506,7 +1516,7 @@ void CUtils::registerService(const VERSION_id& vid, const SERVICE_id& id, unknow
 
     }
     {
-        WLocker asdfasdf(local.service_names.lk);
+        W_LOCK(local.service_names.lk);
         local.service_names.id2name[id]=literalName;
         local.service_names.name2id[literalName]=id;
     }
@@ -1527,7 +1537,7 @@ REF_getter<Event::Base> CUtils::unpackEvent(inBuffer&b)
     event_static_constructor esc=nullptr;
 
     {
-        RLocker rkr(local.event_constructors.lk);
+        R_LOCK(local.event_constructors.lk);
         auto i=local.event_constructors.container.find(id);
         if(i!=local.event_constructors.container.end())
         {
@@ -1560,7 +1570,7 @@ REF_getter<Event::Base> CUtils::unpackEvent(inBuffer&b)
         }
         {
 
-            RLocker r(local.event_constructors.lk);
+            R_LOCK(local.event_constructors.lk);
             auto i=local.event_constructors.container.find(id);
             if(i!=local.event_constructors.container.end())
             {
@@ -1594,7 +1604,7 @@ void CUtils::packEvent(outBuffer &b, const REF_getter<Event::Base> &e)const
 std::string CUtils::serviceName(const SERVICE_id& id) const
 {
     XTRY;
-    RLocker asdfsdf(local.service_names.lk);
+    R_LOCK(local.service_names.lk);
     {
         auto i=local.service_names.id2name.find(id);
         if(i!=local.service_names.id2name.end())
@@ -1609,8 +1619,7 @@ SERVICE_id CUtils::serviceIdByName(const std::string& name)const
     MUTEX_INSPECTOR;
     XTRY;
     {
-        RLocker dddd(local.service_names.lk);
-
+        R_LOCK(local.service_names.lk);
         auto i=local.service_names.name2id.find(name);
         if(i!=local.service_names.name2id.end())
             return i->second;
@@ -1623,7 +1632,7 @@ SERVICE_id CUtils::serviceIdByName(const std::string& name)const
 
 
 
-
+#ifdef WEBDUMP
 void CUtils::setWebDumpableHandler(WebDumpable *h)
 {
     M_LOCK(webDumping);
@@ -1647,7 +1656,7 @@ std::string CUtils::dumpWebDumpable(WebDumpable *h)
     }
     return "unknown WebDumpable";
 }
-
+#endif
 
 void CUtils::registerEvent(event_static_constructor ec)
 {
@@ -1661,7 +1670,7 @@ void CUtils::registerEvent(event_static_constructor ec)
         return;
     }
     {
-        WLocker l(local.event_constructors.lk);
+        W_LOCK(local.event_constructors.lk);
         local.event_constructors.container.insert(std::make_pair(e->id,ec));
     }
 
@@ -1671,7 +1680,7 @@ void CUtils::registerEvent(event_static_constructor ec)
 bool CUtils::isServiceRegistered(const SERVICE_id& svs)
 {
     {
-        RLocker sdfsdf(local.service_constructors.lk);
+        R_LOCK(local.service_constructors.lk);
         if(local.service_constructors.container.count(svs))
             return true;
     }
@@ -1697,7 +1706,7 @@ void CUtils::registerIface(const VERSION_id& vid,const SERVICE_id& id, Ifaces::B
     }
 
 
-    WLocker sdsdf(local.ifaces.lk);
+    W_LOCK(local.ifaces.lk);
     auto i=local.ifaces.container.find(id);
     if(i!=local.ifaces.container.end())
     {
@@ -1738,9 +1747,10 @@ IInstance* CUtils::createNewInstance(const std::string& nm)
     }
     return ins;
 }
-void CUtils::setTerminate()
+void CUtils::setTerminate(int exit_flag)
 {
     m_isTerminating=true;
+    m_exit_code=exit_flag;
 }
 bool CUtils::isTerminating()
 {

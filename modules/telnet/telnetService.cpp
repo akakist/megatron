@@ -996,7 +996,7 @@ std::string Telnet::Service::promptString(const REF_getter<Telnet::Session>& W)
 }
 void Telnet::Service::prompt(const REF_getter<Telnet::Session>& W, const REF_getter<epoll_socket_info>&esi)
 {
-    esi->write_(toRef(promptString(W)));
+    esi->write_(promptString(W));
 }
 bool Telnet::Service::paramMatch(const std::string & param, const std::string & exp)
 {

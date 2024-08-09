@@ -23,7 +23,10 @@
 void registerHTTPModule(const char*);
 void registerSqliteModule(const char*);
 void registerTelnetService(const char*);
+
+#ifdef WEBDUMP
 void registerWebHandlerModule(const char*);
+#endif
 void registerErrorDispatcherService(const char*);
 #endif
 
@@ -43,7 +46,9 @@ static void registerModules()
 #if !defined __MOBILE__
         registerHTTPModule(pn);
         registerTelnetService(pn);
+#ifdef WEBDUMP
         registerWebHandlerModule(pn);
+#endif
         registerErrorDispatcherService(pn);
 #endif
         registerObjectProxyModule(pn);

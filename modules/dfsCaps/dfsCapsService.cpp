@@ -225,8 +225,10 @@ bool dfsCaps::Service::handleEvent(const REF_getter<Event::Base>& e)
     auto & ID=e->id;
     if(timerEventEnum::TickAlarm==ID)
         return on_TickAlarm((const timerEvent::TickAlarm*)e.get());
+#ifdef WEBDUMP
     if( webHandlerEventEnum::RequestIncoming==ID)
         return on_RequestIncoming((const webHandlerEvent::RequestIncoming*)e.get());
+#endif
     if(systemEventEnum::startService==ID)
         return on_startService((const systemEvent::startService*)e.get());
     if(dfsReferrerEventEnum::ToplinkDeliverREQ==ID)
@@ -264,18 +266,18 @@ bool  dfsCaps::Service::on_startService(const systemEvent::startService*)
     MUTEX_INSPECTOR;
     XTRY;
 
-
-    if(iUtils->isServiceRegistered(ServiceEnum::WebHandler))
+#ifdef WEBDUMP
     {
         sendEvent(ServiceEnum::WebHandler, new webHandlerEvent::RegisterDirectory("dfs","DFS"));
         sendEvent(ServiceEnum::WebHandler, new webHandlerEvent::RegisterHandler("dfs/Caps","Capabilities",ListenerBase::serviceId));
     }
+#endif
 
     XPASS;
     return true;
 }
 
-
+#ifdef WEBDUMP
 bool dfsCaps::Service::on_RequestIncoming(const webHandlerEvent::RequestIncoming* e)
 {
     MUTEX_INSPECTOR;
@@ -289,6 +291,7 @@ bool dfsCaps::Service::on_RequestIncoming(const webHandlerEvent::RequestIncoming
     cc.makeResponse(e->esi);
     return true;
 }
+#endif
 double dfsCaps::Service::Distance(const std::pair<double,double> & c1,const std::pair<double,double> & c2)
 {
     MUTEX_INSPECTOR;

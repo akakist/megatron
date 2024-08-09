@@ -1,5 +1,4 @@
-#ifndef _____HTTP___SERVICE______H
-#define _____HTTP___SERVICE______H
+#pragma once
 
 #include "unknown.h"
 
@@ -49,7 +48,7 @@ namespace HTTP
         bool on_RegisterProtocol(const httpEvent::RegisterProtocol*e)
         {
 
-            WLocker aaa(mx.lk);
+            W_LOCK(mx.lk);
             mx.protocols.insert(std::make_pair(e->url,e->protocol));
 
             return true;
@@ -91,12 +90,6 @@ namespace HTTP
         _lastModified lastModified;
 
 
-        struct _senderIo: public Mutexable
-        {
-            std::map<int64_t,std::pair<REF_getter<HTTP::Request>,std::vector<std::string> > > container;
-        };
-        _senderIo senderIo;
         IInstance *iInstance;
     };
 };
-#endif
