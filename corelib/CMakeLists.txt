@@ -5,6 +5,7 @@
 
 
 add_library(megatron-core STATIC
+    resplit.h
             DBH.cpp
             _QUERY.cpp
             __crc32.cpp
@@ -22,7 +23,6 @@ add_library(megatron-core STATIC
             js_utils.cpp
             jsonHandler.cpp
             listenerBase.cpp
-            listenerBuffered.cpp
             listenerBuffered1Thread.cpp
             listenerPolled.cpp
             listenerSimple.cpp
@@ -109,8 +109,6 @@ jsonHandler.h
 linkinfo.h
 listenerBase.cpp
 listenerBase.h
-listenerBuffered.cpp
-listenerBuffered.h
 listenerBuffered1Thread.cpp
 listenerBuffered1Thread.h
 listenerPolled.cpp

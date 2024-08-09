@@ -436,12 +436,12 @@ bool OscarSecure::Service::on_Disconnected(const socketEvent::Disconnected*e)
 OscarSecureData* OscarSecure::Service::getData(epoll_socket_info* esi)
 {
 
-    auto it=esi->additions_.find('osca');
+    auto it=esi->additions_.find(ServiceEnum::OscarSecure);
     if(it==esi->additions_.end())
     {
         REF_getter<Refcountable> p=new OscarSecureData;
-        esi->additions_.insert(std::make_pair('osca',p));
-        it=esi->additions_.find('osca');
+        esi->additions_.insert(std::make_pair(ServiceEnum::OscarSecure,p));
+        it=esi->additions_.find(ServiceEnum::OscarSecure);
     }
     auto ret=dynamic_cast<OscarSecureData*>(it->second.get());
     if(ret==NULL)

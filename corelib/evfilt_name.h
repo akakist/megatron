@@ -55,7 +55,7 @@ inline std::string EVFILT_name(int16_t n)
     }
     return "DEFAULT";
 }
-
+#ifdef KALL
 inline std::string EVFLAG_name(uint16_t f)
 {
     std::vector<std::string> v;
@@ -86,5 +86,5 @@ inline std::string EVFLAG_name(uint16_t f)
 #endif
     return iUtils->join("|",v);
 }
-
+#endif
 #endif

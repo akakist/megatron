@@ -43,3 +43,6 @@ Build/
 *.dmg
 /pics
 
+.cache/
+.vscode/
+CMakeLists.txt.user

@@ -4,7 +4,7 @@
 std::vector<void*> malloced;
 
 u_int64_t last_t=0;
-void ptime(char *s)
+void ptime(const char *s)
 {
     timespec tstmp;
     if(clock_gettime(CLOCK_REALTIME,&tstmp))

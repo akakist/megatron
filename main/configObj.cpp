@@ -5,6 +5,7 @@
 #endif
 #include "st_FILE.h"
 #include "url.h"
+#include "resplit.h"
 
 void ConfigObj::appendLine(const std::string& key, const bool& val, const std::string& comment)
 {
@@ -125,7 +126,7 @@ std::set<msockaddr_in>ConfigObj::get_tcpaddr(const std::string&_name, const std:
         val=defv;
         appendLine(name,defv,comment);
     }
-    std::deque<std::string> vz=iUtils->splitStringDQ(";, ",val.c_str());
+    std::deque<std::string> vz=resplitDQ(val,std::regex("[;, ]"));//->splitStringDQ(";, ",val.c_str());
 
     while(vz.size())
     {

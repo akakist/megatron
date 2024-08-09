@@ -826,12 +826,12 @@ bool HTTP::Service::on_Disconnected(const socketEvent::Disconnected*e)
 REF_getter<HTTP::Request> HTTP::Service::getData(epoll_socket_info* esi)
 {
 
-    auto it=esi->additions_.find('http');
+    auto it=esi->additions_.find(ServiceEnum::HTTP);
     if(it==esi->additions_.end())
     {
         REF_getter<Refcountable> p=new HTTP::Request;
-        esi->additions_.insert(std::make_pair('http',p));
-        it=esi->additions_.find('http');
+        esi->additions_.insert(std::make_pair(ServiceEnum::HTTP,p));
+        it=esi->additions_.find(ServiceEnum::HTTP);
     }
     auto ret=dynamic_cast<HTTP::Request*>(it->second.get());
     if(ret==NULL)
@@ -841,11 +841,11 @@ REF_getter<HTTP::Request> HTTP::Service::getData(epoll_socket_info* esi)
 }
 void HTTP::Service::setData(epoll_socket_info* esi, const REF_getter<HTTP::Request> & p)
 {
-    esi->additions_.insert(std::make_pair('http',p.get()));
+    esi->additions_.insert(std::make_pair(ServiceEnum::HTTP,p.get()));
 
 }
 void HTTP::Service::clearData(epoll_socket_info* esi)
 {
-    esi->additions_.erase('http');
+    esi->additions_.erase(ServiceEnum::HTTP);
 
 }

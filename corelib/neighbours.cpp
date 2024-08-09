@@ -35,6 +35,7 @@ void _neighbours::remove(const msockaddr_in& sa)
 std::vector<msockaddr_in> _neighbours::getAllAndClear()
 {
     std::vector<msockaddr_in> ret;
+    ret.reserve(sas.size());
     for(auto z: sas)
         ret.push_back(z);
     sas.clear();

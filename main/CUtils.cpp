@@ -37,6 +37,7 @@
 #include "CInstance.h"
 #include "threadNameCtl.h"
 #include "genum.hpp"
+#include "resplit.h"
 const char* CUtils::genum_name(int n)
 {
 
@@ -152,62 +153,69 @@ std::map<std::string,std::string> CUtils::loadStringMapFromFile(const std::strin
 }
 std::deque<std::string> CUtils::splitStringDQ(const char *seps, const std::string & src)
 {
+    std::string r=(std::string)"["+seps+"]";
+    return resplitDQ(src,std::regex(r));
 
 
-    std::deque<std::string> q;
-    std::vector<std::string> v=splitString(seps,src);
-    for (size_t i=0; i<v.size(); i++)
-    {
-        q.push_back(v[i]);
-    }
-    return q;
+    // std::deque<std::string> q;
+    // std::vector<std::string> v=splitString(seps,src);
+    
+    // for (size_t i=0; i<v.size(); i++)
+    // {
+    //     q.push_back(v[i]);
+    // }
+    // return q;
 }
 std::set < std::string> CUtils::splitStringSET(const char *seps, const std::string & src)
 {
-    std::set<std::string> q;
-    std::vector<std::string> v=splitString(seps,src);
-    for (size_t i=0; i<v.size(); i++)
-    {
-        q.insert(v[i]);
-    }
-    return q;
+    std::string r=(std::string)"["+seps+"]";
+    return resplitSET(src,std::regex(r));
+    // std::set<std::string> q;
+    // std::vector<std::string> v=splitString(seps,src);
+    // for (size_t i=0; i<v.size(); i++)
+    // {
+    //     q.insert(v[i]);
+    // }
+    // return q;
 }
 std::vector<std::string> CUtils::splitString(const char *seps, const std::string & src)
 {
 
+    std::string r=(std::string)"["+seps+"]";
+    return resplit(src,std::regex(r));
 
-    std::vector < std::string> res;
-    std::set<char>mm;
-    size_t l;
-    l =::strlen(seps);
-    for (unsigned int i = 0; i < l; i++)
-    {
-        mm.insert(seps[i]);
-    }
-    std::string tmp;
-    l = src.size();
+    // std::vector < std::string> res;
+    // std::set<char>mm;
+    // size_t l;
+    // l =::strlen(seps);
+    // for (unsigned int i = 0; i < l; i++)
+    // {
+    //     mm.insert(seps[i]);
+    // }
+    // std::string tmp;
+    // l = src.size();
 
-    for (unsigned int i = 0; i < l; i++)
-    {
+    // for (unsigned int i = 0; i < l; i++)
+    // {
 
-        if (!mm.count(src[i]))
-            tmp += src[i];
-        else
-        {
-            if (tmp.size())
-            {
-                res.push_back(tmp);
-                tmp.clear();
-            }
-        }
-    }
+    //     if (!mm.count(src[i]))
+    //         tmp += src[i];
+    //     else
+    //     {
+    //         if (tmp.size())
+    //         {
+    //             res.push_back(tmp);
+    //             tmp.clear();
+    //         }
+    //     }
+    // }
 
-    if (tmp.size())
-    {
-        res.push_back(tmp);
-        tmp.clear();
-    }
-    return res;
+    // if (tmp.size())
+    // {
+    //     res.push_back(tmp);
+    //     tmp.clear();
+    // }
+    // return res;
 }
 std::string CUtils::join(const char *pattern, const std::set < std::string> &st)
 {
@@ -855,6 +863,7 @@ std::string CUtils::dump(const std::deque<msockaddr_in> &s)
 std::string CUtils::dump(const std::vector<msockaddr_in> &s)
 {
     std::vector<std::string> v;
+    v.reserve(s.size());
     for(auto& i: s)
     {
         v.push_back(i.dump());
@@ -864,6 +873,7 @@ std::string CUtils::dump(const std::vector<msockaddr_in> &s)
 std::string CUtils::dump(const std::set<std::pair<msockaddr_in,std::string> > &s)
 {
     std::vector<std::string> v;
+    v.reserve(s.size());
     for(auto& i: s)
     {
         v.push_back(i.first.dump()+":"+bin2hex(i.second));
@@ -873,6 +883,7 @@ std::string CUtils::dump(const std::set<std::pair<msockaddr_in,std::string> > &s
 std::string CUtils::dump(const std::map<SERVICE_id,std::set<msockaddr_in> > &s)
 {
     std::vector<std::string> v;
+    v.reserve(s.size());
     for(auto& i:s)
     {
         v.push_back(iUtils->serviceName(i.first)+"#"+dump(i.second));
@@ -883,6 +894,7 @@ std::string CUtils::dump(const std::map<SERVICE_id,std::set<msockaddr_in> > &s)
 std::string CUtils::dump(const std::map<msockaddr_in,std::set<SERVICE_id> > &s)
 {
     std::vector<std::string> v;
+    v.reserve(s.size());
     for(auto& i:s)
     {
         std::vector<std::string> vs;

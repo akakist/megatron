@@ -8,6 +8,7 @@ std::string route_t::dump() const
 {
     XTRY;
     std::vector<std::string> ret;
+    ret.reserve(m_container.size());
     for(size_t i=0; i<m_container.size(); i++)
     {
         ret.push_back(m_container[i]->dump());
