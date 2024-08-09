@@ -18,14 +18,14 @@ set -vex
 env | sort
 
 cmake -DJSONCPP_WITH_CMAKE_PACKAGE=$CMAKE_PKG -DBUILD_SHARED_LIBS=$SHARED_LIB -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_VERBOSE_MAKEFILE=$VERBOSE_MAKE .
-make
-cmake -DJSONCPP_WITH_CMAKE_PACKAGE=$CMAKE_PKG -DBUILD_SHARED_LIBS=$SHARED_LIB -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_VERBOSE_MAKEFILE=$VERBOSE_MAKE -DJSONCPP_USE_SECURE_MEMORY=1 .
-make
+                                   make
+                                   cmake -DJSONCPP_WITH_CMAKE_PACKAGE=$CMAKE_PKG -DBUILD_SHARED_LIBS=$SHARED_LIB -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_VERBOSE_MAKEFILE=$VERBOSE_MAKE -DJSONCPP_USE_SECURE_MEMORY=1 .
+                                       make
 
 # Python is not available in Travis for osx.
 #  https://github.com/travis-ci/travis-ci/issues/2320
-if [ "$TRAVIS_OS_NAME" != "osx" ]
-then
-  make jsoncpp_check
-  valgrind --error-exitcode=42 --leak-check=full ./src/test_lib_json/jsoncpp_test
-fi
+                                       if [ "$TRAVIS_OS_NAME" != "osx" ]
+                                           then
+                                           make jsoncpp_check
+                                           valgrind --error-exitcode=42 --leak-check=full ./src/test_lib_json/jsoncpp_test
+                                               fi

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory>
-struct a{
+struct a {
     int z;
 
 };
@@ -24,7 +24,7 @@ void c()
 
 int main()
 {
-c();
+    c();
     for(int i=0; i<100; i++)
     {
         printf("%d, ",arc4random()%300+30);

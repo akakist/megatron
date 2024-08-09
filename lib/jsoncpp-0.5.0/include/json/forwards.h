@@ -13,24 +13,24 @@
 namespace Json {
 
 // writer.h
-class FastWriter;
-class StyledWriter;
+    class FastWriter;
+    class StyledWriter;
 
 // reader.h
-class Reader;
+    class Reader;
 
 // features.h
-class Features;
+    class Features;
 
 // value.h
-typedef unsigned int ArrayIndex;
-class StaticString;
-class Path;
-class PathArgument;
-class Value;
-class ValueIteratorBase;
-class ValueIterator;
-class ValueConstIterator;
+    typedef unsigned int ArrayIndex;
+    class StaticString;
+    class Path;
+    class PathArgument;
+    class Value;
+    class ValueIteratorBase;
+    class ValueIterator;
+    class ValueConstIterator;
 
 } // namespace Json
 

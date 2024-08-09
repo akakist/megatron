@@ -28,181 +28,181 @@
  */
 namespace JsonTest {
 
-class Failure {
-public:
-  const char* file_;
-  unsigned int line_;
-  JSONCPP_STRING expr_;
-  JSONCPP_STRING message_;
-  unsigned int nestingLevel_;
-};
+    class Failure {
+    public:
+        const char* file_;
+        unsigned int line_;
+        JSONCPP_STRING expr_;
+        JSONCPP_STRING message_;
+        unsigned int nestingLevel_;
+    };
 
 /// Context used to create the assertion callstack on failure.
 /// Must be a POD to allow inline initialisation without stepping
 /// into the debugger.
-struct PredicateContext {
-  typedef unsigned int Id;
-  Id id_;
-  const char* file_;
-  unsigned int line_;
-  const char* expr_;
-  PredicateContext* next_;
-  /// Related Failure, set when the PredicateContext is converted
-  /// into a Failure.
-  Failure* failure_;
-};
+    struct PredicateContext {
+        typedef unsigned int Id;
+        Id id_;
+        const char* file_;
+        unsigned int line_;
+        const char* expr_;
+        PredicateContext* next_;
+        /// Related Failure, set when the PredicateContext is converted
+        /// into a Failure.
+        Failure* failure_;
+    };
 
-class TestResult {
-public:
-  TestResult();
+    class TestResult {
+    public:
+        TestResult();
 
-  /// \internal Implementation detail for assertion macros
-  /// Not encapsulated to prevent step into when debugging failed assertions
-  /// Incremented by one on assertion predicate entry, decreased by one
-  /// by addPredicateContext().
-  PredicateContext::Id predicateId_;
+        /// \internal Implementation detail for assertion macros
+        /// Not encapsulated to prevent step into when debugging failed assertions
+        /// Incremented by one on assertion predicate entry, decreased by one
+        /// by addPredicateContext().
+        PredicateContext::Id predicateId_;
 
-  /// \internal Implementation detail for predicate macros
-  PredicateContext* predicateStackTail_;
+        /// \internal Implementation detail for predicate macros
+        PredicateContext* predicateStackTail_;
 
-  void setTestName(const JSONCPP_STRING& name);
+        void setTestName(const JSONCPP_STRING& name);
 
-  /// Adds an assertion failure.
-  TestResult&
-  addFailure(const char* file, unsigned int line, const char* expr = 0);
+        /// Adds an assertion failure.
+        TestResult&
+        addFailure(const char* file, unsigned int line, const char* expr = 0);
 
-  /// Removes the last PredicateContext added to the predicate stack
-  /// chained list.
-  /// Next messages will be targed at the PredicateContext that was removed.
-  TestResult& popPredicateContext();
+        /// Removes the last PredicateContext added to the predicate stack
+        /// chained list.
+        /// Next messages will be targed at the PredicateContext that was removed.
+        TestResult& popPredicateContext();
 
-  bool failed() const;
+        bool failed() const;
 
-  void printFailure(bool printTestName) const;
+        void printFailure(bool printTestName) const;
 
-  // Generic operator that will work with anything ostream can deal with.
-  template <typename T> TestResult& operator<<(const T& value) {
-    JSONCPP_OSTRINGSTREAM oss;
-    oss.precision(16);
-    oss.setf(std::ios_base::floatfield);
-    oss << value;
-    return addToLastFailure(oss.str());
-  }
+        // Generic operator that will work with anything ostream can deal with.
+        template <typename T> TestResult& operator<<(const T& value) {
+            JSONCPP_OSTRINGSTREAM oss;
+            oss.precision(16);
+            oss.setf(std::ios_base::floatfield);
+            oss << value;
+            return addToLastFailure(oss.str());
+        }
 
-  // Specialized versions.
-  TestResult& operator<<(bool value);
-  // std:ostream does not support 64bits integers on all STL implementation
-  TestResult& operator<<(Json::Int64 value);
-  TestResult& operator<<(Json::UInt64 value);
+        // Specialized versions.
+        TestResult& operator<<(bool value);
+        // std:ostream does not support 64bits integers on all STL implementation
+        TestResult& operator<<(Json::Int64 value);
+        TestResult& operator<<(Json::UInt64 value);
 
-private:
-  TestResult& addToLastFailure(const JSONCPP_STRING& message);
-  unsigned int getAssertionNestingLevel() const;
-  /// Adds a failure or a predicate context
-  void addFailureInfo(const char* file,
-                      unsigned int line,
-                      const char* expr,
-                      unsigned int nestingLevel);
-  static JSONCPP_STRING indentText(const JSONCPP_STRING& text,
-                                const JSONCPP_STRING& indent);
+    private:
+        TestResult& addToLastFailure(const JSONCPP_STRING& message);
+        unsigned int getAssertionNestingLevel() const;
+        /// Adds a failure or a predicate context
+        void addFailureInfo(const char* file,
+                            unsigned int line,
+                            const char* expr,
+                            unsigned int nestingLevel);
+        static JSONCPP_STRING indentText(const JSONCPP_STRING& text,
+                                         const JSONCPP_STRING& indent);
 
-  typedef std::deque<Failure> Failures;
-  Failures failures_;
-  JSONCPP_STRING name_;
-  PredicateContext rootPredicateNode_;
-  PredicateContext::Id lastUsedPredicateId_;
-  /// Failure which is the target of the messages added using operator <<
-  Failure* messageTarget_;
-};
+        typedef std::deque<Failure> Failures;
+        Failures failures_;
+        JSONCPP_STRING name_;
+        PredicateContext rootPredicateNode_;
+        PredicateContext::Id lastUsedPredicateId_;
+        /// Failure which is the target of the messages added using operator <<
+        Failure* messageTarget_;
+    };
 
-class TestCase {
-public:
-  TestCase();
+    class TestCase {
+    public:
+        TestCase();
 
-  virtual ~TestCase();
+        virtual ~TestCase();
 
-  void run(TestResult& result);
+        void run(TestResult& result);
 
-  virtual const char* testName() const = 0;
+        virtual const char* testName() const = 0;
 
-protected:
-  TestResult* result_;
+    protected:
+        TestResult* result_;
 
-private:
-  virtual void runTestCase() = 0;
-};
+    private:
+        virtual void runTestCase() = 0;
+    };
 
 /// Function pointer type for TestCase factory
-typedef TestCase* (*TestCaseFactory)();
+    typedef TestCase* (*TestCaseFactory)();
 
-class Runner {
-public:
-  Runner();
+    class Runner {
+    public:
+        Runner();
 
-  /// Adds a test to the suite
-  Runner& add(TestCaseFactory factory);
+        /// Adds a test to the suite
+        Runner& add(TestCaseFactory factory);
 
-  /// Runs test as specified on the command-line
-  /// If no command-line arguments are provided, run all tests.
-  /// If --list-tests is provided, then print the list of all test cases
-  /// If --test <testname> is provided, then run test testname.
-  int runCommandLine(int argc, const char* argv[]) const;
+        /// Runs test as specified on the command-line
+        /// If no command-line arguments are provided, run all tests.
+        /// If --list-tests is provided, then print the list of all test cases
+        /// If --test <testname> is provided, then run test testname.
+        int runCommandLine(int argc, const char* argv[]) const;
 
-  /// Runs all the test cases
-  bool runAllTest(bool printSummary) const;
+        /// Runs all the test cases
+        bool runAllTest(bool printSummary) const;
 
-  /// Returns the number of test case in the suite
-  unsigned int testCount() const;
+        /// Returns the number of test case in the suite
+        unsigned int testCount() const;
 
-  /// Returns the name of the test case at the specified index
-  JSONCPP_STRING testNameAt(unsigned int index) const;
+        /// Returns the name of the test case at the specified index
+        JSONCPP_STRING testNameAt(unsigned int index) const;
 
-  /// Runs the test case at the specified index using the specified TestResult
-  void runTestAt(unsigned int index, TestResult& result) const;
+        /// Runs the test case at the specified index using the specified TestResult
+        void runTestAt(unsigned int index, TestResult& result) const;
 
-  static void printUsage(const char* appName);
+        static void printUsage(const char* appName);
 
-private: // prevents copy construction and assignment
-  Runner(const Runner& other);
-  Runner& operator=(const Runner& other);
+    private: // prevents copy construction and assignment
+        Runner(const Runner& other);
+        Runner& operator=(const Runner& other);
 
-private:
-  void listTests() const;
-  bool testIndex(const JSONCPP_STRING& testName, unsigned int& index) const;
-  static void preventDialogOnCrash();
+    private:
+        void listTests() const;
+        bool testIndex(const JSONCPP_STRING& testName, unsigned int& index) const;
+        static void preventDialogOnCrash();
 
-private:
-  typedef std::deque<TestCaseFactory> Factories;
-  Factories tests_;
-};
+    private:
+        typedef std::deque<TestCaseFactory> Factories;
+        Factories tests_;
+    };
 
-template <typename T, typename U>
-TestResult& checkEqual(TestResult& result,
-                       T expected,
-                       U actual,
-                       const char* file,
-                       unsigned int line,
-                       const char* expr) {
-  if (static_cast<U>(expected) != actual) {
-    result.addFailure(file, line, expr);
-    result << "Expected: " << static_cast<U>(expected) << "\n";
-    result << "Actual  : " << actual;
-  }
-  return result;
-}
+    template <typename T, typename U>
+    TestResult& checkEqual(TestResult& result,
+                           T expected,
+                           U actual,
+                           const char* file,
+                           unsigned int line,
+                           const char* expr) {
+        if (static_cast<U>(expected) != actual) {
+            result.addFailure(file, line, expr);
+            result << "Expected: " << static_cast<U>(expected) << "\n";
+            result << "Actual  : " << actual;
+        }
+        return result;
+    }
 
-JSONCPP_STRING ToJsonString(const char* toConvert);
-JSONCPP_STRING ToJsonString(JSONCPP_STRING in);
+    JSONCPP_STRING ToJsonString(const char* toConvert);
+    JSONCPP_STRING ToJsonString(JSONCPP_STRING in);
 #if JSONCPP_USING_SECURE_MEMORY
-JSONCPP_STRING ToJsonString(std::string in);
+    JSONCPP_STRING ToJsonString(std::string in);
 #endif
 
-TestResult& checkStringEqual(TestResult& result,
-                             const JSONCPP_STRING& expected,
-                             const JSONCPP_STRING& actual,
-                             const char* file,
-                             unsigned int line,
-                             const char* expr);
+    TestResult& checkStringEqual(TestResult& result,
+                                 const JSONCPP_STRING& expected,
+                                 const JSONCPP_STRING& actual,
+                                 const char* file,
+                                 unsigned int line,
+                                 const char* expr);
 
 } // namespace JsonTest
 
