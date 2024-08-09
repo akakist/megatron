@@ -308,7 +308,7 @@ void megatron::run(
         registerModules();
         iInstance->initServices();
     }
-    catch(std::exception &e)
+    catch(const std::exception &e)
     {
         printf("catched %s",e.what());
         exit(0);

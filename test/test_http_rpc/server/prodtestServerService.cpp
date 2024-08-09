@@ -51,7 +51,7 @@ bool prodtestServer::Service::handleEvent(const REF_getter<Event::Base>& e)
                 return on_AddTaskREQ((const prodtestEvent::AddTaskREQ*)E->e.get());
         }
 
-    } catch(std::exception &e)
+    } catch(const std::exception &e)
     {
         logErr2(" std::exception  %s",e.what());
     }

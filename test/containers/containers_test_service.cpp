@@ -397,7 +397,7 @@ int run(int ac, char** av)
         TEST7();
         TEST8();
         delete iUtils;
-    } catch(CommonError&e)
+    } catch(const CommonError&e)
     {
         printf("CommonError: %s\n",e.what());
         return 1;

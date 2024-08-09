@@ -49,7 +49,7 @@ RPC::Service::Service(const SERVICE_id &svs, const std::string&  nm, IInstance* 
 
         XPASS;
     }
-    catch (std::exception &e)
+    catch (const std::exception &e)
     {
         logErr2("exception: %s %s %d",e.what(),__FILE__,__LINE__);
         throw;
@@ -143,7 +143,7 @@ bool RPC::Service::on_PacketOnAcceptor(const oscarEvent::PacketOnAcceptor*E)
             sendEvent(dst,new rpcEvent::IncomingOnAcceptor(E->esi,e));
         }
     }
-    catch(std::exception &e)
+    catch(const std::exception &e)
     {
         DBG(logErr2("PKT RPC catched %s",e.what()));
         E->esi->close("broken packet in RPC");
@@ -217,7 +217,7 @@ bool RPC::Service::on_PacketOnConnector(const oscarEvent::PacketOnConnector* E)
         }
         else throw CommonError("invalid direction");
     }
-    catch(std::exception &e)
+    catch(const std::exception &e)
     {
         DBG(logErr2("PKT RPC catched %s",e.what()));
         E->esi->close("broken packet int RPC");

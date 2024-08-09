@@ -63,12 +63,12 @@ void ListenerBuffered1Thread::processEvent(const REF_getter<Event::Base>&e)
 
         }
     }
-    catch(CommonError& e)
+    catch(const CommonError& e)
     {
         logErr2("CommonError: " RED2("%s %s"),e.what(),_DMI().c_str());
 
     }
-    catch(std::exception &e)
+    catch(const std::exception &e)
     {
         logErr2("ListenerBuffered1Thread std::exception: " RED2("%s %s"),e.what(),_DMI().c_str());
     }
@@ -124,7 +124,7 @@ void* ListenerBuffered1Thread::worker(void*p)
             }
 
         }
-        catch(std::exception &e)
+        catch(const std::exception &e)
         {
             logErr2("exception: " RED2("%s") " (%s) %s",e.what(),l->listenerName_.c_str(),_DMI().c_str());
         }

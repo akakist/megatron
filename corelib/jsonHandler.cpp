@@ -88,7 +88,7 @@ bool JsonHandler::OH_handleObjectEvent(const REF_getter<Event::Base>& e)
         }
 
     }
-    catch(std::exception &e)
+    catch(const std::exception &e)
     {
 
         logErr2("exception %s",e.what());

@@ -54,12 +54,12 @@ bool testTimer::Service::handleEvent(const REF_getter<Event::Base>& e)
 
 
     }
-    catch(CommonError& e)
+    catch(const CommonError& e)
     {
         logErr2("testTimer CommonError  %s",e.what());
 
     }
-    catch(std::exception &e)
+    catch(const std::exception &e)
     {
         logErr2("testTimer std::exception  %s",e.what());
     }

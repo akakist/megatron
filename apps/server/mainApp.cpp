@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
 
 
     }
-    catch(std::runtime_error e)
+    catch(const std::runtime_error &e)
     {
 #ifdef _WIN32
         printf("CommonError: %s\n",e.what());
@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
         syslog(LOG_ERR,"CommonError: %s\n",e.what());
 #endif
     }
-    catch(std::exception &e)
+    catch(const std::exception &e)
     {
         printf("std::exception: %s\n",e.what());
     }
@@ -168,7 +168,7 @@ void onterm(int signum)
 //            exit(1);
         }
     }
-    catch(std::exception e)
+    catch(const std::exception &e)
     {
 //        delete cFactory;
         printf("onterm exception: %s\n",e.what());

@@ -704,7 +704,7 @@ void SocketIO::Service::worker()
 #error "dfssdfdsfsdfwqerweqrqw"
 #endif
         }
-        catch(std::exception &e)
+        catch(const std::exception &e)
         {
             logErr2("exception: %s %s %d",e.what(),__FILE__,__LINE__);
         }

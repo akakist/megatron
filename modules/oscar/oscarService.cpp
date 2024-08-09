@@ -20,7 +20,7 @@ Oscar::Service::Service(const SERVICE_id &svs, const std::string&  nm,IInstance*
         XTRY;
         XPASS;
     }
-    catch (std::exception &e)
+    catch (const std::exception &e)
     {
         logErr2("exception: %s %s %d",e.what(),__FILE__,__LINE__);
         throw;
@@ -194,7 +194,7 @@ bool Oscar::Service::on_StreamRead(const socketEvent::StreamRead* evt)
             break;
         }
     }
-    catch (std::exception &e)
+    catch (const std::exception &e)
     {
         logErr2("exception: %s (%s %d)",e.what(),__FILE__,__LINE__);
         evt->esi->close(e.what());

@@ -31,7 +31,7 @@ OscarSecure::Service::Service(const SERVICE_id &svs, const std::string&  nm,IIns
         RSA_keysize=ifa->getConfig()->get_int64_t("RSA_keysize",256,"");
         XPASS;
     }
-    catch (std::exception &e)
+    catch (const std::exception &e)
     {
         logErr2("exception: %s %s %d",e.what(),__FILE__,__LINE__);
         throw;
@@ -226,7 +226,7 @@ bool OscarSecure::Service::on_StreamRead(const socketEvent::StreamRead* evt)
             break;
         }
     }
-    catch (std::exception &e)
+    catch (const std::exception &e)
     {
         logErr2("exception: %s (%s %d)",e.what(),__FILE__,__LINE__);
         evt->esi->close(e.what());

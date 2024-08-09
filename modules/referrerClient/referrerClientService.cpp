@@ -656,7 +656,7 @@ Service::Service(const SERVICE_id &svs, const std::string &nm, IInstance *ifa):
         setTimerValue(crefTimer::T_040_D2_cache_pong_timed_out_from_neighbours,config->get_real("T_040_D2_cache_pong_timed_out_from_neighbours", 2,""));
         XPASS;
     }
-    catch(std::exception &e)
+    catch(const std::exception &e)
     {
         logErr2("exception: %s %s %d",e.what(),__FILE__,__LINE__);
         throw;

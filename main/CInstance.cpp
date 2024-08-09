@@ -114,11 +114,11 @@ void CInstance::sendEvent(const std::string& dstHost, const SERVICE_id& dstServi
             sa.init(u);
             sendEvent(sa,dstService,e);
         }
-        catch(std::exception& ex)
+        catch(const std::exception& ex)
         {
             logErr2("exception: %s",ex.what());
         }
-        catch(CommonError& ex)
+        catch(const CommonError& ex)
         {
             logErr2("exception: %s",ex.what());
         }
@@ -241,11 +241,11 @@ void CInstance::forwardEvent(const SERVICE_id& svs,  const REF_getter<Event::Bas
         }
         else throw CommonError("!U ------------- %s %d",__FILE__,__LINE__);
     }
-    catch(CommonError &err)
+    catch(const CommonError &err)
     {
         logErr2("CommonError catched for event %s %s %s",iUtils->genum_name(e->id),e->route.dump().c_str(),err.what());
     }
-    catch(std::exception &err)
+    catch(const std::exception &err)
     {
         logErr2("std::exception catched for event %s %s %s",iUtils->genum_name(e->id),e->route.dump().c_str(),err.what());
     }
@@ -393,12 +393,12 @@ UnknownBase* CInstance::initService(const SERVICE_id& sid)
                 throw CommonError("if(!l)");
             l->listenToEvent(new systemEvent::startService);
         }
-        catch(CommonError &e)
+        catch(const CommonError &e)
         {
             logErr2("startService commonError %s",e.what());
             return NULL;
         }
-        catch(std::exception &e)
+        catch(const std::exception &e)
         {
             logErr2("startService std::exception %s",e.what());
             return NULL;
@@ -426,7 +426,7 @@ void CInstance::initServices()
         try {
             sid=iUtils->serviceIdByName(i);
         }
-        catch(std::exception& e)
+        catch(const std::exception& e)
         {
             logErr2("serviceIdByName: Service name not found %s",i.c_str());
             return;

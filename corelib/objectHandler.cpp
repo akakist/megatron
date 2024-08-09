@@ -20,11 +20,11 @@ void ObjectHandlerPolled::sendEvent(const std::string & dstHost, const SERVICE_i
             sendEvent(sa,dstService,e);
         }
     }
-    catch(CommonError& ex)
+    catch(const CommonError& ex)
     {
         logErr2("CommonError: %s",ex.what());
     }
-    catch(std::exception& ex)
+    catch(const std::exception& ex)
     {
         logErr2("std::exception: %s",ex.what());
     }
@@ -46,11 +46,11 @@ void ObjectHandlerThreaded::sendEvent(const std::string & dstHost, const SERVICE
             sendEvent(sa,dstService,e);
         }
     }
-    catch(CommonError& ex)
+    catch(const CommonError& ex)
     {
         logErr2("CommonError: %s",ex.what());
     }
-    catch(std::exception& ex)
+    catch(const std::exception& ex)
     {
         logErr2("std::exception: %s",ex.what());
     }

@@ -85,7 +85,7 @@ dfsReferrer::Service::Service(const SERVICE_id &svs, const std::string&  nm, IIn
 
         XPASS;
     }
-    catch(std::exception &e)
+    catch(const std::exception &e)
     {
         logErr2("exception: %s %s %d",e.what(),__FILE__,__LINE__);
         throw;

@@ -54,7 +54,7 @@ AppHandler::AppHandler(IInstance* ins)
 
         sendEvent(ServiceEnum::ReferrerClient,new dfsReferrerEvent::SubscribeNotifications(this));
 
-    } catch(std::exception &e)
+    } catch(const std::exception &e)
     {
         logErr2("BlockchainHandler::BlockchainHandler: %s",e.what());
     }
@@ -147,7 +147,7 @@ bool AppHandler::OH_handleObjectEvent(const REF_getter<Event::Base>& e)
         }
 
     }
-    catch(std::exception &e)
+    catch(const std::exception &e)
     {
         logErr2("exception %s",e.what());
     }

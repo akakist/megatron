@@ -15,7 +15,7 @@ _neighbours::_neighbours(const std::string& _dbName):dbName(_dbName) {
             in>>sas;
         }
     }
-    catch(std::exception& e)
+    catch(const std::exception& e)
     {
         printf("_neighbours::_neighbours: std::exception: %s",e.what());
     }

@@ -100,12 +100,12 @@ bool teldemo1::Service::handleEvent(const REF_getter<Event::Base>& e)
 
 
     }
-    catch(CommonError& e)
+    catch(const CommonError& e)
     {
         logErr2("teldemo1WebServer CommonError  %s",e.what());
 
     }
-    catch(std::exception &e)
+    catch(const std::exception &e)
     {
         logErr2("teldemo1WebServer std::exception  %s",e.what());
     }

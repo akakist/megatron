@@ -124,7 +124,7 @@ DFSReferrer.T_004_cache_pong_timed_out_=2.000000
         delete iUtils;
         return 0;
 
-    } catch (CommonError& e)
+    } catch (const CommonError& e)
     {
         printf("CommonError %s\n",e.what());
     }

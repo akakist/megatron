@@ -57,12 +57,12 @@ bool testWebServer::Service::handleEvent(const REF_getter<Event::Base>& e)
 
 
     }
-    catch(CommonError& e)
+    catch(const CommonError& e)
     {
         logErr2("testWebServer CommonError  %s",e.what());
 
     }
-    catch(std::exception &e)
+    catch(const std::exception &e)
     {
         logErr2("testWebServer std::exception  %s",e.what());
     }

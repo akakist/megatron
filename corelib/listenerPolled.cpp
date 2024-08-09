@@ -52,14 +52,14 @@ void ListenerPolled::poll()
 
                 }
             }
-            catch(std::exception& e)
+            catch(const std::exception& e)
             {
                 logErr2("ListenerPolled exception: " RED2("%s") " %s %s",e.what(),_DMI().c_str(),d[n]->dump().toStyledString().c_str());
 
             }
         }
     }
-    catch(std::exception &e)
+    catch(const std::exception &e)
     {
         logErr2("ListenerPolled exception: %s %s ",e.what(),_DMI().c_str());
     }
