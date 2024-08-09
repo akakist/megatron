@@ -12,8 +12,8 @@ namespace testTimer
 {
     class Service:
         public UnknownBase,
-            /// ListenerBuffered1Thread - means make single threaded service with own thread.
-            /// In this case you don't need guard class members by mutex.
+    /// ListenerBuffered1Thread - means make single threaded service with own thread.
+    /// In this case you don't need guard class members by mutex.
         public ListenerBuffered1Thread,
         public Broadcaster
     {

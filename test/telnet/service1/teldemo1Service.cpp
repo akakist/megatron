@@ -24,42 +24,42 @@ bool  teldemo1::Service::on_CommandEntered(const telnetEvent::CommandEntered *e)
 {
     if(e->tokens.size())
     {
-         if(e->tokens[0]=="push_back")
-         {
+        if(e->tokens[0]=="push_back")
+        {
             sampleDeque.push_back(e->tokens[1]);
             sendEvent(ServiceEnum::Telnet,new telnetEvent::Reply(e->socketId,"OK",ListenerBase::serviceId));
             return true;
-         }
-         else if(e->tokens[0]=="push_front")
-         {
+        }
+        else if(e->tokens[0]=="push_front")
+        {
             sampleDeque.push_front(e->tokens[1]);
             sendEvent(ServiceEnum::Telnet,new telnetEvent::Reply(e->socketId,"OK",ListenerBase::serviceId));
             return true;
-         }
-         else if(e->tokens[0]=="pop_front")
-         {
+        }
+        else if(e->tokens[0]=="pop_front")
+        {
             sampleDeque.pop_front();
             sendEvent(ServiceEnum::Telnet,new telnetEvent::Reply(e->socketId,"OK",ListenerBase::serviceId));
             return true;
-         }
-         else if(e->tokens[0]=="pop_back")
-         {
+        }
+        else if(e->tokens[0]=="pop_back")
+        {
             sampleDeque.pop_back();
             sendEvent(ServiceEnum::Telnet,new telnetEvent::Reply(e->socketId,"OK",ListenerBase::serviceId));
             return true;
-         }
-         else if(e->tokens[0]=="front")
-         {
+        }
+        else if(e->tokens[0]=="front")
+        {
             sendEvent(ServiceEnum::Telnet,new telnetEvent::Reply(e->socketId,sampleDeque.front(),ListenerBase::serviceId));
             return true;
-         }
-         else if(e->tokens[0]=="back")
-         {
+        }
+        else if(e->tokens[0]=="back")
+        {
             sendEvent(ServiceEnum::Telnet,new telnetEvent::Reply(e->socketId,sampleDeque.back(),ListenerBase::serviceId));
             return true;
-         }
+        }
     }
-    
+
     return true;
 }
 
@@ -109,7 +109,7 @@ bool teldemo1::Service::handleEvent(const REF_getter<Event::Base>& e)
     {
         logErr2("teldemo1WebServer std::exception  %s",e.what());
     }
-    
+
     logErr2("teldemo1: unhandled event %s",e->dump().toStyledString().c_str());
     XPASS;
     return false;

@@ -14,7 +14,7 @@ bool testWebServer::Service::on_startService(const systemEvent::startService*)
 {
     MUTEX_INSPECTOR;
 
-    
+
     auto svs=dynamic_cast<ListenerBase*> (iInstance->getServiceOrCreate(ServiceEnum::HTTP));
     if(!svs)
         throw CommonError("if(!svs)");

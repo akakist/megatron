@@ -19,7 +19,7 @@ void ptime(const char *s)
 }
 void t_malloc()
 {
-    for(int i=0;i< N;i++)
+    for(int i=0; i< N; i++)
     {
         auto p=malloc(1000000);
         malloced[i]=p;
@@ -27,24 +27,24 @@ void t_malloc()
 }
 void t_realloc(int s)
 {
-    for(int i=0;i< N;i++)
+    for(int i=0; i< N; i++)
     {
         auto p=realloc(malloced[i],s);
         if(!p)
-        throw std::runtime_error("!p");
+            throw std::runtime_error("!p");
         malloced[i]=p;
     }
 }
 void t_free()
 {
-    for(int i=0;i< N;i++)
+    for(int i=0; i< N; i++)
     {
         free(malloced[i]);
     }
 }
 void string_alloc()
 {
-    for(int i=0;i< N;i++)
+    for(int i=0; i< N; i++)
     {
         auto p=new std::string();
         p->reserve(1000000);
@@ -70,5 +70,5 @@ int main()
     ptime("t_free();");
     string_alloc();
     ptime("string_alloc();");
-return 0;
+    return 0;
 }

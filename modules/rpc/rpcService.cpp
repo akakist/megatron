@@ -289,7 +289,7 @@ bool RPC::Service::on_PassPacket(const rpcEvent::PassPacket* E)
     {
         addSendPacket(S,o.asString());
     }
-    else{
+    else {
         W_LOCK(sessions.passCache_.lock_);
         sessions.passCache_.passCache[E->socketIdTo].push_back(o.asString());
     }
@@ -320,17 +320,17 @@ bool RPC::Service::on_startService(const systemEvent::startService* )
 
 
     {
-            for(auto &item:m_bindAddr_main)
-            {
-                SOCKET_id newid=iUtils->getSocketId();
-                sendEvent(myOscarListener,new oscarEvent::AddToListenTCP(newid,item,"RPC_UL",dynamic_cast<ListenerBase*>(this)));
-            }
+        for(auto &item:m_bindAddr_main)
+        {
+            SOCKET_id newid=iUtils->getSocketId();
+            sendEvent(myOscarListener,new oscarEvent::AddToListenTCP(newid,item,"RPC_UL",dynamic_cast<ListenerBase*>(this)));
+        }
 
-            for(auto &item:m_bindAddr_reserve)
-            {
-                SOCKET_id newid=iUtils->getSocketId();
-                sendEvent(myOscarListener,new oscarEvent::AddToListenTCP(newid,item,"RPC_DL",dynamic_cast<ListenerBase*>(this)));
-            }
+        for(auto &item:m_bindAddr_reserve)
+        {
+            SOCKET_id newid=iUtils->getSocketId();
+            sendEvent(myOscarListener,new oscarEvent::AddToListenTCP(newid,item,"RPC_DL",dynamic_cast<ListenerBase*>(this)));
+        }
     }
 #ifdef WEBDUMP
     sendEvent(ServiceEnum::WebHandler, new webHandlerEvent::RegisterDirectory("rpc","RPC"));
@@ -368,7 +368,7 @@ bool RPC::Service::on_Accepted(const oscarEvent::Accepted* E)
 
             for(auto &dd: d)
             {
-              addSendPacket(S,dd);
+                addSendPacket(S,dd);
             }
 
         }
@@ -450,7 +450,7 @@ UnknownBase* RPC::Service::construct(const SERVICE_id& id, const std::string&  n
 
 bool RPC::Service::on_UnsubscribeNotifications(const rpcEvent::UnsubscribeNotifications* E)
 {
-   W_LOCK(sessions.subscribers_.lock_);
+    W_LOCK(sessions.subscribers_.lock_);
 
     sessions.subscribers_.container_.erase(E->route);
     return true;

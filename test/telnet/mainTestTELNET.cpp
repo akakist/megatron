@@ -17,7 +17,7 @@ int mainTestTELNET(int argc, char** argv )
         registerTimerService(NULL);
         registerTelnetService(NULL);
 
-	registerteldemo1(NULL);
+        registerteldemo1(NULL);
 
         printf(GREEN("RUN TEST %s"),__PRETTY_FUNCTION__);
 
@@ -43,7 +43,7 @@ int mainTestTELNET(int argc, char** argv )
         }
 
 
-	printf("connecting to server app with telnet console\nUse help command to get help\n");
+        printf("connecting to server app with telnet console\nUse help command to get help\n");
         sleep(2);
         system("telnet 127.0.0.1 8081");
         sleep(1);

@@ -159,7 +159,7 @@ std::deque<std::string> CUtils::splitStringDQ(const char *seps, const std::strin
 
     // std::deque<std::string> q;
     // std::vector<std::string> v=splitString(seps,src);
-    
+
     // for (size_t i=0; i<v.size(); i++)
     // {
     //     q.push_back(v[i]);

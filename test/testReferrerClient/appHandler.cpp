@@ -67,7 +67,7 @@ AppHandler::AppHandler(IInstance* ins)
 bool AppHandler::on_NotifyReferrerUplinkIsConnected(const dfsReferrerEvent::NotifyReferrerUplinkIsConnected *e)
 {
     logErr2(GREEN("@@ %s"),__PRETTY_FUNCTION__);
-    
+
     XTRY;
     isConnected=true;
     referrer.insert(e->sa);

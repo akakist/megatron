@@ -88,7 +88,7 @@ WebHandler.bindAddr=NONE
         {
 
             std::string cf[]={
-R"zxc(
+                                 R"zxc(
 
 # list of initially started services
 Start=RPC,DFSReferrer
@@ -122,8 +122,8 @@ DFSReferrer.T_004_cache_pong_timed_out_=2.000000
 # Addr:port to bind. Addr=INADDR_ANY:port - bind to all interfaces. NONE - no bind
 WebHandler.bindAddr=NONE
 )zxc"
-,
-R"zxc(
+                                 ,
+                                 R"zxc(
 
 # list of initially started services
 Start=RPC,DFSReferrer
@@ -158,7 +158,7 @@ DFSReferrer.T_004_cache_pong_timed_out_=2.000000
 WebHandler.bindAddr=NONE
 
                 )zxc"
-            };
+                             };
             IInstance *instance1=iUtils->createNewInstance("node_"+std::to_string(i));
 
             ConfigObj *cnf1=new ConfigObj("node_"+std::to_string(i)+".conf",cf[i]);
@@ -171,7 +171,7 @@ WebHandler.bindAddr=NONE
         for(int i=0; i<1; i++)
         {
 
-const char *cf=R"zxc(
+            const char *cf=R"zxc(
 ReferrerClient.T_001_common_connect_failed=20.000000
 ReferrerClient.T_002_D3_caps_get_service_request_is_timed_out=15.000000
 ReferrerClient.T_007_D6_resend_ping_caps_short=7.000000

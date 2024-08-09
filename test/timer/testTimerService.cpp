@@ -14,7 +14,7 @@ bool testTimer::Service::on_startService(const systemEvent::startService*)
 {
     MUTEX_INSPECTOR;
 
-    for(int i=0;i<10;i++)
+    for(int i=0; i<10; i++)
     {
         sendEvent(ServiceEnum::Timer,new timerEvent::SetAlarm(1,toRef(std::to_string(i)),toRef("any additional data "+std::to_string(i)),0.1*i,ListenerBase::serviceId));
         samples.insert(std::to_string(i));
