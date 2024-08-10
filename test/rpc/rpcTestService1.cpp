@@ -20,13 +20,13 @@ rpcTestService1::rpcTestService1(const SERVICE_id &id, const std::string&  nm,II
 void rpcTestService1::sendRequest(int session,int seq)
 {
     if(done_test)return;
-    size_t sz=rand()%BUF_SIZE_MAX;
+//    size_t sz=rand()%BUF_SIZE_MAX;
     //char s[sz];
     std::string buf;
-    while(buf.size()<sz)
-    {
-        buf+="klallosalkjf;laskdfj;alskdf;alksdfa;lkdfa;lksd;alksdf";//[i]=i;//rand();
-    }
+    buf+="klallosalkjf;";//[i]=i;//rand();
+//    while(buf.size()<sz)
+//    {
+//    }
     //std::string buf(s,sz);
     std::string md5=ssl->md5(buf);
 
