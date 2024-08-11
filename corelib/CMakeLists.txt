@@ -53,7 +53,6 @@ IConfigObj.h
 IGEOIP.h
 IInstance.h
 IObjectProxy.h
-IProgress.h
 IRPC.h
 ISSL.h
 IThreadNameController.h
