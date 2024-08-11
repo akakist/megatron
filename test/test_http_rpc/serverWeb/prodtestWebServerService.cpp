@@ -137,7 +137,7 @@ bool prodtestWebServer::Service::on_RequestIncoming(const httpEvent::RequestInco
 {
 
     HTTP::Response resp(getIInstance());
-    auto S=check_session(e->req,resp,e->esi);
+    auto S=create_session(e->req,resp,e->esi);
     S->esi=e->esi;
 
     {
@@ -152,12 +152,10 @@ bool prodtestWebServer::Service::on_RequestIncoming(const httpEvent::RequestInco
     return true;
 }
 
-
-static int cnt2;
-REF_getter<prodtestWebServer::Session> prodtestWebServer::Service::check_session( const REF_getter<HTTP::Request>& req, HTTP::Response& resp, const REF_getter<epoll_socket_info>& esi)
+REF_getter<prodtestWebServer::Session> prodtestWebServer::Service::create_session( const REF_getter<HTTP::Request>& req, HTTP::Response& resp, const REF_getter<epoll_socket_info>& esi)
 {
 
-    auto session_id=std::to_string(cnt2++);
+    auto session_id=cnt2++;
     REF_getter<Session>S=new Session(session_id,req,esi);
     {
         sessions.insert(std::make_pair(session_id,S));
@@ -165,7 +163,7 @@ REF_getter<prodtestWebServer::Session> prodtestWebServer::Service::check_session
     return S;
 
 }
-REF_getter<prodtestWebServer::Session> prodtestWebServer::Service::get_session( const std::string& session_id)
+REF_getter<prodtestWebServer::Session> prodtestWebServer::Service::get_session(int session_id)
 {
 
     REF_getter<Session> S(nullptr);
@@ -174,7 +172,7 @@ REF_getter<prodtestWebServer::Session> prodtestWebServer::Service::get_session( 
         S=it->second;
     else
     {
-        throw CommonError("session not found %s",session_id.c_str());
+        throw CommonError("session not found %d",session_id);
     }
     return S;
 

@@ -24,12 +24,12 @@ namespace prodtestWebServer
         public Refcountable
     {
     public:
-        std::string sessionId;
+        int sessionId;
         REF_getter<epoll_socket_info> esi;
         REF_getter<HTTP::Request> req;
 
 
-        Session(const std::string& sid, const REF_getter<HTTP::Request> &_req,const REF_getter<epoll_socket_info> &_esi): sessionId(sid),
+        Session(int sid, const REF_getter<HTTP::Request> &_req,const REF_getter<epoll_socket_info> &_esi): sessionId(sid),
             req(_req),
             esi(_esi)
         {
@@ -71,15 +71,18 @@ namespace prodtestWebServer
             return new Service(id,nm,obj);
         }
 
-        REF_getter<prodtestWebServer::Session> check_session(const REF_getter<HTTP::Request>& req, HTTP::Response& resp, const REF_getter<epoll_socket_info> &_esi);
-        REF_getter<prodtestWebServer::Session> get_session( const std::string& session_id);
+        REF_getter<prodtestWebServer::Session> create_session(const REF_getter<HTTP::Request>& req, HTTP::Response& resp, const REF_getter<epoll_socket_info> &_esi);
+        REF_getter<prodtestWebServer::Session> get_session(int session_id);
 
-        std::map<std::string,REF_getter<Session> > sessions;
+        std::map<int,REF_getter<Session> > sessions;
 
 
         msockaddr_in bindAddr;
         std::string prodtestServerAddr;
         IInstance *iInstance;
+
+        int cnt2=0;
+
 
     };
 

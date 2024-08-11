@@ -18,7 +18,7 @@ namespace prodtestEvent {
         {
             return new AddTaskREQ(r);
         }
-        AddTaskREQ(const std::string& _session,
+        AddTaskREQ(int _session,
                    const std::string& _sampleString,int _count,
                    const route_t&r)
             :Base(prodtestEventEnum::AddTaskREQ,r),
@@ -27,7 +27,7 @@ namespace prodtestEvent {
         {}
         AddTaskREQ(const route_t&r)
             :Base(prodtestEventEnum::AddTaskREQ,r) {}
-        std::string session;
+        int session;
         std::string sampleString;
         int count;
         void unpack(inBuffer& o)
@@ -53,7 +53,7 @@ namespace prodtestEvent {
         {
             return new AddTaskRSP(r);
         }
-        AddTaskRSP(const std::string& _session,
+        AddTaskRSP(int _session,
                    const std::string& _sampleString,int _count,
                    const route_t&r)
             :Base(prodtestEventEnum::AddTaskRSP,r),
@@ -62,7 +62,7 @@ namespace prodtestEvent {
         {}
         AddTaskRSP(const route_t&r)
             :Base(prodtestEventEnum::AddTaskRSP,r) {}
-        std::string session;
+        int session;
         std::string sampleString;
         int count;
         void unpack(inBuffer& o)
