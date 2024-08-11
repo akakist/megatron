@@ -9,7 +9,7 @@
 #include "events_errorDispatcher.hpp"
 ErrorDispatcher::Service::Service(const SERVICE_id& id, const std::string& nm, IInstance *ifa):
     UnknownBase(nm),
-    ListenerBuffered1Thread(nm,ifa->getConfig(),id,ifa),Broadcaster(ifa)
+    ListenerBuffered1Thread(nm,id),Broadcaster(ifa)
 
 {
 

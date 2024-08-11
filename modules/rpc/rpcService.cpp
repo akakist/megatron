@@ -15,7 +15,7 @@
 #include "events_rpc.hpp"
 RPC::Service::Service(const SERVICE_id &svs, const std::string&  nm, IInstance* ifa):
     UnknownBase(nm),
-    ListenerSimple(nm,ifa->getConfig(),svs),
+    ListenerSimple(nm,svs),
     Broadcaster(ifa),
     myOscar(ifa->getConfig()->get_string("oscarType","Oscar","oscar type - Oscar || OscarSecure")),
     iterateTimeout_(ifa->getConfig()->get_real("IterateTimeoutSec",60,"")),

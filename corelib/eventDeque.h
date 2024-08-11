@@ -10,14 +10,14 @@ class EventDeque: public Refcountable
 {
     std::deque<REF_getter<Event::Base> > container;
     MutexC m_mutex;
-    const std::string name;
 public:
     Condition m_cond;
 private:
-    IInstance *instance;
     bool m_isTerminating;
 public:
-    EventDeque(const std::string& _name,IInstance* ins):name(_name), m_cond(m_mutex),instance(ins),m_isTerminating(false) {}
+    EventDeque():
+    m_cond(m_mutex),
+    m_isTerminating(false) {}
     void push(const REF_getter<Event::Base> & e);
     REF_getter<Event::Base> pop();
     void deinit()

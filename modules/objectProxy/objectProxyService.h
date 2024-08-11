@@ -51,7 +51,7 @@ namespace ObjectProxy
         Polled(const SERVICE_id &svs, const std::string& nm,IInstance* ifa):
             UnknownBase(nm),
             Broadcaster(ifa),
-            ListenerPolled(nm,ifa->getConfig(),svs)
+            ListenerPolled(nm,svs)
         {
             iUtils->addPollable(this);
         }
@@ -98,7 +98,7 @@ namespace ObjectProxy
 
         Threaded(const SERVICE_id &svs, const std::string& nm,IInstance* ifa):UnknownBase(nm),
             Broadcaster(ifa),
-            ListenerBuffered1Thread(nm,ifa->getConfig(),svs,ifa)
+            ListenerBuffered1Thread(nm,svs)
         {
         }
 

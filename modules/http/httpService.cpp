@@ -40,8 +40,7 @@ UnknownBase* HTTP::Service::construct(const SERVICE_id &id, const std::string& n
 
 HTTP::Service::Service(const SERVICE_id& id, const std::string&nm, IInstance* _if):
     UnknownBase(nm),Broadcaster(_if),
-    ListenerSimple(nm,_if->getConfig(),id),
-//    _stuff(new __http_stuff),
+    ListenerSimple(nm,id),
     iInstance(_if)
 {
     m_maxPost= static_cast<size_t>(_if->getConfig()->get_int64_t("max_post", 1000000, ""));

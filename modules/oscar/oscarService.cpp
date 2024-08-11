@@ -11,7 +11,7 @@
 
 Oscar::Service::Service(const SERVICE_id &svs, const std::string&  nm,IInstance* ifa):
     UnknownBase(nm),
-    ListenerSimple(nm,ifa->getConfig(),svs),
+    ListenerSimple(nm,svs),
     Broadcaster(ifa),
     iInstance(ifa)
 {

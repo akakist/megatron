@@ -8,11 +8,11 @@
 class ListenerSimple:public ListenerBase
 {
 public:
-    ListenerSimple(const std::string& name, IConfigObj*, const SERVICE_id& sid);
 
     /// call method in inherited class to process event
     virtual bool handleEvent(const REF_getter<Event::Base>& e)=0;
     virtual ~ListenerSimple();
+    ListenerSimple(const std::string &name, const SERVICE_id &sid);
     void deinit() {}
 
     /// implementation of base virtuals

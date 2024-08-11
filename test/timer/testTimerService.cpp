@@ -75,7 +75,7 @@ testTimer::Service::~Service()
 
 testTimer::Service::Service(const SERVICE_id& id, const std::string& nm,IInstance* ins):
     UnknownBase(nm),
-    ListenerBuffered1Thread(nm,ins->getConfig(),id,ins),
+    ListenerBuffered1Thread(nm,id),
     Broadcaster(ins), iInstance(ins)
 {
 

@@ -6,7 +6,7 @@ ListenerSimple::~ListenerSimple()
 }
 
 
-ListenerSimple::ListenerSimple(const std::string& name,IConfigObj*, const SERVICE_id& sid):ListenerBase(name,sid) {}
+ListenerSimple::ListenerSimple(const std::string& name, const SERVICE_id& sid):ListenerBase(name,sid) {}
 
 
 void ListenerSimple::listenToEvent(const REF_getter<Event::Base>& e)

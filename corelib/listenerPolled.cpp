@@ -9,7 +9,7 @@ ListenerPolled::~ListenerPolled()
 
     m_container_.clear();
 }
-ListenerPolled::ListenerPolled(const std::string& name,IConfigObj*, const SERVICE_id& sid)
+ListenerPolled::ListenerPolled(const std::string& name, const SERVICE_id& sid)
     :ListenerBase(name,sid)
 {
 }

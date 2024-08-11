@@ -55,7 +55,7 @@ SocketIO::Service::~Service()
 
 SocketIO::Service::Service(const SERVICE_id& id, const std::string& nm, IInstance* ifa):
     UnknownBase(nm),Broadcaster(ifa),
-    ListenerSimple(nm,ifa->getConfig(),id),
+    ListenerSimple(nm,id),
     n_workers_(2),
     listen_backlog_(128),
     iInstance(ifa),isTerminating_(false)

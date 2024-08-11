@@ -101,7 +101,7 @@ prodtestWebServer::Service::~Service()
 
 prodtestWebServer::Service::Service(const SERVICE_id& id, const std::string& nm,IInstance* ins):
     UnknownBase(nm),
-    ListenerBuffered1Thread(nm,ins->getConfig(),id,ins),
+    ListenerBuffered1Thread(nm,id),
     Broadcaster(ins), iInstance(ins)
 {
     auto ba=ins->getConfig()->get_tcpaddr("bindAddr","0.0.0.0:8088","http listen address");

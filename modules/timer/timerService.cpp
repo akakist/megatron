@@ -49,7 +49,7 @@ int64_t getNow()
 Timer::Service::Service(const SERVICE_id& id, const std::string& nm, IInstance* ifa):
     UnknownBase(nm),
 
-    ListenerBuffered1Thread(nm,ifa->getConfig(),id,ifa),
+    ListenerBuffered1Thread(nm,id),
     Broadcaster(ifa),
     all(new _all),
     nexts(new _nexts),
