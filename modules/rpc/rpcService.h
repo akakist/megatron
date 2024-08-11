@@ -9,7 +9,7 @@
 #include <broadcaster.h>
 #include <msockaddr_in.h>
 
-// #define RPCSIMPLE 1
+//#define RPCSIMPLE 1
 
 #ifdef RPCSIMPLE
 #include <listenerSimple.h>
