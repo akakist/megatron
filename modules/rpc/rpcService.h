@@ -11,11 +11,7 @@
 
 //#define RPCSIMPLE 1
 
-#ifdef RPCSIMPLE
-#include <listenerSimple.h>
-#else 
 #include "listenerBuffered1Thread.h"
-#endif
 #include <IRPC.h>
 
 #include "Events/System/Net/rpcEvent.h"
@@ -40,9 +36,6 @@ namespace RPC
     struct outCache: public Refcountable
     {
         std::deque<REF_getter<refbuffer> >  container;
-#ifdef RPCSIMPLE
-        RWLock lk;
-#endif
 
         Json::Value jdump()
         {
@@ -94,16 +87,10 @@ namespace RPC
             {}
 
         struct subscr {
-#ifdef RPCSIMPLE
-        RWLock lock_;
-#endif
             std::set<route_t> container_;
             Json::Value jdump()
             {
                 Json::Value j;
-#ifdef RPCSIMPLE
-                R_LOCK(lock_);
-#endif
                 for(auto &z: container_)
                 {
                     j.append(z.dump());
@@ -117,16 +104,10 @@ namespace RPC
         struct sock2sess
         {
 
-#ifdef RPCSIMPLE
-            RWLock lock_;
-#endif
             std::map<SOCKET_id, REF_getter<Session> > container_;
             Json::Value jdump()
             {
                 Json::Value j;
-#ifdef RPCSIMPLE
-                R_LOCK(lock_);
-#endif
                 for(auto &z: container_)
                 {
 #ifdef WEBDUMP
@@ -141,16 +122,10 @@ namespace RPC
 
         struct sa2sess
         {
-#ifdef RPCSIMPLE
-            RWLock lock_;
-#endif
             std::map<msockaddr_in,REF_getter<Session> > container_;
             Json::Value jdump()
             {
                 Json::Value j;
-#ifdef RPCSIMPLE
-                R_LOCK(lock_);
-#endif
                 for(auto &z: container_)
                 {
 #ifdef WEBDUMP
@@ -166,14 +141,10 @@ namespace RPC
 
         // all
         struct passCache{
-            RWLock lock_;
             std::map<SOCKET_id,std::deque<REF_getter<refbuffer>>>passCache;
             Json::Value jdump()
             {
                 Json::Value j;
-#ifdef RPCSIMPLE
-                R_LOCK(lock_);
-#endif
                 for(auto &z: passCache)
                 {
                     j[std::to_string(CONTAINER(z.first))]=(int)z.second.size();
@@ -195,35 +166,16 @@ namespace RPC
 
         void clear()
         {
-            {
-#ifdef RPCSIMPLE
-                W_LOCK(sa2sess_.lock_);
-#endif
-                sa2sess_.container_.clear();
-            }
-            {
-#ifdef RPCSIMPLE
-                W_LOCK(subscribers_.lock_);
-#endif
-                subscribers_.container_.clear();
-            }
-            {
-#ifdef RPCSIMPLE
-                W_LOCK(sock2sess_.lock_);
-#endif
-                sock2sess_.container_.clear();
-            }
+            sa2sess_.container_.clear();
+            subscribers_.container_.clear();
+            sock2sess_.container_.clear();
         }
     public:
     };
 
     class Service:
         public UnknownBase,
-#ifdef RPCSIMPLE
-        public ListenerSimple,
-#else
         public ListenerBuffered1Thread,
-#endif
         public Broadcaster,
         public IRPC
     {
@@ -297,12 +249,7 @@ namespace RPC
 
         void deinit()
         {
-
-#ifdef RPCSIMPLE
-            ListenerSimple::deinit();
-#else 
             ListenerBuffered1Thread::deinit();
-#endif
         }
 
         Service(const SERVICE_id &svs, const std::string&  nm,  IInstance *ifa);
@@ -312,22 +259,15 @@ namespace RPC
 
         struct _evcount
         {
-            RWLock lk;
             std::map<EVENT_id,int> ev_handled;
             void inc(EVENT_id id)
             {
-                W_LOCK(lk);
                 ev_handled[id]++;
             }
             Json::Value jdump()
             {
                 Json::Value j;
-                std::map<EVENT_id,int> m;
-                {
-                    R_LOCK(lk);
-                    m=ev_handled;
-                }
-                for(auto &z: m)
+                for(auto &z: ev_handled)
                 {
                     j[iUtils->genum_name(z.first)]=z.second;
                 }
