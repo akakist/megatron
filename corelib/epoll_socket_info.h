@@ -160,7 +160,6 @@ public:
     /// write buffer
     void write_(const char *s, const size_t &sz);
     void write_(const std::string&s);
-//    void write_(const REF_getter<refbuffer>&s);
 
     void close(const char *reason);
 

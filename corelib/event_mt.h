@@ -4,14 +4,6 @@
 #include "REF.h"
 #include "EVENT_id.h"
 #include "route_t.h"
-enum
-{
-    CHANNEL_LOCAL,
-    CHANNEL_0,
-    CHANNEL_10,
-    CHANNEL_70,
-    CHANNEL_100
-};
 
 /// base class for events
 namespace Event

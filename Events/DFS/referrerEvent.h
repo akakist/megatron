@@ -128,8 +128,6 @@ namespace dfsReferrerEvent {
 
     class Ping: public Event::Base
     {
-        enum {rpcChannel=CHANNEL_0};
-
 
     public:
         enum ClientType
@@ -205,7 +203,6 @@ namespace dfsReferrerEvent {
     };
     class Pong: public Event::Base
     {
-        enum {rpcChannel=CHANNEL_0};
 
     public:
         static Base* construct(const route_t &r)
@@ -279,7 +276,6 @@ Eсли destination service == "broadcast", то делаем бродкаст �
 namespace dfsReferrerEvent {
     class ToplinkDeliverREQ: public Event::Base
     {
-        enum {rpcChannel=CHANNEL_0};
 
     public:
         static Base* construct(const route_t &r)
@@ -330,7 +326,6 @@ namespace dfsReferrerEvent {
     };
     class ToplinkDeliverRSP: public Event::Base
     {
-        enum {rpcChannel=CHANNEL_0};
 
     public:
         static Base* construct(const route_t &r)
@@ -381,7 +376,6 @@ namespace dfsReferrerEvent {
 
     class SubscribeNotifications: public Event::Base
     {
-        enum {rpcChannel=CHANNEL_0};
 
     public:
         static Base* construct(const route_t &r)

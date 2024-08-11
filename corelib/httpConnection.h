@@ -131,7 +131,6 @@ namespace HTTP
 
 
         void makePersistent();
-//    Response();
         virtual ~Response();
 
         IInstance *iInstance;

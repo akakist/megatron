@@ -22,9 +22,6 @@ namespace dfsCapsEventEnum
 namespace dfsCapsEvent {
     class RegisterMyRefferrerNodeREQ: public Event::Base
     {
-        enum {rpcChannel=CHANNEL_70};
-
-
     public:
 
         static Base* construct(const route_t &r)
@@ -65,9 +62,6 @@ namespace dfsCapsEvent {
     };
     class RegisterCloudRoot: public Event::Base
     {
-        enum {rpcChannel=CHANNEL_70};
-
-
     public:
 
         static Base* construct(const route_t &r)
@@ -110,8 +104,6 @@ namespace dfsCapsEvent {
 namespace dfsCapsEvent {
     class GetReferrersREQ: public Event::Base
     {
-        enum {rpcChannel=CHANNEL_70};
-
 
     public:
 
@@ -150,7 +142,6 @@ namespace dfsCapsEvent {
     };
     class GetReferrersRSP: public Event::Base
     {
-        enum {rpcChannel=CHANNEL_70};
 
 
     public:
@@ -192,7 +183,6 @@ namespace dfsCapsEvent {
 namespace dfsCapsEvent {
     class GetCloudRootsREQ: public Event::Base
     {
-        enum {rpcChannel=CHANNEL_70};
 
 
     public:
@@ -232,7 +222,6 @@ namespace dfsCapsEvent {
     };
     class GetCloudRootsRSP: public Event::Base
     {
-        enum {rpcChannel=CHANNEL_70};
 
 
     public:

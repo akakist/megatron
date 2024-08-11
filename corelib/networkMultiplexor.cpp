@@ -3,7 +3,6 @@
 #ifdef __linux__
 #include <sys/epoll.h>
 #endif
-#include "evfilt_name.h"
 #include "epoll_socket_info.h"
 
 NetworkMultiplexor::~NetworkMultiplexor()

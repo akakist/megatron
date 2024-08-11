@@ -86,7 +86,6 @@ commonError.h
 compat_win32.h
 configDB.cpp
 configDB.h
-dfsErrors.h
 e_poll.h
 epoll_socket_info.cpp
 epoll_socket_info.h
@@ -95,11 +94,8 @@ eventDeque.cpp
 eventDeque.h
 event_mt.cpp
 event_mt.h
-evfilt_name.h
-gTry.h
 httpConnection.cpp
 httpConnection.h
-ifaces.h
 ioBuffer.cpp
 ioBuffer.h
 js_utils.cpp

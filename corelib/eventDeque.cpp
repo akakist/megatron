@@ -3,8 +3,6 @@
 
 void EventDeque::push(const REF_getter<Event::Base> & e)
 {
-
-
     {
         M_LOCKC(m_mutex);
         container.push_back(e);

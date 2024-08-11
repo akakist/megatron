@@ -6,7 +6,6 @@
 #include "logging.h"
 #include "listenerBuffered1Thread.h"
 #include "DBH.h"
-#include "IProgress.h"
 #include "tools_mt.h"
 #include <map>
 #include <deque>

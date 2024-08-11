@@ -86,6 +86,7 @@ void epoll_socket_info::write_(const std::string&s)
         }
         XPASS;
     }
+    
     XPASS;
 }
 void epoll_socket_info::write_(const char *s, const size_t &sz)
