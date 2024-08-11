@@ -156,7 +156,7 @@ void SocketIO::Service::handle_accepted1(const SOCKET_fd &neu_fd,const REF_gette
         REF_getter<SocketsContainerForSocketIO> MS2=m_io_socks_pollers_.getPoller(this);
 
 
-        SOCKET_id _sid=iUtils->getSocketId();
+        SOCKET_id _sid=iUtils->getNewSocketId();
         REF_getter<epoll_socket_info> nesi=new epoll_socket_info(SOCK_STREAM,epoll_socket_info::STREAMTYPE_ACCEPTED,_sid,neu_fd,esi->m_route,
             esi->socketDescription_,MS2->multiplexor_);
 

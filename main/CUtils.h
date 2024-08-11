@@ -103,7 +103,7 @@ public:
 
     std::string makeSlug(const std::string& s);
 
-    SOCKET_id getSocketId();
+    SOCKET_id getNewSocketId();
 
     IThreadNameController* getIThreadNameController();
 

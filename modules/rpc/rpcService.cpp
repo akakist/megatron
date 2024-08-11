@@ -309,13 +309,13 @@ bool RPC::Service::on_startService(const systemEvent::startService* )
     {
         for(auto &item:m_bindAddr_main)
         {
-            SOCKET_id newid=iUtils->getSocketId();
+            SOCKET_id newid=iUtils->getNewSocketId();
             sendEvent(myOscarListener,new oscarEvent::AddToListenTCP(newid,item,"RPC_UL",dynamic_cast<ListenerBase*>(this)));
         }
 
         for(auto &item:m_bindAddr_reserve)
         {
-            SOCKET_id newid=iUtils->getSocketId();
+            SOCKET_id newid=iUtils->getNewSocketId();
             sendEvent(myOscarListener,new oscarEvent::AddToListenTCP(newid,item,"RPC_DL",dynamic_cast<ListenerBase*>(this)));
         }
     }
@@ -382,7 +382,7 @@ bool RPC::Service::on_SendPacket(const rpcEvent::SendPacket* E)
 
         if(!S.valid())
         {
-            SOCKET_id sockId=iUtils->getSocketId();
+            SOCKET_id sockId=iUtils->getNewSocketId();
             msockaddr_in addressTo=E->addressTo;
             S=new Session(sockId,NULL);
             sessions.sa2sess_.container_.insert({E->addressTo,S});

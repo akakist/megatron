@@ -160,7 +160,7 @@ public:
 
 
     /// получить новый ИД сокета
-    virtual SOCKET_id getSocketId()=0;
+    virtual SOCKET_id getNewSocketId()=0;
 
 
     /// получить число аллокированных сокетов

@@ -1241,7 +1241,7 @@ time_t CUtils::from_en_datetime(const std::string& s)
 }
 
 
-SOCKET_id CUtils::getSocketId()
+SOCKET_id CUtils::getNewSocketId()
 {
     return sockIdGen.get();
 }

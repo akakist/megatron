@@ -150,7 +150,7 @@ void Telnet::Service::doListen()
     XTRY;
     for(auto &i:m_bindAddr)
     {
-        SOCKET_id sid=iUtils->getSocketId();
+        SOCKET_id sid=iUtils->getNewSocketId();
         msockaddr_in sa=i;
         sendEvent(ServiceEnum::Socket,new socketEvent::AddToListenTCP(sid,sa,"TELNET",false,ListenerBase::serviceId));
     }

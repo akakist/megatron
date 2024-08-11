@@ -107,7 +107,7 @@ bool HTTP::Service::on_DoListen(const httpEvent::DoListen* e)
 {
     MUTEX_INSPECTOR;
 
-    SOCKET_id newid=iUtils->getSocketId();
+    SOCKET_id newid=iUtils->getNewSocketId();
     msockaddr_in sa=e->addr;
     DBG(logErr2("on_DoListen %s",e->route.dump().c_str()));
     sendEvent(socketListener,new socketEvent::AddToListenTCP(newid,sa,"HTTP",false,e->route));
