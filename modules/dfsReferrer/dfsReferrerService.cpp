@@ -190,8 +190,7 @@ void dfsReferrer::Service::on_deleteDownlink(const SOCKET_id& sock, const msocka
         MUTEX_INSPECTOR;
         if(di.valid())
         {
-            M_LOCK(di.get());
-            DBG(logErr2("disaccepted valid user %s, do smth for notify",di->esi_mx_->remote_name().dump().c_str()));
+            DBG(logErr2("disaccepted valid user %s, do smth for notify",di->esi_->remote_name().dump().c_str()));
         }
 
         if(di.valid())
@@ -768,8 +767,7 @@ void dfsReferrer::Service::kill_downlinks()
     {
         REF_getter<linkInfoDownReferrer> &di=i.second;
         {
-            M_LOCK(di.get());
-            di->esi_mx_->close("uplink disconnected");
+            di->esi_->close("uplink disconnected");
         }
     }
 }
@@ -897,8 +895,7 @@ bool dfsReferrer::Service::on_Ping(const dfsReferrerEvent::Ping* e, const REF_ge
             {
                 route_t br;
                 {
-                    M_LOCK(l.get());
-                    br=l->backRoute_mx_;
+                    br=l->backRoute_;
                 }
                 passEvent(new dfsReferrerEvent::UpdateConfigRSP(rd.config_bod,poppedFrontRoute(br)));
 
@@ -1194,8 +1191,7 @@ void dfsReferrer::Service::d4_on_disconnected(const msockaddr_in& sa)
         {
             REF_getter<linkInfoDownReferrer> ld=z.second;
             {
-                M_LOCK(ld.get());
-                ld->esi_mx_->close("uplink disconnected");
+                ld->esi_->close("uplink disconnected");
                 for(auto& r: rd.m_readyNotificationBackroutes)
                 {
                     passEvent(new dfsReferrerEvent::NotifyReferrerDownlinkDisconnected(z.first,poppedFrontRoute(r)));
@@ -1391,8 +1387,7 @@ bool dfsReferrer::Service::on_UpdateConfigREQ(const dfsReferrerEvent::UpdateConf
     {
         route_t br;
         {
-            M_LOCK(x.second.get());
-            br=x.second->backRoute_mx_;
+            br=x.second->backRoute_;
         }
         passEvent(new dfsReferrerEvent::UpdateConfigRSP(e->bod,poppedFrontRoute(br)));
     }
@@ -1411,8 +1406,7 @@ bool dfsReferrer::Service::on_UpdateConfigRSP(const dfsReferrerEvent::UpdateConf
     {
         route_t br;
         {
-            M_LOCK(x.second.get());
-            br=x.second->backRoute_mx_;
+            br=x.second->backRoute_;
         }
         passEvent(new dfsReferrerEvent::UpdateConfigRSP(e->bod,poppedFrontRoute(br)));
     }

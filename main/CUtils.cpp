@@ -153,69 +153,25 @@ std::map<std::string,std::string> CUtils::loadStringMapFromFile(const std::strin
 }
 std::deque<std::string> CUtils::splitStringDQ(const char *seps, const std::string & src)
 {
+    if(src.empty())
+        return {};
     std::string r=(std::string)"["+seps+"]";
     return resplitDQ(src,std::regex(r));
-
-
-    // std::deque<std::string> q;
-    // std::vector<std::string> v=splitString(seps,src);
-
-    // for (size_t i=0; i<v.size(); i++)
-    // {
-    //     q.push_back(v[i]);
-    // }
-    // return q;
 }
 std::set < std::string> CUtils::splitStringSET(const char *seps, const std::string & src)
 {
+    if(src.empty())
+        return {};
     std::string r=(std::string)"["+seps+"]";
     return resplitSET(src,std::regex(r));
-    // std::set<std::string> q;
-    // std::vector<std::string> v=splitString(seps,src);
-    // for (size_t i=0; i<v.size(); i++)
-    // {
-    //     q.insert(v[i]);
-    // }
-    // return q;
 }
 std::vector<std::string> CUtils::splitString(const char *seps, const std::string & src)
 {
+    if(src.empty())
+        return {};
 
     std::string r=(std::string)"["+seps+"]";
     return resplit(src,std::regex(r));
-
-    // std::vector < std::string> res;
-    // std::set<char>mm;
-    // size_t l;
-    // l =::strlen(seps);
-    // for (unsigned int i = 0; i < l; i++)
-    // {
-    //     mm.insert(seps[i]);
-    // }
-    // std::string tmp;
-    // l = src.size();
-
-    // for (unsigned int i = 0; i < l; i++)
-    // {
-
-    //     if (!mm.count(src[i]))
-    //         tmp += src[i];
-    //     else
-    //     {
-    //         if (tmp.size())
-    //         {
-    //             res.push_back(tmp);
-    //             tmp.clear();
-    //         }
-    //     }
-    // }
-
-    // if (tmp.size())
-    // {
-    //     res.push_back(tmp);
-    //     tmp.clear();
-    // }
-    // return res;
 }
 std::string CUtils::join(const char *pattern, const std::set < std::string> &st)
 {

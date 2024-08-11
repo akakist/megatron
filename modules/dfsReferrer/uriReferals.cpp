@@ -28,8 +28,7 @@ REF_getter<linkInfoDownReferrer> dfsReferrer::_uriReferals::getDownlinkOrCreate(
     if(l.valid())
     {
 
-        M_LOCK(l.get());
-        if(!(l->backRoute_mx_==backRoute) || l->externalAddr_mx_!=externalAddr || l->internalAddrs_mx!=internalAddrs)
+        if(!(l->backRoute_==backRoute) || l->externalAddr_mx_!=externalAddr || l->internalAddrs_mx!=internalAddrs)
         {
             *created=true;
         }
@@ -37,7 +36,7 @@ REF_getter<linkInfoDownReferrer> dfsReferrer::_uriReferals::getDownlinkOrCreate(
         {
             *created=false;
         }
-        l->backRoute_mx_=backRoute;
+        l->backRoute_=backRoute;
         l->externalAddr_mx_=externalAddr;
         l->internalAddrs_mx=internalAddrs;
         return l;

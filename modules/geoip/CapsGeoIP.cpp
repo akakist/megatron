@@ -187,7 +187,6 @@ CapsGeoIP::CapsGeoIP()
 bool CapsGeoIP::findNetRec(const std::string &ip, bool isV4,geoNetRec& result)
 {
     MUTEX_INSPECTOR;
-    M_LOCK(this);
 
     std::string ipBin=getIpBin(ip,isV4);
 

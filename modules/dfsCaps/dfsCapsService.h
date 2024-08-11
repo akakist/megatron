@@ -35,7 +35,6 @@ namespace dfsCaps
         public UnknownBase,
         public ListenerBuffered1Thread,
         public Broadcaster,
-        public Mutexable,
         public TimerHelper
     {
         bool handleEvent(const REF_getter<Event::Base>& e);

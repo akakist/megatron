@@ -10,7 +10,6 @@
 #include <openssl/rand.h>
 #include <openssl/err.h>
 #include "ISSL.h"
-#include "mutexable.h"
 
 class st_rsa_impl: public I_st_rsa_impl
 {

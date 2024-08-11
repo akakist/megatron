@@ -1,4 +1,5 @@
 #include "IInstance.h"
+#include <IUtils.h>
 
 IUtils *iUtils;
 void registerprodtestServerWebService(const char* pn);

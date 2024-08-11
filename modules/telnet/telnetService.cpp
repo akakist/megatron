@@ -188,7 +188,6 @@ Telnet::Service::Service(const SERVICE_id& id, const std::string& nm, IInstance*
 
     if(m_bindAddr.size())
     {
-        M_LOCK(this);
         m_deviceName=ifa->getConfig()->get_string("deviceName","Device","What to show in prompt of console");
     }
     XPASS;
@@ -764,7 +763,6 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 
         bool ok=false;
         {
-            M_LOCK(W.get());
             if(W->curpos < (int)W->mx_current_command_line.size())
             {
                 W->mx_current_command_line=
@@ -789,8 +787,6 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
     {
         int cp;
         {
-            M_LOCK(W.get());
-
             cp=W->curpos;
             if(W->curpos>0)
             {
@@ -818,7 +814,6 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         bool ok=false;
         int w,cp;
         {
-            M_LOCK(W.get());
             w=W->width;
             if(W->curpos<(int)W->mx_current_command_line.size())
             {
@@ -845,8 +840,6 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         std::string cmd;
         bool ok=false;
         {
-
-            M_LOCK(W.get());
             if(W->mx_command_history.size())
             {
                 int next=0;
@@ -898,7 +891,6 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         std::deque<std::string> v;
         std::string norm_cmdline;
         {
-            M_LOCK(W.get());
             norm_cmdline=W->mx_current_command_line;
         }
         REF_getter<Telnet::Node> N=W->defaultNode();
@@ -922,7 +914,6 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 
         esi->write_(append);
         {
-            M_LOCK(W.get());
             W->mx_current_command_line+=append;
         }
         W->curpos+=append.size();
@@ -949,7 +940,6 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
             {
                 std::string toprint;
                 {
-                    M_LOCK(W.get());
                     if(W->curpos<0)W->curpos=0;
                     if(W->curpos > (int)W->mx_current_command_line.size()) W->curpos=W->mx_current_command_line.size();
                     if(W->insertMode)
@@ -978,19 +968,12 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         }
     }
 
-    {
-        M_LOCK(W.get());
-    }
     return true;
     XPASS;
 }
 std::string Telnet::Service::promptString(const REF_getter<Telnet::Session>& W)
 {
-    std::string dn;
-    {
-        M_LOCK(this);
-        dn=m_deviceName;
-    }
+    std::string &dn=m_deviceName;
     return dn+":"+W->defaultNode()->path()+"$ ";
 
 }
@@ -1042,7 +1025,6 @@ void Telnet::Service::processCommand(const REF_getter<Telnet::Session>& W, const
     esi->write_("\r\n");
     std::string cmd;
     {
-        M_LOCK(W.get());
         cmd=W->mx_current_command_line;
         W->mx_current_command_line="";
         W->mx_command_history.push_back(cmd);
@@ -1206,7 +1188,6 @@ void Telnet::Service::__telnet_stuff::erase(const SOCKET_id& id)
 {
     MUTEX_INSPECTOR;
     XTRY;
-    M_LOCK(m_lock);
     sessions.erase(id);
     XPASS;
 }
@@ -1214,7 +1195,6 @@ REF_getter<Telnet::Session> Telnet::Service::__telnet_stuff::get(const SOCKET_id
 {
     MUTEX_INSPECTOR;
     XTRY;
-    M_LOCK(m_lock);
     auto i=sessions.find(id);
     if (i!=sessions.end()) return i->second;
     XPASS;
@@ -1224,7 +1204,6 @@ void Telnet::Service::__telnet_stuff::insert(const SOCKET_id& id,const REF_gette
 {
     MUTEX_INSPECTOR;
     XTRY;
-    M_LOCK(m_lock);
     sessions.insert(std::make_pair(id,C));
     XPASS;
 }
@@ -1232,7 +1211,6 @@ std::map<SOCKET_id,REF_getter<Telnet::Session> > Telnet::Service::__telnet_stuff
 {
     MUTEX_INSPECTOR;
     XTRY;
-    M_LOCK(m_lock);
     return sessions;
     XPASS;
 }
@@ -1294,7 +1272,6 @@ Json::Value Telnet::Session::jdump()
     Json::Value ret;
     ret["defaulNode"]=mx_defaultNode->name;
     {
-        M_LOCK(this);
         ret["CurrentCommandLine"]=mx_current_command_line;
 
     }
@@ -1307,8 +1284,6 @@ Json::Value Telnet::Session::jdump()
 bool Telnet::Session::on_TKEY_BS()
 {
     bool ok=false;
-
-    M_LOCK(this);
     if(curpos>0)
     {
         if(curpos>0)
@@ -1337,7 +1312,6 @@ Json::Value Telnet::_Command::jdump()
 }
 REF_getter<Telnet::Node> Telnet::Node::getSubDir(const std::string& dir)
 {
-    M_LOCK(this);
     auto i=m_children.find(dir);
     if(i==m_children.end())
         return NULL;
@@ -1345,7 +1319,6 @@ REF_getter<Telnet::Node> Telnet::Node::getSubDir(const std::string& dir)
 }
 void Telnet::Node::addChildNode(const std::string& section,const REF_getter<Node>&n)
 {
-    M_LOCK(this);
     if(!m_children.count(section))
     {
         m_children.insert(std::make_pair(section,n));
@@ -1353,19 +1326,16 @@ void Telnet::Node::addChildNode(const std::string& section,const REF_getter<Node
 }
 void Telnet::Node::addCommand(const std::deque<std::string>& cmd,const REF_getter<_Command>&n)
 {
-    M_LOCK(this);
     if(m_commands.count(cmd)) logErr2("addCommand: command '%s' already exists",iUtils->join(" ",cmd).c_str());
     m_commands.erase(cmd);
     m_commands.insert(std::make_pair(cmd,n));
 }
 std::map<std::string,REF_getter<Telnet::Node> > Telnet::Node::children()
 {
-    M_LOCK(this);
     return m_children;
 }
 std::map<std::deque<std::string>,REF_getter<Telnet::_Command> > Telnet::Node::commands()
 {
-    M_LOCK(this);
     return m_commands;
 }
 std::string Telnet::Node::path()
@@ -1400,12 +1370,10 @@ Json::Value Telnet::Node::jdump()
 }
 REF_getter<Telnet::Node> Telnet::CommandEntries::root()
 {
-    M_LOCK(this);
     return m_root;
 }
 void Telnet::CommandEntries::registerType(const std::string& _name, const std::string& _pattern, const std::string& _help)
 {
-    M_LOCK(this);
     if(mx_types.count(_name))
     {
         logErr2("TELNET: register paramtype '%s' 'already registered'",_name.c_str());
@@ -1427,16 +1395,22 @@ void Telnet::CommandEntries::registerDirectory(const std::deque<std::string> &d,
 void Telnet::CommandEntries::registerCommand(const std::deque<std::string> &d, const std::string& cmd, const std::string& help,const route_t& dst, const std::string &params)
 {
 
-    std::deque<std::string> pars=iUtils->splitStringDQ(" ",params);
+//    printf("@@@ params '%s'\n",params.c_str());
+
+//    if(params.size())
     {
-        M_LOCK(this);
-        for(size_t i=0; i<pars.size(); i++)
+        std::deque<std::string> pars=iUtils->splitStringDQ(" ",params);
         {
-            if(mx_types.count(pars[i]))
+
+            for(size_t i=0; i<pars.size(); i++)
             {
+//                printf("@@@ par '%s'\n",pars[i].c_str());
+                if(mx_types.count(pars[i]))
+                {
+                }
+                else
+                    throw CommonError("param type '%s' is not defined",pars[i].c_str());
             }
-            else
-                throw CommonError("param type '%s' is not defined",pars[i].c_str());
         }
     }
     REF_getter<Node> n(root());
@@ -1454,7 +1428,6 @@ std::string Telnet::CommandEntries::getRegex(const std::string &param)
 {
     std::string regex;
     {
-        M_LOCK(this);
         if(mx_types.count(param))
         {
             regex=mx_types[param].first;
@@ -1467,7 +1440,6 @@ std::string Telnet::CommandEntries::getRegex(const std::string &param)
 std::map<std::string,std::string> Telnet::CommandEntries::getHelpOnTypes()
 {
     std::map<std::string,std::string> m;
-    M_LOCK(this);
     for(auto& i:mx_types)
     {
         m[i.first]=i.second.second;
@@ -1477,7 +1449,6 @@ std::map<std::string,std::string> Telnet::CommandEntries::getHelpOnTypes()
 std::map<std::string,std::string> Telnet::CommandEntries::getHelpOnRe()
 {
     std::map<std::string,std::string> m;
-    M_LOCK(this);
     for(auto& i:mx_types)
     {
         m[i.first]=i.second.first;
@@ -1502,7 +1473,6 @@ Json::Value Telnet::CommandEntries::jdump()
     Json::Value v;
     v["root"]=m_root->jdump();
     {
-        M_LOCK(this);
         for(auto& i:mx_types)
         {
             Json::Value t;

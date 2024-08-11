@@ -130,7 +130,7 @@ namespace RPC
                 for(auto &z: container_)
                 {
 #ifdef WEBDUMP
-                    j[std::to_string(z.first)]=z.second->getWebDumpableLink("Session");
+                    j[std::to_string(CONTAINER(z.first))]=z.second->getWebDumpableLink("Session");
 #endif
                 }
                 return j;
@@ -176,7 +176,7 @@ namespace RPC
 #endif
                 for(auto &z: passCache)
                 {
-                    j[std::to_string(z.first)]=(int)z.second.size();
+                    j[std::to_string(CONTAINER(z.first))]=(int)z.second.size();
                 }
                 return j;
             }

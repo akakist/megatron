@@ -21,30 +21,14 @@ void ListenerPolled::poll()
     {
         std::deque<REF_getter<Event::Base> > d;
         {
-            M_LOCK(this);
-            d=m_container_;
+            M_LOCK(lk);
+            d=std::move(m_container_);
             m_container_.clear();
         }
         for(size_t n=0; n<d.size(); n++)
         {
             try {
-                bool processed=false;
-
-//                for(auto& i:handlers)
-//                {
-//                    if(i.first(d[n].get(),i.second))processed=true;
-//                }
-
-                if(!processed)
-                {
-                    XTRY;
-                    if(handleEvent(d[n]))
-                    {
-                        processed=true;
-                    }
-                    XPASS;
-                }
-                if(!processed)
+                if(!handleEvent(d[n]))
                 {
                     XTRY;
                     logErr2("ListenerPolled: unhandled event %s in %s",d[n]->dump().toStyledString().c_str(),listenerName_.c_str());
@@ -72,7 +56,7 @@ void ListenerPolled::listenToEvent(const REF_getter<Event::Base>& e)
 
     XTRY;
 
-    M_LOCK(this);
+    M_LOCK(lk);
     m_container_.push_back(e);
     XPASS;
 

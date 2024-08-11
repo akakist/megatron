@@ -39,22 +39,8 @@ ListenerBuffered1Thread::ListenerBuffered1Thread(const std::string& name, const 
 
 void ListenerBuffered1Thread::processEvent(const REF_getter<Event::Base>&e)
 {
-    if(m_isTerminating) return;
     try {
-        bool processed=false;
-        if(!e.valid()) throw CommonError("!.valid() "+_DMI());
-        if(!processed)
-        {
-            XTRY;
-            if(m_isTerminating) return;
-            if(handleEvent(e))
-            {
-                processed=true;
-            }
-
-            XPASS;
-        }
-        if(!processed)
+        if(!handleEvent(e))
         {
             XTRY;
             logErr2("ListenerBuffered1Thread: unhandled event %s svs=%s in listener=%s %s",
@@ -90,28 +76,19 @@ void* ListenerBuffered1Thread::worker(void*p)
     {
         try
         {
-            REF_getter<EventDeque> dq=l->m_container;
-            if(!dq.valid())
+            if(l->m_isTerminating)
+            {
+                DBG(printf(BLUE("ListenerBuffered1Thread exit %s"),l->listenerName_.c_str()));
+                return NULL;
+            }
+            EventDeque* dq=l->m_container.get();
+            if(dq==nullptr)
             {
                 logErr2("!dq valid");
                 return NULL;
             }
-            REF_getter<Event::Base> e(NULL);
 
-            if(l->m_isTerminating)
-            {
-                return NULL;
-            }
-            XTRY;
-            e=dq->pop();
-
-            XPASS;
-            if(l->m_isTerminating)
-            {
-
-                DBG(printf(BLUE("ListenerBuffered1Thread exit %s"),l->listenerName_.c_str()));
-                return NULL;
-            }
+            auto e=dq->pop();
 
             if(e.valid())
             {

@@ -120,7 +120,7 @@ void epoll_socket_info::close(const char* reason)
     {
         sType="_LISTENING";
     }
-    DBG(logErr2("close reason: %s remote name %s type %s fd %d",reason.c_str(),remote_name().dump().c_str(),sType.c_str(),CONTAINER(fd_)));
+    DBG(logErr2("close reason: %s remote name %s type %s fd %d",reason,remote_name().dump().c_str(),sType.c_str(),CONTAINER(fd_)));
     if(closed())
     {
         DBG(logErr2("socket already closed %s",_DMI().c_str()));

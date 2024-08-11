@@ -24,7 +24,7 @@ WebHandler::Service::~Service()
 WebHandler::Service::Service(const SERVICE_id& id, const std::string& nm,IInstance* ifa):
     UnknownBase(nm),
     Broadcaster(ifa),
-    ListenerBuffered1Thread(nm,ifa->getConfig(),id,ifa),
+    ListenerBuffered1Thread(nm,id),
     root(new WebHandler::Node(NULL,"","Home")),iInstance(ifa)
 {
     XTRY;

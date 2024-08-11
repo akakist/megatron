@@ -6,8 +6,6 @@
 #include <atomic>
 #include <stdio.h>
 /// base class and template of smart pointer with refcount, which can catch pointer many times.
-///
-#define PRIVATEMUTEX
 template < class T > class REF_getter;
 class Refcountable
 {
@@ -16,9 +14,6 @@ class Refcountable
     Refcountable & operator= (const Refcountable &);	// Not defined  to prevent usage
 
 public:
-#ifdef PRIVATEMUTEX
-//    Mutex __privateMuteX;
-#endif
     std::atomic<int> __Ref_Count;
     Refcountable (): __Ref_Count(0) { }
 
@@ -56,12 +51,10 @@ public:
             {
                 auto prev=std::atomic_fetch_sub(&___ptr->__Ref_Count,1);
                 if (prev==1)
-                    need_destroy = true;
-            }
-            if (need_destroy)
-            {
-                delete ___ptr;
-                ___ptr = NULL;
+                {
+                    delete ___ptr;
+                    ___ptr = NULL;
+                }
             }
         }
     }
@@ -92,13 +85,13 @@ public:
         return ___ptr == bcg.___ptr;
     }
 #ifndef _MSC_VER
-    REF_getter & operator = (const REF_getter & bcg) const
+    REF_getter & operator = (const REF_getter & rh) const
     {
-        if (this != &bcg)
+        if (this != &rh)
         {
-            bcg.increfcount ();
+            rh.increfcount ();
             decrefcount ();
-            ___ptr = bcg.___ptr;
+            ___ptr = rh.___ptr;
         }
         return *this;
     }

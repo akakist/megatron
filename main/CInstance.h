@@ -77,28 +77,28 @@ private:
 
 public:
 
-    Mutex mx_myExternalAddresses;
+    RWLock mx_myExternalAddresses;
     std::set<msockaddr_in> myExternalAddresses;
 
     std::set<msockaddr_in> myExternalAddressesGet()
     {
-        M_LOCK(mx_myExternalAddresses);
+        R_LOCK(mx_myExternalAddresses);
         return myExternalAddresses;
     }
     void myExternalAddressesInsert(const msockaddr_in&s)
     {
-        M_LOCK(mx_myExternalAddresses);
+        W_LOCK(mx_myExternalAddresses);
         myExternalAddresses.insert(s);
     }
     size_t myExternalAddressesCount(const msockaddr_in&s)
     {
-        M_LOCK(mx_myExternalAddresses);
+        R_LOCK(mx_myExternalAddresses);
         return myExternalAddresses.count(s);
 
     }
     size_t myExternalAddressesSize()
     {
-        M_LOCK(mx_myExternalAddresses);
+        R_LOCK(mx_myExternalAddresses);
         return myExternalAddresses.size();
 
     }

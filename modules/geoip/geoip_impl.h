@@ -4,7 +4,7 @@
 #include <IGEOIP.h>
 #include "CapsGeoIP.h"
 
-class C_GEOIP: public I_GEOIP, public Mutexable
+class C_GEOIP: public I_GEOIP
 {
 public:
     bool inited;

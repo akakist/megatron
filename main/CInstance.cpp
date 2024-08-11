@@ -252,7 +252,6 @@ void CInstance::forwardEvent(const SERVICE_id& svs,  const REF_getter<Event::Bas
 
     XPASS;
 }
-Mutex initServiceMX;
 UnknownBase* CInstance::initService(const SERVICE_id& sid)
 {
     MUTEX_INSPECTOR;

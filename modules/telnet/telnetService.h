@@ -15,7 +15,7 @@ namespace Telnet
 {
 
     class Node;
-    class Session:public Refcountable, public Mutexable
+    class Session:public Refcountable
     {
 
 
@@ -33,12 +33,10 @@ namespace Telnet
         Json::Value jdump();
         REF_getter<Node> defaultNode()
         {
-            M_LOCK(this);
             return mx_defaultNode;
         }
         void defaultNode(const REF_getter<Node> &n)
         {
-            M_LOCK(this);
             mx_defaultNode=n;
         }
 
@@ -60,7 +58,7 @@ namespace Telnet
         {}
 
     };
-    class Node: public Refcountable, public Mutexable
+    class Node: public Refcountable
     {
         std::map<std::string,REF_getter<Node> > m_children;
         std::map<std::deque<std::string>,REF_getter<_Command> > m_commands;
@@ -79,7 +77,7 @@ namespace Telnet
     };
 
 
-    class CommandEntries: public Mutexable
+    class CommandEntries
     {
         REF_getter<Node> m_root;
         std::map<std::string/*name*/,std::pair<std::string/*pattern*/,std::string/*help*/> > mx_types;
@@ -100,12 +98,10 @@ namespace Telnet
     class Service:
         public UnknownBase,
         public Broadcaster,
-        public ListenerBuffered1Thread,
-        public Mutexable
+        public ListenerBuffered1Thread
     {
         class __telnet_stuff: public Refcountable//SocketsContainerBase
         {
-            Mutex m_lock;
             std::map<SOCKET_id,REF_getter<Telnet::Session> > sessions;
         public:
             __telnet_stuff()
@@ -118,12 +114,7 @@ namespace Telnet
             void on_delete(const REF_getter<epoll_socket_info>&esi, const std::string& reason);
             void clear()
             {
-//                SocketsContainerBase::clear();
-                {
-                    M_LOCK(m_lock);
-                    sessions.clear();
-                }
-
+                sessions.clear();
             }
         };
 

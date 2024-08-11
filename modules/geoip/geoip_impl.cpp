@@ -5,7 +5,6 @@
 
 bool C_GEOIP::findNetRec(const std::string &ip, bool isV4, geoNetRec &result)
 {
-    M_LOCK(*this);
     if(!inited)
     {
         geoip.init();
@@ -15,7 +14,6 @@ bool C_GEOIP::findNetRec(const std::string &ip, bool isV4, geoNetRec &result)
 }
 void C_GEOIP::init()
 {
-    M_LOCK(*this);
     if(!inited)
     {
         geoip.init();
