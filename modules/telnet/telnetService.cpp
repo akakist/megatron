@@ -1395,16 +1395,12 @@ void Telnet::CommandEntries::registerDirectory(const std::deque<std::string> &d,
 void Telnet::CommandEntries::registerCommand(const std::deque<std::string> &d, const std::string& cmd, const std::string& help,const route_t& dst, const std::string &params)
 {
 
-//    printf("@@@ params '%s'\n",params.c_str());
-
-//    if(params.size())
     {
         std::deque<std::string> pars=iUtils->splitStringDQ(" ",params);
         {
 
             for(size_t i=0; i<pars.size(); i++)
             {
-//                printf("@@@ par '%s'\n",pars[i].c_str());
                 if(mx_types.count(pars[i]))
                 {
                 }

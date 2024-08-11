@@ -63,9 +63,6 @@ namespace dfsCapsEvent {
         }
 
     };
-}
-
-namespace dfsCapsEvent {
     class RegisterCloudRoot: public Event::Base
     {
         enum {rpcChannel=CHANNEL_70};

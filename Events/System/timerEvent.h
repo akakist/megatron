@@ -47,9 +47,6 @@ namespace timerEvent
             v["tid"]=tid;
         }
     };
-}
-namespace timerEvent
-{
 
     class TickAlarm: public Event::NoPacked
     {
@@ -75,9 +72,6 @@ namespace timerEvent
             v["tid"]=tid;
         }
     };
-}
-namespace timerEvent
-{
 
     class StopTimer:public Event::NoPacked
     {
@@ -99,9 +93,6 @@ namespace timerEvent
             v["tid"]=tid;
         }
     };
-}
-namespace timerEvent
-{
 
     class StopAlarm:public Event::NoPacked
     {
@@ -123,9 +114,6 @@ namespace timerEvent
             v["tid"]=tid;
         }
     };
-}
-namespace timerEvent
-{
 
     class SetTimer:public Event::NoPacked
     {
@@ -154,9 +142,6 @@ namespace timerEvent
             v["tid"]=tid;
         }
     };
-}
-namespace timerEvent
-{
     class SetAlarm:public Event::NoPacked
     {
     public:
@@ -184,9 +169,6 @@ namespace timerEvent
             v["tid"]=tid;
         }
     };
-}
-namespace timerEvent
-{
 
     class ResetAlarm:public Event::NoPacked
     {

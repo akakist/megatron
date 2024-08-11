@@ -53,7 +53,7 @@ int mainTestHTTP_RPC(int argc, char** argv )
                                           "\nSocketIO.listen_backlog=128"
                                           "\nSocketIO.size=1024"
                                           "\nSocketIO.timeout_millisec=10"
-                                          "\nWebHandler.bindAddr=INADDR_ANY:NONE"
+                                          "\nWebHandler.bindAddr=INADDR_ANY:6002"
 
                                           "\n# http listen address"
                                           "\nHTTP.max_post=1000000"

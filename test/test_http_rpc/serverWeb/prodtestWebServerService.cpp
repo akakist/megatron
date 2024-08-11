@@ -180,13 +180,14 @@ REF_getter<prodtestWebServer::Session> prodtestWebServer::Service::get_session(i
 
 bool prodtestWebServer::Service::on_AddTaskRSP(const prodtestEvent::AddTaskRSP*e)
 {
+    // printf("@@@@ on_AddTaskRSP \n");
     if(e->count==0)
     {
 
         HTTP::Response resp(getIInstance());
         auto S=get_session(e->session);
         bool keepAlive=S->req->headers["Connection"]=="Keep-Alive";
-        keepAlive=true;
+        // keepAlive=true;
         if(keepAlive)
         {
             resp.http_header_out["Connection"]="Keep-Alive";

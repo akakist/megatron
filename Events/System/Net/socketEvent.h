@@ -131,11 +131,6 @@ namespace socketEvent
         }
     };
 
-}
-
-
-namespace socketEvent
-{
     class Write: public Event::NoPacked
     {
     public:
@@ -154,11 +149,7 @@ namespace socketEvent
         const SOCKET_id socketId;
         const std::string buf;
     };
-}
 
-
-namespace socketEvent
-{
     class StreamRead: public Event::NoPacked
     {
     public:
@@ -176,12 +167,7 @@ namespace socketEvent
         }
         const REF_getter<epoll_socket_info>  esi;
     };
-}
 
-
-
-namespace socketEvent
-{
     class NotifyOutBufferEmpty: public Event::NoPacked
     {
     public:
@@ -198,11 +184,7 @@ namespace socketEvent
         {
         }
     };
-}
 
-
-namespace socketEvent
-{
     class NotifyBindAddress: public Event::NoPacked
     {
     public:
@@ -224,12 +206,7 @@ namespace socketEvent
         const char* socketDescription;
         const bool rebind;
     };
-}
 
-
-
-namespace socketEvent
-{
     class Disconnected: public Event::NoPacked
     {
     public:
@@ -249,12 +226,7 @@ namespace socketEvent
         const std::string reason;
 
     };
-}
 
-
-
-namespace socketEvent
-{
     class Disaccepted: public Event::NoPacked
     {
     public:
@@ -274,12 +246,7 @@ namespace socketEvent
         const std::string reason;
 
     };
-}
 
-
-
-namespace socketEvent
-{
     class Connected: public Event::NoPacked
     {
     public:
@@ -298,12 +265,6 @@ namespace socketEvent
         const REF_getter<epoll_socket_info>  esi;
 
     };
-}
-
-
-
-namespace socketEvent
-{
     class ConnectFailed: public Event::NoPacked
     {
     public:
@@ -323,11 +284,6 @@ namespace socketEvent
         }
     };
 
-}
-
-
-namespace socketEvent
-{
 
     class AddToListenTCP: public Event::NoPacked
     {
@@ -348,11 +304,6 @@ namespace socketEvent
         {
         }
     };
-}
-
-
-namespace socketEvent
-{
     class AddToConnectTCP: public Event::NoPacked
     {
     public:
@@ -373,10 +324,6 @@ namespace socketEvent
             j["socketDescription"]=socketDescription;
         }
     };
-};
-
-
-namespace socketEvent {
     class Accepted: public Event::NoPacked
     {
     public:

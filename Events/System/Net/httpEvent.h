@@ -42,10 +42,6 @@ namespace httpEvent
     };
 
 
-}
-
-namespace httpEvent
-{
     class RegisterProtocol: public Event::NoPacked
     {
     public:
@@ -64,10 +60,6 @@ namespace httpEvent
     };
 
 
-}
-
-namespace httpEvent
-{
 
     class GetBindPortsREQ: public Event::Base
     {
@@ -122,10 +114,6 @@ namespace httpEvent
 
     };
 
-}
-
-namespace httpEvent
-{
     class DoListen: public Event::NoPacked
     {
         /**

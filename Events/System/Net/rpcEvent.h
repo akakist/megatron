@@ -51,8 +51,6 @@ namespace rpcEvent {
 
         }
     };
-}
-namespace rpcEvent {
     class SubscribeNotifications: public Event::NoPacked
     {
     public:
@@ -68,8 +66,6 @@ namespace rpcEvent {
 
         }
     };
-}
-namespace rpcEvent {
 
 
     class SendPacket: public Event::NoPacked
@@ -94,8 +90,6 @@ namespace rpcEvent {
 
     };
 
-}
-namespace rpcEvent {
     class PassPacket: public Event::NoPacked
     {
     public:
@@ -116,8 +110,6 @@ namespace rpcEvent {
 
     };
 
-}
-namespace rpcEvent {
     class NotifyOutBufferEmpty: public Event::NoPacked
     {
     public:
@@ -134,8 +126,6 @@ namespace rpcEvent {
         }
     };
 
-}
-namespace rpcEvent {
     class IncomingOnConnector: public Event::NoPacked
     {
     public:
@@ -157,8 +147,6 @@ namespace rpcEvent {
         }
     };
 
-}
-namespace rpcEvent {
 
     class IncomingOnAcceptor: public Event::NoPacked
     {
@@ -177,8 +165,6 @@ namespace rpcEvent {
             v["e"]=e->dump();
         }
     };
-}
-namespace rpcEvent {
 
     class Disconnected: public Event::NoPacked
     {
@@ -199,8 +185,6 @@ namespace rpcEvent {
         }
     };
 
-}
-namespace rpcEvent {
 
     class Disaccepted: public Event::NoPacked
     {
@@ -220,8 +204,7 @@ namespace rpcEvent {
         }
 
     };
-}
-namespace rpcEvent {
+
     class Connected: public Event::NoPacked
     {
     public:
@@ -241,8 +224,6 @@ namespace rpcEvent {
 
     };
 
-}
-namespace rpcEvent {
 
     class ConnectFailed: public Event::NoPacked
     {
@@ -260,8 +241,6 @@ namespace rpcEvent {
 
         }
     };
-}
-namespace rpcEvent {
 
     class Binded: public Event::NoPacked
     {
@@ -279,9 +258,7 @@ namespace rpcEvent {
 
         }
     };
-}
 
-namespace rpcEvent {
     class Accepted: public Event::NoPacked
     {
     public:

@@ -14,11 +14,6 @@ namespace jsonRefEventEnum
 }
 
 
-namespace jsonRefEvent
-{
-
-}
-
 
 namespace jsonRefEvent
 {

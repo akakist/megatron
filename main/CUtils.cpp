@@ -156,14 +156,29 @@ std::deque<std::string> CUtils::splitStringDQ(const char *seps, const std::strin
     if(src.empty())
         return {};
     std::string r=(std::string)"["+seps+"]";
-    return resplitDQ(src,std::regex(r));
+    auto d=resplitDQ(src,std::regex(r));
+    std::deque<std::string> res;
+    for(auto& z:d)
+    {
+        if(z.size())
+            res.push_back(std::move(z));
+    }
+    return res;
 }
 std::set < std::string> CUtils::splitStringSET(const char *seps, const std::string & src)
 {
     if(src.empty())
         return {};
     std::string r=(std::string)"["+seps+"]";
-    return resplitSET(src,std::regex(r));
+    auto d=resplitSET(src,std::regex(r));
+    std::set < std::string> res;
+    for(auto& z:d)
+    {
+        if(z.size())
+            res.insert(std::move(z));
+    }
+    return res;
+
 }
 std::vector<std::string> CUtils::splitString(const char *seps, const std::string & src)
 {
@@ -171,7 +186,15 @@ std::vector<std::string> CUtils::splitString(const char *seps, const std::string
         return {};
 
     std::string r=(std::string)"["+seps+"]";
-    return resplit(src,std::regex(r));
+    auto d=resplit(src,std::regex(r));
+    std::vector < std::string> res;
+    for(auto& z:d)
+    {
+        if(z.size())
+            res.push_back(std::move(z));
+    }
+    return res;
+
 }
 std::string CUtils::join(const char *pattern, const std::set < std::string> &st)
 {

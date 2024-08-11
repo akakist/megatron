@@ -45,10 +45,6 @@ namespace webHandlerEvent
 
     };
 
-};
-
-namespace webHandlerEvent
-{
     class RegisterHandler: public Event::NoPacked
     {
     public:
@@ -66,10 +62,6 @@ namespace webHandlerEvent
 
     };
 
-};
-
-namespace webHandlerEvent
-{
     class RegisterDirectory: public Event::NoPacked
     {
 

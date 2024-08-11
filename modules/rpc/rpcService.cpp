@@ -591,7 +591,7 @@ bool RPC::Service::handleEvent(const REF_getter<Event::Base>& e)
     XTRY;
     //auto _this=this;
     auto& ID=e->id;
-    // evcount.inc(ID);
+     evcount.inc(ID);
     if(timerEventEnum::TickAlarm==ID)
         return on_TickAlarm((const timerEvent::TickAlarm*)e.get());
     if(timerEventEnum::TickTimer==ID)

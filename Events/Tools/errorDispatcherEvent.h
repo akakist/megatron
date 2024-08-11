@@ -49,9 +49,6 @@ namespace errorDispatcherEvent
         }
     };
 
-}
-namespace errorDispatcherEvent
-{
 
     class Subscribe: public Event::Base
     {
@@ -76,9 +73,6 @@ namespace errorDispatcherEvent
         }
     };
 
-}
-namespace errorDispatcherEvent
-{
     class SendMessage: public Event::Base
     {
 
@@ -112,9 +106,6 @@ namespace errorDispatcherEvent
     };
 
 
-}
-namespace errorDispatcherEvent
-{
     class NotifySubscriber: public Event::Base
     {
 

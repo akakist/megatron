@@ -54,9 +54,6 @@ namespace oscarEvent
         {
         }
     };
-}
-namespace oscarEvent
-{
 
 /// приход буфера на коннекторе
     class PacketOnConnector: public Event::NoPacked
@@ -77,10 +74,6 @@ namespace oscarEvent
         {
         }
     };
-}
-
-namespace oscarEvent
-{
 
 /// приход буфера на слушателе
     class PacketOnAcceptor: public Event::NoPacked
@@ -101,12 +94,7 @@ namespace oscarEvent
         {
         }
     };
-}
 
-
-
-namespace oscarEvent
-{
     class NotifyOutBufferEmpty: public Event::NoPacked
     {
     public:
@@ -124,11 +112,6 @@ namespace oscarEvent
         }
     };
 
-}
-
-
-namespace oscarEvent
-{
     class NotifyBindAddress: public Event::NoPacked
     {
     public:
@@ -149,10 +132,6 @@ namespace oscarEvent
         const bool rebind;
     };
 
-}
-
-namespace oscarEvent
-{
 
     class Disconnected: public Event::NoPacked
     {
@@ -174,10 +153,6 @@ namespace oscarEvent
             j["reason"]=reason;
         }
     };
-}
-
-namespace oscarEvent
-{
 
     class Disaccepted: public Event::NoPacked
     {
@@ -197,9 +172,6 @@ namespace oscarEvent
         {
         }
     };
-}
-namespace oscarEvent
-{
 
     class Connected: public Event::NoPacked
     {
@@ -218,11 +190,6 @@ namespace oscarEvent
         {
         }
     };
-}
-
-
-namespace oscarEvent
-{
 
     class ConnectFailed: public Event::NoPacked
     {
@@ -240,10 +207,6 @@ namespace oscarEvent
         {
         }
     };
-}
-
-namespace oscarEvent
-{
 
     class Connect: public Event::NoPacked
     {
@@ -262,11 +225,6 @@ namespace oscarEvent
         {
         }
     };
-}
-
-
-namespace oscarEvent
-{
 
 
     class AddToListenTCP: public Event::NoPacked
@@ -286,11 +244,6 @@ namespace oscarEvent
         {
         }
     };
-}
-
-
-namespace oscarEvent
-{
 
 /// callback notification about socket is accepted
     class Accepted: public Event::NoPacked

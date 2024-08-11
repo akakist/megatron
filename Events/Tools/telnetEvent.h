@@ -48,11 +48,6 @@ namespace telnetEvent
 
 
 
-};
-
-
-namespace telnetEvent
-{
 
     class RegisterType: public Event::NoPacked
     {
@@ -83,11 +78,6 @@ namespace telnetEvent
 
 
 
-};
-
-
-namespace telnetEvent
-{
 
     class RegisterCommand: public Event::NoPacked
     {
@@ -114,10 +104,6 @@ namespace telnetEvent
 
 
 
-};
-
-namespace telnetEvent
-{
 
 
     class CommandEntered: public Event::NoPacked

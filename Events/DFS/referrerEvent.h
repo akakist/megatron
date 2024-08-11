@@ -47,10 +47,7 @@ namespace dfsReferrer {
             PT_CAPS_LONG,
         };
     }
-
 }
-/// if SOCKET_id==0 then socket is local storage
-
 
 namespace dfsReferrerEvent {
     class InitClient: public Event::NoPacked
@@ -74,8 +71,6 @@ namespace dfsReferrerEvent {
         }
     };
 
-}
-namespace dfsReferrerEvent {
     class NotifyReferrerDownlinkDisconnected: public Event::NoPacked
     {
 
@@ -131,8 +126,6 @@ namespace dfsReferrerEvent {
 
     };
 
-}
-namespace dfsReferrerEvent {
     class Ping: public Event::Base
     {
         enum {rpcChannel=CHANNEL_0};
@@ -386,9 +379,6 @@ namespace dfsReferrerEvent {
     };
 
 
-}
-
-namespace dfsReferrerEvent {
     class SubscribeNotifications: public Event::Base
     {
         enum {rpcChannel=CHANNEL_0};
@@ -413,9 +403,6 @@ namespace dfsReferrerEvent {
     };
 
 
-}
-
-namespace dfsReferrerEvent {
     class UpdateConfigREQ: public Event::Base
     {
 
