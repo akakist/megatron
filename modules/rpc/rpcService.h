@@ -8,7 +8,14 @@
 #include <json/value.h>
 #include <broadcaster.h>
 #include <msockaddr_in.h>
+
+// #define RPCSIMPLE 1
+
+#ifdef RPCSIMPLE
 #include <listenerSimple.h>
+#else 
+#include "listenerBuffered1Thread.h"
+#endif
 #include <IRPC.h>
 
 #include "Events/System/Net/rpcEvent.h"
@@ -17,6 +24,7 @@
 #include <Events/System/timerEvent.h>
 #include <Events/System/Run/startServiceEvent.h>
 #include <Events/Tools/webHandlerEvent.h>
+
 
 namespace RPC
 {
@@ -32,7 +40,9 @@ namespace RPC
     struct outCache: public Refcountable
     {
         std::deque<REF_getter<refbuffer> >  container;
+#ifdef RPCSIMPLE
         RWLock lk;
+#endif
 
         Json::Value jdump()
         {
@@ -84,12 +94,16 @@ namespace RPC
             {}
 
         struct subscr {
+#ifdef RPCSIMPLE
         RWLock lock_;
+#endif
             std::set<route_t> container_;
             Json::Value jdump()
             {
                 Json::Value j;
+#ifdef RPCSIMPLE
                 R_LOCK(lock_);
+#endif
                 for(auto &z: container_)
                 {
                     j.append(z.dump());
@@ -103,12 +117,16 @@ namespace RPC
         struct sock2sess
         {
 
+#ifdef RPCSIMPLE
             RWLock lock_;
+#endif
             std::map<SOCKET_id, REF_getter<Session> > container_;
             Json::Value jdump()
             {
                 Json::Value j;
+#ifdef RPCSIMPLE
                 R_LOCK(lock_);
+#endif
                 for(auto &z: container_)
                 {
 #ifdef WEBDUMP
@@ -123,12 +141,16 @@ namespace RPC
 
         struct sa2sess
         {
+#ifdef RPCSIMPLE
             RWLock lock_;
+#endif
             std::map<msockaddr_in,REF_getter<Session> > container_;
             Json::Value jdump()
             {
                 Json::Value j;
+#ifdef RPCSIMPLE
                 R_LOCK(lock_);
+#endif
                 for(auto &z: container_)
                 {
 #ifdef WEBDUMP
@@ -149,7 +171,9 @@ namespace RPC
             Json::Value jdump()
             {
                 Json::Value j;
+#ifdef RPCSIMPLE
                 R_LOCK(lock_);
+#endif
                 for(auto &z: passCache)
                 {
                     j[std::to_string(z.first)]=(int)z.second.size();
@@ -172,15 +196,21 @@ namespace RPC
         void clear()
         {
             {
+#ifdef RPCSIMPLE
                 W_LOCK(sa2sess_.lock_);
+#endif
                 sa2sess_.container_.clear();
             }
             {
+#ifdef RPCSIMPLE
                 W_LOCK(subscribers_.lock_);
+#endif
                 subscribers_.container_.clear();
             }
             {
+#ifdef RPCSIMPLE
                 W_LOCK(sock2sess_.lock_);
+#endif
                 sock2sess_.container_.clear();
             }
         }
@@ -189,7 +219,11 @@ namespace RPC
 
     class Service:
         public UnknownBase,
+#ifdef RPCSIMPLE
         public ListenerSimple,
+#else
+        public ListenerBuffered1Thread,
+#endif
         public Broadcaster,
         public IRPC
     {
@@ -263,7 +297,12 @@ namespace RPC
 
         void deinit()
         {
+
+#ifdef RPCSIMPLE
             ListenerSimple::deinit();
+#else 
+            ListenerBuffered1Thread::deinit();
+#endif
         }
 
         Service(const SERVICE_id &svs, const std::string&  nm,  IInstance *ifa);

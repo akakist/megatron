@@ -6,7 +6,7 @@
 #include <epoll_socket_info.h>
 #include <json/value.h>
 #include <unknown.h>
-#include <listenerSimple.h>
+#include <listenerBuffered1Thread.h>
 #include <broadcaster.h>
 #include <Events/System/Net/socketEvent.h>
 #include <Events/System/Run/startServiceEvent.h>
@@ -69,7 +69,7 @@ namespace SocketIO
     class Service:
         public UnknownBase,
         public Broadcaster,
-        public ListenerSimple
+        public ListenerBuffered1Thread
 
     {
     private:
@@ -134,7 +134,7 @@ namespace SocketIO
         ~Service();
         void deinit()
         {
-            ListenerSimple::deinit();
+            ListenerBuffered1Thread::deinit();
         }
 
     protected:
