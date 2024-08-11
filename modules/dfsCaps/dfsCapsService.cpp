@@ -26,7 +26,7 @@
 #define CAPS_DBNAME "caps"
 dfsCaps::Service::Service(const SERVICE_id &svs, const std::string&  nm, IInstance *_ifa):
     UnknownBase(nm),
-    ListenerBuffered1Thread(this,nm,_ifa->getConfig(),svs,_ifa),
+    ListenerBuffered1Thread(nm,_ifa->getConfig(),svs,_ifa),
     Broadcaster(_ifa),
 
     TimerHelper(_ifa),iInstance(_ifa)

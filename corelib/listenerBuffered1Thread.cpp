@@ -26,7 +26,7 @@ void ListenerBuffered1Thread::deinit()
     }
 
 }
-ListenerBuffered1Thread::ListenerBuffered1Thread(UnknownBase *i, const std::string& name, IConfigObj*, const SERVICE_id & sid, IInstance *ins)
+ListenerBuffered1Thread::ListenerBuffered1Thread(const std::string& name, IConfigObj*, const SERVICE_id & sid, IInstance *ins)
     :ListenerBase(name,sid),m_container(new EventDeque(name,ins)),m_pt(0),m_isTerminating(false) {
 
 

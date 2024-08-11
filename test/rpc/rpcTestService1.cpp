@@ -9,7 +9,7 @@ extern bool done_test;
 rpcTestService1::rpcTestService1(const SERVICE_id &id, const std::string&  nm,IInstance* ins)
     :
     UnknownBase(nm),
-    ListenerBuffered1Thread(this,nm,ins->getConfig(),id,ins),
+    ListenerBuffered1Thread(nm,ins->getConfig(),id,ins),
     Broadcaster(ins)
 {
     ssl=(I_ssl*)iUtils->queryIface(Ifaces::SSL);

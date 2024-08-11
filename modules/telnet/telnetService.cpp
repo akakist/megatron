@@ -159,7 +159,7 @@ void Telnet::Service::doListen()
 
 Telnet::Service::Service(const SERVICE_id& id, const std::string& nm, IInstance* ifa):
     UnknownBase(nm),Broadcaster(ifa),
-    ListenerBuffered1Thread(this,nm,ifa->getConfig(),id,ifa),
+    ListenerBuffered1Thread(nm,ifa->getConfig(),id,ifa),
     stuff(new __telnet_stuff),iInstance(ifa)
 {
     XTRY;

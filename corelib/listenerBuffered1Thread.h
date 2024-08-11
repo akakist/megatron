@@ -27,7 +27,7 @@ public:
     virtual bool handleEvent(const REF_getter<Event::Base>& e)=0;
 
     virtual ~ListenerBuffered1Thread();
-    ListenerBuffered1Thread(UnknownBase *i, const std::string& name,IConfigObj*, const SERVICE_id & sid,IInstance* ins);
+    ListenerBuffered1Thread(const std::string& name,IConfigObj*, const SERVICE_id & sid,IInstance* ins);
 
     /// caller of handleEvent
     void processEvent(const REF_getter<Event::Base>&);

@@ -98,7 +98,7 @@ namespace ObjectProxy
 
         Threaded(const SERVICE_id &svs, const std::string& nm,IInstance* ifa):UnknownBase(nm),
             Broadcaster(ifa),
-            ListenerBuffered1Thread(this,nm,ifa->getConfig(),svs,ifa)
+            ListenerBuffered1Thread(nm,ifa->getConfig(),svs,ifa)
         {
         }
 

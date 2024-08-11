@@ -629,7 +629,7 @@ void Service::sendToplinkReqClient(const msockaddr_in& uplink,dfsReferrerEvent::
 
 Service::Service(const SERVICE_id &svs, const std::string &nm, IInstance *ifa):
     UnknownBase(nm),
-    ListenerBuffered1Thread(this,nm,ifa->getConfig(),svs,ifa),Broadcaster(ifa),
+    ListenerBuffered1Thread(nm,ifa->getConfig(),svs,ifa),Broadcaster(ifa),
     TimerHelper(ifa),
 
     uplinkConnectionState(NULL),

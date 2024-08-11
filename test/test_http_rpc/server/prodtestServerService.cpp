@@ -68,7 +68,7 @@ prodtestServer::Service::~Service()
 
 prodtestServer::Service::Service(const SERVICE_id& id, const std::string& nm,IInstance* ins):
     UnknownBase(nm),
-    ListenerBuffered1Thread(this,nm,ins->getConfig(),id,ins),
+    ListenerBuffered1Thread(nm,ins->getConfig(),id,ins),
     Broadcaster(ins)
 {
 }
