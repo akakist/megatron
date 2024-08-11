@@ -58,6 +58,7 @@ RPC.BindAddr_MAIN=INADDR_ANY:10100,INADDR6_ANY:0
 RPC.BindAddr_RESERVE=NONE
 SocketIO.epoll_timeout_millisec=10
 SocketIO.listen_backlog=128
+RPC.oscarType=Oscar
 
 # socket poll thread count
 SocketIO.n_workers=2
@@ -158,20 +159,20 @@ DFSReferrer.T_004_cache_pong_timed_out_=2.000000
 WebHandler.bindAddr=NONE
 
                 )zxc"
-                             };
-            IInstance *instance1=iUtils->createNewInstance("node_"+std::to_string(i));
+        };
+        IInstance *instance1=iUtils->createNewInstance("node_"+std::to_string(i));
 
-            ConfigObj *cnf1=new ConfigObj("node_"+std::to_string(i)+".conf",cf[i]);
-            instance1->setConfig(cnf1);
-            instance1->initServices();
-            sleep(1);
+        ConfigObj *cnf1=new ConfigObj("node_"+std::to_string(i)+".conf",cf[i]);
+        instance1->setConfig(cnf1);
+        instance1->initServices();
+        sleep(1);
 
-        }
-        std::set<AppHandler*> apps;
-        for(int i=0; i<1; i++)
-        {
+    }
+    std::set<AppHandler*> apps;
+    for(int i=0; i<1; i++)
+    {
 
-            const char *cf=R"zxc(
+        const char *cf=R"zxc(
 ReferrerClient.T_001_common_connect_failed=20.000000
 ReferrerClient.T_002_D3_caps_get_service_request_is_timed_out=15.000000
 ReferrerClient.T_007_D6_resend_ping_caps_short=7.000000

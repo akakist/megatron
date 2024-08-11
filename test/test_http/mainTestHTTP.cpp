@@ -41,6 +41,7 @@ int mainTestHTTP(int argc, char** argv )
                                           "\nOscarSecure.maxPacketSize=33554432"
                                           "\nRPC.BindAddr_MAIN=INADDR_ANY:2000"
                                           "\nRPC.BindAddr_RESERVE=NONE"
+                                          "\nRPC.oscarType=Oscar"
                                           "\nSocketIO.ListenerBuffered.MaxThreadsCount=10"
                                           "\nSocketIO.listen_backlog=128"
                                           "\nSocketIO.size=1024"

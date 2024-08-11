@@ -40,6 +40,8 @@ int mainTest(int argc, char** argv )
                                           "\nRPC.ListenerBuffered.MaxThreadsCount=10"
                                           "\nStart=RPC,rpcTestService1"
                                           "\nOscarSecure.ListenerBuffered.MaxThreadsCount=10"
+                                          "\nRPC.oscarType=Oscar"
+
                                           "\nOscarSecure.RSA_keysize=256"
                                           "\nOscarSecure.maxPacketSize=33554432"
                                           "\nRPC.BindAddr_MAIN=INADDR_ANY:2000"
@@ -67,6 +69,7 @@ int mainTest(int argc, char** argv )
                                           "\nRPC.ListenerBuffered.MaxThreadsCount=10"
                                           "\nStart=RPC,rpcTestService2"
                                           "\nOscarSecure.ListenerBuffered.MaxThreadsCount=10"
+                                          "\nRPC.oscarType=Oscar"
                                           "\nOscarSecure.RSA_keysize=256"
                                           "\nOscarSecure.maxPacketSize=33554432"
                                           "\nRPC.BindAddr_MAIN=INADDR_ANY:2001"

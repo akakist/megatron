@@ -38,6 +38,7 @@ int mainTestReferrer(int argc, char** argv )
 Start=RPC,DFSCaps,DFSReferrer
 RPC.IterateTimeoutSec=60.000000
 RPC.ConnectionActivity=600.000000
+RPC.oscarType=Oscar
 
 # Address used to work with dfs network. NONE - no bind
 RPC.BindAddr_MAIN=INADDR_ANY:5500,INADDR6_ANY:0
