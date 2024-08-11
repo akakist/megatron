@@ -26,7 +26,6 @@ namespace SocketIO
         RWLock lk;
         SocketsContainerForSocketIO(): multiplexor_(new NetworkMultiplexor)
         {}
-        ~SocketsContainerForSocketIO();
         void remove(const SOCKET_id& sid)
         {
             W_LOCK(lk);
@@ -113,8 +112,6 @@ namespace SocketIO
         void closeSocket(const REF_getter<epoll_socket_info>&esi, const char *reason, int errNo, const REF_getter<SocketsContainerForSocketIO> &MS);
         bool on_AddToListenTCP(const socketEvent::AddToListenTCP*);
         bool on_AddToConnectTCP(const socketEvent::AddToConnectTCP*);
-        bool on_startService(const systemEvent::startService*);
-        bool on_TickTimer(const timerEvent::TickTimer*);
         bool on_RequestIncoming(const webHandlerEvent::RequestIncoming*);
         void onEPOLLIN(const REF_getter<epoll_socket_info>& esi, const REF_getter<SocketsContainerForSocketIO> &MS);
         void onEPOLLIN_STREAMTYPE_LISTENING(const REF_getter<epoll_socket_info>&esi, const REF_getter<SocketsContainerForSocketIO> &MS);

@@ -748,19 +748,6 @@ void SocketIO::Service::closeSocket(const REF_getter<epoll_socket_info>&esi,cons
     esi->close(reason);
     XPASS;
 }
-bool  SocketIO::Service::on_startService(const systemEvent::startService*)
-{
-    XTRY;
-
-
-
-    XPASS;
-    return true;
-}
-bool SocketIO::Service::on_TickTimer(const timerEvent::TickTimer*e)
-{
-    return true;
-}
 
 
 UnknownBase* SocketIO::Service::construct(const SERVICE_id& id, const std::string&  nm, IInstance* ifa)
@@ -779,8 +766,6 @@ bool  SocketIO::Service::handleEvent(const REF_getter<Event::Base>&e)
     MUTEX_INSPECTOR;
     XTRY;
     auto &ID=e->id;
-    if(timerEventEnum::TickTimer==ID)
-        return on_TickTimer((const timerEvent::TickTimer*)e.get());
     if(socketEventEnum::AddToListenTCP==ID)
         return on_AddToListenTCP((const socketEvent::AddToListenTCP*)e.get());
     if(socketEventEnum::AddToConnectTCP==ID)
@@ -788,7 +773,7 @@ bool  SocketIO::Service::handleEvent(const REF_getter<Event::Base>&e)
     if(webHandlerEventEnum::RequestIncoming==ID)
         return on_RequestIncoming((const webHandlerEvent::RequestIncoming*)e.get());
     if(systemEventEnum::startService==ID)
-        return on_startService((const systemEvent::startService*)e.get());
+        return true;
 
     XPASS;
     return false;
@@ -1003,7 +988,3 @@ Json::Value SocketIO::SocketsContainerForSocketIO::jdump()
 
 
 
-SocketIO::SocketsContainerForSocketIO::~SocketsContainerForSocketIO()
-{
-
-}
