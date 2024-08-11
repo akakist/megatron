@@ -2,6 +2,7 @@
 project (dfsCoreModules)
 
 ADD_SUBDIRECTORY(testReferrerClient)
+ADD_SUBDIRECTORY(testReferrer)
 ADD_SUBDIRECTORY(mem)
 ADD_SUBDIRECTORY(timer)
 ADD_SUBDIRECTORY(rpc)

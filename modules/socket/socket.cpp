@@ -11,7 +11,6 @@ registerModule
 #endif
 (IUtils* f, const char* pn)
 {
-
     iUtils=f;
     registerSocketModule(pn);
 }

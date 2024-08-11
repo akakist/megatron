@@ -16,38 +16,6 @@
 #include "megatron.h"
 #include "colorOutput.h"
 void onterm(int signum);
-#ifdef _LINK_BASE
-void registerSocketModule();
-void registerOscarModule();
-void registerOscarSecureModule();
-void registerTimerService();
-void registerRPCService();
-void registerSqliteModule();
-void registerMysqlModule();
-void registerTelnetService();
-void registerLoggerService();
-void registerObjectProxyModule();
-#endif
-
-#ifdef _LINK_DFS
-void registerDFSService();
-void registerDFSAviSourceService();
-void registerDFSFileStoreService();
-void registerDFSPipeStoreService();
-void registerDFSReferrerService();
-void registerDFSSourceMixerService();
-void registerHTTPModule();
-void registerWebHandlerModule();
-void registerDFSIOService();
-void registerDFSTestService();
-void onterm(int signum);
-void registerDfsIo();
-void registerEvents();
-void registerDFSFileUploaderService();
-#endif
-
-
-
 
 megatron mega;
 static bool ex=false;

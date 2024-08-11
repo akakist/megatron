@@ -1,6 +1,5 @@
 #cmake_minimum_required (VERSION 2.6)
 
-ADD_SUBDIRECTORY(test)
 
 add_library(dfs-referrer SHARED
 
