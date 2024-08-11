@@ -1678,19 +1678,19 @@ Utils_local *CUtils::getLocals()
 std::set<IInstance *> CUtils::getInstances()
 {
     if(m_isTerminating) throw CommonError("if(m_isTerminating)");
-    M_LOCK (instances);
+    R_LOCK (instances.lk);
     return instances.container;
 }
 void CUtils::registerInstance(IInstance *i)
 {
     if(m_isTerminating)return;
-    M_LOCK (instances);
+    W_LOCK (instances.lk);
     instances.container.insert(i);
 }
 void CUtils::unregisterInstance(IInstance *i)
 {
     delete i;
-    M_LOCK (instances);
+    W_LOCK (instances.lk);
     instances.container.erase(i);
 }
 IInstance* CUtils::createNewInstance(const std::string& nm)
@@ -1698,7 +1698,7 @@ IInstance* CUtils::createNewInstance(const std::string& nm)
     if(m_isTerminating) return NULL;
     IInstance *ins=new CInstance(this,nm);
     {
-        M_LOCK (instances);
+        W_LOCK (instances.lk);
         instances.container.insert(ins);
     }
     return ins;

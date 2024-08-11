@@ -194,15 +194,16 @@ public:
 
 
     Utils_local *getLocals();
-    struct __instances: public Mutexable
+    struct __instances
     {
+        RWLock lk;
         std::set<IInstance*> container;
         void clear()
         {
             std::set<IInstance*> ins;
 
             {
-                M_LOCK(this);
+                W_LOCK(lk);
                 ins=container;
                 container.clear();
             }

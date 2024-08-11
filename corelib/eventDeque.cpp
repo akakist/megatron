@@ -11,22 +11,21 @@ void EventDeque::push(const REF_getter<Event::Base> & e)
     }
     m_cond.signal();
 }
-REF_getter<Event::Base> EventDeque::pop()
+std::deque<REF_getter<Event::Base> > EventDeque::pop()
 {
     M_LOCKC(m_mutex);
     while(1)
     {
         if(m_isTerminating)
-            return NULL;
+            return {};
         if(!container.size())
             m_cond.wait();
         if(m_isTerminating)
-            return NULL;
+            return {};
         if(container.size())
         {
-            REF_getter<Event::Base> r=*container.begin();
-            container.pop_front();
-            m_cond.signal();
+            std::deque<REF_getter<Event::Base> > r=std::move(container);
+            container.clear();
             return r;
         }
     }

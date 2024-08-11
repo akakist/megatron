@@ -19,7 +19,7 @@ public:
     m_cond(m_mutex),
     m_isTerminating(false) {}
     void push(const REF_getter<Event::Base> & e);
-    REF_getter<Event::Base> pop();
+    std::deque<REF_getter<Event::Base> > pop();
     void deinit()
     {
         m_isTerminating=true;

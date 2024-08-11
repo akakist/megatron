@@ -89,15 +89,18 @@ void* ListenerBuffered1Thread::worker(void*p)
             }
 
             auto e=dq->pop();
+            for(auto z:e)
+            {
+                if(z.valid())
+                {
+                    l->processEvent(z);
+                }
+                else
+                {
+                    DBG(printf(BLUE("ListenerBuffered1Thread exit %s"),l->listenerName_.c_str()));
+                    return NULL;
+                }
 
-            if(e.valid())
-            {
-                l->processEvent(e);
-            }
-            else
-            {
-                DBG(printf(BLUE("ListenerBuffered1Thread exit %s"),l->listenerName_.c_str()));
-                return NULL;
             }
 
         }
@@ -118,8 +121,6 @@ void ListenerBuffered1Thread::listenToEvent(const REF_getter<Event::Base>& e)
         logErr2("if(!m_container.valid())");
         return;
     }
-
-    if(m_isTerminating) return;
     XTRY;
     m_container->push(e);
     XPASS;
