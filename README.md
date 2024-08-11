@@ -181,3 +181,4 @@ In principle, the logic of Megatron somewhat repeats the logic of the DRAGON lan
 but with the help of megatron you can implement activity diagrams almost in a visual form.
 
 
+
