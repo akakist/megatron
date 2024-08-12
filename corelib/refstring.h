@@ -4,6 +4,7 @@
 #include <string>
 #include <inttypes.h>
 #include "commonError.h"
+#include <string.h>
 
 /// refbuffer - string replacement with recount
 struct refbuffer: public Refcountable

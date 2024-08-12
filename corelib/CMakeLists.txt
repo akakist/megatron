@@ -144,7 +144,7 @@ userObjectHandler.h
 version_mega.h
 webDumpable.cpp
 webDumpable.h
-
+splitStr.h
 
            )
 #install(TARGETS megatron-core DESTINATION ${LIB_TARGET_DIR})

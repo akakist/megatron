@@ -3,6 +3,7 @@
 #include <optional>
 #include <string_view>
 #include <deque>
+#include <string>
 
 template <class T>
 inline std::deque<T> splitStr(const std::string_view& delim,const T& src)
