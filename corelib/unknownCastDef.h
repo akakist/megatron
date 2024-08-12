@@ -1,4 +1,4 @@
-#pragma once
-namespace UnknownCast
-{
-}
+//#pragma once
+//namespace UnknownCast
+//{
+//}

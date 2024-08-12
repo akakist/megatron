@@ -8,7 +8,6 @@
 #include "broadcaster.h"
 
 #include <ostream>
-#include "mutexInspector.h"
 #include "Events/System/Run/startServiceEvent.h"
 #include "Events/System/timerEvent.h"
 

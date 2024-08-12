@@ -1,5 +1,6 @@
 #include "_QUERY.h"
 #include "IUtils.h"
+#include "commonError.h"
 #ifndef _MSC_VER
 //#include "inttypes.h"
 #endif

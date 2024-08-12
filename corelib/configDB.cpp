@@ -2,7 +2,6 @@
 #ifdef _WIN32
 #include "compat_win32.h"
 #endif
-//#include "queryResult.h"
 
 #include "st_FILE.h"
 #include "url.h"

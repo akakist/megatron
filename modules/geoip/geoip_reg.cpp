@@ -1,5 +1,4 @@
 #include <string>
-#include "IInstance.h"
 #include "IUtils.h"
 #include "version_mega.h"
 #include "geoip_impl.h"

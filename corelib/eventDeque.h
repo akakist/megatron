@@ -3,7 +3,6 @@
 #include "event_mt.h"
 #include "mutexable.h"
 #include <json/json.h>
-#include "IInstance.h"
 
 /// Used for event processing in Listeners
 class EventDeque: public Refcountable

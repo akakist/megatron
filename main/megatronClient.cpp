@@ -1,6 +1,5 @@
 #include "IInstance.h"
 #define _FILE_OFFSET_BITS 64
-#include "pconfig.h"
 #ifndef _MSC_VER
 #include <unistd.h>
 #include <dirent.h>

@@ -2,7 +2,6 @@
 #include <string>
 #include <algorithm>
 #include "IGEOIP.h"
-#include "mutexable.h"
 #define IPDATA "ipdata.txt"
 
 #define DBNAME "geoip"

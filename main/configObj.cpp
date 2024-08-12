@@ -1,5 +1,4 @@
 #include "configObj.h"
-#include "IInstance.h"
 #ifdef _WIN32
 #include "compat_win32.h"
 #endif

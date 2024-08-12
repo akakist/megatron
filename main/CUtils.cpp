@@ -25,7 +25,6 @@
 #include "st_malloc.h"
 #include <fcntl.h>
 #include "st_FILE.h"
-#include "epoll_socket_info.h"
 #ifdef _WIN32
 #include <lib/regex/regex.h>
 #else

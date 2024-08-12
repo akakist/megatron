@@ -65,7 +65,6 @@ SERVICE_id.h
 SHA1_id.h
 SOCKET_fd.h
 SOCKET_id.h
-URI.h
 VERSION_id.h
 _QUERY.cpp
 _QUERY.h

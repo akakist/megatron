@@ -3,7 +3,6 @@
 #include "configObj.h"
 #include "CUtils.h"
 #include "appHandler.h"
-//bool done_test_http=false;
 #include "Events/DFS/capsEvent.h"
 #include <unistd.h>
 void registerRPCService(const char* pn);

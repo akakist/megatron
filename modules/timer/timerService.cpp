@@ -1,6 +1,7 @@
 #include "timerService.h"
 #include "events_timer.hpp"
 #include "colorOutput.h"
+#include "mutexInspector.h"
 #if !defined __MOBILE__ && !defined __FreeBSD__
 #include <sys/timeb.h>
 #endif

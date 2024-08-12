@@ -1,7 +1,5 @@
 #pragma once
 #include "listenerBase.h"
-#include "IConfigObj.h"
-#include "IInstance.h"
 #include "eventDeque.h"
 class ListenerBuffered1Thread;
 /**

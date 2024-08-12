@@ -10,9 +10,6 @@
 #ifdef _WIN32
 #include <time.h>
 #endif
-//#include "unknown.h"
-//#include "unknownCastDef.h"
-//#include "IInstance.h"
 #include "mutexInspector.h"
 
 st_DBH::st_DBH(DBH_source* src, bool _isTransaction): m_source(src),isTransaction(_isTransaction),transactionResult(true),dbh(m_source->get())

@@ -1,7 +1,6 @@
 #include <string>
 #include <map>
 #include "IUtils.h"
-#include "IGEOIP.h"
 void registerGEOIP(const char* pn);
 
 IUtils *iUtils;

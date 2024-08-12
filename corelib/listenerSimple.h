@@ -1,5 +1,4 @@
 #pragma once
-#include "IConfigObj.h"
 #include "listenerBase.h"
 
 

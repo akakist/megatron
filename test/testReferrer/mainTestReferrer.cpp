@@ -1,7 +1,6 @@
 #include "IInstance.h"
 #include "colorOutput.h"
 #include "configObj.h"
-#include "version_mega.h"
 #include "CUtils.h"
 #include <unistd.h>
 //bool done_test_http=false;

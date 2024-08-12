@@ -1,8 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "commonError.h"
-#include "ioBuffer.h"
 #include <openssl/rsa.h>
 #include <openssl/md5.h>
 #include <openssl/aes.h>

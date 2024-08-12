@@ -3,7 +3,6 @@
 #include "objectHandler.h"
 #include "mutexInspector.h"
 #include "listenerBase.h"
-#include "construct.h"
 std::string route_t::dump() const
 {
     XTRY;

@@ -3,8 +3,6 @@
 /// base class to construct JSON driven network client
 
 #include "objectHandler.h"
-//#include "JAVACOOKIE_id.h"
-//#include "AUTHCOOKIE_id.h"
 #include "IInstance.h"
 #include "timerHelper.h"
 #include "Events/System/timerEvent.h"

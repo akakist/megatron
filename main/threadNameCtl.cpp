@@ -3,7 +3,6 @@
 
 #include "threadNameCtl.h"
 #include "mutex_inspector_entry.h"
-#include "IInstance.h"
 class ThreadNameControllerImpl:public Mutexable
 {
 public:

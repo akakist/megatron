@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include "IInstance.h"
 #include "IUtils.h"
 #include "ISSL.h"
 #include "SHA1_id.h"

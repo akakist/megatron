@@ -6,7 +6,6 @@
 #include <Events/System/Net/socketEvent.h>
 #include <Events/System/Net/oscarEvent.h>
 #include <mutexInspector.h>
-#include "Events/Tools/errorDispatcherEvent.h"
 #include "events_oscar.hpp"
 
 Oscar::Service::Service(const SERVICE_id &svs, const std::string&  nm,IInstance* ifa):

@@ -1,19 +1,9 @@
 #include "appHandler.h"
 #include <math.h>
 #include <megatron_config.h>
-#include "tools_mt.h"
 #include "colorOutput.h"
-#include "__crc64.h"
-#include "__crc16.h"
-#include "__crc32.h"
-#include "ISSL.h"
-#include "st_rsa.h"
-#include "SQLiteCpp/Database.h"
-#include "_QUERY.h"
-#include "megatronClient.h"
 #include "Events/DFS/referrerEvent.h"
 
-//const char emitent[]="c4393323dc2cc32a4b9e30aea0b91878a78693d3";/// shuvalow
 void AppHandler::init(int argc, char ** argv, const std::string & filesDir, IInstance* instance)
 {
 

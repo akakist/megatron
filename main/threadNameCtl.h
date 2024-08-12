@@ -1,8 +1,4 @@
 #pragma once
-#include "mutexable.h"
-#ifdef _MCS_VER
-#endif
-#include "compat_win32.h"
 
 #include <map>
 #include <string>

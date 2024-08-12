@@ -10,7 +10,6 @@
 #ifdef __APPLE__
 
 #endif
-#include "json/json.h"
 #ifdef _WIN32
 #include "compat_win32.h"
 #include <winsock2.h>

@@ -26,7 +26,6 @@
 #include <tools_mt.h>
 #include <Events/System/Net/socketEvent.h>
 
-//#endif
 #include "version_mega.h"
 #include "Events/Tools/webHandlerEvent.h"
 #include "events_socket.hpp"

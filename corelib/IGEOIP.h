@@ -3,7 +3,6 @@
 #include "ifacesEvent.h"
 #include <string>
 #include <sys/types.h>
-#include "REF.h"
 #include "ioBuffer.h"
 /// interfaces/wrapper to access OpenGEOIP
 
