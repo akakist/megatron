@@ -12,7 +12,6 @@
 #endif
 #include <string>
 #include "httpConnection.h"
-//#include "Events/System/Net/socket/Write.h"
 
 
 std::string HTTP::get_name_of_http_code(int code)

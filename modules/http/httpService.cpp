@@ -2,7 +2,6 @@
 #define _LARGEFILE64_SOURCE
 
 #include <stdlib.h>
-//#ifndef _WIN32
 #include <unistd.h>
 #include <string>
 #include <unknown.h>
@@ -17,7 +16,6 @@
 #include <st_malloc.h>
 #include <logging.h>
 #include "splitStr.h"
-//#endif
 #include <stdlib.h>
 #include <fcntl.h>
 #include <time.h>

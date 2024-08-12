@@ -9,7 +9,6 @@
 
 #define LOG_TARGET_DIR "~/bin-10100/log"
 #define CAPS_ADDRESS "x.testquant.com:10100"
-//#define CLIENT_ADDRESS "x.testquant.com:"
 #define CAPS_PORT "10100"
 #define CAPS_IP "x.testquant.com"
 #endif

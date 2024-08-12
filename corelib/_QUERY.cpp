@@ -2,7 +2,6 @@
 #include "IUtils.h"
 #include "commonError.h"
 #ifndef _MSC_VER
-//#include "inttypes.h"
 #endif
 #include "mutexInspector.h"
 

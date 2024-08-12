@@ -11,7 +11,6 @@ public:
     ~MutexInspector();
 };
 #ifdef MUTEX_INSPECTOR_DEBUG
-//#define MUTEX_INSPECTOR
 #define MUTEX_INSPECTOR  MutexInspector fall12344(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 #define MUTEX_INSPECTORS(a)  MutexInspector fall123444(__FILE__,__LINE__,__PRETTY_FUNCTION__,a);
 #define _DMI()  iUtils->getIThreadNameController()->dump_mutex_inspector(pthread_self())

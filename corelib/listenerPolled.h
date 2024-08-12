@@ -1,7 +1,6 @@
 #pragma once
 #include "listenerBase.h"
 #include "mutexable.h"
-//#include "IInstance.h"
 class ListenerPolled;
 
 ///       Polled listener used mainly in GUI windows

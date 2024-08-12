@@ -1,7 +1,6 @@
 #include "listenerBuffered1Thread.h"
 #include "IUtils.h"
 #include "mutexInspector.h"
-//#include "logging.h"
 #include "colorOutput.h"
 ListenerBuffered1Thread::~ListenerBuffered1Thread()
 {

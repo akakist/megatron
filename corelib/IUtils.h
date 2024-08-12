@@ -19,7 +19,6 @@ extern IUtils * iUtils;
 #include "SOCKET_id.h"
 #include "EVENT_id.h"
 #include "webDumpable.h"
-//#include "event_mt.h"
 #include "pollable.h"
 #include "construct.h"
 #include "ifacesEvent.h"

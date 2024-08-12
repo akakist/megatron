@@ -5,7 +5,6 @@
 #include "rpcService.h"
 
 #include "version_mega.h"
-//#include "event.h"
 #include <Events/System/Net/rpcEvent.h>
 #include "Events/System/Net/oscarEvent.h"
 #include "Events/System/timerEvent.h"

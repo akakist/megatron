@@ -105,10 +105,6 @@ namespace SocketIO
         int epoll_timeout_millisec_;
 
 
-//#endif
-
-
-
         void closeSocket(const REF_getter<epoll_socket_info>&esi, const char *reason, int errNo, const REF_getter<SocketsContainerForSocketIO> &MS);
         bool on_AddToListenTCP(const socketEvent::AddToListenTCP*);
         bool on_AddToConnectTCP(const socketEvent::AddToConnectTCP*);

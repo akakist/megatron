@@ -143,7 +143,6 @@ bool megatron::findProcess(const char* _process)
     }
     return procs[pr].size()>1;
 
-//##else
 #endif
 
 #ifndef _WIN32
