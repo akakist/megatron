@@ -3,7 +3,7 @@
 #include "Real.h"
 #include "SERVICE_id.h"
 #include "event_mt.h"
-
+#include "genum.hpp"
 namespace ServiceEnum
 {
     const SERVICE_id Timer(genum_Timer);

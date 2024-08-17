@@ -213,7 +213,7 @@ DBH_mysql::DBH_mysql()
 }
 DBH_source_mysql::DBH_source_mysql(const SERVICE_id& _id, const std::string&  nm,IInstance* ifa)
     : UnknownBase(nm),
-      ListenerSimple(nm,ifa->getConfig(),_id),
+      ListenerSimple(nm,_id),
       max_connections(10)
 {
 
