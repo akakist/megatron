@@ -969,7 +969,6 @@ bool  SocketIO::Service::on_AddToConnectTCP(const socketEvent::AddToConnectTCP*e
 #ifndef _WIN32
         if(errno != EINPROGRESS)
         {
-                printf("KALL %s %d %s\n",__FILE__,__LINE__,strerror(errno));
             closeSocket(nesi,"connect",errno,MS);
             passEvent(new socketEvent::ConnectFailed(nesi,sa,errno,ev->route));
             return true;
