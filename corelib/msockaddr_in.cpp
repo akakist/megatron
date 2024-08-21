@@ -333,6 +333,7 @@ std::string msockaddr_in::dump() const
     if(family()==AF_UNIX)
     {
         snprintf(s,sizeof(s),"unix@%s",u.sa_un.sun_path);
+        printf("@@@ %s\n",s);
     }
     else if(family()==AF_INET)
     {
@@ -515,6 +516,7 @@ void msockaddr_in::init(const std::string& s)
         u.sa_un.sun_family=AF_UNIX;
         auto a=s.substr(5);
         strcpy(u.sa_un.sun_path,a.c_str());
+        // printf("u.sa_un.sun_path %s\n",u.sa_un.sun_path);
         u.sa_un.sun_len=offsetof(struct sockaddr_un, sun_path)+strlen(u.sa_un.sun_path)+1;
         
     }

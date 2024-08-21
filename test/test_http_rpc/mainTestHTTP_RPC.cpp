@@ -47,7 +47,7 @@ int mainTestHTTP_RPC(int argc, char** argv )
                                           "\nStart=prodtestServer,RPC"
                                           "\nOscarSecure.RSA_keysize=256"
                                           "\nOscarSecure.maxPacketSize=33554432"
-                                          "\nRPC.BindAddr_MAIN=INADDR_ANY:2000"
+                                          "\nRPC.BindAddr_MAIN=unix@/tmp/sock"
                                           "\nRPC.BindAddr_RESERVE=NONE"
                                           "\nRPC.oscarType=Oscar"
                                           "\nSocketIO.listen_backlog=128"
@@ -101,7 +101,7 @@ int mainTestHTTP_RPC(int argc, char** argv )
                                           "\nprodtestServerWeb.bindAddr=0.0.0.0:8088"
                                           "\n"
                                           "\n# server prodtest address"
-                                          "\nprodtestServerWeb.prodtestServerAddr=127.0.0.1:2000"
+                                          "\nprodtestServerWeb.prodtestServerAddr=unix@/tmp/sock"
                                          );
             instance1->setConfig(cnf1);
             instance1->initServices();

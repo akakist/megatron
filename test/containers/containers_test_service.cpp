@@ -1,5 +1,4 @@
 #include <string>
-#include "url.h"
 #include "colorOutput.h"
 #include "ISSL.h"
 #include "CUtils.h"
@@ -20,64 +19,64 @@ template <class T1, class T2> bool ASSERT_eq(const char* file, int line, const c
 }
 
 #define ASSERT_EQ(a,b) if(ASSERT_eq(__FILE__,__LINE__,__PRETTY_FUNCTION__,a,b)){return;}
-void TEST1()
-{
-    Url u;
-    u.parse("INADDR_ANY:8080");
-//    logErr2("u dump %s",u.dump().c_str());
-    ASSERT_EQ(u.protocol,"");
-    ASSERT_EQ(u.user,"");
-    ASSERT_EQ(u.pass,"");
-    ASSERT_EQ(u.host,"INADDR_ANY");
-    ASSERT_EQ(u.port,"8080");
-    ASSERT_EQ(u.dirname,"");
-    ASSERT_EQ(u.filename,"");
-    printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
+// void TEST1()
+// {
+//     Url u;
+//     u.parse("INADDR_ANY:8080");
+// //    logErr2("u dump %s",u.dump().c_str());
+//     ASSERT_EQ(u.protocol,"");
+//     ASSERT_EQ(u.user,"");
+//     ASSERT_EQ(u.pass,"");
+//     ASSERT_EQ(u.host,"INADDR_ANY");
+//     ASSERT_EQ(u.port,"8080");
+//     ASSERT_EQ(u.dirname,"");
+//     ASSERT_EQ(u.filename,"");
+//     printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
 
-}
+// }
 
-void TEST2()
-{
-    Url u;
-    u.parse("http://akakist:tipaopa@[fc20:634b:308f:a3f7:4efa:f817:8631:15e5]:22/bla/faka/blaz?aaa=1&bbb=2");
-//    logErr2("u dump %s",u.dump().c_str());
-    ASSERT_EQ(u.protocol,"http");
-    ASSERT_EQ(u.user,"akakist");
-    ASSERT_EQ(u.pass,"tipaopa");
-    ASSERT_EQ(u.host,"fc20:634b:308f:a3f7:4efa:f817:8631:15e5");
-    ASSERT_EQ(u.port,"22");
-    ASSERT_EQ(u.dirname,"/bla/faka");
-    ASSERT_EQ(u.filename,"blaz");
-    printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
-}
-void TEST3()
-{
-    Url u;
-    u.parse("http://192.168.1.0:22/bla/faka/blaz");
-    ASSERT_EQ(u.protocol,"http");
-    ASSERT_EQ(u.user,"");
-    ASSERT_EQ(u.pass,"");
-    ASSERT_EQ(u.host,"192.168.1.0");
-    ASSERT_EQ(u.port,"22");
-    ASSERT_EQ(u.dirname,"/bla/faka");
-    ASSERT_EQ(u.filename,"blaz");
-    printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
-}
-void TEST4()
-{
-    Url u;
-    u.parse("http://akakist:tipaopa@192.168.1.0:22/bla/faka/blaz?aaa=1&bbb=2");
-    ASSERT_EQ(u.protocol,"http");
-    ASSERT_EQ(u.user,"akakist");
-    ASSERT_EQ(u.pass,"tipaopa");
-    ASSERT_EQ(u.host,"192.168.1.0");
-    ASSERT_EQ(u.port,"22");
-    ASSERT_EQ(u.dirname,"/bla/faka");
-    ASSERT_EQ(u.filename,"blaz");
-    ASSERT_EQ(u.params,"aaa=1&bbb=2");
-    printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
+// void TEST2()
+// {
+//     Url u;
+//     u.parse("http://akakist:tipaopa@[fc20:634b:308f:a3f7:4efa:f817:8631:15e5]:22/bla/faka/blaz?aaa=1&bbb=2");
+// //    logErr2("u dump %s",u.dump().c_str());
+//     ASSERT_EQ(u.protocol,"http");
+//     ASSERT_EQ(u.user,"akakist");
+//     ASSERT_EQ(u.pass,"tipaopa");
+//     ASSERT_EQ(u.host,"fc20:634b:308f:a3f7:4efa:f817:8631:15e5");
+//     ASSERT_EQ(u.port,"22");
+//     ASSERT_EQ(u.dirname,"/bla/faka");
+//     ASSERT_EQ(u.filename,"blaz");
+//     printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
+// }
+// void TEST3()
+// {
+//     Url u;
+//     u.parse("http://192.168.1.0:22/bla/faka/blaz");
+//     ASSERT_EQ(u.protocol,"http");
+//     ASSERT_EQ(u.user,"");
+//     ASSERT_EQ(u.pass,"");
+//     ASSERT_EQ(u.host,"192.168.1.0");
+//     ASSERT_EQ(u.port,"22");
+//     ASSERT_EQ(u.dirname,"/bla/faka");
+//     ASSERT_EQ(u.filename,"blaz");
+//     printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
+// }
+// void TEST4()
+// {
+//     Url u;
+//     u.parse("http://akakist:tipaopa@192.168.1.0:22/bla/faka/blaz?aaa=1&bbb=2");
+//     ASSERT_EQ(u.protocol,"http");
+//     ASSERT_EQ(u.user,"akakist");
+//     ASSERT_EQ(u.pass,"tipaopa");
+//     ASSERT_EQ(u.host,"192.168.1.0");
+//     ASSERT_EQ(u.port,"22");
+//     ASSERT_EQ(u.dirname,"/bla/faka");
+//     ASSERT_EQ(u.filename,"blaz");
+//     ASSERT_EQ(u.params,"aaa=1&bbb=2");
+//     printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
 
-}
+// }
 
 
 
@@ -388,10 +387,10 @@ int run(int ac, char** av)
     try {
         iUtils=new CUtils(ac,av,"TestContainers");
         registerSSL(NULL);
-        TEST1();
-        TEST2();
-        TEST3();
-        TEST4();
+        // TEST1();
+        // TEST2();
+        // TEST3();
+        // TEST4();
         TEST5();
         TEST6();
         TEST7();

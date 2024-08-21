@@ -309,6 +309,7 @@ bool RPC::Service::on_startService(const systemEvent::startService* )
         for(auto &item:m_bindAddr_main)
         {
             SOCKET_id newid=iUtils->getNewSocketId();
+            printf("@@ m_bindAddr_main %s\n",item.dump().c_str());
             sendEvent(myOscarListener,new oscarEvent::AddToListenTCP(newid,item,"RPC_UL",dynamic_cast<ListenerBase*>(this)));
         }
 

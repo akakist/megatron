@@ -794,12 +794,28 @@ void registerSocketModule(const char* pn)
 }
 bool  SocketIO::Service::on_AddToListenTCP(const socketEvent::AddToListenTCP*ev)
 {
+    printf("@@ AddToListenTCP %s\n",ev->addr.dump().c_str());
     MUTEX_INSPECTOR;
 
     S_LOG(__FUNCTION__);
     REF_getter<SocketsContainerForSocketIO> MS=m_io_socks_pollers_.getPoller(this);
 
-    int fd=::socket (ev->addr.family(), SOCK_STREAM, IPPROTO_TCP);
+    int fd=-1;
+    switch (ev->addr.family())
+    {
+    case AF_UNIX:
+        fd=::socket (ev->addr.family(), SOCK_STREAM, 0);
+        break;
+    case AF_INET:
+        fd=::socket (ev->addr.family(), SOCK_STREAM, IPPROTO_TCP);
+        break;
+    case AF_INET6:
+        fd=::socket (ev->addr.family(), SOCK_STREAM, IPPROTO_TCP);
+        break;
+    
+    default:
+        break;
+    }
     REF_getter<epoll_socket_info> nesi(new epoll_socket_info(SOCK_STREAM,epoll_socket_info::STREAMTYPE_LISTENING,ev->socketId,fd,poppedFrontRoute(ev->route),
                                        ev->socketDescription,MS->multiplexor_));
 
@@ -815,6 +831,7 @@ bool  SocketIO::Service::on_AddToListenTCP(const socketEvent::AddToListenTCP*ev)
         }
     }
 
+    printf("@@ bind %s\n",ev->addr.dump().c_str());
     while (bind (CONTAINER(nesi->fd_),ev->addr.addr(), ev->addr.addrLen()) == -1)
     {
 #ifdef DEBUG
@@ -861,8 +878,25 @@ bool  SocketIO::Service::on_AddToConnectTCP(const socketEvent::AddToConnectTCP*e
     S_LOG(__FUNCTION__);
     REF_getter<SocketsContainerForSocketIO> MS=m_io_socks_pollers_.getPoller(this);
 
-    int PF=ev->addr.family()==AF_INET?PF_INET:PF_INET6;
-    SOCKET_fd sock=::socket (PF, SOCK_STREAM, IPPROTO_TCP);
+    //int PF=ev->addr.family()==AF_INET?PF_INET:PF_INET6;
+    SOCKET_fd sock=-1;
+    switch (ev->addr.family())
+    {
+    case AF_UNIX:
+        sock=::socket (ev->addr.family(), SOCK_STREAM, 0);
+        break;
+    case AF_INET:
+        sock=::socket (ev->addr.family(), SOCK_STREAM, IPPROTO_TCP);
+        break;
+    case AF_INET6:
+        sock=::socket (ev->addr.family(), SOCK_STREAM, IPPROTO_TCP);
+        break;
+    
+    default:
+        throw CommonError("invalid family %s %d",__FILE__,__LINE__);
+        break;
+    }
+    // SOCKET_fd sock=::socket (ev->addr.family(), SOCK_STREAM, IPPROTO_TCP);
     if (CONTAINER(sock)==-1)
     {
         logErr2("cannot create socket");
@@ -873,7 +907,7 @@ bool  SocketIO::Service::on_AddToConnectTCP(const socketEvent::AddToConnectTCP*e
 
     nesi->inConnection_=true;
 
-    {
+    if(ev->addr.family()!=AF_UNIX){
         MUTEX_INSPECTOR;
         int i = 1;
         if(setsockopt(CONTAINER(sock),SOL_SOCKET,SO_REUSEADDR,(char *)&i,sizeof(i)))
@@ -928,13 +962,14 @@ bool  SocketIO::Service::on_AddToConnectTCP(const socketEvent::AddToConnectTCP*e
     MS->add(nesi);
 
 //    nesi->remote_name=new P_msockaddr_in(sa);
+    printf("connect to %s\n",sa.dump().c_str());
     int cres=::connect(CONTAINER(sock),sa.addr(), sa.addrLen());
     if(cres)
     {
 #ifndef _WIN32
         if(errno != EINPROGRESS)
         {
-
+                printf("KALL %s %d %s\n",__FILE__,__LINE__,strerror(errno));
             closeSocket(nesi,"connect",errno,MS);
             passEvent(new socketEvent::ConnectFailed(nesi,sa,errno,ev->route));
             return true;
