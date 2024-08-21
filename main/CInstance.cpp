@@ -1,7 +1,6 @@
 #include <ISSL.h>
 #include "CInstance.h"
 
-#include "url.h"
 
 
 
@@ -105,11 +104,11 @@ void CInstance::sendEvent(const std::string& dstHost, const SERVICE_id& dstServi
     else
     {
         try {
-            Url u;
-            u.parse(dstHost);
+            // Url u;
+            // u.parse(dstHost);
 
             msockaddr_in sa;
-            sa.init(u);
+            sa.init(dstHost);
             sendEvent(sa,dstService,e);
         }
         catch(const std::exception& ex)

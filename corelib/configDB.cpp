@@ -4,7 +4,6 @@
 #endif
 
 #include "st_FILE.h"
-#include "url.h"
 
 
 ConfigDB::ConfigDB(bool shared):shared_(shared)
@@ -30,16 +29,16 @@ msockaddr_in ConfigDB::get_tcpaddr(const std::string&name, const std::string& de
     {
         v=defv;
     }
-    Url u;
-    u.parse(v);
-    if(u.host=="INADDR_ANY")
-    {
+    // Url u;
+    // u.parse(v);
+    // if(u.host=="INADDR_ANY")
+    // {
 
-    }
+    // }
 
     msockaddr_in bindAddr;
 
-    bindAddr.init(u);
+    bindAddr.init(v);
     return bindAddr;
     XPASS;
 

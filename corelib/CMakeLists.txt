@@ -35,7 +35,6 @@ add_library(megatron-core STATIC
 	    networkMultiplexor.cpp
             st_rsa.cpp
             unknown.cpp
-            url.cpp
             webDumpable.cpp
             neighbours.cpp
             ../lib/jsoncpp-0.5.0/src/lib_json/json_reader.cpp
@@ -138,8 +137,6 @@ timerHelper.h
 tools_mt.h
 unknown.cpp
 unknown.h
-url.cpp
-url.h
 userObjectHandler.h
 version_mega.h
 webDumpable.cpp

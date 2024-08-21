@@ -12,10 +12,12 @@
 #include <json/json.h>
 #include "mutexable.h"
 #include <set>
+#include <sys/un.h>
+
 #ifndef in_addr_t
 #define in_addr_t unsigned int
 #endif
-struct Url;
+// struct Url;
 class inBuffer;
 class outBuffer;
 
@@ -61,6 +63,7 @@ public:
     {
         sockaddr_in sa4;
         sockaddr_in6 sa6;
+        sockaddr_un sa_un;
     } u;
 public:
     void initFromUrl(const std::string &url);
@@ -74,7 +77,8 @@ public:
     inBuffer &unpack(inBuffer &);
     int cmp(const msockaddr_in& a)const;
     void init(const std::string &hostname, unsigned short port);
-    void init(const Url& url);
+    // void init(const Url& url);
+    void init(const std::string& url);
     std::string  asString() const;
 
     bool operator<(const msockaddr_in&b) const;

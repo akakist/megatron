@@ -1,22 +1,21 @@
 #include "objectHandler.h"
 #include "IInstance.h"
 
-#include "url.h"
 #include "Events/System/Net/rpcEvent.h"
 
 void ObjectHandlerPolled::sendEvent(const std::string & dstHost, const SERVICE_id & dstService, const REF_getter<Event::Base>& e)
 {
     try {
-        Url u;
-        u.parse(dstHost);
-        if(u.host=="local")
+        // Url u;
+        // u.parse(dstHost);
+        if(dstHost=="local")
         {
             sendEvent(dstService,e);
         }
         else
         {
             msockaddr_in sa;
-            sa.init(u);
+            sa.init(dstHost);
             sendEvent(sa,dstService,e);
         }
     }
@@ -33,17 +32,17 @@ void ObjectHandlerPolled::sendEvent(const std::string & dstHost, const SERVICE_i
 void ObjectHandlerThreaded::sendEvent(const std::string & dstHost, const SERVICE_id & dstService, const REF_getter<Event::Base>& e)
 {
     try {
-        Url u;
-        u.parse(dstHost);
-        if(u.host=="local")
+        // Url u;
+        // u.parse(dstHost);
+        if(dstHost=="local")
         {
             sendEvent(dstService,e);
         }
         else
         {
-            msockaddr_in sa;
-            sa.init(u);
-            sendEvent(sa,dstService,e);
+            // msockaddr_in sa;
+            // sa.init(u);
+            sendEvent(dstHost,dstService,e);
         }
     }
     catch(const CommonError& ex)

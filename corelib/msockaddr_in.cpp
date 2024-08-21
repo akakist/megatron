@@ -12,7 +12,8 @@
 #endif
 #include "commonError.h"
 #include "mutexInspector.h"
-#include "url.h"
+#include <sys/un.h>
+#include <string.h>
 
 outBuffer & operator<<(outBuffer&b,const msockaddr_in &a)
 {
@@ -29,7 +30,11 @@ bool msockaddr_in::operator<(const msockaddr_in&b) const
     if(family()<b.family()) return true;
     if(family()>b.family()) return false;
 
-    if(family()==AF_INET)
+    if(family()==AF_UNIX)
+    {
+        return strcmp(u.sa_un.sun_path,b.u.sa_un.sun_path);
+    }
+    else if(family()==AF_INET)
     {
         if (u.sa4.sin_addr.s_addr<b.u.sa4.sin_addr.s_addr) return true;
         if (u.sa4.sin_addr.s_addr>b.u.sa4.sin_addr.s_addr) return false;
@@ -88,7 +93,11 @@ bool msockaddr_in::operator<(const msockaddr_in&b) const
 bool msockaddr_in::operator==(const msockaddr_in&b) const
 {
     if(family()!=b.family()) return false;
-    if(family()==AF_INET)
+    if(family()==AF_UNIX)
+    {
+        return !strcmp(u.sa_un.sun_path,b.u.sa_un.sun_path);
+    }
+    else if(family()==AF_INET)
     {
         if(u.sa4.sin_addr.s_addr!=b.u.sa4.sin_addr.s_addr) return false;
         if(u.sa4.sin_port!=b.u.sa4.sin_port) return false;
@@ -135,7 +144,13 @@ bool msockaddr_in::operator==(const msockaddr_in&b) const
 
 outBuffer &msockaddr_in::pack(outBuffer &b) const
 {
-    if(family()==AF_INET)
+    if(family()==AF_UNIX)
+    {
+        b.put_PN(u.sa_un.sun_family);
+        b.put_PSTR(u.sa_un.sun_path);
+
+    }
+    else if(family()==AF_INET)
     {
         b.put_PN(u.sa4.sin_family);
         b.put_PN(ntohs(u.sa4.sin_port));
@@ -168,7 +183,13 @@ inBuffer &msockaddr_in::unpack(inBuffer&b)
 
     MUTEX_INSPECTOR;
     uint8_t fam=b.get_PN();
-    if(fam==AF_INET)
+    if(fam==AF_UNIX)
+    {
+        auto s=b.get_PSTR();
+        u.sa_un.sun_family=fam;
+        strcpy(u.sa_un.sun_path,s.c_str());
+    }
+    else if(fam==AF_INET)
     {
         u.sa4.sin_family=fam;
         u.sa4.sin_port=htons(b.get_PN());
@@ -196,7 +217,11 @@ inBuffer &msockaddr_in::unpack(inBuffer&b)
 std::string msockaddr_in::getStringAddr() const
 {
     MUTEX_INSPECTOR;
-    if(family()==AF_INET)
+    if(family()==AF_UNIX)
+    {
+        return u.sa_un.sun_path;
+    }
+    else if(family()==AF_INET)
     {
         return inet_ntoa(u.sa4.sin_addr);
     }
@@ -220,6 +245,10 @@ std::string msockaddr_in::getStringAddr() const
 unsigned short msockaddr_in::port() const
 {
     MUTEX_INSPECTOR;
+    if(family()==AF_UNIX)
+    {
+        throw CommonError("invalid call %s",__FUNCTION__);
+    }
     if(family()==AF_INET)
         return ntohs(u.sa4.sin_port);
     else if(family()==AF_INET6)
@@ -238,10 +267,27 @@ Json::Value msockaddr_in::jdump() const
 {
     Json::Value j;
     j["url"]=dump();
-    if(family()!=AF_INET && family()!=AF_INET6)
-        throw CommonError("if(family()!=AF_INET && family()!=AF_INET6)");
-    j["family"]=u.sa4.sin_family==AF_INET?"AF_INET":"AF_INET6";
-    if(family()==AF_INET)
+    switch (u.sa4.sin_family)
+    {
+    case AF_UNIX:
+        j["family"]="AF_UNIX";
+        break;
+    case AF_INET6:
+        j["family"]="AF_INET6";
+        break;
+    case AF_INET:
+        j["family"]="AF_INET";
+        break;
+    
+    default:
+        throw CommonError("invalid family %s %d",__FILE__,__LINE__);
+        break;
+    }
+    if(family()==AF_UNIX)
+    {
+        j["sun_path"]=u.sa_un.sun_path;
+    }
+    else if(family()==AF_INET)
     {
         j["sin_port"]=ntohs(u.sa4.sin_port);
 #if !defined __linux__ && !defined(_WIN32)
@@ -284,7 +330,11 @@ Json::Value msockaddr_in::jdump() const
 std::string msockaddr_in::dump() const
 {
     char s[200];
-    if(family()==AF_INET)
+    if(family()==AF_UNIX)
+    {
+        snprintf(s,sizeof(s),"unix@%s",u.sa_un.sun_path);
+    }
+    else if(family()==AF_INET)
     {
         snprintf(s,sizeof(s),"%s:%d",getStringAddr().c_str(), ntohs(u.sa4.sin_port));
     }
@@ -450,13 +500,35 @@ void msockaddr_in::setPort(const unsigned short& port)
         u.sa4.sin_port=htons(port);
     else if(family()==AF_INET6)
         u.sa6.sin6_port=htons(port);
+    else if(family()==AF_UNIX)
+        throw CommonError("else if(family()==AF_UNIX)");
     else
         throw CommonError("3 invalid family %d",family());
 
 }
-void msockaddr_in::init(const Url& u)
+void msockaddr_in::init(const std::string& s)
 {
-    init(u.host.c_str(),atoi(u.port.c_str()));
+    if(s.substr(0,5)=="unix@")
+    {
+        /// init unix sockadr
+        u.sa_un.sun_len=sizeof(sockaddr_un);
+        u.sa_un.sun_family=AF_UNIX;
+        auto a=s.substr(5);
+        strcpy(u.sa_un.sun_path,a.c_str());
+        u.sa_un.sun_len=offsetof(struct sockaddr_un, sun_path)+strlen(u.sa_un.sun_path)+1;
+        
+    }
+    else 
+    {
+        auto pz=s.find(":");
+        if(pz!=std::string::npos)
+        {
+            auto host=s.substr(0,pz);
+            auto port=atoi(s.substr(pz+1,s.size()-(pz+1)).c_str());
+            init(host.c_str(),port);
+        }
+        else throw CommonError("invalid case %s %d",__FILE__,__LINE__);
+    }
 }
 
 static bool check_addr_for_mask(in_addr a, const char *ipmask, int maskShift)
@@ -500,9 +572,9 @@ std::string  msockaddr_in::asString() const
 }
 void msockaddr_in::initFromUrl(const std::string &url)
 {
-    Url u;
-    u.parse(url);
-    init(u);
+    // Url u;
+    // u.parse(url);
+    init(url);
 }
 
 socklen_t msockaddr_in::addrLen() const
@@ -511,6 +583,8 @@ socklen_t msockaddr_in::addrLen() const
         return sizeof(sockaddr_in);
     else if(family()==AF_INET6)
         return sizeof(sockaddr_in6);
+    else if(family()==AF_UNIX)
+        return sizeof(sockaddr_un);
     else
         throw CommonError("3 invalid family %d %s",family(),_DMI().c_str());
 

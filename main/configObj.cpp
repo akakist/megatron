@@ -3,7 +3,6 @@
 #include "compat_win32.h"
 #endif
 #include "st_FILE.h"
-#include "url.h"
 #include "resplit.h"
 
 void ConfigObj::appendLine(const std::string& key, const bool& val, const std::string& comment)
@@ -136,9 +135,9 @@ std::set<msockaddr_in>ConfigObj::get_tcpaddr(const std::string&_name, const std:
         {
             continue;
         }
-        Url u;
-        u.parse(v);
-        m_bindAddr.init(u);
+        // Url u;
+        // u.parse(v);
+        m_bindAddr.init(v);
         ret.insert(m_bindAddr);
         continue;
     }
@@ -177,9 +176,9 @@ std::set<msockaddr_in>ConfigObj::get_tcpaddr2(const std::string&_name, const std
         {
             continue;
         }
-        Url u;
-        u.parse(v);
-        m_bindAddr.init(u);
+        // Url u;
+        // u.parse(v);
+        m_bindAddr.init(v);
         ret.insert(m_bindAddr);
         continue;
     }
