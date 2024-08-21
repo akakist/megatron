@@ -512,12 +512,12 @@ void msockaddr_in::init(const std::string& s)
     if(s.substr(0,5)=="unix@")
     {
         /// init unix sockadr
-        u.sa_un.sun_len=sizeof(sockaddr_un);
+        // u.sa_un.sun_len=sizeof(sockaddr_un);
         u.sa_un.sun_family=AF_UNIX;
         auto a=s.substr(5);
         strcpy(u.sa_un.sun_path,a.c_str());
         // printf("u.sa_un.sun_path %s\n",u.sa_un.sun_path);
-        u.sa_un.sun_len=offsetof(struct sockaddr_un, sun_path)+strlen(u.sa_un.sun_path)+1;
+        // u.sa_un.sun_len=offsetof(struct sockaddr_un, sun_path)+strlen(u.sa_un.sun_path)+1;
         
     }
     else 
