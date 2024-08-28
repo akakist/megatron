@@ -224,6 +224,8 @@ void RPC::Service::flushOutCache(const REF_getter<Session> & S)
     }
     for(auto &p:d)
     {
+        if(!S->esi.valid())
+            throw CommonError("if(!S->esi.valid()) %s %d",__FILE__,__LINE__);
         sendEvent(myOscarListener,new oscarEvent::SendPacket(S->esi,p,dynamic_cast<ListenerBase*>(this)));
     }
 
@@ -246,7 +248,10 @@ void RPC::Service::addSendPacket(const REF_getter<Session>&S, const REF_getter<r
     }
     else
     {
+
         flushOutCache(S);
+        if(!S->esi.valid())
+            throw CommonError("if(!S->esi.valid()) %s %d",__FILE__,__LINE__);
         sendEvent(myOscarListener,new oscarEvent::SendPacket(S->esi,P,dynamic_cast<ListenerBase*>(this)));
     }
 }
@@ -527,6 +532,8 @@ void RPC::Service::flushAll()
     }
     for(auto &i:s)
     {
+        if(!i->esi.valid())
+            continue;
 
         flushOutCache(i);
     }

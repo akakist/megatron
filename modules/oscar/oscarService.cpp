@@ -243,6 +243,8 @@ void Oscar::Service::sendPacketPlain(const Oscar::StartByte& startByte, const RE
 {
     MUTEX_INSPECTOR;
     XTRY;
+    if(!esi.valid())
+        throw CommonError("if(!esi.valid()) %s",__PRETTY_FUNCTION__);
     outBuffer O2;
     O2.put_8(startByte);
     O2<<o;

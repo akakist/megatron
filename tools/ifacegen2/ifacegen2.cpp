@@ -278,6 +278,18 @@ int main(int argc, char **argv)
         total+=load_file(argv[i])+"\n";
 
     }
+
+    auto vv=splitTOK("\r\n",total.c_str());
+    std::string heads;
+for(auto& z:vv)
+{
+    if(z.find("Event.h")!=std::string::npos)
+    {
+    printf("z %s\n",z);
+    heads+=z+"\n";
+    }
+    
+}
     std::string fn="events_"+prefix+".hpp";
     unlink(fn.c_str());
     std::set<std::string> v=findEvents(total);
@@ -301,6 +313,7 @@ int main(int argc, char **argv)
     std::string out;
     out+="#ifndef __________"+prefix+"_EventInfo__HH\n";
     out+="#define __________"+prefix+"_EventInfo__HH\n\n\n";
+    out+=heads;
     out+=getEvents+"\n";
     out+=regEvents;
     out+="#endif\n";

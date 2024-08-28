@@ -1,5 +1,6 @@
 #include <vector>
 #include <stdexcept>
+#include <time.h>
 #define N 1000
 std::vector<void*> malloced;
 

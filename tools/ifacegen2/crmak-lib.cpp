@@ -49,6 +49,33 @@ std::set<std::string> findEvents(const std::string &buf)
     return out;
 }
 
+std::set<std::string> findHeadEvents(const std::string &buf)
+{
+    std::set<std::string> out;
+    {
+        vector < _rxfind_data > res;
+        find(res,"[A-Za-z0-9]+\.h",buf.c_str());
+        for(int i=0; i<res.size(); i++)
+        {
+            out.insert(res[i].str);
+
+        }
+    }
+    {
+        vector < _rxfind_data > res;
+        find(res,"[A-Za-z0-9]+EventEnum\:\:[A-Za-z0-9]+",buf.c_str());
+        for(int i=0; i<res.size(); i++)
+        {
+            std::string s=replace_vals("Enum","",res[i].str);
+            out.insert(s);
+
+        }
+    }
+
+    return out;
+}
+
+
 std::string load_file(const std::string & fn)
 {
 
