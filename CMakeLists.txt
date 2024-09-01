@@ -29,7 +29,7 @@ include_directories(.)
 include_directories(${OPENSSL_INCLUDE_DIR} local  lib/jsoncpp-0.5.0/include . corelib lib main)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fPIC -O3")
 
-SET(CAPS_IP "x.testquant.com")
+SET(CAPS_IP "caps.host")
 SET(PORT 10100)
 
 
