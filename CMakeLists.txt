@@ -10,8 +10,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fPIC ")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC ")
 
 if(LINUX)
-#    set(CMAKE_PREFIX_PATH $ENV{HOME}/Qt/5.15.2/gcc_64)
-    set(CMAKE_PREFIX_PATH /usr/lib/qt5/bin)
     set(CMAKE_SHARED_LINKER_FLAGS "-Xlinker --export-dynamic -Xlinker -zdefs")
 else()
     set(CMAKE_PREFIX_PATH $ENV{HOME}/Qt/5.15.2/clang_64)
@@ -23,27 +21,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/)
 
 include(CTest)
 
-include(FetchContent)
+find_package(OpenSSL REQUIRED)
+link_directories(${OPENSSL_LIB_DIR})
+
 
 include_directories(.)
-#FetchContent_Declare(
-#        OpenSSL
-#            GIT_REPOSITORY 
-#            https://github.com/openssl/openssl.git
-#            GIT_TAG        master
-#            USES_TERMINAL_DOWNLOAD TRUE)
-#fetchContent_MakeAvailable(OpenSSL)
-#FIND_PACKAGE(OpenSSL )
-#find_package(OpenSSL REQUIRED)
-set (OPENSSL_INCLUDE_DIR /opt/homebrew/Cellar/openssl@1.1/1.1.1t/include) 
-set (OPENSSL_LIB_DIR /opt/homebrew/Cellar/openssl@1.1/1.1.1t/lib)
-link_directories(${OPENSSL_LIB_DIR})
-include_directories(${OPENSSL_INCLUDE_DIR} local /usr/local lib/jsoncpp-0.5.0/include . corelib lib/SQLiteCpp lib main lib/sqlite3)
+include_directories(${OPENSSL_INCLUDE_DIR} local  lib/jsoncpp-0.5.0/include . corelib lib main)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fPIC -O3")
-
-#add_definitions(  -D__WITH_ZLIB  -DUSE_JSONASSERT -DQT_NO_VERSION_TAGGING -DDEBUG  -DMUTEX_INSPECTOR_DEBUG)
-#-DDEBUG  -DMUTEX_INSPECTOR_DEBUG
-#add_definitions(-DWEBDUMP -DDEBUG  -DMUTEX_INSPECTOR_DEBUG)
 
 SET(CAPS_IP "x.testquant.com")
 SET(PORT 10100)
@@ -53,7 +37,7 @@ IF(LINUX)
 SET(DL "dl")
 ENDIF()
 
-SET(PROJECT_BASE_DIR ~/bin-${PORT})
+SET(PROJECT_BASE_DIR /opt/megatron/bin)
 SET(PLUGIN_TARGET_DIR ${PROJECT_BASE_DIR}/plugin)
 SET(BIN_TARGET_DIR ${PROJECT_BASE_DIR}/bin)
 SET(LIB_TARGET_DIR ${PROJECT_BASE_DIR}/lib)

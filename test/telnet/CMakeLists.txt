@@ -1,3 +1,4 @@
+#cmake_minimum_required(3)
 include_directories( .) 
 
 
@@ -10,6 +11,6 @@ main_.cpp
 
 )
 
-target_link_libraries(test-telnet teldemo1  megatron-main   zsingle megatron-core crypto  z pthread dl)
+target_link_libraries(test-telnet teldemo1  megatron-main   zsingle megatron-core ${OPENSSL_CRYPTO_LIBRARY}  z pthread dl)
 
 

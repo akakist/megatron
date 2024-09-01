@@ -8,7 +8,7 @@ rsa-pub_512_1387663237.h
 st_rsa_impl.h
 )
 
-target_link_libraries(core-ssl megatron-core crypto pthread dl)
+target_link_libraries(core-ssl megatron-core ${OPENSSL_CRYPTO_LIBRARY} pthread dl)
 
 install(TARGETS core-ssl DESTINATION ${PLUGIN_TARGET_DIR})
 

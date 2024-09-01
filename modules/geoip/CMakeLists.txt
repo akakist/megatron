@@ -9,7 +9,7 @@ geoip_impl.h
     CapsGeoIP.cpp
 )
 
-target_link_libraries(core-geoip megatron-core crypto pthread )
+target_link_libraries(core-geoip megatron-core  pthread )
 
 install(TARGETS core-geoip DESTINATION ${PLUGIN_TARGET_DIR})
 
