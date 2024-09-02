@@ -44,41 +44,40 @@ bool msockaddr_in::operator<(const msockaddr_in&b) const
     }
     else if(family()==AF_INET6)
     {
-#ifdef __MACH__
-        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.__u6_addr.__u6_addr8); i++)
+        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.s6_addr); i++)
         {
-            if (u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]<b.u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]) return true;
-            if (u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]>b.u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]) return false;
+            if (u.sa6.sin6_addr.s6_addr[i]<b.u.sa6.sin6_addr.s6_addr[i]) return true;
+            if (u.sa6.sin6_addr.s6_addr[i]>b.u.sa6.sin6_addr.s6_addr[i]) return false;
         }
-#elif defined(__ANDROID__)
-        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.in6_u.u6_addr8); i++)
-        {
-            if (u.sa6.sin6_addr.in6_u.u6_addr8[i]<b.u.sa6.sin6_addr.in6_u.u6_addr8[i]) return true;
-            if (u.sa6.sin6_addr.in6_u.u6_addr8[i]>b.u.sa6.sin6_addr.in6_u.u6_addr8[i]) return false;
-        }
-#elif defined __FreeBSD__
+//#elif defined(__ANDROID__)
+//        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.in6_u.u6_addr8); i++)
+//        {
+//            if (u.sa6.sin6_addr.in6_u.u6_addr8[i]<b.u.sa6.sin6_addr.in6_u.u6_addr8[i]) return true;
+//            if (u.sa6.sin6_addr.in6_u.u6_addr8[i]>b.u.sa6.sin6_addr.in6_u.u6_addr8[i]) return false;
+//        }
+//#elif defined __FreeBSD__
 
-        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.__u6_addr.__u6_addr8); i++)
-        {
-            if (u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]<b.u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]) return true;
-            if (u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]>b.u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]) return false;
-        }
+//        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.__u6_addr.__u6_addr8); i++)
+//        {
+//            if (u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]<b.u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]) return true;
+//            if (u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]>b.u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]) return false;
+//        }
 
-#elif defined _WIN32
-        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.u.Byte); i++)
-        {
-            if (u.sa6.sin6_addr.u.Byte[i]<b.u.sa6.sin6_addr.u.Byte[i]) return true;
-            if (u.sa6.sin6_addr.u.Byte[i]>b.u.sa6.sin6_addr.u.Byte[i]) return false;
-        }
-#else
+//#elif defined _WIN32
+//        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.u.Byte); i++)
+//        {
+//            if (u.sa6.sin6_addr.u.Byte[i]<b.u.sa6.sin6_addr.u.Byte[i]) return true;
+//            if (u.sa6.sin6_addr.u.Byte[i]>b.u.sa6.sin6_addr.u.Byte[i]) return false;
+//        }
+//#else
 
-        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.__in6_u.__u6_addr8); i++)
-        {
-            if (u.sa6.sin6_addr.__in6_u.__u6_addr8[i]<b.u.sa6.sin6_addr.__in6_u.__u6_addr8[i]) return true;
-            if (u.sa6.sin6_addr.__in6_u.__u6_addr8[i]>b.u.sa6.sin6_addr.__in6_u.__u6_addr8[i]) return false;
-        }
+//        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.__in6_u.__u6_addr8); i++)
+//        {
+//            if (u.sa6.sin6_addr.__in6_u.__u6_addr8[i]<b.u.sa6.sin6_addr.__in6_u.__u6_addr8[i]) return true;
+//            if (u.sa6.sin6_addr.__in6_u.__u6_addr8[i]>b.u.sa6.sin6_addr.__in6_u.__u6_addr8[i]) return false;
+//        }
 
-#endif
+//#endif
         if (u.sa6.sin6_port<b.u.sa6.sin6_port) return true;
         if (u.sa6.sin6_port>b.u.sa6.sin6_port) return false;
         return false;
@@ -105,36 +104,36 @@ bool msockaddr_in::operator==(const msockaddr_in&b) const
     else if(family()==AF_INET6)
     {
         if(u.sa6.sin6_port != b.u.sa6.sin6_port) return false;
-#ifdef __MACH__
-        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.__u6_addr.__u6_addr8); i++)
+//#ifdef __MACH__
+        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.s6_addr); i++)
         {
-            if (u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]!=b.u.sa6.sin6_addr.__u6_addr.__u6_addr8[i])
+            if (u.sa6.sin6_addr.s6_addr[i]!=b.u.sa6.sin6_addr.s6_addr[i])
                 return false;
         }
-#elif defined(__ANDROID__)
-        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.in6_u.u6_addr8); i++)
-        {
-            if (u.sa6.sin6_addr.in6_u.u6_addr8[i]!=b.u.sa6.sin6_addr.in6_u.u6_addr8[i]) return false;
-        }
-#elif defined __FreeBSD__
-        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.__u6_addr.__u6_addr8); i++)
-        {
-            if (u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]!=b.u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]) return false;
-        }
+//#elif defined(__ANDROID__)
+//        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.in6_u.u6_addr8); i++)
+//        {
+//            if (u.sa6.sin6_addr.in6_u.u6_addr8[i]!=b.u.sa6.sin6_addr.in6_u.u6_addr8[i]) return false;
+//        }
+//#elif defined __FreeBSD__
+//        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.__u6_addr.__u6_addr8); i++)
+//        {
+//            if (u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]!=b.u.sa6.sin6_addr.__u6_addr.__u6_addr8[i]) return false;
+//        }
 
-#elif defined _WIN32
-        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.u.Byte); i++)
-        {
-            if (u.sa6.sin6_addr.u.Byte[i]!=b.u.sa6.sin6_addr.u.Byte[i]) return false;
-        }
+//#elif defined _WIN32
+//        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.u.Byte); i++)
+//        {
+//            if (u.sa6.sin6_addr.u.Byte[i]!=b.u.sa6.sin6_addr.u.Byte[i]) return false;
+//        }
 
-#else
-        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.__in6_u.__u6_addr8); i++)
-        {
-            if (u.sa6.sin6_addr.__in6_u.__u6_addr8[i]!=b.u.sa6.sin6_addr.__in6_u.__u6_addr8[i]) return false;
-        }
+//#else
+//        for(size_t i=0; i<sizeof(u.sa6.sin6_addr.__in6_u.__u6_addr8); i++)
+//        {
+//            if (u.sa6.sin6_addr.__in6_u.__u6_addr8[i]!=b.u.sa6.sin6_addr.__in6_u.__u6_addr8[i]) return false;
+//        }
 
-#endif
+//#endif
 
     }
     else
