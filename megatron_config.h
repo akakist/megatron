@@ -8,7 +8,7 @@
 #define CACHE_TARGET_DIR "/opt/megatron/bin/cache"
 
 #define LOG_TARGET_DIR "/opt/megatron/bin/log"
-#define CAPS_ADDRESS "x.testquant.com:10100"
+#define CAPS_ADDRESS "caps.host:10100"
 #define CAPS_PORT "10100"
-#define CAPS_IP "x.testquant.com"
+#define CAPS_IP "caps.host"
 #endif

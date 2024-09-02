@@ -1,4 +1,6 @@
+
 #pragma once
+#ifdef KALL
 #if defined(__arm__)
 #define CPUTYPE "arm"
 #elif defined(__avr32__)
@@ -40,6 +42,7 @@
 #else
 #define COMPILER "Unknown"
 #endif
-
+#endif
 #define COREVERSION 0x00000300
+
 
