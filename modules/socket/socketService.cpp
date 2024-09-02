@@ -794,7 +794,7 @@ void registerSocketModule(const char* pn)
 }
 bool  SocketIO::Service::on_AddToListenTCP(const socketEvent::AddToListenTCP*ev)
 {
-    printf("@@ AddToListenTCP %s\n",ev->addr.dump().c_str());
+//    printf("@@ AddToListenTCP %s\n",ev->addr.dump().c_str());
     MUTEX_INSPECTOR;
 
     S_LOG(__FUNCTION__);
@@ -831,7 +831,7 @@ bool  SocketIO::Service::on_AddToListenTCP(const socketEvent::AddToListenTCP*ev)
         }
     }
 
-    printf("@@ bind %s\n",ev->addr.dump().c_str());
+//    printf("@@ bind %s\n",ev->addr.dump().c_str());
     while (bind (CONTAINER(nesi->fd_),ev->addr.addr(), ev->addr.addrLen()) == -1)
     {
 #ifdef DEBUG

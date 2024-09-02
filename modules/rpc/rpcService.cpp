@@ -314,7 +314,7 @@ bool RPC::Service::on_startService(const systemEvent::startService* )
         for(auto &item:m_bindAddr_main)
         {
             SOCKET_id newid=iUtils->getNewSocketId();
-            printf("@@ m_bindAddr_main %s\n",item.dump().c_str());
+//            printf("@@ m_bindAddr_main %s\n",item.dump().c_str());
             sendEvent(myOscarListener,new oscarEvent::AddToListenTCP(newid,item,"RPC_UL",dynamic_cast<ListenerBase*>(this)));
         }
 
@@ -477,7 +477,7 @@ unsigned short RPC::Service::getExternalListenPortMain()
     {
         if(m_isTerminating)
         {
-            logErr2("@@ %s %d ret 0",__PRETTY_FUNCTION__,__LINE__);
+//            logErr2("@@ %s %d ret 0",__PRETTY_FUNCTION__,__LINE__);
             return 0;
         }
         usleep(10000);
@@ -492,7 +492,7 @@ unsigned short RPC::Service::getExternalListenPortMain()
         R_LOCK(sharedAddr.lk);
         if(sharedAddr.m_bindAddr_mainSH.size()==0)
         {
-            logErr2("@@ %s %d ret 0",__PRETTY_FUNCTION__,__LINE__);
+//            logErr2("@@ %s %d ret 0",__PRETTY_FUNCTION__,__LINE__);
             return 0;
         }
         return sharedAddr.m_bindAddr_mainSH.begin()->port();

@@ -332,7 +332,7 @@ std::string msockaddr_in::dump() const
     if(family()==AF_UNIX)
     {
         snprintf(s,sizeof(s),"unix@%s",u.sa_un.sun_path);
-        printf("@@@ %s\n",s);
+//        printf("@@@ %s\n",s);
     }
     else if(family()==AF_INET)
     {
