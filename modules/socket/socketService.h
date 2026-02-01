@@ -4,7 +4,7 @@
 #include <REF.h>
 #include <SOCKET_id.h>
 #include <epoll_socket_info.h>
-#include <json/value.h>
+
 #include <unknown.h>
 #include <listenerBuffered1Thread.h>
 #include <broadcaster.h>
@@ -50,7 +50,6 @@ namespace SocketIO
                 return NULL;
             return z->second;
         }
-        Json::Value jdump();
 
         void add(const REF_getter<epoll_socket_info>& esi)
         {
@@ -73,14 +72,6 @@ namespace SocketIO
 
     {
     private:
-        Json::Value jdump()
-        {
-            Json::Value v;
-            v["listen_backlog"]=(int)listen_backlog_;
-            v["epoll_timeout_millisec"]=std::to_string(epoll_timeout_millisec_);
-
-            return v;
-        }
 
         struct PTHSOCKS
         {
@@ -109,14 +100,14 @@ namespace SocketIO
         bool on_AddToListenTCP(const socketEvent::AddToListenTCP*);
         bool on_AddToConnectTCP(const socketEvent::AddToConnectTCP*);
         bool on_RequestIncoming(const webHandlerEvent::RequestIncoming*);
-        void onEPOLLIN(const REF_getter<epoll_socket_info>& esi, const REF_getter<SocketsContainerForSocketIO> &MS);
-        void onEPOLLIN_STREAMTYPE_LISTENING(const REF_getter<epoll_socket_info>&esi, const REF_getter<SocketsContainerForSocketIO> &MS);
-        void onEPOLLIN_STREAMTYPE_CONNECTED_or_STREAMTYPE_ACCEPTED(const REF_getter<epoll_socket_info>&esi, const REF_getter<SocketsContainerForSocketIO> &MS);
+        void onEPOLLIN(epoll_socket_info* esi, const REF_getter<SocketsContainerForSocketIO> &MS);
+        void onEPOLLIN_STREAMTYPE_LISTENING(epoll_socket_info *esi, const REF_getter<SocketsContainerForSocketIO> &MS);
+        void onEPOLLIN_STREAMTYPE_CONNECTED_or_STREAMTYPE_ACCEPTED(epoll_socket_info *esi, const REF_getter<SocketsContainerForSocketIO> &MS);
 
 
 
-        void onEPOLLOUT(const REF_getter<epoll_socket_info>& esi, const REF_getter<SocketsContainerForSocketIO> &MS);
-        void onEPOLLERR(const REF_getter<epoll_socket_info>& esi, const REF_getter<SocketsContainerForSocketIO> &MS);
+        void onEPOLLOUT(epoll_socket_info* esi, const REF_getter<SocketsContainerForSocketIO> &MS);
+        void onEPOLLERR(epoll_socket_info* esi, const REF_getter<SocketsContainerForSocketIO> &MS);
         bool  handleEvent(const REF_getter<Event::Base>&);
         void handle_accepted1(const SOCKET_fd &neu_fd, const REF_getter<epoll_socket_info> esi, const REF_getter<SocketsContainerForSocketIO>& MS, const msockaddr_in &remote_sa);
 
@@ -137,10 +128,9 @@ namespace SocketIO
         static void *worker__(void*);
         void worker();
 
-
-
+    private:
+        void initSSL(const std::string& cert_pn, const std::string& key_pn);
+        REF_getter<SECURE_CONTEXT> secure_context=nullptr;
     };
-
-
 };
 

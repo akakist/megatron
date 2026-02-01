@@ -2,20 +2,19 @@
 #define TEST_RPC_EVENT__H
 
 #include "SERVICE_id.h"
-#include "json/json.h"
 #include "event_mt.h"
 //#include "rpcTestEvent.h"
-#include "genum.hpp"
 
+#include "ghash.h"
 
 namespace ServiceEnum {
-    const SERVICE_id rpcTest(genum_rpcTest);
-    const SERVICE_id rpcTestService1(genum_rpcTestService1);
-    const SERVICE_id rpcTestService2(genum_rpcTestService2);
+    const SERVICE_id rpcTest(ghash("@g_rpcTest"));
+    const SERVICE_id rpcTestService1(ghash("@g_rpcTestService1"));
+    const SERVICE_id rpcTestService2(ghash("@g_rpcTestService2"));
 }
 namespace testEventEnum {
-    const EVENT_id testREQ(genum_testREQ);
-    const EVENT_id testRSP(genum_testRSP);
+    const EVENT_id testREQ(ghash("@g_testREQ"));
+    const EVENT_id testRSP(ghash("@g_testRSP"));
 }
 namespace testEvent {
     class testREQ: public Event::Base
@@ -46,9 +45,6 @@ namespace testEvent {
         {
             o<<session<<seq<<buf<<md5;
         }
-        void jdump(Json::Value &) const
-        {
-        }
 
     };
     class testRSP: public Event::Base
@@ -74,9 +70,6 @@ namespace testEvent {
         void pack(outBuffer&o) const
         {
             o<<session<<seq<<buf<<md5;
-        }
-        void jdump(Json::Value &) const
-        {
         }
 
     };

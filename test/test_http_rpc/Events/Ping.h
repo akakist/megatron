@@ -38,9 +38,6 @@ namespace prodtestEvent {
         {
             o<<session<<sampleString<<count;
         }
-        void jdump(Json::Value &) const
-        {
-        }
 
     };
 
@@ -72,9 +69,6 @@ namespace prodtestEvent {
         void pack(outBuffer&o) const
         {
             o<<session<<sampleString<<count;
-        }
-        void jdump(Json::Value &) const
-        {
         }
 
     };

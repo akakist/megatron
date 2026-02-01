@@ -2,6 +2,7 @@
 #include "IUtils.h"
 #include "mutexInspector.h"
 #include "colorOutput.h"
+#include "commonError.h"
 ListenerBuffered1Thread::~ListenerBuffered1Thread()
 {
 }
@@ -25,12 +26,14 @@ void ListenerBuffered1Thread::deinit()
     }
 
 }
-ListenerBuffered1Thread::ListenerBuffered1Thread(const std::string& name, const SERVICE_id & sid)
+ListenerBuffered1Thread::ListenerBuffered1Thread(const std::string& name, const SERVICE_id & sid,size_t stackSize)
     :ListenerBase(name,sid),m_container(new EventDeque),m_pt(0),m_isTerminating(false) {
 
-
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+    pthread_attr_setstacksize(&attr, stackSize);
     XTRY;
-    if(pthread_create(&m_pt,NULL,ListenerBuffered1Thread::worker,this))
+    if(pthread_create(&m_pt,&attr,worker,this))
         throw CommonError("pthread_create: errno %d",errno);
     XPASS;
 
@@ -42,8 +45,8 @@ void ListenerBuffered1Thread::processEvent(const REF_getter<Event::Base>&e)
         if(!handleEvent(e))
         {
             XTRY;
-            logErr2("ListenerBuffered1Thread: unhandled event %s svs=%s in listener=%s %s",
-                    e->dump().toStyledString().c_str(),listenerName_.c_str(), listenerName_.c_str(),e->dump().toStyledString().c_str());
+            logErr2("ListenerBuffered1Thread: unhandled event %s svs=%s in listener=%s",
+                    iUtils->genum_name(e->id),listenerName_.c_str(), listenerName_.c_str());
             XPASS;
 
         }
@@ -117,7 +120,7 @@ void ListenerBuffered1Thread::listenToEvent(const REF_getter<Event::Base>& e)
 
     if(!m_container.valid())
     {
-        logErr2("if(!m_container.valid())");
+        // logErr2("if(!m_container.valid()) %s",listenerName_.c_str());
         return;
     }
     XTRY;

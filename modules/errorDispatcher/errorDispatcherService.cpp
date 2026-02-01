@@ -1,8 +1,6 @@
 #include "errorDispatcherService.h"
 #include <stdarg.h>
 
-#include "version_mega.h"
-#include "VERSION_id.h"
 #include "tools_mt.h"
 #include "events_errorDispatcher.hpp"
 ErrorDispatcher::Service::Service(const SERVICE_id& id, const std::string& nm, IInstance *ifa):
@@ -29,11 +27,11 @@ void registerErrorDispatcherService(const char* pn)
     if(pn)
     {
 
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::ErrorDispatcher,"ErrorDispatcher",getEvents_errorDispatcher());
+        iUtils->registerPlugingInfo(pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::ErrorDispatcher,"ErrorDispatcher",getEvents_errorDispatcher());
     }
     else
     {
-        iUtils->registerService(COREVERSION,ServiceEnum::ErrorDispatcher,ErrorDispatcher::Service::construct,"ErrorDispatcher");
+        iUtils->registerService(ServiceEnum::ErrorDispatcher,ErrorDispatcher::Service::construct,"ErrorDispatcher");
         regEvents_errorDispatcher();
     }
     XPASS;

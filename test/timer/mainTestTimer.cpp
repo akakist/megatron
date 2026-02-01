@@ -3,6 +3,7 @@
 #include "configObj.h"
 #include "CUtils.h"
 #include <unistd.h>
+#include "commonError.h"
 void registerTestTimer(const char* pn);
 void registerTimerService(const char* pn);
 

@@ -122,7 +122,7 @@ ObjectHandlerThreaded::~ObjectHandlerThreaded()
 void ObjectHandler::passEvent(const REF_getter<Event::Base>& e)
 {
     XTRY;
-    logErr2("ObjectHandler::passEvent (%d) %s",__LINE__, e->dump().toStyledString().c_str());
+    logErr2("ObjectHandler::passEvent (%d) %s",__LINE__, iUtils->genum_name(e->id));
     iInstance->passEvent(e);
     XPASS;
 }

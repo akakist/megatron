@@ -2,6 +2,7 @@
 
 #include <IConfigObj.h>
 #include "Real.h"
+#include <deque>
 class ConfigObj:public IConfigObj, public Mutexable
 {
     friend class st_configObjPrefix;
@@ -12,24 +13,24 @@ class ConfigObj:public IConfigObj, public Mutexable
     std::string m_getPath2(const std::string&name) const;
 
     void m_initFromLine(const std::string& buf);
-    void appendLine(const std::string& key, const std::string& val, const std::string& comment);
-    void appendLine(const std::string& key, const bool& val, const std::string& comment);
-    void appendLine(const std::string& key, const real &val, const std::string& comment);
-    void appendLine(const std::string& key, const int64_t& val, const std::string& comment);
-    void appendLine(const std::string& key, const uint64_t& val, const std::string& comment);
+    // void appendLine(const std::string& key, const std::string& val, const std::string& comment);
+    // void appendLine(const std::string& key, const bool& val, const std::string& comment);
+    // void appendLine(const std::string& key, const real &val, const std::string& comment);
+    // void appendLine(const std::string& key, const int64_t& val, const std::string& comment);
+    // void appendLine(const std::string& key, const uint64_t& val, const std::string& comment);
 
 public:
     ConfigObj() {}
 
     ConfigObj(const std::string& __filename):m_filename(__filename)
     {
-        load_from_file();
+        // load_from_file();
     }
     ConfigObj(const std::string& fake_filename, const std::string& buffer):m_filename(fake_filename)
     {
         load_from_buffer(buffer);
     }
-    void load_from_file();
+    // void load_from_file();
     void load_from_buffer(const std::string& buf);
 protected:
 public:
@@ -49,7 +50,7 @@ public:
     std::set<std::string> get_stringset2(const std::string&name, const std::string& defv, const std::string& comment) ;
     void push_prefix(const std::string& p);
     void pop_prefix();
-    void printUnusedItems();
+    // void printUnusedItems();
 
 
 private:

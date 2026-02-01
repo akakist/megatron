@@ -13,9 +13,26 @@
 
 
 
+
 namespace HTTP
 {
 
+    enum WebSocketFrameType {
+        ERROR_FRAME=0xFF00,
+        INCOMPLETE_FRAME=0xFE00,
+
+        OPENING_FRAME=0x3300,
+        CLOSING_FRAME=0x3400,
+
+        INCOMPLETE_TEXT_FRAME=0x01,
+        INCOMPLETE_BINARY_FRAME=0x02,
+
+        TEXT_FRAME=0x81,
+        BINARY_FRAME=0x82,
+
+        PING_FRAME=0x19,
+        PONG_FRAME=0x1A
+    };
 
     class Service:
         public UnknownBase,
@@ -28,10 +45,10 @@ namespace HTTP
         struct _mx
         {
             RWLock lk;
-            std::set<std::string> docUrls;
-            std::string documentRoot;
+            // std::set<std::string> docUrls;
+            // std::string documentRoot;
             std::map<std::string,std::string>mime_types;
-            std::map<std::string,HTTP::IoProtocol> protocols;
+            // std::map<std::string,HTTP::IoProtocol> protocols;
             std::set<msockaddr_in> bind_addrs;
         };
         _mx mx;
@@ -41,18 +58,11 @@ namespace HTTP
         bool on_Accepted(const socketEvent::Accepted* evt);
         bool on_Connected(const socketEvent::Connected*);
         bool on_NotifyBindAddress(const socketEvent::NotifyBindAddress*);
-        bool on_Disaccepted(const socketEvent::Disaccepted*);
-        bool on_Disconnected(const socketEvent::Disconnected*);
+        bool on_Disaccepted(socketEvent::Disaccepted*);
+        bool on_Disconnected(socketEvent::Disconnected*);
 
+        bool on_WSWrite(const httpEvent::WSWrite*);
         bool on_DoListen(const httpEvent::DoListen*);
-        bool on_RegisterProtocol(const httpEvent::RegisterProtocol*e)
-        {
-
-            W_LOCK(mx.lk);
-            mx.protocols.insert(std::make_pair(e->url,e->protocol));
-
-            return true;
-        }
 
 
         bool on_startService(const systemEvent::startService*);
@@ -62,7 +72,11 @@ namespace HTTP
         REF_getter<HTTP::Request> getData(epoll_socket_info* esi);
         void setData(epoll_socket_info* esi, const REF_getter<HTTP::Request> & p);
         void clearData(epoll_socket_info* esi);
+        bool handleChunkedBuffer(const socketEvent::StreamRead* evt, const REF_getter<HTTP::Request>& W);
 
+
+        static HTTP::WebSocketFrameType WebSocket_getFrame(unsigned char* in_buffer, int in_length, /*unsigned char* out_buffer, int out_size, int* out_length,*/ std::string &o);
+        static std::string WebSocket_makeFrame(WebSocketFrameType frame_type, unsigned char* msg, int msg_length/*, unsigned char* buffer, int buffer_size*/);
 
     public:
         void deinit()
@@ -85,7 +99,7 @@ namespace HTTP
     private:
         struct _lastModified: public Mutexable
         {
-            std::map<std::string,time_t> container;
+            std::map<std::string_view,time_t> container;
         };
         _lastModified lastModified;
 

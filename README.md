@@ -127,7 +127,7 @@ It will not be possible to push him from the outside.
 Literal service names are defined in the service registration function.
 
 ``
-iUtils->registerService(COREVERSION,ServiceEnum::prodtestServerWeb,
+iUtils->registerService(ServiceEnum::prodtestServerWeb,
  prodtestWebServer::Service::construct, "prodtestServerWeb");
 ``
 
@@ -147,7 +147,7 @@ This way you can simply make a config, changing the created parameters to the re
 IPv6 support is available, binding addresses or remote hosts can be specified separated by commas, you can set the port to ipv6 and ipv4.
 
 
-Why is this config format used ``SocketIO.maxOutBufferSize=8388608`` and not yaml?
+Why is this config format used ``SocketIO_maxOutBufferSize=8388608`` and not yaml?
 
 The point is that sorting is possible; the fact that the name of the parameter is preceded by the name of the service is not so important; for me personally, this method of specifying a parameter is more obvious and there is no need to guess anything.
 

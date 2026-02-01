@@ -9,10 +9,10 @@
 #include <ws2tcpip.h>
 #endif
 #include <string>
-#include <json/json.h>
 #include "mutexable.h"
 #include <set>
 #include <sys/un.h>
+#include <map>
 
 #ifndef in_addr_t
 #define in_addr_t unsigned int
@@ -68,7 +68,6 @@ public:
 public:
     void initFromUrl(const std::string &url);
     std::string dump() const;
-    Json::Value jdump() const;
     std::string getStringAddr() const;
     unsigned short port() const;
     void setPort(const unsigned short& port);

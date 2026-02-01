@@ -10,6 +10,7 @@
 #include <ostream>
 #include "Events/System/Run/startServiceEvent.h"
 #include "Events/System/timerEvent.h"
+#include "commonError.h"
 
 
 namespace Timer
@@ -26,12 +27,11 @@ namespace Timer
     public:
         const int id;
         const REF_getter<refbuffer> data;
-        const REF_getter<refbuffer> cookie;
+        const REF_getter<Refcountable> cookie;
         const route_t destination;
         double period_real;
         bool erased;
-        Json::Value jdump();
-        task(TYP t,const int& _id, const REF_getter<refbuffer> & _data, const REF_getter<refbuffer> & _cookie, const route_t& dst,const double& timeout)
+        task(TYP t,const int& _id, const REF_getter<refbuffer> & _data, const REF_getter<Refcountable> & _cookie, const route_t& dst,const double& timeout)
             :type(t),id(_id),data(_data),cookie(_cookie),destination(dst),period_real(timeout),erased(false)
         {
         }

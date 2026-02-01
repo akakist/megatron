@@ -14,6 +14,7 @@ public:
 
     /// declaration, implementation in inherited
     virtual void listenToEvent(const REF_getter<Event::Base>&)=0;
+    virtual size_t getPendingCount() const =0;
 
     /// name of listener
     const std::string listenerName_;

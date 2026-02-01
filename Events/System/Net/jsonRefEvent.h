@@ -8,9 +8,9 @@ namespace ServiceEnum
 
 namespace jsonRefEventEnum
 {
-    const EVENT_id JsonREQ(genum_JsonREQ);
+    const EVENT_id JsonREQ(ghash("@g_JsonREQ);
 
-    const EVENT_id JsonRSP(genum_JsonRSP);
+    const EVENT_id JsonRSP(ghash("@g_JsonRSP);
 }
 
 
@@ -47,11 +47,6 @@ namespace jsonRefEvent
         {
             o<<action<<json<<binData;
         }
-        void jdump(Json::Value &v) const
-        {
-            v["json"]=json;
-            v["action"]=action;
-        }
 
     };
     class JsonRSP: public Event::Base
@@ -84,12 +79,6 @@ namespace jsonRefEvent
         void pack(outBuffer&o) const
         {
             o<<errcode<<action<<json<<binData;
-        }
-        void jdump(Json::Value &v) const
-        {
-            v["errcode"]=errcode;
-            v["json"]=json;
-            v["action"]=action;
         }
 
     };

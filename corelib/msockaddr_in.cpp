@@ -262,69 +262,6 @@ msockaddr_in::msockaddr_in(const msockaddr_in& n)
 
     memcpy(&u,&n.u,sizeof(n.u));
 }
-Json::Value msockaddr_in::jdump() const
-{
-    Json::Value j;
-    j["url"]=dump();
-    switch (u.sa4.sin_family)
-    {
-    case AF_UNIX:
-        j["family"]="AF_UNIX";
-        break;
-    case AF_INET6:
-        j["family"]="AF_INET6";
-        break;
-    case AF_INET:
-        j["family"]="AF_INET";
-        break;
-    
-    default:
-        throw CommonError("invalid family %s %d",__FILE__,__LINE__);
-        break;
-    }
-    if(family()==AF_UNIX)
-    {
-        j["sun_path"]=u.sa_un.sun_path;
-    }
-    else if(family()==AF_INET)
-    {
-        j["sin_port"]=ntohs(u.sa4.sin_port);
-#if !defined __linux__ && !defined(_WIN32)
-        j["sin_len"]=u.sa4.sin_len;
-
-#endif
-        j["sin_addr"]=inet_ntoa(u.sa4.sin_addr);
-
-
-    }
-    else if(family()==AF_INET6)
-    {
-        j["port"]=ntohs(u.sa6.sin6_port);
-        char str[100];
-#ifdef _WIN32
-#if (_WIN32_WINNT >= 0x0600)
-        inet_ntop(u.sa6.sin6_family, &u.sa6.sin6_addr, str,sizeof(str));
-#else
-        throw CommonError("SDK version too small");
-#endif
-#else
-        inet_ntop(u.sa6.sin6_family, &u.sa6.sin6_addr, str,sizeof(str));
-#endif
-        j["sin6_addr"]=str;
-#if !defined __linux__ && !defined (_WIN32)
-        j["sin6_len"]=u.sa6.sin6_len;
-#endif
-#if !defined _WIN32
-        j["sin6_flowinfo"]=u.sa6.sin6_flowinfo;
-        j["sin6_scope_id"]=u.sa6.sin6_scope_id;
-#endif
-
-    }
-    else
-        throw CommonError("3 invalid family %d %s",family(),_DMI().c_str());
-
-    return j;
-}
 
 std::string msockaddr_in::dump() const
 {
@@ -332,7 +269,6 @@ std::string msockaddr_in::dump() const
     if(family()==AF_UNIX)
     {
         snprintf(s,sizeof(s),"unix@%s",u.sa_un.sun_path);
-//        printf("@@@ %s\n",s);
     }
     else if(family()==AF_INET)
     {
@@ -491,7 +427,7 @@ void msockaddr_in::init(const std::string& host, unsigned short port)
         inet_pton(u.sa6.sin6_family,z.second.begin()->c_str(),&u.sa6.sin6_addr);
 #endif
     }
-    else throw CommonError("invalid case! %s %d",__FILE__,__LINE__);
+    else throw CommonError("invalid case!");
     XPASS;
 }
 void msockaddr_in::setPort(const unsigned short& port)
@@ -517,9 +453,9 @@ void msockaddr_in::init(const std::string& s)
         strcpy(u.sa_un.sun_path,a.c_str());
         // printf("u.sa_un.sun_path %s\n",u.sa_un.sun_path);
         // u.sa_un.sun_len=offsetof(struct sockaddr_un, sun_path)+strlen(u.sa_un.sun_path)+1;
-        
+
     }
-    else 
+    else
     {
         auto pz=s.find(":");
         if(pz!=std::string::npos)
@@ -528,7 +464,7 @@ void msockaddr_in::init(const std::string& s)
             auto port=atoi(s.substr(pz+1,s.size()-(pz+1)).c_str());
             init(host.c_str(),port);
         }
-        else throw CommonError("invalid case %s %d",__FILE__,__LINE__);
+        else throw CommonError("invalid case");
     }
 }
 
@@ -569,7 +505,7 @@ std::string  msockaddr_in::asString() const
 {
     outBuffer o;
     pack(o);
-    return o.asString()->asString();
+    return std::move(o.buffer->container);
 }
 void msockaddr_in::initFromUrl(const std::string &url)
 {

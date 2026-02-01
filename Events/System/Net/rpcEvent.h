@@ -4,32 +4,34 @@
 #include "SERVICE_id.h"
 #include "epoll_socket_info.h"
 #include "event_mt.h"
-#include "genum.hpp"
+
 #include "IUtils.h"
+#include "ghash.h"
 namespace ServiceEnum
 {
-    const SERVICE_id RPC(genum_RPC);
-    const SERVICE_id ObjectProxyPolled(genum_ObjectProxyPolled);
-    const SERVICE_id ObjectProxyThreaded(genum_ObjectProxyThreaded);
+    const SERVICE_id RPC(ghash("@g_RPC"));
+    const SERVICE_id ObjectProxyPolled(ghash("@g_ObjectProxyPolled"));
+    const SERVICE_id ObjectProxyThreaded(ghash("@g_ObjectProxyThreaded"));
 
 }
 
 namespace rpcEventEnum
 {
 
-    const EVENT_id PassPacket(genum_rpcPassPacket);
-    const EVENT_id SendPacket(genum_rpcSendPacket);
-    const EVENT_id SubscribeNotifications(genum_rpcSubscribeNotifications);
-    const EVENT_id UnsubscribeNotifications(genum_rpcUnsubscribeNotifications);
-    const EVENT_id Disconnected(genum_rpcDisconnected);
-    const EVENT_id Disaccepted(genum_rpcDisaccepted);
-    const EVENT_id ConnectFailed(genum_rpcConnectFailed);
-    const EVENT_id Connected(genum_rpcConnected);
-    const EVENT_id Accepted(genum_rpcAccepted);
-    const EVENT_id Binded(genum_rpcBinded);
-    const EVENT_id IncomingOnAcceptor(genum_rpcIncomingOnAcceptor);
-    const EVENT_id IncomingOnConnector(genum_rpcIncomingOnConnector);
-    const EVENT_id NotifyOutBufferEmpty(genum_rpc_NotifyOutBufferEmpty);
+    const EVENT_id PassPacket(ghash("@g_rpcPassPacket"));
+    const EVENT_id SendPacket(ghash("@g_rpcSendPacket"));
+    const EVENT_id SubscribeNotifications(ghash("@g_rpcSubscribeNotifications"));
+    const EVENT_id UnsubscribeNotifications(ghash("@g_rpcUnsubscribeNotifications"));
+    const EVENT_id Disconnected(ghash("@g_rpcDisconnected"));
+    const EVENT_id Disaccepted(ghash("@g_rpcDisaccepted"));
+    const EVENT_id ConnectFailed(ghash("@g_rpcConnectFailed"));
+    const EVENT_id Connected(ghash("@g_rpcConnected"));
+    const EVENT_id Accepted(ghash("@g_rpcAccepted"));
+    const EVENT_id Binded(ghash("@g_rpcBinded"));
+    const EVENT_id IncomingOnAcceptor(ghash("@g_rpcIncomingOnAcceptor"));
+    const EVENT_id IncomingOnConnector(ghash("@g_rpcIncomingOnConnector"));
+    const EVENT_id NotifyOutBufferEmpty(ghash("@g_rpc_NotifyOutBufferEmpty"));
+    const EVENT_id DoListen(ghash("@g_rpc_DoListen"));
 }
 
 
@@ -46,10 +48,6 @@ namespace rpcEvent {
         UnsubscribeNotifications(const route_t & r)
             :NoPacked(rpcEventEnum::UnsubscribeNotifications,r)
         {}
-        void jdump(Json::Value &) const
-        {
-
-        }
     };
     class SubscribeNotifications: public Event::NoPacked
     {
@@ -61,10 +59,6 @@ namespace rpcEvent {
         SubscribeNotifications(const route_t & r)
             :NoPacked(rpcEventEnum::SubscribeNotifications,r)
         {}
-        void jdump(Json::Value &) const
-        {
-
-        }
     };
 
 
@@ -81,12 +75,6 @@ namespace rpcEvent {
         const msockaddr_in addressTo;
         const SERVICE_id destination;
         const REF_getter<Event::Base> ev;
-        void jdump(Json::Value &j) const
-        {
-            j["ev"]=ev->dump();
-            j["destination"]=iUtils->genum_name(destination);
-            j["addressTo"]=addressTo.dump();
-        }
 
     };
 
@@ -102,11 +90,6 @@ namespace rpcEvent {
              socketIdTo(_addrTo),e(_e) {}
         const SOCKET_id socketIdTo;
         const REF_getter<Event::Base> e;
-        void jdump(Json::Value &j) const
-        {
-            j["socketIdTo"]=CONTAINER(socketIdTo);
-            j["e"]=e->dump();
-        }
 
     };
 
@@ -120,9 +103,6 @@ namespace rpcEvent {
         static Base* construct(const route_t &)
         {
             return NULL;
-        }
-        void jdump(Json::Value &) const
-        {
         }
     };
 
@@ -140,11 +120,6 @@ namespace rpcEvent {
         const REF_getter<epoll_socket_info> esi;
         const msockaddr_in connect_addr;
         const REF_getter<Event::Base> e;
-        void jdump(Json::Value &v) const
-        {
-            v["connect_addr"]=connect_addr.dump();
-            v["e"]=e->dump();
-        }
     };
 
 
@@ -160,10 +135,6 @@ namespace rpcEvent {
              esi(_esi),e(_e) {}
         const REF_getter<epoll_socket_info> esi;
         const REF_getter<Event::Base> e;
-        void jdump(Json::Value &v) const
-        {
-            v["e"]=e->dump();
-        }
     };
 
     class Disconnected: public Event::NoPacked
@@ -179,10 +150,6 @@ namespace rpcEvent {
         const REF_getter<epoll_socket_info> esi;
         const msockaddr_in destination_addr;
         const std::string  reason;
-        void jdump(Json::Value &) const
-        {
-
-        }
     };
 
 
@@ -198,10 +165,6 @@ namespace rpcEvent {
              esi(_esi),reason(_reason) {}
         const REF_getter<epoll_socket_info> esi;
         const std::string  reason;
-        void jdump(Json::Value &) const
-        {
-
-        }
 
     };
 
@@ -217,10 +180,6 @@ namespace rpcEvent {
              esi(_esi),addr(_addr) {}
         const REF_getter<epoll_socket_info> esi;
         const msockaddr_in addr;
-        void jdump(Json::Value &) const
-        {
-
-        }
 
     };
 
@@ -236,10 +195,6 @@ namespace rpcEvent {
             :NoPacked(rpcEventEnum::ConnectFailed,r),
              destination_addr(_addr) {}
         const msockaddr_in destination_addr;
-        void jdump(Json::Value &) const
-        {
-
-        }
     };
 
     class Binded: public Event::NoPacked
@@ -253,10 +208,6 @@ namespace rpcEvent {
             :NoPacked(rpcEventEnum::Binded),
              esi(_esi) {}
         const REF_getter<epoll_socket_info>  esi;
-        void jdump(Json::Value &) const
-        {
-
-        }
     };
 
     class Accepted: public Event::NoPacked
@@ -270,10 +221,25 @@ namespace rpcEvent {
             :NoPacked(rpcEventEnum::Accepted,r),
              esi(_esi) {}
         const REF_getter<epoll_socket_info> esi;
-        void jdump(Json::Value &) const
-        {
-
-        }
     };
+    class DoListen: public Event::NoPacked
+    {
+        /**
+        request HTTP to listen port
+        line like "INADDR_ANY:8080:128" - ip:port:listenBacklog
+        */
+    public:
+        static Base* construct(const route_t &)
+        {
+            return NULL;
+        }
+        DoListen(const msockaddr_in& _addr, const SECURE& _sec)
+            :NoPacked(rpcEventEnum::DoListen),
+             addr(_addr), secure(_sec) {}
+        const msockaddr_in addr;
+        const SECURE secure;
+
+    };
+
 
 }

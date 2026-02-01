@@ -80,11 +80,11 @@ void registerprodtestServerService(const char* pn)
     XTRY;
     if(pn)
     {
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::prodtestServer,"prodtestServer",getEvents_prodtestServerService());
+        iUtils->registerPlugingInfo(pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::prodtestServer,"prodtestServer",getEvents_prodtestServerService());
     }
     else
     {
-        iUtils->registerService(COREVERSION,ServiceEnum::prodtestServer,prodtestServer::Service::construct,"prodtestServer");
+        iUtils->registerService(ServiceEnum::prodtestServer,prodtestServer::Service::construct,"prodtestServer");
         regEvents_prodtestServerService();
     }
     XPASS;

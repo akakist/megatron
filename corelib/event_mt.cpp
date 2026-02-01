@@ -1,13 +1,6 @@
 #include "event_mt.h"
 #include "IUtils.h"
-Json::Value Event::Base::dump() const
-{
-    Json::Value v;
-    v["evid"]=iUtils->genum_name(id);
-    v["evroute"]=route.dump();
-    jdump(v);
-    return v;
-}
+#include "commonError.h"
 
 
 void Event::NoPacked::pack(outBuffer& ) const

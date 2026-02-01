@@ -2,15 +2,14 @@
 #define __________rpc_EventInfo__HH
 
 
-#include "IUtils.h"
-
-#include "Events/System/Net/oscarEvent.h"
-#include "Events/System/Net/rpcEvent.h"
-#include "Events/System/timerEvent.h"
-#include "Events/Tools/webHandlerEvent.h"
 #include <Events/System/Net/rpcEvent.h>
-#include <Events/System/Run/startServiceEvent.h>
+#include "Events/System/Net/oscarEvent.h"
+#include "Events/System/timerEvent.h"
+#include "Events/System/Net/rpcEvent.h"
+#include "Events/System/Net/oscarEvent.h"
 #include <Events/System/timerEvent.h>
+#include <Events/System/Run/startServiceEvent.h>
+#include <Events/Tools/webHandlerEvent.h>
 inline std::set<EVENT_id> getEvents_rpc()
 {
 
@@ -32,6 +31,7 @@ inline std::set<EVENT_id> getEvents_rpc()
 	out.insert(rpcEventEnum::Connected);
 	out.insert(rpcEventEnum::Disaccepted);
 	out.insert(rpcEventEnum::Disconnected);
+	out.insert(rpcEventEnum::DoListen);
 	out.insert(rpcEventEnum::IncomingOnAcceptor);
 	out.insert(rpcEventEnum::IncomingOnConnector);
 	out.insert(rpcEventEnum::PassPacket);
@@ -41,6 +41,9 @@ inline std::set<EVENT_id> getEvents_rpc()
 	out.insert(systemEventEnum::startService);
 	out.insert(timerEventEnum::TickAlarm);
 	out.insert(timerEventEnum::TickTimer);
+	out.insert(webHandlerEventEnum::RegisterDirectory);
+	out.insert(webHandlerEventEnum::RegisterHandler);
+	out.insert(webHandlerEventEnum::RequestIncoming);
 
 	return out;
 }
@@ -64,6 +67,7 @@ inline void regEvents_rpc()
 	iUtils->registerEvent(rpcEvent::Connected::construct);
 	iUtils->registerEvent(rpcEvent::Disaccepted::construct);
 	iUtils->registerEvent(rpcEvent::Disconnected::construct);
+	iUtils->registerEvent(rpcEvent::DoListen::construct);
 	iUtils->registerEvent(rpcEvent::IncomingOnAcceptor::construct);
 	iUtils->registerEvent(rpcEvent::IncomingOnConnector::construct);
 	iUtils->registerEvent(rpcEvent::PassPacket::construct);
@@ -73,5 +77,8 @@ inline void regEvents_rpc()
 	iUtils->registerEvent(systemEvent::startService::construct);
 	iUtils->registerEvent(timerEvent::TickAlarm::construct);
 	iUtils->registerEvent(timerEvent::TickTimer::construct);
+	iUtils->registerEvent(webHandlerEvent::RegisterDirectory::construct);
+	iUtils->registerEvent(webHandlerEvent::RegisterHandler::construct);
+	iUtils->registerEvent(webHandlerEvent::RequestIncoming::construct);
 }
 #endif

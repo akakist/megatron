@@ -5,7 +5,7 @@ void registerHTTPModule(const char*);
 void registerHTTPModule(const char*);
 void registerObjectProxyModule(const char*);
 void registerOscarModule(const char*);
-void registerOscarSecureModule(const char*);
+// void registerOscarSecureModule(const char*);
 void registerRPCService(const char*);
 void registerSocketModule(const char*);
 void registerSqliteModule(const char*);
@@ -31,7 +31,7 @@ registerModule
 //    registerLoggerService(pn);
     registerObjectProxyModule(pn);
     registerOscarModule(pn);
-    registerOscarSecureModule(pn);
+    // registerOscarSecureModule(pn);
     registerRPCService(pn);
     registerSocketModule(pn);
     registerTelnetService(pn);

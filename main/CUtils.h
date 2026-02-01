@@ -53,6 +53,8 @@ public:
     std::string Base64Encode(const std::string&);
     std::string  Base64Decode(const std::string&);
     std::string  hex2bin(const std::string&);
+    std::string hex2bin(const std::string_view &s);
+
     std::string  bin2hex(const std::string&);
     std::string uriEncode(const std::string & sSrc);
     std::string uriDecode(const std::string & sSrc);
@@ -87,21 +89,9 @@ public:
     std::string extractFileExt(const std::string&);
     std::string extractFileName(const std::string & f);
 
-#ifdef __WITH_ZLIB
-    REF_getter<refbuffer>  zcompress(const REF_getter<refbuffer>& data);
-    REF_getter<refbuffer>  zexpand(const REF_getter<refbuffer>& data);
-#endif
     std::string replace_vals(std::map<std::string,std::string> &p, const std::string &src);
-    std::string rus_datetime(const time_t& t);
-    std::string rus_date(const time_t& t);
-    time_t from_rus_datetime(const std::string& s);
+    const char* genum_name(uint32_t n) final;
 
-    std::string en_datetime(const time_t& t);
-    std::string en_date(const time_t& t);
-    time_t from_en_datetime(const std::string& s);
-    const char* genum_name(int n) final;
-
-    std::string makeSlug(const std::string& s);
 
     SOCKET_id getNewSocketId();
 
@@ -111,7 +101,7 @@ public:
 
 
     Utils_local local;
-    void registerIface(const VERSION_id& vid,const SERVICE_id& id, Ifaces::Base* p);
+    void registerIface(const SERVICE_id& id, Ifaces::Base* p);
     Ifaces::Base* queryIface(const SERVICE_id& id);
 
 
@@ -145,7 +135,7 @@ public:
 
     struct __sockIdGen
     {
-        std::atomic<int16_t> gen;
+        std::atomic<int64_t> gen;
         __sockIdGen()
         {
             gen=0L;
@@ -164,10 +154,10 @@ public:
     __sockIdGen sockIdGen;
 
 
-    void registerPlugingInfo(const VERSION_id& version, const char* pluginFileName, PluginType pt, const SERVICE_id &id, const char* name, const std::set<EVENT_id>& evts);
+    void registerPlugingInfo(const char* pluginFileName, PluginType pt, const SERVICE_id &id, const char* name, const std::set<EVENT_id>& evts);
     void registerPluginDLL(const std::string& pn);
 
-    void registerService(const VERSION_id&, const SERVICE_id& id, unknown_static_constructor cs, const std::string& literalName);
+    void registerService(const SERVICE_id& id, unknown_static_constructor cs, const std::string& literalName);
 
 
 
@@ -209,7 +199,9 @@ public:
             }
             for(auto z: ins)
             {
+#ifdef DEBUG
                 printf(BLUE("deleting instance"));
+#endif
                 delete z;
             }
 

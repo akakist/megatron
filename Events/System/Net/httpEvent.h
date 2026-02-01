@@ -7,19 +7,93 @@
 #include "route_t.h"
 namespace ServiceEnum
 {
-    const SERVICE_id HTTP(genum_HTTP);
+    const SERVICE_id HTTP(ghash("@g_HTTP"));
 }
 namespace httpEventEnum
 {
-    const EVENT_id DoListen(genum_httpDoListen);
-    const EVENT_id RegisterProtocol(genum_httpRegisterProtocol);
-    const EVENT_id GetBindPortsREQ(genum_GetBindPortsREQ);
-    const EVENT_id RequestIncoming(genum_httpRequestIncoming);
-    const EVENT_id GetBindPortsRSP(genum_GetBindPortsRSP);
+    const EVENT_id DoListen(ghash("@g_httpDoListen"));
+    const EVENT_id GetBindPortsREQ(ghash("@g_GetBindPortsREQ"));
+    const EVENT_id GetBindPortsRSP(ghash("@g_GetBindPortsRSP"));
+    const EVENT_id WSTextMessage(ghash("@g_WSTextMessage"));
+    const EVENT_id WSDisaccepted(ghash("@g_WSDisaccepted"));
+    const EVENT_id WSDisconnected(ghash("@g_WSDisconnected"));
+    const EVENT_id WSWrite(ghash("@g_WSWrite"));
+    
+    const EVENT_id RequestIncoming(ghash("@g_httpRequestIncoming"));
+    const EVENT_id RequestStartChunking(ghash("@g_httpRequestStartChunking"));
+    const EVENT_id RequestChunkReceived(ghash("@g_httpRequestChunkReceived"));
+    const EVENT_id RequestChunkingCompleted(ghash("@g_httpRequestChunkingCompleted"));
+
 }
 
 namespace httpEvent
 {
+    class WSDisaccepted: public Event::NoPacked
+    {
+        /**
+        request is ready, sent by HTTP
+        */
+    public:
+        static Base* construct(const route_t &)
+        {
+            return NULL;
+        }
+        WSDisaccepted(const REF_getter<HTTP::Request> _rq, const route_t & r)
+            :NoPacked(httpEventEnum::WSDisaccepted,r),
+             req(_rq){}
+        const REF_getter<HTTP::Request> req;
+
+    };
+    class WSWrite: public Event::NoPacked
+    {
+        /**
+        request is ready, sent by HTTP
+        */
+    public:
+        static Base* construct(const route_t &)
+        {
+            return NULL;
+        }
+        WSWrite(const REF_getter<HTTP::Request>& _r, const std::string & _msg, const route_t & r)
+            :NoPacked(httpEventEnum::WSWrite,r),
+             r(_r),msg(_msg){}
+        REF_getter<HTTP::Request> r=nullptr;
+        std::string msg;
+
+    };
+    class WSDisconnected: public Event::NoPacked
+    {
+        /**
+        request is ready, sent by HTTP
+        */
+    public:
+        static Base* construct(const route_t &)
+        {
+            return NULL;
+        }
+        WSDisconnected(const REF_getter<HTTP::Request> & _rq, const route_t & r)
+            :NoPacked(httpEventEnum::WSDisconnected,r),
+             req(_rq){}
+        const REF_getter<HTTP::Request> req;
+
+    };
+    class WSTextMessage: public Event::NoPacked
+    {
+        /**
+        request is ready, sent by HTTP
+        */
+    public:
+        static Base* construct(const route_t &)
+        {
+            return NULL;
+        }
+        WSTextMessage(const REF_getter<HTTP::Request>& __R, const std::string& _msg, const route_t & r)
+            :NoPacked(httpEventEnum::WSTextMessage,r),
+             req(__R), msg(_msg){}
+        const REF_getter<HTTP::Request> req;
+        std::string msg;
+
+    };
     class RequestIncoming: public Event::NoPacked
     {
         /**
@@ -35,29 +109,10 @@ namespace httpEvent
              req(__R),esi(__esi) {}
         const REF_getter<HTTP::Request> req;
         const REF_getter<epoll_socket_info> esi;
-        void jdump(Json::Value &) const
-        {
-        }
 
     };
 
 
-    class RegisterProtocol: public Event::NoPacked
-    {
-    public:
-        static Base* construct(const route_t &)
-        {
-            return NULL;
-        }
-        RegisterProtocol(const std::string &_url, const HTTP::IoProtocol &_protocol, const route_t& r)
-            :NoPacked(httpEventEnum::RegisterProtocol,r),
-             url(_url),protocol(_protocol) {}
-        std::string url;
-        HTTP::IoProtocol protocol;
-        void jdump(Json::Value &) const
-        {
-        }
-    };
 
 
 
@@ -77,9 +132,6 @@ namespace httpEvent
         {
         }
         void pack(outBuffer&) const
-        {
-        }
-        void jdump(Json::Value &) const
         {
         }
     };
@@ -107,10 +159,6 @@ namespace httpEvent
         {
             o<<listenAddrs;
         }
-        void jdump(Json::Value &v) const
-        {
-            v["listenAddrs"]=iUtils->dump(listenAddrs);
-        }
 
     };
 
@@ -125,16 +173,72 @@ namespace httpEvent
         {
             return NULL;
         }
-        DoListen(const msockaddr_in& _addr, const route_t & r)
+        DoListen(const msockaddr_in& _addr, const SECURE& _sec, const route_t & r)
             :NoPacked(httpEventEnum::DoListen,r),
-             addr(_addr) {}
+             addr(_addr), secure(_sec) {}
         const msockaddr_in addr;
-        void jdump(Json::Value &) const
-        {
-        }
+        const SECURE secure;
 
     };
 
+
+
+    class RequestStartChunking: public Event::NoPacked
+    {
+        /**
+        request is ready, sent by HTTP
+        */
+    public:
+        static Base* construct(const route_t &)
+        {
+            return NULL;
+        }
+        RequestStartChunking(const REF_getter<HTTP::Request>& __R, const REF_getter<epoll_socket_info>& __esi, const route_t & r)
+            :NoPacked(httpEventEnum::RequestStartChunking,r),
+             req(__R),esi(__esi) {}
+        const REF_getter<HTTP::Request> req;
+        const REF_getter<epoll_socket_info> esi;
+
+    };
+
+    class RequestChunkReceived: public Event::NoPacked
+    {
+        /**
+        request is ready, sent by HTTP
+        */
+    public:
+        static Base* construct(const route_t &)
+        {
+            return NULL;
+        }
+        RequestChunkReceived(const REF_getter<HTTP::Request>& __R, const REF_getter<epoll_socket_info>& __esi, uint64_t _chunkId, const std::string& _buf, const route_t & r)
+            :NoPacked(httpEventEnum::RequestChunkReceived,r),
+             req(__R),esi(__esi),chunkId(_chunkId),buf(_buf){}
+        const REF_getter<HTTP::Request> req;
+        const REF_getter<epoll_socket_info> esi;
+        uint64_t chunkId=0;
+        std::string buf;
+
+    };
+
+    class RequestChunkingCompleted: public Event::NoPacked
+    {
+        /**
+        request is ready, sent by HTTP
+        */
+    public:
+        static Base* construct(const route_t &)
+        {
+            return NULL;
+        }
+        RequestChunkingCompleted(const REF_getter<HTTP::Request>& __R, const REF_getter<epoll_socket_info>& __esi, uint64_t _totalChunks, const route_t & r)
+            :NoPacked(httpEventEnum::RequestChunkingCompleted,r),
+             req(__R),esi(__esi),totalChunks(_totalChunks) {}
+        const REF_getter<HTTP::Request> req;
+        const REF_getter<epoll_socket_info> esi;
+        uint64_t totalChunks=0;
+
+    };
 
 }
 

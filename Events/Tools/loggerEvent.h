@@ -5,19 +5,20 @@
 #include "route_t.h"
 
 
-#include "genum.hpp"
 
 
+#include"ghash.h"
 
 
 namespace ServiceEnum
 {
-    const SERVICE_id Logger(genum_Logger);
+
+    const SERVICE_id Logger(ghash("@g_Logger"));
 
 }
 namespace loggerEventEnum
 {
-    const EVENT_id LogMessage(genum_loggerLogMessage);
+    const EVENT_id LogMessage(ghash("@g_loggerLogMessage"));
 }
 
 
@@ -47,11 +48,6 @@ namespace loggerEvent
         void pack(outBuffer&o) const
         {
             o<<opcode<<msg;
-        }
-        void jdump(Json::Value &v) const
-        {
-            v["opcode"]=opcode;
-            v["msg"]=msg;
         }
 
     };

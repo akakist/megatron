@@ -2,6 +2,7 @@
 #include "IUtils.h"
 #include "mutexInspector.h"
 #include "colorOutput.h"
+#include "commonError.h"
 
 
 ListenerPolled::~ListenerPolled()
@@ -31,14 +32,14 @@ void ListenerPolled::poll()
                 if(!handleEvent(d[n]))
                 {
                     XTRY;
-                    logErr2("ListenerPolled: unhandled event %s in %s",d[n]->dump().toStyledString().c_str(),listenerName_.c_str());
+                    logErr2("ListenerPolled: unhandled event %s in %s",iUtils->genum_name(d[n]->id),listenerName_.c_str());
                     XPASS;
 
                 }
             }
             catch(const std::exception& e)
             {
-                logErr2("ListenerPolled exception: " RED2("%s") " %s %s",e.what(),_DMI().c_str(),d[n]->dump().toStyledString().c_str());
+                logErr2("ListenerPolled exception: " RED2("%s") " %s %s",e.what(),_DMI().c_str(),iUtils->genum_name(d[n]->id));
 
             }
         }

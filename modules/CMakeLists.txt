@@ -1,5 +1,4 @@
 
-#cmake_minimum_required (VERSION 2.6)
 project (dfsCoreModules)
 
 
@@ -7,26 +6,19 @@ project (dfsCoreModules)
 ADD_SUBDIRECTORY(errorDispatcher)
 ADD_SUBDIRECTORY(logger)
 ADD_SUBDIRECTORY(http)
-#ADD_SUBDIRECTORY(sqlite)
-IF(ENABLE_MYSQL)
     ADD_SUBDIRECTORY(mysql)
-ENDIF()
 ADD_SUBDIRECTORY(objectProxy)
 ADD_SUBDIRECTORY(oscar)
-ADD_SUBDIRECTORY(oscarSecure)
 ADD_SUBDIRECTORY(rpc)
 ADD_SUBDIRECTORY(socket)
 ADD_SUBDIRECTORY(ssl)
-ADD_SUBDIRECTORY(geoip)
 ADD_SUBDIRECTORY(telnet)
 ADD_SUBDIRECTORY(timer)
 ADD_SUBDIRECTORY(webHandler)
 
 
 
-ADD_SUBDIRECTORY(dfsReferrer)
-ADD_SUBDIRECTORY(dfsCaps)
 
-ADD_SUBDIRECTORY(referrerClient)
+ADD_SUBDIRECTORY(webSocketClient)
 
 ADD_SUBDIRECTORY(zsingle)

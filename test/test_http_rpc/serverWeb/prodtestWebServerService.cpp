@@ -17,7 +17,9 @@ bool prodtestWebServer::Service::on_startService(const systemEvent::startService
     if(!svs)
         throw CommonError("if(!svs)");
 
-    sendEvent(svs,new httpEvent::DoListen(bindAddr,this));
+        SECURE sec;
+        sec.use_ssl=false;
+    sendEvent(svs,new httpEvent::DoListen(bindAddr,sec,this));
     return true;
 }
 
@@ -120,11 +122,11 @@ void registerprodtestServerWebService(const char* pn)
     XTRY;
     if(pn)
     {
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::prodtestServerWeb,"prodtestServerWeb",getEvents_prodtestWebServer());
+        iUtils->registerPlugingInfo(pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::prodtestServerWeb,"prodtestServerWeb",getEvents_prodtestWebServer());
     }
     else
     {
-        iUtils->registerService(COREVERSION,ServiceEnum::prodtestServerWeb,prodtestWebServer::Service::construct,"prodtestServerWeb");
+        iUtils->registerService(ServiceEnum::prodtestServerWeb,prodtestWebServer::Service::construct,"prodtestServerWeb");
         regEvents_prodtestWebServer();
     }
     XPASS;
@@ -136,15 +138,15 @@ void registerprodtestServerWebService(const char* pn)
 bool prodtestWebServer::Service::on_RequestIncoming(const httpEvent::RequestIncoming*e)
 {
 
-    HTTP::Response resp(getIInstance());
+    HTTP::Response resp(e->req);
     auto S=create_session(e->req,resp,e->esi);
     S->esi=e->esi;
 
     {
-        std::string query_string=e->req->params["query_string"];
+        // std::string query_string=e->req->params["query_string"];
         {
             sendEvent(prodtestServerAddr,ServiceEnum::prodtestServer,new prodtestEvent::AddTaskREQ(S->sessionId,
-                      query_string,0,ListenerBase::serviceId));
+                      "query_string",0,ListenerBase::serviceId));
         }
         return true;
     }
@@ -177,27 +179,23 @@ REF_getter<prodtestWebServer::Session> prodtestWebServer::Service::get_session(i
     return S;
 
 }
+void prodtestWebServer::Service::remove_session(int session_id)
+{
+        auto n=sessions.erase(session_id);
+        if(n==0)
+            logErr2("session not erased");
+}
+
 
 bool prodtestWebServer::Service::on_AddTaskRSP(const prodtestEvent::AddTaskRSP*e)
 {
-    // printf("@@@@ on_AddTaskRSP \n");
     if(e->count==0)
     {
 
-        HTTP::Response resp(getIInstance());
         auto S=get_session(e->session);
-        bool keepAlive=S->req->headers["Connection"]=="Keep-Alive";
-        // keepAlive=true;
-        if(keepAlive)
-        {
-            resp.http_header_out["Connection"]="Keep-Alive";
-            resp.http_header_out["Keep-Alive"]="timeout=5, max=100000";
-        }
-        resp.content="<div>received response </div>";
-        if(keepAlive)
-            resp.makeResponsePersistent(S->esi);
-        else
-            resp.makeResponse(S->esi);
+        HTTP::Response resp(S->req);
+        resp.make_response("<div>received response </div>");
+        remove_session(e->session);
 
     }
     else

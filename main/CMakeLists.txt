@@ -1,8 +1,3 @@
-#cmake_minimum_required (VERSION 2.6)
-
-
-
-
 add_library(megatron-main STATIC
 CInstance.cpp
 CInstance.h

@@ -2,8 +2,7 @@
 #define __________socket_EventInfo__HH
 
 
-#include "IUtils.h"
-
+#include <Events/System/Net/socketEvent.h>
 #include "Events/Tools/webHandlerEvent.h"
 #include <Events/System/Net/socketEvent.h>
 #include <Events/System/Run/startServiceEvent.h>
@@ -24,7 +23,6 @@ inline std::set<EVENT_id> getEvents_socket()
 	out.insert(socketEventEnum::NotifyOutBufferEmpty);
 	out.insert(socketEventEnum::StreamRead);
 	out.insert(systemEventEnum::startService);
-	out.insert(timerEventEnum::TickTimer);
 	out.insert(webHandlerEventEnum::RequestIncoming);
 
 	return out;
@@ -43,7 +41,6 @@ inline void regEvents_socket()
 	iUtils->registerEvent(socketEvent::NotifyOutBufferEmpty::construct);
 	iUtils->registerEvent(socketEvent::StreamRead::construct);
 	iUtils->registerEvent(systemEvent::startService::construct);
-	iUtils->registerEvent(timerEvent::TickTimer::construct);
 	iUtils->registerEvent(webHandlerEvent::RequestIncoming::construct);
 }
 #endif

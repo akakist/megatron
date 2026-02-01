@@ -3,10 +3,11 @@
 #include "route_t.h"
 #include "EVENT_id.h"
 #include "event_mt.h"
-#include "genum.hpp"
+
+#include "ghash.h"
 namespace ErrorEventEnum
 {
-    const EVENT_id ErrorRSP(genum_ErrorRSP);
+    const EVENT_id ErrorRSP(ghash("@g_ErrorRSP"));
 }
 
 namespace ErrorEvent
@@ -40,11 +41,6 @@ namespace ErrorEvent
         void pack(outBuffer&o) const
         {
             o<<errcode<<errText;
-        }
-        void jdump(Json::Value &v) const
-        {
-            v["errcode"]=errcode;
-            v["action"]=errText;
         }
 
     };

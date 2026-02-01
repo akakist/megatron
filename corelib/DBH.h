@@ -100,12 +100,7 @@ private:
     Mutex mx;
     std::map<pthread_t,std::pair<REF_getter<DBH>,time_t > > m_sources;
 public:
-    DBH_feature(IInstance* ifa)
-    {
-        dbh_src=dynamic_cast<DBH_source*>(ifa->getServiceOrCreate(ServiceEnum::Mysql));
-        if(!dbh_src)
-            throw CommonError("if(!dbh_src)");
-    }
+    DBH_feature(IInstance* ifa);
     REF_getter<DBH> getDB()
     {
         pthread_t pt=pthread_self();
@@ -147,27 +142,7 @@ struct st_TRANSACTION
     {
         exitState=___ROLLBACK;
     }
-    st_TRANSACTION(const REF_getter<DBH> &df):dbh(df),exitState(___ROLLBACK)
-    {
-        dbh->exec((std::string)"BEGIN");
-
-    }
-    ~st_TRANSACTION()
-    {
-        switch (exitState) {
-        case ___UNDEF:
-            logErr2("exitState UNDEF");
-            break;
-        case ___COMMIT:
-            dbh->exec((std::string)"COMMIT");
-            break;
-        case ___ROLLBACK:
-            dbh->exec((std::string)"ROLLBACK");
-            break;
-        default:
-            logErr2("exitState UNDEF");
-            break;
-        }
-    }
+    st_TRANSACTION(const REF_getter<DBH> &df);
+    ~st_TRANSACTION();
 
 };

@@ -142,20 +142,33 @@ static std::string getAutoAppendString(const std::vector<std::string> &v, const 
     }
     return "";
 }
-
-void Telnet::Service::doListen()
+bool Telnet::Service::DoListen(const telnetEvent::DoListen*e)
 {
-    MUTEX_INSPECTOR;
+    SOCKET_id sid=iUtils->getNewSocketId();
+    // msockaddr_in sa=i;
+    SECURE sec;
+    sec.use_ssl=false;
+    m_deviceName=e->deviceName;
+    sendEvent(ServiceEnum::Socket,new socketEvent::AddToListenTCP(sid,e->sa,"TELNET",false,sec,ListenerBase::serviceId));
 
-    XTRY;
-    for(auto &i:m_bindAddr)
-    {
-        SOCKET_id sid=iUtils->getNewSocketId();
-        msockaddr_in sa=i;
-        sendEvent(ServiceEnum::Socket,new socketEvent::AddToListenTCP(sid,sa,"TELNET",false,ListenerBase::serviceId));
-    }
-    XPASS;
+    return true;
 }
+
+// void Telnet::Service::doListen()
+// {
+//     MUTEX_INSPECTOR;
+
+//     XTRY;
+//     for(auto &i:m_bindAddr)
+//     {
+//         SOCKET_id sid=iUtils->getNewSocketId();
+//         msockaddr_in sa=i;
+//         SECURE sec;
+//         sec.use_ssl=false;
+//         sendEvent(ServiceEnum::Socket,new socketEvent::AddToListenTCP(sid,sa,"TELNET",false,sec,ListenerBase::serviceId));
+//     }
+//     XPASS;
+// }
 
 Telnet::Service::Service(const SERVICE_id& id, const std::string& nm, IInstance* ifa):
     UnknownBase(nm),Broadcaster(ifa),
@@ -164,38 +177,12 @@ Telnet::Service::Service(const SERVICE_id& id, const std::string& nm, IInstance*
 {
     XTRY;
 
-    cmdEntries.registerType("VLAN_ID","(409[0-5]|40[0-8][0-9]|[1-3][0-9]{3}|[1-9][0-9]{2}|[1-9][0-9]|[1-9])","Number in the range 1-4095");
-    cmdEntries.registerType("AG_TIME","(409[0-5]|40[0-8][0-9]|[1-3][0-9]{3}|[1-9][0-9]{2}|[1-9][0-9]|[1-9])","Number in the range 1-4095");
-    cmdEntries.registerType("IP_ADDR","(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))","IP address AAA.BBB.CCC.DDD where each part is in the range 0-255");
-    cmdEntries.registerType("NETMASK","(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))","netmask AAA.BBB.CCC.DDD where each part is in the range 0-255");
-    cmdEntries.registerType("UINT","[0-9]+","Unsigned integer");
-    cmdEntries.registerType("CLK_OFF","^(-?){2}(2[0-4]|1[0-9]|[1-9])","Clock offset");
-    cmdEntries.registerType("CLK_NAME","([a-zA-Z_]+)","Clock set name");
-    cmdEntries.registerType("STRING","[^\\-]+","String");
-    cmdEntries.registerType("COMM_TYPE","(ro|rw)","Community type");
-    cmdEntries.registerType("VL_STRING","[0-9\\,]+","Vl_String");
-    cmdEntries.registerType("STRING_ALL","[^\\`]+","String");
-    cmdEntries.registerType("STRING_ALL_10","([^\\`]+)","String 10 chars");
-    cmdEntries.registerType("BOOL","true(1) false(0)","Boolean choice");
-    cmdEntries.registerType("MAC_ADDR","((([0-9]|[a-f]|[A-F]){4}\\.){2}([0-9]|[a-f]|[A-F]){4})","H.H.H  48 bit mac address");
-    cmdEntries.registerType("IF_ID","\\0\\/(1[0-6]|[1-9])","Interface id choice");
-    cmdEntries.registerType("GB_IF_ID","\\0\\/([1-2])","Interface id choice");
-
-    //if(iInstance->no_bind())
-    //  return;
-
-    m_bindAddr=ifa->getConfig()->get_tcpaddr("BindAddr","NONE","ip:port to bind. INADDR_ANY:port -bind to all interfaces, NONE - no bind");
-
-    if(m_bindAddr.size())
-    {
-        m_deviceName=ifa->getConfig()->get_string("deviceName","Device","What to show in prompt of console");
-    }
     XPASS;
 }
 bool Telnet::Service::on_startService(const systemEvent::startService*)
 {
     {
-        doListen();
+        // doListen();
     }
 
     return true;
@@ -248,7 +235,7 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
     REF_getter<Telnet::Session> W=stuff->get(evt->esi->id_);
     if (!W.valid())
     {
-        logErr2("socketStreamRead socket not found %s %d",__FILE__,__LINE__);
+        logErr2("socketStreamRead socket not found");
         return true;
     }
     REF_getter<epoll_socket_info> esi=evt->esi;
@@ -894,14 +881,14 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
             norm_cmdline=W->mx_current_command_line;
         }
         REF_getter<Telnet::Node> N=W->defaultNode();
-        std::map<std::deque<std::string>,REF_getter<_Command> > _c=N->commands();
+        auto  _c=N->commands();
 
         std::vector<std::string> commands;
 
         for(auto& i:_c)
         {
-            std::string templ=iUtils->join(" ",i.first);
-            commands.push_back(templ);
+            // std::string templ=i.first;
+            commands.push_back(i.first);
         }
         std::map<std::string,REF_getter<Node> > _n=N->children();
         for(auto& i:_n)
@@ -926,8 +913,7 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
             {
             case 3:
             {
-                esi->write_("^C\r\n");
-                esi->markedToDestroyOnSend_=true;
+                esi->write_and_close("^C\r\n");
             }
             break;
             case 9: // TAB
@@ -981,9 +967,9 @@ void Telnet::Service::prompt(const REF_getter<Telnet::Session>& W, const REF_get
 {
     esi->write_(promptString(W));
 }
-bool Telnet::Service::paramMatch(const std::string & param, const std::string & exp)
+bool Telnet::Service::paramMatch(const std::string & regexp, const std::string & cmd)
 {
-    std::string regexp=cmdEntries.getRegex(param);
+    // std::string regexp=cmdEntries.getRegex(param);
 
     bool ok=false;
     int err;
@@ -998,12 +984,12 @@ bool Telnet::Service::paramMatch(const std::string & param, const std::string & 
         throw CommonError("regex '%s' %s",regexp.c_str(),erbuf);
         return false;
     }
-    if (!regexec(&re, exp.c_str(), 1, &pm, 0))
+    if (!regexec(&re, cmd.c_str(), 1, &pm, 0))
     {
         if (pm.rm_so != -1)
         {
             size_t matchlen = pm.rm_eo - pm.rm_so;
-            if(matchlen==exp.size()) ok=true;
+            if(matchlen==cmd.size()) ok=true;
             else
             {
                 DBG(logErr2("paramMatch: matchlen!= buffer.size"));
@@ -1011,7 +997,7 @@ bool Telnet::Service::paramMatch(const std::string & param, const std::string & 
         }
     }
     regfree(&re);
-    DBG(logErr2("paramMatch %s %s %d",param.c_str(),exp.c_str(),ok));
+    // DBG(logErr2("paramMatch %s %s %d",param.c_str(),exp.c_str(),ok));
     return ok;
     return true;
 }
@@ -1030,49 +1016,50 @@ void Telnet::Service::processCommand(const REF_getter<Telnet::Session>& W, const
         W->mx_command_history.push_back(cmd);
         W->command_history_pos=0;
     }
+    // logErr2("processCommand: %s",cmd.c_str());
     std::deque<std::string> tokens=iUtils->splitStringDQ(" \t",cmd);
     if(tokens.size()>0)
     {
         if(iUtils->strlower(tokens[0])=="quit")
         {
-            esi->write_("\r\n");
-            esi->markedToDestroyOnSend_=true;
+            esi->write_and_close("\r\n");
             return;
         }
         else if(iUtils->strlower(tokens[0])=="ls" || iUtils->strlower(tokens[0])=="help" )
         {
             if(tokens.size()>1)
             {
-                if(iUtils->strlower(tokens[1])=="types")
-                {
-                    std::map<std::string,std::string> m=cmdEntries.getHelpOnTypes();
-                    esi->write_("Registered types \r\n\r\n");
-                    for(auto& i:m)
-                    {
-                        esi->write_(bright(i.first)+" - "+i.second+"\r\n");
-                    }
-                    prompt(W,esi);
-                    return;
-                }
-                else if(iUtils->strlower(tokens[1])=="typex")
-                {
-                    std::map<std::string,std::string> m=cmdEntries.getHelpOnRe();
-                    esi->write_("Templates of registered types \r\n\r\n");
-                    for(auto& i:m)
-                    {
-                        esi->write_(bright(i.first)+" - "+i.second+"\r\n");
-                    }
-                    prompt(W,esi);
-                    return;
 
-                }
+                // if(iUtils->strlower(tokens[1])=="types")
+                // {
+                //     std::map<std::string,std::string> m=cmdEntries.getHelpOnTypes();
+                //     esi->write_("Registered types \r\n\r\n");
+                //     for(auto& i:m)
+                //     {
+                //         esi->write_(bright(i.first)+" - "+i.second+"\r\n");
+                //     }
+                //     prompt(W,esi);
+                //     return;
+                // }
+                // else if(iUtils->strlower(tokens[1])=="typex")
+                // {
+                //     std::map<std::string,std::string> m=cmdEntries.getHelpOnRe();
+                //     esi->write_("Templates of registered types \r\n\r\n");
+                //     for(auto& i:m)
+                //     {
+                //         esi->write_(bright(i.first)+" - "+i.second+"\r\n");
+                //     }
+                //     prompt(W,esi);
+                //     return;
+
+                // }
             }
             std::string path=W->defaultNode()->path();
             if(path.size()==0) path="/";
             esi->write_("Commands in '"+path+"'\r\n\r\n");
             esi->write_(bright("help")+" - display this page\r\n");
-            esi->write_(bright("help types")+" - display types of parameters\r\n");
-            esi->write_(bright("help typex")+" - display regex of parameters\r\n");
+            // esi->write_(bright("help types")+" - display types of parameters\r\n");
+            // esi->write_(bright("help typex")+" - display regex of parameters\r\n");
             esi->write_(bright("quit")+" - quit console\r\n");
             esi->write_(bright("..")+" - go to parent directory\r\n");
 
@@ -1084,10 +1071,10 @@ void Telnet::Service::processCommand(const REF_getter<Telnet::Session>& W, const
             }
             for(auto& i:commands)
             {
-                if(i.second->params.size())
-                    esi->write_(bright(iUtils->join(" ",i.second->cmd)+" ["+iUtils->join(" ",i.second->params)+"]")+" - "+i.second->help+"\r\n");
-                else
-                    esi->write_(bright(iUtils->join(" ",i.second->cmd))+" - "+i.second->help+"\r\n");
+                // if(i.second->params.size())
+                //     esi->write_(bright(i.second->cmd_re+" ["+iUtils->join(" ",i.second->params)+"]")+" - "+i.second->help+"\r\n");
+                // else
+                esi->write_(bright(i.second->cmd_re)+" - "+i.second->help+"\r\n");
             }
             prompt(W,esi);
             return;
@@ -1133,49 +1120,28 @@ void Telnet::Service::processCommand(const REF_getter<Telnet::Session>& W, const
             }
 
 
-            std::map<std::deque<std::string>,REF_getter<_Command> > commands=W->defaultNode()->commands();
-            for(auto& i:commands)
+        }
+
+    }
+    auto commands=W->defaultNode()->commands();
+    auto path=W->defaultNode()->path();
+    for(auto& i:commands)
+    {
+        Telnet::_Command *c=i.second.___ptr;
+        if(paramMatch(i.second->cmd_re,cmd))
+        {
+            // logErr2("matched command %s",i.second->cmd_re.c_str());
             {
-                Telnet::_Command *c=i.second.___ptr;
-                if(tokens.size()==c->cmd.size()+c->params.size())
-                {
-                    DBG(logErr2("if(tokens.size()==c->cmd.size()+c->params.size())"));
-                    bool ok=true;
-                    if(tokens.size()>=i.second->cmd.size())
-                    {
-                        for(size_t j=0; j<c->cmd.size(); j++)
-                        {
-                            if(tokens[j]!=c->cmd[j])
-                            {
-                                ok=false;
-                                DBG(logErr2("if(tokens[j]!=c->cmd[j]) OK=false"));
-                            }
-
-                        }
-                        if(ok)
-                        {
-                            for(size_t j=0; j<c->params.size(); j++)
-                            {
-                                if(!paramMatch(c->params[j],tokens[c->cmd.size()+j]))
-                                {
-                                    ok=false;
-                                    break;
-                                }
-                            }
-                            if(ok)
-                            {
-                                XTRY;
-                                route_t r=c->dstService;
-                                passEvent(new telnetEvent::CommandEntered(esi->id_,tokens,r));
-                                return;
-                                XPASS;
-                            }
-                        }
-                    }
-
-                }
+                XTRY;
+                route_t r=c->dstService;
+                passEvent(new telnetEvent::CommandEntered(esi->id_,cmd, path,r));
+                return;
+                XPASS;
             }
         }
+        // else logErr2("not matched command %s",i.second->cmd_re.c_str());
+
+
 
     }
 
@@ -1219,12 +1185,6 @@ Telnet::Session::Session(const REF_getter<Node> &N, const REF_getter<epoll_socke
     :mx_defaultNode(N),curpos(0),command_history_pos(0), insertMode(1),width(80),height(25),esi(_esi)
 {
 }
-bool Telnet::Service::on_RegisterType(const telnetEvent::RegisterType* e)
-{
-    cmdEntries.registerType(e->name,e->pattern,e->help);
-    return true;
-
-}
 bool Telnet::Service::on_RegisterCommand(const telnetEvent::RegisterCommand* e)
 {
     MUTEX_INSPECTOR;
@@ -1237,7 +1197,7 @@ bool Telnet::Service::on_RegisterCommand(const telnetEvent::RegisterCommand* e)
         dbase.push_back(d[i]);
     }
 
-    cmdEntries.registerCommand(d,e->cmd,e->help,e->route,e->params);
+    cmdEntries.registerCommand(d,e->cmd,e->help,e->route);
     return true;
 
 }
@@ -1266,21 +1226,6 @@ bool Telnet::Service::on_Reply(const telnetEvent::Reply* e)
 
 }
 
-Json::Value Telnet::Session::jdump()
-{
-    MUTEX_INSPECTOR;
-    Json::Value ret;
-    ret["defaulNode"]=mx_defaultNode->name;
-    {
-        ret["CurrentCommandLine"]=mx_current_command_line;
-
-    }
-    ret["CurPos"]=curpos;
-    ret["InsertMode"]=insertMode;
-    ret["width"]=width;
-    ret["height"]=height;
-    return ret;
-}
 bool Telnet::Session::on_TKEY_BS()
 {
     bool ok=false;
@@ -1301,15 +1246,6 @@ bool Telnet::Session::on_TKEY_BS()
     return ok;
 
 }
-Json::Value Telnet::_Command::jdump()
-{
-    Json::Value v;
-    v["dstService"]=dstService.dump();
-    v["cmd"]=iUtils->join(" ",cmd);
-    v["params"]=iUtils->join(" ",params);
-    v["help"]=help;
-    return v;
-}
 REF_getter<Telnet::Node> Telnet::Node::getSubDir(const std::string& dir)
 {
     auto i=m_children.find(dir);
@@ -1324,9 +1260,9 @@ void Telnet::Node::addChildNode(const std::string& section,const REF_getter<Node
         m_children.insert(std::make_pair(section,n));
     }
 }
-void Telnet::Node::addCommand(const std::deque<std::string>& cmd,const REF_getter<_Command>&n)
+void Telnet::Node::addCommand(const std::string& cmd,const REF_getter<_Command>&n)
 {
-    if(m_commands.count(cmd)) logErr2("addCommand: command '%s' already exists",iUtils->join(" ",cmd).c_str());
+    if(m_commands.count(cmd)) logErr2("addCommand: command '%s' already exists",cmd.c_str());
     m_commands.erase(cmd);
     m_commands.insert(std::make_pair(cmd,n));
 }
@@ -1334,7 +1270,7 @@ std::map<std::string,REF_getter<Telnet::Node> > Telnet::Node::children()
 {
     return m_children;
 }
-std::map<std::deque<std::string>,REF_getter<Telnet::_Command> > Telnet::Node::commands()
+std::map<std::string,REF_getter<Telnet::_Command> > Telnet::Node::commands()
 {
     return m_commands;
 }
@@ -1342,44 +1278,18 @@ std::string Telnet::Node::path()
 {
     std::deque<std::string> d;
     Node *n=this;
-    d.push_front(this->name);
+    d.push_back(this->name);
     while(n->parent)
     {
-        d.push_front(n->parent->name);
+        d.push_back(n->parent->name);
         n=n->parent;
     }
     if(d.empty()) return "/";
     return iUtils->join("/",d);
 }
-Json::Value Telnet::Node::jdump()
-{
-    Json::Value r;
-    r["name"]=name;
-    r["help"]=help;
-    std::map<std::string,REF_getter<Node> > _children=children();
-    std::map<std::deque<std::string>,REF_getter<_Command> >_commands=commands();
-    for(auto& i:_children)
-    {
-        r["children"].append(i.second->jdump());
-    }
-    for(auto& i:_commands)
-    {
-        r["commands"].append(i.second->jdump());
-    }
-    return r;
-}
 REF_getter<Telnet::Node> Telnet::CommandEntries::root()
 {
     return m_root;
-}
-void Telnet::CommandEntries::registerType(const std::string& _name, const std::string& _pattern, const std::string& _help)
-{
-    if(mx_types.count(_name))
-    {
-        logErr2("TELNET: register paramtype '%s' 'already registered'",_name.c_str());
-        return;
-    }
-    mx_types.insert(std::make_pair(_name,std::make_pair(_pattern,_help)));
 }
 void Telnet::CommandEntries::registerDirectory(const std::deque<std::string> &d, const std::string& name, const std::string& help)
 {
@@ -1392,22 +1302,22 @@ void Telnet::CommandEntries::registerDirectory(const std::deque<std::string> &d,
     REF_getter<Node> P(new Node(name,n.get(),help));
     n->addChildNode(name,P);
 }
-void Telnet::CommandEntries::registerCommand(const std::deque<std::string> &d, const std::string& cmd, const std::string& help,const route_t& dst, const std::string &params)
+void Telnet::CommandEntries::registerCommand(const std::deque<std::string> &d, const std::string& cmd, const std::string& help,const route_t& dst)
 {
 
     {
-        std::deque<std::string> pars=iUtils->splitStringDQ(" ",params);
-        {
+        // std::deque<std::string> pars=iUtils->splitStringDQ(" ",params);
+        // {
 
-            for(size_t i=0; i<pars.size(); i++)
-            {
-                if(mx_types.count(pars[i]))
-                {
-                }
-                else
-                    throw CommonError("param type '%s' is not defined",pars[i].c_str());
-            }
-        }
+        //     for(size_t i=0; i<pars.size(); i++)
+        //     {
+        //         if(mx_types.count(pars[i]))
+        //         {
+        //         }
+        //         else
+        //             throw CommonError("param type '%s' is not defined",pars[i].c_str());
+        //     }
+        // }
     }
     REF_getter<Node> n(root());
     for(const auto & i : d)
@@ -1416,41 +1326,41 @@ void Telnet::CommandEntries::registerCommand(const std::deque<std::string> &d, c
         if(!n.valid()) throw CommonError("cannot find subdir '%s'",i.c_str());
     }
     route_t r=dst;
-    r.pop_front();
-    REF_getter<_Command> C(new _Command(r,iUtils->splitStringDQ(" ",cmd),iUtils->splitStringDQ(" ",params),help));
-    n->addCommand(iUtils->splitStringDQ(" ",cmd),C);
+    r.pop_back();
+    REF_getter<_Command> C(new _Command(r,cmd,help));
+    n->addCommand(cmd,C);
 }
-std::string Telnet::CommandEntries::getRegex(const std::string &param)
-{
-    std::string regex;
-    {
-        if(mx_types.count(param))
-        {
-            regex=mx_types[param].first;
-        }
-        else
-            throw CommonError("param type '%s' is not defined",param.c_str());
-    }
-    return regex;
-}
-std::map<std::string,std::string> Telnet::CommandEntries::getHelpOnTypes()
-{
-    std::map<std::string,std::string> m;
-    for(auto& i:mx_types)
-    {
-        m[i.first]=i.second.second;
-    }
-    return m;
-}
-std::map<std::string,std::string> Telnet::CommandEntries::getHelpOnRe()
-{
-    std::map<std::string,std::string> m;
-    for(auto& i:mx_types)
-    {
-        m[i.first]=i.second.first;
-    }
-    return m;
-}
+// std::string Telnet::CommandEntries::getRegex(const std::string &param)
+// {
+//     std::string regex;
+//     {
+//         if(mx_types.count(param))
+//         {
+//             regex=mx_types[param].first;
+//         }
+//         else
+//             throw CommonError("param type '%s' is not defined",param.c_str());
+//     }
+//     return regex;
+// }
+// std::map<std::string,std::string> Telnet::CommandEntries::getHelpOnTypes()
+// {
+//     std::map<std::string,std::string> m;
+//     for(auto& i:mx_types)
+//     {
+//         m[i.first]=i.second.second;
+//     }
+//     return m;
+// }
+// std::map<std::string,std::string> Telnet::CommandEntries::getHelpOnRe()
+// {
+//     std::map<std::string,std::string> m;
+//     for(auto& i:mx_types)
+//     {
+//         m[i.first]=i.second.first;
+//     }
+//     return m;
+// }
 bool Telnet::Service::on_NotifyBindAddress(const socketEvent::NotifyBindAddress*e)
 {
     //if(iInstance->no_bind())
@@ -1464,32 +1374,15 @@ bool Telnet::Service::on_NotifyBindAddress(const socketEvent::NotifyBindAddress*
 //    }
     return true;
 }
-Json::Value Telnet::CommandEntries::jdump()
-{
-    Json::Value v;
-    v["root"]=m_root->jdump();
-    {
-        for(auto& i:mx_types)
-        {
-            Json::Value t;
-            t["name"]=i.first;
-            t["pattern"]=i.second.first;
-            t["help"]=i.second.second;
-            v["types"].append(t);
-        }
-
-    }
-    return v;
-}
 void registerTelnetService(const char* pn)
 {
     if(pn)
     {
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::Telnet,"Telnet",getEvents_telnet());
+        iUtils->registerPlugingInfo(pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::Telnet,"Telnet",getEvents_telnet());
     }
     else
     {
-        iUtils->registerService(COREVERSION,ServiceEnum::Telnet,Telnet::Service::construct,"Telnet");
+        iUtils->registerService(ServiceEnum::Telnet,Telnet::Service::construct,"Telnet");
         regEvents_telnet();
     }
 
@@ -1516,12 +1409,12 @@ bool Telnet::Service::handleEvent(const REF_getter<Event::Base>& e)
         return on_StreamRead((const socketEvent::StreamRead*)e.get());
     if( socketEventEnum::NotifyBindAddress==ID)
         return on_NotifyBindAddress((const socketEvent::NotifyBindAddress*)e.get());
-    if( telnetEventEnum::RegisterType==ID)
-        return(this->on_RegisterType((const telnetEvent::RegisterType*)e.get()));
     if( telnetEventEnum::RegisterCommand==ID)
         return(this->on_RegisterCommand((const telnetEvent::RegisterCommand*)e.get()));
     if( telnetEventEnum::Reply==ID)
         return(this->on_Reply((const telnetEvent::Reply*)e.get()));
+    if( telnetEventEnum::DoListen==ID)
+        return(this->DoListen((const telnetEvent::DoListen*)e.get()));
     if(systemEventEnum::startService==ID)
         return on_startService((const systemEvent::startService*)e.get());
 

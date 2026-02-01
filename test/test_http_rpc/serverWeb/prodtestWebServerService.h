@@ -73,6 +73,7 @@ namespace prodtestWebServer
 
         REF_getter<prodtestWebServer::Session> create_session(const REF_getter<HTTP::Request>& req, HTTP::Response& resp, const REF_getter<epoll_socket_info> &_esi);
         REF_getter<prodtestWebServer::Session> get_session(int session_id);
+        void remove_session(int session_id);
 
         std::map<int,REF_getter<Session> > sessions;
 

@@ -27,15 +27,15 @@ void NetworkMultiplexor::sockStartWrite(epoll_socket_info* esi)
     struct epoll_event evz;
     evz.data.u64 = CONTAINER(esi->id_);
     evz.events = EPOLLOUT|EPOLLIN;
-    int fd=CONTAINER(esi->fd_);
+    // int fd=CONTAINER(esi->fd_);
     bool added=esi->ev_added;
     int flag=added?EPOLL_CTL_MOD:EPOLL_CTL_ADD;
     esi->ev_added=true;
-    if(fd!=-1)
+    if(CONTAINER(esi->fd_)!=-1)
     {
-        if (epoll_ctl(m_handle, flag, fd, &evz) < 0)
+        if (epoll_ctl(m_handle, flag, CONTAINER(esi->fd_), &evz) < 0)
         {
-            logErr2("epoll_ctl add: socket '%d' - errno %d %s",CONTAINER(esi->fd_), errno,__PRETTY_FUNCTION__);
+            // logErr2("epoll_ctl add: socket '%d' - errno %d %s %s",CONTAINER(esi->fd_), errno,__PRETTY_FUNCTION__, strerror(errno));
             if(!esi->closed())
             {
                 esi->close("EPOLL_CTL_ADD");
@@ -87,7 +87,7 @@ void NetworkMultiplexor::sockStopWrite(epoll_socket_info* esi)
     {
         if (epoll_ctl(m_handle, flag, fd, &evz) < 0)
         {
-            logErr2("epoll_ctl add: socket '%d' - errno %d %s",CONTAINER(esi->fd_), errno,__PRETTY_FUNCTION__);
+            // logErr2("epoll_ctl add: socket '%d' - errno %d %s %s",CONTAINER(esi->fd_), errno,__PRETTY_FUNCTION__,strerror(errno));
             if(!esi->closed())
             {
                 esi->close("EPOLL_CTL_ADD");
@@ -133,7 +133,7 @@ void NetworkMultiplexor::sockAddRWOnNew(epoll_socket_info* esi)
 
         if (epoll_ctl(m_handle, flag, CONTAINER(esi->fd_), &evtz) < 0)
         {
-            logErr2("epoll_ctl mod: socket '%d' - errno %d",CONTAINER(esi->fd_), errno);
+            logErr2("epoll_ctl mod: socket '%d' - errno %d %s",CONTAINER(esi->fd_), errno,strerror(errno));
         }
 
     }
@@ -193,7 +193,7 @@ void NetworkMultiplexor::sockAddReadOnNew(epoll_socket_info* esi)
     {
         if (epoll_ctl(m_handle, flag, fd, &evz) < 0)
         {
-            logErr2("epoll_ctl add: socket '%d' - errno %d %s %s %s",CONTAINER(esi->fd_), errno,__PRETTY_FUNCTION__,strerror(errno));
+            // logErr2("epoll_ctl add: socket '%d' - errno %d %s %s %s",CONTAINER(esi->fd_), errno,__PRETTY_FUNCTION__,strerror(errno));
             if(!esi->closed())
             {
                 esi->close("EPOLL_CTL_ADD");

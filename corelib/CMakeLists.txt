@@ -1,6 +1,3 @@
-#cmake_minimum_required (VERSION 2.6)
-
-#project(dfsCore)
 
 
 
@@ -21,7 +18,6 @@ add_library(megatron-core STATIC
             httpConnection.cpp
             ioBuffer.cpp
             js_utils.cpp
-            jsonHandler.cpp
             listenerBase.cpp
             listenerBuffered1Thread.cpp
             listenerPolled.cpp
@@ -37,9 +33,6 @@ add_library(megatron-core STATIC
             unknown.cpp
             webDumpable.cpp
             neighbours.cpp
-            ../lib/jsoncpp-0.5.0/src/lib_json/json_reader.cpp
-            ../lib/jsoncpp-0.5.0/src/lib_json/json_value.cpp
-            ../lib/jsoncpp-0.5.0/src/lib_json/json_writer.cpp
 CONTAINER.h
 CapsId.h
 DBH.cpp
@@ -97,8 +90,6 @@ ioBuffer.cpp
 ioBuffer.h
 js_utils.cpp
 js_utils.h
-jsonHandler.cpp
-jsonHandler.h
 linkinfo.h
 listenerBase.cpp
 listenerBase.h
@@ -142,7 +133,15 @@ version_mega.h
 webDumpable.cpp
 webDumpable.h
 splitStr.h
-
+url.cpp
+url.hpp
+refstring.cpp
+backtrace.cpp
+listenerBufferedNThread.cpp
+listenerBufferedNThread.h
+#malloc_debug.cpp
+#malloc_debug.h
+obuf.cpp
+get_symbol_name.cpp
            )
-#install(TARGETS megatron-core DESTINATION ${LIB_TARGET_DIR})
 

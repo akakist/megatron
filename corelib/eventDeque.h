@@ -2,7 +2,7 @@
 #include <deque>
 #include "event_mt.h"
 #include "mutexable.h"
-#include <json/json.h>
+
 
 /// Used for event processing in Listeners
 class EventDeque: public Refcountable
@@ -15,10 +15,15 @@ private:
     bool m_isTerminating;
 public:
     EventDeque():
-    m_cond(m_mutex),
-    m_isTerminating(false) {}
+        m_cond(m_mutex),
+        m_isTerminating(false) {}
     void push(const REF_getter<Event::Base> & e);
     std::deque<REF_getter<Event::Base> > pop();
+    size_t size() const
+    {
+        M_LOCKC(m_mutex);
+        return container.size();
+    }
     void deinit()
     {
         m_isTerminating=true;

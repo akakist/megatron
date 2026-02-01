@@ -1,6 +1,7 @@
 #include "mutexable.h"
 #include "IUtils.h"
 #include <unistd.h>
+#include "commonError.h"
 
 Mutex::Mutex()
 {
@@ -166,4 +167,23 @@ Condition::~Condition()
 {
     if(pthread_cond_destroy((pthread_cond_t*)&m_cond))
         logErr2("pthread_cond_destroy: errno %d", errno);
+}
+void RWLock::wrlock() const
+{
+    int err=pthread_rwlock_wrlock(&lock_rw);
+    if(err!=0)
+        throw CommonError("pthread_rwlock_wrlock: %s",strerror((errno)));
+}
+void RWLock::rdlock() const
+{
+    int err=pthread_rwlock_rdlock(&lock_rw);
+    if(err!=0)
+        throw CommonError("pthread_rwlock_rdlock: %s",strerror((errno)));
+}
+void RWLock::unlock() const
+{
+    int err=pthread_rwlock_unlock(&lock_rw);
+    if(err!=0)
+        throw CommonError("pthread_rwlock_unlock: %s",strerror((errno)));
+
 }

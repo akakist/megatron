@@ -1,4 +1,3 @@
-#cmake_minimum_required (3)
 
 add_library(core-socket SHARED
             socket.cpp
@@ -7,7 +6,7 @@ add_library(core-socket SHARED
 
            )
 
-target_link_libraries(core-socket megatron-core pthread)
+target_link_libraries(core-socket megatron-core  pthread )
 
 install(TARGETS core-socket DESTINATION ${PLUGIN_TARGET_DIR})
 

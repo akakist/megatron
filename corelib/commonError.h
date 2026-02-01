@@ -3,11 +3,13 @@
 #include <exception>
 #include <stdexcept>
 #include <string>
+#include <stdarg.h>
+#include "mutexInspector.h"
 /**
 * Common exception
 */
 
-class CommonError
+class CommonError: public std::exception
 {
 private:
     std::string m_error;
@@ -19,13 +21,12 @@ public:
     explicit CommonError(const std::string& str);
     explicit CommonError(const char* fmt, ...);
     virtual ~CommonError() {}
-    const char* what() const
+    const char* what() const  noexcept
     {
         return m_error.c_str();
     };
 };
 void logErr2(const char* fmt, ...);
-void logRemote(const char *fmt, ...);
 
 
 /// DBG - hide code in release mode
@@ -45,3 +46,6 @@ void logRemote(const char *fmt, ...);
 #define XPASS
 #define XPASS_S
 #endif
+
+
+

@@ -53,28 +53,28 @@ namespace WebHandler
                 c.erase(c.begin());
             }
         }
-        Json::Value jdump()
-        {
-            Json::Value v;
-            v["urlPart"]=urlPart;
-            v["displayName"]=displayName;
-            if(nodeType==NT_handler)
-            {
-                route_t r=route;
-                r.pop_front();
-                v["destination"]=r.dump();
-            }
-            std::map<std::string, REF_getter<Node> > c;
-            {
-                M_LOCK(this);
-                c=children;
-            }
-            for(auto &i:c)
-            {
-                v["children"].append(i.second->jdump());
-            }
-            return v;
-        }
+        // nlohmann::json jdump()
+        // {
+        //     nlohmann::json v;
+        //     v["urlPart"]=urlPart;
+        //     v["displayName"]=displayName;
+        //     if(nodeType==NT_handler)
+        //     {
+        //         route_t r=route;
+        //         r.pop_front();
+        //         v["destination"]=r.dump();
+        //     }
+        //     std::map<std::string, REF_getter<Node> > c;
+        //     {
+        //         M_LOCK(this);
+        //         c=children;
+        //     }
+        //     for(auto &i:c)
+        //     {
+        //         v["children"].push_back(i.second->jdump());
+        //     }
+        //     return v;
+        // }
         std::string path()
         {
             M_LOCK(this);

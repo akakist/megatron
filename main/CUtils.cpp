@@ -35,12 +35,13 @@
 #include "megatron_config.h"
 #include "CInstance.h"
 #include "threadNameCtl.h"
-#include "genum.hpp"
+
 #include "resplit.h"
-const char* CUtils::genum_name(int n)
+const char* get_symbol_name(uint32_t hash);
+const char* CUtils::genum_name(uint32_t n)
 {
 
-    return __gen_string123(n);
+    return get_symbol_name(n);
 
 }
 
@@ -539,7 +540,7 @@ std::string CUtils::Base64Decode(const std::string &str)
     size_t len=str.size();
     char *out=(char*)malloc(len+10);
     if(!out)
-        throw CommonError("!out size %d %s %d",str.size(),__FILE__,__LINE__);
+        throw CommonError("!out size %d",str.size());
     ::memset(out,0,len+2);
     int outlen=Ns_HtuuDecode((char*)str.data(),(unsigned char*)out,len);
     std::string ret(out,outlen);
@@ -550,6 +551,22 @@ std::string CUtils::Base64Decode(const std::string &str)
 std::string CUtils::hex2bin(const std::string &s)
 {
     std::string out="";
+    out.reserve(s.size()/2);
+    char *p=(char*)s.data();
+    size_t sz=s.size();
+    for (size_t i=0; i<sz; i+=2)
+    {
+        char ss[3]= {0};
+        ::memcpy(ss,&p[i],2);
+        unsigned char c=(unsigned char)strtol(ss,NULL,16);
+        out+=std::string((char*)&c,1);
+    }
+    return out;
+}
+std::string CUtils::hex2bin(const std::string_view &s)
+{
+    std::string out="";
+    out.reserve(s.size()/2);
     char *p=(char*)s.data();
     size_t sz=s.size();
     for (size_t i=0; i<sz; i+=2)
@@ -565,6 +582,7 @@ std::string CUtils::hex2bin(const std::string &s)
 std::string CUtils::bin2hex(const std::string & in)
 {
     std::string out = "";
+    out.reserve(in.size()*2);
     XTRY;
     const unsigned char *p = (unsigned char *)in.data();
     for (unsigned int i = 0; i < in.size(); i++)
@@ -1111,43 +1129,6 @@ std::string CUtils::uriDecode(const std::string &SRC)
     }
     return (ret);
 }
-#ifdef __WITH_ZLIB
-
-REF_getter<refbuffer>  CUtils::zcompress(const REF_getter<refbuffer>& data)
-{
-    if(!data.valid())
-        return data;
-    uLongf olen=data->size_*2;
-    Bytef *obuf=(Bytef*) malloc(olen);
-    if(obuf==NULL)
-        throw std::runtime_error("alloc error");
-    compress(obuf,&olen,(Bytef*)data->buffer,data->size_);
-    std::string ret=std::string((char*)obuf,olen);
-    free(obuf);
-    outBuffer o;
-    o<<data->size_<<ret;
-    return o.asString();
-}
-REF_getter<refbuffer>  CUtils::zexpand(const REF_getter<refbuffer>& data)
-{
-    if(!data.valid())
-        return data;
-    inBuffer in(data);
-    int64_t expanded_size=in.get_PN();
-    std::string buf=in.get_PSTR();
-    uLongf olen=expanded_size;
-    Bytef *obuf=(Bytef*) malloc(olen);
-    if(obuf==NULL)
-        throw std::runtime_error("alloc error");
-
-    uncompress(obuf,&olen,(Bytef*)buf.data(),buf.size());
-    REF_getter<refbuffer> ret=new refbuffer;
-    ret->buffer=obuf;
-    ret->size_=olen;
-    ret->capacity=olen;
-    return ret;
-}
-#endif
 std::string CUtils::replace_vals(std::map<std::string,std::string> &p, const std::string &src)
 {
     if(!p.size())return src;
@@ -1171,96 +1152,8 @@ std::string CUtils::replace_vals(std::map<std::string,std::string> &p, const std
     a+=src.substr(static_cast<unsigned int>(lpz), src.size() - lpz);
     return a;
 }
-std::string CUtils::rus_datetime(const time_t& t)
-{
-    struct tm tt=*localtime(&t);
-    char buf[30];
-    snprintf(buf,sizeof(buf),"%02d.%02d.%04d %02d:%02d:%02d",tt.tm_mday,tt.tm_mon+1,tt.tm_year+1900,tt.tm_hour,tt.tm_min,tt.tm_sec);
-    return buf;
-}
-std::string CUtils::rus_date(const time_t& t)
-{
-    struct tm tt=*localtime(&t);
-    char buf[30];
-    snprintf(buf,sizeof(buf),"%02d.%02d.%04d",tt.tm_mday,tt.tm_mon+1,tt.tm_year+1900);
-    return buf;
-}
-time_t CUtils::from_rus_datetime(const std::string& s)
-{
-    std::vector<std::string> v=splitString(". :",s);
-    struct tm tt;
-    memset(&tt,0,sizeof(tt));
-    if(v.size()==3)
-    {
-        tt.tm_mday=atoi(v[0].c_str());
-        tt.tm_mon=atoi(v[1].c_str())-1;
-        tt.tm_year=atoi(v[2].c_str())-1900;
-    }
-    else if(v.size()==6)
-    {
-        tt.tm_mday=atoi(v[0].c_str());
-        tt.tm_mon=atoi(v[1].c_str())-1;
-        tt.tm_year=atoi(v[2].c_str())-1900;
-        tt.tm_hour=atoi(v[3].c_str());
-        tt.tm_min=atoi(v[5].c_str());
-        tt.tm_min=atoi(v[5].c_str());
-    }
-    else throw CommonError("invalid v size");
-    time_t t=mktime(&tt);
-    return t;
-}
-std::string CUtils::makeSlug(const std::string& s)
-{
-    std::string out;
-    for(size_t i=0; i<s.size(); i++)
-    {
-        if((s[i]>='A' && s[i]<='Z')||(s[i]>='a' && s[i]<='z')||(s[i]>='0' && s[i]<='9'))
-            out+=s[i];
-        else out+="_";
-    }
-    return strlower(out);
-}
 
 
-std::string CUtils::en_datetime(const time_t& t)
-{
-    struct tm tt=*localtime(&t);
-    char buf[30];
-    snprintf(buf,sizeof(buf),"%04d.%02d.%02d %02d:%02d:%02d",tt.tm_year+1900,tt.tm_mon+1,tt.tm_mday,tt.tm_hour,tt.tm_min,tt.tm_sec);
-    return buf;
-}
-std::string CUtils::en_date(const time_t& t)
-{
-    struct tm _tm;
-    struct tm tt=*localtime(&t);
-    char buf[30];
-    snprintf(buf,sizeof(buf),"%04d.%02d.%02d",tt.tm_year+1900,tt.tm_mon+1,tt.tm_mday);
-    return buf;
-}
-time_t CUtils::from_en_datetime(const std::string& s)
-{
-    std::vector<std::string> v=splitString(". :",s);
-    struct tm tt;
-    memset(&tt,0,sizeof(tt));
-    if(v.size()==3)
-    {
-        tt.tm_mday=atoi(v[2].c_str());
-        tt.tm_mon=atoi(v[1].c_str())-1;
-        tt.tm_year=atoi(v[0].c_str())-1900;
-    }
-    else if(v.size()==6)
-    {
-        tt.tm_mday=atoi(v[0].c_str());
-        tt.tm_mon=atoi(v[1].c_str())-1;
-        tt.tm_year=atoi(v[2].c_str())-1900;
-        tt.tm_hour=atoi(v[3].c_str());
-        tt.tm_min=atoi(v[5].c_str());
-        tt.tm_min=atoi(v[5].c_str());
-    }
-    else throw CommonError("invalid v size");
-    time_t t=mktime(&tt);
-    return t;
-}
 
 
 SOCKET_id CUtils::getNewSocketId()
@@ -1274,12 +1167,12 @@ Ifaces::Base* CUtils::queryIface(const SERVICE_id &id)
 {
     if(m_isTerminating) throw CommonError("terminating");
     {
-        R_LOCK(local.ifaces.lk);
+        M_LOCK(local.ifaces.lk);
         auto i=local.ifaces.container.find(id);
         if(i==local.ifaces.container.end())
         {
             {
-                RUnlocker(local.ifaces.lk);
+                MutexUnlocker aaa(local.ifaces.lk);
                 std::string pn;
                 {
                     M_LOCK(local.pluginInfo);
@@ -1301,7 +1194,9 @@ Ifaces::Base* CUtils::queryIface(const SERVICE_id &id)
             }
             i=local.ifaces.container.find(id);
             if(i==local.ifaces.container.end())
+            {
                 throw CommonError("cannot find iface %s %s",iUtils->genum_name(id),_DMI().c_str());
+            }
         }
 
         return i->second;
@@ -1382,11 +1277,11 @@ void CUtils::setFilesDir(const std::string& s)
 void CUtils::registerPluginDLL(const std::string& pn)
 {
     if(m_isTerminating)return;
+
 #ifdef _WIN32
     HMODULE h=LoadLibraryA(pn.c_str());
 #else
     void *h=dlopen(pn.c_str(),RTLD_LAZY);
-
 #endif
     if (!h)
     {
@@ -1425,18 +1320,17 @@ void CUtils::registerPluginDLL(const std::string& pn)
             }
 
         }
-
     }
 }
-void CUtils::registerPlugingInfo(const VERSION_id& version, const char* pluginFileName, PluginType pt, const SERVICE_id& id, const char* name, const std::set<EVENT_id> &evts)
+void CUtils::registerPlugingInfo(const char* pluginFileName, PluginType pt, const SERVICE_id& id, const char* name, const std::set<EVENT_id> &evts)
 {
     if(m_isTerminating)return;
 
-    if(CONTAINER(version)>>8!=COREVERSION>>8)
-    {
-        logErr2("if(version!=COREVERSION) in registerPlugingInfo");
-        return;
-    }
+    // if(CONTAINER(version)>>8!=COREVERSION>>8)
+    // {
+    //     logErr2("if(version!=COREVERSION) in registerPlugingInfo");
+    //     return;
+    // }
     {
         M_LOCK(local.pluginInfo);
         switch (pt) {
@@ -1467,17 +1361,17 @@ void CUtils::registerPlugingInfo(const VERSION_id& version, const char* pluginFi
         local.service_names.name2id[name]=id;
     }
 }
-void CUtils::registerService(const VERSION_id& vid, const SERVICE_id& id, unknown_static_constructor cs, const std::string& literalName)
+void CUtils::registerService(const SERVICE_id& id, unknown_static_constructor cs, const std::string& literalName)
 {
     if(m_isTerminating)return;
 
     DBG(printf(BLUE("registerService %s"),literalName.c_str()));
-    VERSION_id curv=COREVERSION;
-    if(CONTAINER(vid)>>8 != CONTAINER(curv)>>8)
-    {
-        logErr2(RED("registerService: invalid service version %x current version %x name %s"),CONTAINER(vid), CONTAINER(curv), literalName.c_str());
-        return;
-    }
+    // VERSION_id curv=COREVERSION;
+    // if(CONTAINER(vid)>>8 != CONTAINER(curv)>>8)
+    // {
+    //     logErr2(RED("registerService: invalid service version %x current version %x name %s"),CONTAINER(vid), CONTAINER(curv), literalName.c_str());
+    //     return;
+    // }
 
     XTRY;
     {
@@ -1629,7 +1523,7 @@ std::string CUtils::dumpWebDumpable(WebDumpable *h)
     {
         return   "<h1>"+h->wname()+"</h1>\n"
                  +
-                 "<p>\n<pre>" + h->wdump().toStyledString()+"\n</pre>";
+                 "<p>\n<pre>" + h->wdump()+"\n</pre>";
 
     }
     return "unknown WebDumpable";
@@ -1674,17 +1568,10 @@ IThreadNameController* CUtils::getIThreadNameController()
     static ThreadNameController threadCtl;
     return & threadCtl;
 }
-void CUtils::registerIface(const VERSION_id& vid,const SERVICE_id& id, Ifaces::Base* p)
+void CUtils::registerIface(const SERVICE_id& id, Ifaces::Base* p)
 {
-    VERSION_id curv=COREVERSION;
-    if(CONTAINER(vid)>>8 != CONTAINER(curv)>>8)
-    {
-        logErr2("registerService: invalid iface version %x current version %x ifaceid %s",CONTAINER(vid), CONTAINER(curv), iUtils->genum_name(id));
-        return;
-    }
 
-
-    W_LOCK(local.ifaces.lk);
+    M_LOCK(local.ifaces.lk);
     auto i=local.ifaces.container.find(id);
     if(i!=local.ifaces.container.end())
     {
@@ -1831,6 +1718,5 @@ void CUtils::load_plugins_info(const std::set<std::string>& bases)
 #endif
 
 }
-
 
 

@@ -18,12 +18,9 @@ struct linkInfoDownReferrer: public Refcountable
     linkInfoDownReferrer(const REF_getter<epoll_socket_info> &_esi,const msockaddr_in& _externalAddr, const std::set<msockaddr_in> &_internalAddrs, const route_t &_backRoute)
         :esi_(_esi),externalAddr_mx_(_externalAddr), internalAddrs_mx(_internalAddrs),backRoute_(_backRoute), lastReplaceByDownlink_(time(NULL))
     {}
-    Json::Value wdump()
+    std::string wdump()
     {
-        Json::Value v;
-        v["externalAddr"]=externalAddr_mx_.dump();
-        v["internalAddrs"]=iUtils->dump(internalAddrs_mx);
-        return v;
+        return "";
     }
     std::string wname() {
         return "linkInfoDown";

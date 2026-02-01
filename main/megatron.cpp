@@ -13,6 +13,7 @@
 #include "megatron.h"
 #include "CUtils.h"
 #include "configObj.h"
+#include "commonError.h"
 #ifndef _MSC_VER
 #endif
 
@@ -36,7 +37,7 @@ void registerErrorDispatcherService(const char*);
 
 void registerObjectProxyModule(const char*);
 void registerOscarModule(const char*);
-void registerOscarSecureModule(const char*);
+// void registerOscarSecureModule(const char*);
 void registerRPCService(const char*);
 void registerSocketModule(const char*);
 void registerTimerService(const char*);
@@ -54,7 +55,7 @@ static void registerModules()
 #endif
         registerObjectProxyModule(pn);
         registerOscarModule(pn);
-        registerOscarSecureModule(pn);
+        // registerOscarSecureModule(pn);
         registerRPCService(pn);
         registerSocketModule(pn);
         registerTimerService(pn);
@@ -126,11 +127,11 @@ bool megatron::findProcess(const char* _process)
     }
     QProcess tasklist;
     tasklist.start(
-                "tasklist",
-                QStringList() << "/NH");
+        "tasklist",
+        QStringList() << "/NH");
     tasklist.waitForFinished();
     QString output = tasklist.readAllStandardOutput();
-    std::vector<std::string> v=splitString("\n\r",output.toStdString());
+    std::vector<std::string> v=splitString("\n\r",output.toStdStringView());
     std::map<std::string,std::set<size_t> > procs;
     for(size_t i=0; i<v.size(); i++)
     {

@@ -15,68 +15,35 @@
 #include <winsock2.h>
 #endif
 #include "mutexInspector.h"
-Json::Value epoll_socket_info::__jdump()
+
+
+std::string epoll_socket_info::wdump()
 {
-    Json::Value v;
-    XTRY;
-
-    v["id"]=(int)CONTAINER(id_);
-    v["fd"]=CONTAINER(fd_);
-    switch(streamType_)
+    return "";
+}
+void epoll_socket_info::write_buf(const void *s, const size_t &sz)
+{
+    if(!closed())
     {
-    case STREAMTYPE_ACCEPTED:
-        v["streamType"]="ACCEPTED";
-        break;
-    case STREAMTYPE_CONNECTED:
-        v["streamType"]="CONNECTED";
-        break;
-    case STREAMTYPE_LISTENING:
-        v["streamType"]="LISTENING";
-        break;
-    default:
-        throw CommonError("invalid streamtype %s %d",__FILE__,__LINE__);
-    }
-
-    v["outBufferSize"]=(int)outBuffer_.size();
-    v["inBufferSize"]=(int)inBuffer_.size();
-    if(outBuffer_.size())
-    {
-        auto s=outBuffer_.getAll();
-        v["outBuffer"]=iUtils->bin2hex(s);
-    }
-    if(inBuffer_.size())
-    {
-        std::string s;
+        // printf("Write: %s\n",s.c_str());
+        XTRY;
         {
-            R_LOCK(inBuffer_.lk);
-            s=inBuffer_._mx_data;
+            XTRY;
+            outBuffer_.append(this,std::string((char*)s,sz));
+            XPASS;
         }
-        v["inBuffer"]=iUtils->bin2hex(s);
-
+        XPASS;
     }
 
-
-    v["in connection"]=inConnection_;
-    v["dst route"]=m_route.dump();
-    v["closed"]=closed();
-    v["socketDescription"]=socketDescription_;
-    XPASS;
-    return v;
-
 }
-
-Json::Value epoll_socket_info::wdump()
-{
-    return __jdump();
-}
-
-
 void epoll_socket_info::write_(const std::string&s)
 {
     MUTEX_INSPECTOR;
     XTRY;
+    // logErr2("write: %s",s.c_str());
     if(!closed())
     {
+        // printf("Write: %s\n",s.c_str());
         XTRY;
         {
             XTRY;
@@ -85,17 +52,28 @@ void epoll_socket_info::write_(const std::string&s)
         }
         XPASS;
     }
-    
-    XPASS;
-}
-void epoll_socket_info::write_(const char *s, const size_t &sz)
-{
-    MUTEX_INSPECTOR;
-    XTRY;
-    write_(std::string(s,sz));
 
     XPASS;
 }
+void epoll_socket_info::write_and_close(const std::string&s)
+{
+    MUTEX_INSPECTOR;
+    XTRY;
+    if(!closed())
+    {
+
+        XTRY;
+        {
+            XTRY;
+            outBuffer_.append_and_close(this,s);
+            XPASS;
+        }
+        XPASS;
+    }
+
+    XPASS;
+}
+
 void epoll_socket_info::close(const char* reason)
 {
     MUTEX_INSPECTOR;
@@ -137,7 +115,7 @@ void epoll_socket_info::close(const char* reason)
 #endif
         {
         }
-        CONTAINER(id_)=-1;
+        // CONTAINER(id_)=-1;
         CONTAINER(fd_)=-1;
 
     }
@@ -146,7 +124,18 @@ void epoll_socket_info::close(const char* reason)
 
 epoll_socket_info::~epoll_socket_info()
 {
+    // DBG(logErr2("~epoll_socket_info()"));
+
     try {
+
+        if(secure_context.valid())
+        {
+            if(ssl!=nullptr)
+            {
+                secure_context->issl->SSL_free(ssl);
+                ssl=nullptr;
+            }
+        }
         if(CONTAINER(fd_)!=-1)
         {
             DBG(logErr2(" %s on nonclosed sock %s",__PRETTY_FUNCTION__,socketDescription_));
@@ -158,7 +147,7 @@ epoll_socket_info::~epoll_socket_info()
             {
 //                printf(RED("::close() error %d %s"),errno,strerror(errno));
             }
-            CONTAINER(id_)=-1;
+            // CONTAINER(id_)=-1;
             CONTAINER(fd_)=-1;
         }
 
@@ -181,6 +170,19 @@ void socketBuffersOut::append(epoll_socket_info* esi,const std::string&s)
     esi->multiplexor_->sockStartWrite(esi);
 
 }
+void socketBuffersOut::append_and_close(epoll_socket_info* esi,const std::string&s)
+{
+    MUTEX_INSPECTOR;
+    {
+        W_LOCK(lk);
+        container_+=s;
+        // logErr2("append_and_close sz %d",container_.size());
+        markedToDestroyOnSend_=true;
+    }
+    esi->multiplexor_->sockStartWrite(esi);
+
+}
+
 size_t socketBuffersOut::size()
 {
     MUTEX_INSPECTOR;
@@ -196,16 +198,28 @@ int socketBuffersOut::send(const SOCKET_fd &fd, epoll_socket_info* esi)
         W_LOCK(lk);
         if(container_.size())
         {
-            res=::send(CONTAINER(fd),container_.data(),container_.size(),0);
+            if(esi->secure_context.valid())
+            {
+                res=esi->secure_context->issl->SSL_write(esi->ssl,container_.data(),container_.size());
+            }
+            else
+            {
+                res=::send(CONTAINER(fd),container_.data(),container_.size(),0);
+                // DBG(printf("::send res %s\n",container_.c_str()));
+            }
+
             if(res>0)
             {
                 if(res==container_.size())
                 {
+                    // DBG(logErr2("container_.clear();"));
                     container_.clear();
                 }
                 else
                 {
+                    DBG(logErr2("container_=container_.substr(res,container_.size()-res);"));
                     container_=container_.substr(res,container_.size()-res);
+                    DBG(logErr2("container remains %d",container_.size()));
                 }
             }
         }
@@ -223,16 +237,16 @@ bool epoll_socket_info::closed()
 }
 
 epoll_socket_info::epoll_socket_info(const int &_socketType, const STREAMTYPE &_streamtype, const SOCKET_id& _id, const SOCKET_fd& _fd,
-                                     const route_t& _route, const char *_socketDescription, const REF_getter<NetworkMultiplexor> &_multiplexor):
+                                     const route_t& _route, const char *_socketDescription, const REF_getter<NetworkMultiplexor> &_multiplexor,const REF_getter<SECURE_CONTEXT>& _secure_context):
     socketType_(_socketType),
     streamType_(_streamtype),
     id_(_id),
     fd_(_fd),
     m_route(_route),
-    markedToDestroyOnSend_(false),
     inConnection_(false),
     socketDescription_(_socketDescription),
-    multiplexor_(_multiplexor)
+    multiplexor_(_multiplexor),
+    secure_context(_secure_context)
 #ifdef HAVE_KQUEUE
     ,
     ev_read_added_(false),
@@ -241,13 +255,21 @@ epoll_socket_info::epoll_socket_info(const int &_socketType, const STREAMTYPE &_
     ,
     ev_added(false)
 #elif defined(HAVE_SELECT)
-
-    // ev_added(false)
 #else
 #error "HAVE UNDEF"
 #endif
 
 {
+    // DBG(logErr2("epoll_socket_info()"));
+    if(secure_context.valid())
+    {
+        ssl=secure_context->issl->SSL_new(secure_context->sslctx);
+        if(ssl==nullptr)
+            throw CommonError("SSL_new failed");
+        auto r=secure_context->issl->SSL_set_fd(ssl,CONTAINER(fd_));
+        if(r==0)
+            throw CommonError("SSL_set_fd failed");
+    }
 }
 
 void epoll_socket_info::_inBuffer::append(const char* data, size_t size)

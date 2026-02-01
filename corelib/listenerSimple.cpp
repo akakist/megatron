@@ -1,6 +1,7 @@
 #include "listenerSimple.h"
 #include "IUtils.h"
 #include "mutexInspector.h"
+#include "commonError.h"
 ListenerSimple::~ListenerSimple()
 {
 }
@@ -16,7 +17,7 @@ void ListenerSimple::listenToEvent(const REF_getter<Event::Base>& e)
         if(!e.valid()) return;
         if(!handleEvent(e.get()))
         {
-            logErr2("ListenerSimple: unhandled event %s  in %s",e->dump().toStyledString().c_str(),listenerName_.c_str());
+            logErr2("ListenerSimple: unhandled event %s  in %s",iUtils->genum_name(e->id),listenerName_.c_str());
         }
     }
     catch(const CommonError& ec)
@@ -26,7 +27,7 @@ void ListenerSimple::listenToEvent(const REF_getter<Event::Base>& e)
     }
     catch(const std::exception &ec)
     {
-        logErr2("ListenerSimple std::exception: %s %s %d",ec.what(),__FILE__,__LINE__);
+        logErr2("ListenerSimple std::exception: %s",ec.what());
     }
     XPASS;
 }

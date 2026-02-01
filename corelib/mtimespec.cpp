@@ -32,8 +32,8 @@ void nanotime(timespec* t)
 }
 int operator<(const mtimespec& a,const mtimespec& b)
 {
-    if(a.tv_nsec>_nano_) throw CommonError("if(a.tv_nsec>nano)  %s %d",__FILE__,__LINE__);
-    if(b.tv_nsec>_nano_) throw CommonError("if(b.tv_nsec>nano)  %s %d",__FILE__,__LINE__);
+    if(a.tv_nsec>_nano_) throw CommonError("if(a.tv_nsec>nano) ");
+    if(b.tv_nsec>_nano_) throw CommonError("if(b.tv_nsec>nano) ");
 
     if(a.tv_sec!=b.tv_sec)
         return a.tv_sec<b.tv_sec;
@@ -45,8 +45,8 @@ int operator<(const mtimespec& a,const mtimespec& b)
 }
 int operator<=(const mtimespec& a,const mtimespec& b)
 {
-    if(a.tv_nsec>_nano_) throw CommonError("if(a.tv_nsec>nano)  %s %d",__FILE__,__LINE__);
-    if(b.tv_nsec>_nano_) throw CommonError("if(b.tv_nsec>nano)  %s %d",__FILE__,__LINE__);
+    if(a.tv_nsec>_nano_) throw CommonError("if(a.tv_nsec>nano) ");
+    if(b.tv_nsec>_nano_) throw CommonError("if(b.tv_nsec>nano) ");
 
     if(a.tv_sec<=b.tv_sec) return true;
     else if(a.tv_sec==b.tv_sec)

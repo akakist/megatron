@@ -1,10 +1,9 @@
 #pragma once
 
-#include <json/json.h>
+
 #include "REF.h"
 #include "EVENT_id.h"
 #include "route_t.h"
-
 /// base class for events
 namespace Event
 {
@@ -14,7 +13,6 @@ namespace Event
         /// тип евента
         const EVENT_id id;
         virtual ~Base() {}
-        virtual void jdump(Json::Value &v) const=0;
         /// маршрут
         route_t route;
         Base(const EVENT_id&_id): id(_id) {}
@@ -24,7 +22,6 @@ namespace Event
         virtual void pack(outBuffer& b)const =0;
         virtual void unpack(inBuffer& b)=0;
 
-        Json::Value dump() const;
     };
 
 

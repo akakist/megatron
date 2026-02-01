@@ -3,13 +3,15 @@
 #include "configObj.h"
 #include "CUtils.h"
 #include <unistd.h>
+#include <thread>
+#include "commonError.h"
 //bool done_test_http=false;
 void registerRPCService(const char* pn);
 void registerSocketModule(const char* pn);
 void registerTimerService(const char* pn);
 void registerSSL(const char* pn);
 void registerOscarModule(const char* pn);
-void registerOscarSecureModule(const char* pn);
+// void registerOscarSecureModule(const char* pn);
 void registertestServerWebService(const char* pn);
 void registerHTTPModule(const char* pn);
 
@@ -23,7 +25,7 @@ int mainTestHTTP(int argc, char** argv )
         registerTimerService(NULL);
         registerSSL(NULL);
         registerOscarModule(NULL);
-        registerOscarSecureModule(NULL);
+        // registerOscarSecureModule(NULL);
         registertestServerWebService(NULL);
         registerHTTPModule(NULL);
 
@@ -32,39 +34,54 @@ int mainTestHTTP(int argc, char** argv )
         {
             IInstance *instance1=iUtils->createNewInstance("testHTTP1");
             ConfigObj *cnf1=new ConfigObj("testHTTP1",
-                                          "\nRPC.ConnectionActivity=600.000000"
-                                          "\nRPC.IterateTimeoutSec=60.000000"
-                                          "\nRPC.ListenerBuffered.MaxThreadsCount=10"
                                           "\nStart=testHTTP"
-                                          "\nOscarSecure.ListenerBuffered.MaxThreadsCount=10"
                                           "\nOscarSecure.RSA_keysize=256"
                                           "\nOscarSecure.maxPacketSize=33554432"
-                                          "\nRPC.BindAddr_MAIN=INADDR_ANY:2000"
-                                          "\nRPC.BindAddr_RESERVE=NONE"
-                                          "\nRPC.oscarType=Oscar"
-                                          "\nSocketIO.ListenerBuffered.MaxThreadsCount=10"
-                                          "\nSocketIO.listen_backlog=128"
-                                          "\nSocketIO.size=1024"
-                                          "\nSocketIO.timeout_millisec=7000"
-                                          "\nWebHandler.bindAddr=NONE"
+                                          "\nRPC_BindAddr_MAIN=INADDR_ANY:2000"
+                                          "\nRPC_BindAddr_RESERVE=NONE"
+                                          "\nRPC_oscarType=Oscar"
+                                          "\nSocketIO_listen_backlog=128"
+                                          "\nSocketIO_size=1024"
+                                          "\nSocketIO_timeout_millisec=7000"
+                                          "\nWebHandler_bindAddr=NONE"
 
                                           "\n# http listen address"
-                                          "\ntestHTTP.bindAddr=0.0.0.0:8088"
-                                          "\nHTTP.max_post=1000000"
-                                          "\nHTTP.doc_urls=/pics,/html,/css"
-                                          "\nHTTP.document_root=./www"
-                                          "\nSocketIO.epoll_timeout_millisec=12000"
+                                          "\ntestHTTP_bindAddr=0.0.0.0:8188"
+                                          "\nHTTP_max_post=1000000"
+                                          "\nHTTP_doc_urls=/pics,/html,/css"
+                                          "\nHTTP_document_root=./www"
+                                          "\nSocketIO_epoll_timeout_millisec=1000"
                                           "\n"
                                           "\n# socket poll thread count"
-                                          "\nSocketIO.n_workers=6"
+                                          "\nSocketIO_n_workers=6"
                                          );
             instance1->setConfig(cnf1);
             instance1->initServices();
         }
 
         usleep(1000000);
-        auto ef=system("ab -n 10000000  -k -c 100  http://127.0.0.1:8088/");
-        iUtils->setTerminate(ef);
+        std::vector<std::thread> ths;
+//        ths.resize(4);
+    if(1)
+    {
+        for(int i=0;i<2;i++)
+        {
+    	ths.push_back(std::thread([i]{
+            logErr2("run thr %d",i);
+            auto r=system("ab -n 10000000  -k -c 100  http://127.0.0.1:8188/");
+    	    }));
+        }
+        for(auto& z: ths)
+        {
+    	    z.join();
+        }
+    }
+        
+//        while(1)
+//        sleep(1);
+//        auto ef=system("ab -n 10000000  -k -c 100  http://127.0.0.1:8188/");
+//        auto ef=system("wrk  -c500 -d30s -t100 http://127.0.0.1:8188/");
+        iUtils->setTerminate(0);
 //        system("ab -n 1000000   -c 10  http://127.0.0.1:8088/");
 //        sleep(1);
         delete iUtils;

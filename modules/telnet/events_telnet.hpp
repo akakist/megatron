@@ -2,12 +2,12 @@
 #define __________telnet_EventInfo__HH
 
 
-#include "IUtils.h"
-
 #include "Events/System/Net/socketEvent.h"
 #include "Events/Tools/telnetEvent.h"
+#include "Events/System/Net/socketEvent.h"
 #include <Events/System/Net/socketEvent.h>
 #include <Events/System/Run/startServiceEvent.h>
+#include "Events/Tools/telnetEvent.h"
 inline std::set<EVENT_id> getEvents_telnet()
 {
 
@@ -21,8 +21,8 @@ inline std::set<EVENT_id> getEvents_telnet()
 	out.insert(socketEventEnum::StreamRead);
 	out.insert(systemEventEnum::startService);
 	out.insert(telnetEventEnum::CommandEntered);
+	out.insert(telnetEventEnum::DoListen);
 	out.insert(telnetEventEnum::RegisterCommand);
-	out.insert(telnetEventEnum::RegisterType);
 	out.insert(telnetEventEnum::Reply);
 
 	return out;
@@ -39,8 +39,8 @@ inline void regEvents_telnet()
 	iUtils->registerEvent(socketEvent::StreamRead::construct);
 	iUtils->registerEvent(systemEvent::startService::construct);
 	iUtils->registerEvent(telnetEvent::CommandEntered::construct);
+	iUtils->registerEvent(telnetEvent::DoListen::construct);
 	iUtils->registerEvent(telnetEvent::RegisterCommand::construct);
-	iUtils->registerEvent(telnetEvent::RegisterType::construct);
 	iUtils->registerEvent(telnetEvent::Reply::construct);
 }
 #endif

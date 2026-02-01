@@ -2,13 +2,13 @@
 #include "events_timer.hpp"
 #include "colorOutput.h"
 #include "mutexInspector.h"
+#include "commonError.h"
 #if !defined __MOBILE__ && !defined __FreeBSD__
 #include <sys/timeb.h>
 #endif
 #if !defined __ANDROID_API__ && !defined __FreeBSD__
 #include <sys/timeb.h>
 #endif
-#include "version_mega.h"
 //int Timer::task::total=0;
 int64_t getNow()
 {
@@ -234,11 +234,11 @@ void Timer::Service::worker()
         }
         catch (std::exception& e)
         {
-            logErr2("catched here %s %s %d",e.what(),__FILE__,__LINE__);
+            logErr2("catched here %s",e.what());
         }
         catch (...)
         {
-            logErr2("catched here %s %d",__FILE__,__LINE__);
+            logErr2("catched here");
         }
     }
 
@@ -253,7 +253,7 @@ bool Timer::Service::on_SetTimer(const timerEvent::SetTimer* ev)
     if(!a.valid())
         return true;
     route_t r=ev->route;
-    r.pop_front();
+    r.pop_back();
     REF_getter<task> t=new task(task::TYPE_TIMER,ev->tid,ev->data,ev->cookie,r,ev->delay_secs);
     a->add(t);
 
@@ -281,7 +281,7 @@ bool Timer::Service::on_SetAlarm(const timerEvent::SetAlarm* ev)
         return true;
 
     route_t r=ev->route;
-    r.pop_front();
+    r.pop_back();
     REF_getter<task> t=new task(task::TYPE_ALARM,ev->tid,ev->data,ev->cookie,r,ev->delay_secs);
     a->add(t);
     auto tb=getNow();
@@ -306,7 +306,7 @@ bool Timer::Service::on_StopTimer(const timerEvent::StopTimer* ev)
     if(!a.valid())
         return true;
     route_t r=ev->route;
-    r.pop_front();
+    r.pop_back();
     REF_getter<task> t=new task(task::TYPE_TIMER,ev->tid,ev->data,new refbuffer,r,0);
     a->remove(t);
     XPASS;
@@ -323,7 +323,7 @@ bool Timer::Service::on_ResetAlarm(const timerEvent::ResetAlarm* ev)
     if(!a.valid())
         return true;
     route_t r=ev->route;
-    r.pop_front();
+    r.pop_back();
     REF_getter<task> t=new task(task::TYPE_ALARM,ev->tid,ev->data,ev->cookie,r,ev->delay_secs);
     a->replace(t);
     auto tb=getNow();
@@ -347,7 +347,7 @@ bool Timer::Service::on_StopAlarm(const timerEvent::StopAlarm* ev)
     if(!a.valid())
         return true;
     route_t r=ev->route;
-    r.pop_front();
+    r.pop_back();
     REF_getter<task> t=new task(task::TYPE_ALARM,ev->tid,ev->data,new refbuffer,r,0);
     a->remove(t);
     XPASS;
@@ -358,11 +358,11 @@ void registerTimerService(const char* pn)
 {
     if(pn)
     {
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::Timer,"Timer",getEvents_timer());
+        iUtils->registerPlugingInfo(pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::Timer,"Timer",getEvents_timer());
     }
     else
     {
-        iUtils->registerService(COREVERSION,ServiceEnum::Timer,Timer::Service::construct,"Timer");
+        iUtils->registerService(ServiceEnum::Timer,Timer::Service::construct,"Timer");
         regEvents_timer();
     }
 }
@@ -392,16 +392,6 @@ bool Timer::Service::handleEvent(const REF_getter<Event::Base>& e)
 
 
 
-Json::Value Timer::task::jdump()
-{
-    Json::Value v;
-    v["type"]= type==TYPE_ALARM?"ALARM":"TIMER";
-    v["destination"]=destination.dump();
-    v["period_real"]=period_real;
-    v["id"]=id;
-
-    return v;
-}
 int Timer::_searchKey::operator < (const _searchKey& b) const
 {
     const _searchKey& a=*this;
@@ -414,7 +404,7 @@ int Timer::_searchKey::operator < (const _searchKey& b) const
     if(!(a.t->destination == b.t->destination))
         return a.t->destination < b.t->destination;
 
-    return std::string((char*)a.t->data->buffer,a.t->data->size_) < std::string((char*)b.t->data->buffer,b.t->data->size_);
+    return a.t->data->container < b.t->data->container;
     return 0;
 }
 void Timer::_all::clear()

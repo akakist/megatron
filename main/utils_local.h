@@ -11,7 +11,7 @@ struct Utils_local
 {
     struct _ifaces
     {
-        RWLock lk;
+        Mutex lk;
         std::map<SERVICE_id,Ifaces::Base*> container;
         void clear()
         {
@@ -21,7 +21,7 @@ struct Utils_local
             decltype(container) ifs;
 
             {
-                W_LOCK(lk);
+                M_LOCK(lk);
                 ifs=container;
                 container.clear();
 

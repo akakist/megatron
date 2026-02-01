@@ -7,6 +7,7 @@
 #include <listenerPolled.h>
 #include <Events/System/Run/startServiceEvent.h>
 #include <listenerBuffered1Thread.h>
+#include "commonError.h"
 
 class ObjectHandler;
 
@@ -28,7 +29,7 @@ namespace ObjectProxy
     public:
 
         Mutex __m_lock;
-        std::set<std::string> __mx_handlers;
+        std::set<void*> __mx_handlers;
 
         void sendObjectRequest(const msockaddr_in & dstHost, const SERVICE_id & dstService, const REF_getter<Event::Base>& e);
         void sendObjectRequest(const SERVICE_id & dstService, const REF_getter<Event::Base>& e);
@@ -80,7 +81,7 @@ namespace ObjectProxy
     {
     public:
         Mutex __m_lock;
-        std::set<std::string> __mx_handlers;
+        std::set<void*> __mx_handlers;
 
         void addObjectHandler(ObjectHandlerThreaded* h);
         void removeObjectHandler(ObjectHandlerThreaded* h);

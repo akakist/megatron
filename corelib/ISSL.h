@@ -5,63 +5,38 @@
 #include <sys/types.h>
 #include "REF.h"
 #include "refstring.h"
+#include <openssl/ssl.h>
 /// interfaces/wrapper to access OpenSSL
 
-class I_st_rsa_impl
-{
-public:
-    virtual int size()=0;
-    virtual void generate_key(int b)=0;
-    virtual std::string privateEncrypt(const std::string &m)=0;
-    virtual int privateEncrypt(const std::string &m,std::string& out)=0;
-
-    virtual std::string privateDecrypt(const std::string &m)=0;
-    virtual int privateDecrypt(const std::string &m,std::string& out)=0;
-
-    virtual void initFromPrivateKey(const std::string &pk)=0;
-    virtual int initFromPrivateKey_int(const std::string &pk)=0;
-
-    virtual std::string getPrivateKey()=0;
-
-    virtual std::string publicEncrypt(const std::string &m)=0;
-    virtual int publicEncrypt(const std::string &m,std::string& out)=0;
-
-    virtual std::string publicDecrypt(const std::string &m)=0;
-    virtual int publicDecrypt(const std::string &m,std::string& out)=0;
-
-    virtual void initFromPublicKey(const std::string &pk)=0;
-    virtual int initFromPublicKey_int(const std::string &pk)=0;
-
-    virtual std::string getPublicKey()=0;
-    virtual ~I_st_rsa_impl() {}
-
-};
-
-class I_st_AES_impl
-{
-public:
-    virtual void init(const std::string &key)=0;
-    virtual REF_getter<refbuffer> encrypt(const REF_getter<refbuffer>& buf_)=0;
-    virtual REF_getter<refbuffer> decrypt(const REF_getter<refbuffer>& buf)=0;
-    virtual std::string generateRandomKey()=0;
-    virtual  ~I_st_AES_impl() {}
-
-};
-
+// struct SSL;
 class I_ssl: public Ifaces::Base
 {
 public:
-    virtual I_st_rsa_impl *rsa_impl()=0;
-    virtual I_st_AES_impl *aes_impl()=0;
+    virtual int SSL_do_handshake(SSL *ssl)=0;
+    virtual SSL_CTX *SSL_CTX_new(const SSL_METHOD *meth)=0;
+    virtual void _SSL_load_error_strings()=0;
+    virtual int _SSL_library_init()=0;
+    virtual BIO *BIO_new_fd(int fd, int close_flag)=0;
+    virtual int SSL_CTX_use_certificate_file(SSL_CTX *ctx, const char *file,
+            int type)=0;
+    virtual int SSL_CTX_use_PrivateKey_file(SSL_CTX *ctx, const char *file,
+                                            int type)=0;
+    virtual int SSL_CTX_check_private_key(const SSL_CTX *ctx)=0;
+    virtual const SSL_METHOD* _SSLv23_method()=0;
+    virtual SSL* SSL_new(SSL_CTX*)=0;
+    virtual int SSL_set_fd(SSL*, int)=0;
+    virtual void SSL_free(SSL*)=0;
+    virtual void SSL_set_connect_state(SSL*)=0;
+    virtual void SSL_set_accept_state(SSL*)=0;
+    virtual int SSL_get_error(const SSL *s, int ret_code)=0;
+    virtual void ERR_print_errors(BIO *bp)=0;
+    virtual void ERR_print_errors_fp(FILE* fp)=0;
 
-    /// получить md5 cksum
-    virtual std::string md5(const std::string & s)=0;
-    virtual std::string sha1(const std::string & s)=0;
-    virtual std::string sha256(const std::string & s)=0;
-    virtual std::string sha512(const std::string & s)=0;
-    virtual std::string rand_bytes(int n)=0;
-    virtual void rand_bytes(uint8_t* p, int n)=0;
-    virtual int rand_int()=0;
+    virtual int SSL_write(SSL *ssl, const void *buf, int num)=0;
+    virtual int SSL_read(SSL *ssl, void *buf, int num)=0;
+
+
+
     virtual ~I_ssl() {}
 
 };

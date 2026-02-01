@@ -7,6 +7,7 @@
 #include "refstring.h"
 #include "IUtils.h"
 #include "___testEvent.h"
+#include "commonError.h"
 
 
 std::set<std::string> samples;
@@ -16,7 +17,7 @@ bool testTimer::Service::on_startService(const systemEvent::startService*)
 
     for(int i=0; i<10; i++)
     {
-        sendEvent(ServiceEnum::Timer,new timerEvent::SetAlarm(1,toRef(std::to_string(i)),toRef("any additional data "+std::to_string(i)),0.1*i,ListenerBase::serviceId));
+        sendEvent(ServiceEnum::Timer,new timerEvent::SetAlarm(1,toRef(std::to_string(i)),toRef("any additional data "+std::to_string(i)).get(),0.1*i,ListenerBase::serviceId));
         samples.insert(std::to_string(i));
     }
 
@@ -38,8 +39,9 @@ bool testTimer::Service::handleEvent(const REF_getter<Event::Base>& e)
 
             if(E->tid==1) ///
             {
-                auto data=E->data->asString();
-                auto cookie=E->cookie->asString();
+                auto &data=E->data->container;
+                refbuffer* b=(refbuffer*)E->cookie.get();
+                auto &cookie=b->container;
                 logErr2("-> %d %s %s",E->tid,data.c_str(),cookie.c_str());
                 samples.erase(data);
                 if(samples.empty())
@@ -90,11 +92,11 @@ void registerTestTimer(const char* pn)
     if(pn)
     {
         std::set<EVENT_id> es;
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::testTimer,"testTimer",es);
+        iUtils->registerPlugingInfo(pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::testTimer,"testTimer",es);
     }
     else
     {
-        iUtils->registerService(COREVERSION,ServiceEnum::testTimer,testTimer::Service::construct,"testTimer");
+        iUtils->registerService(ServiceEnum::testTimer,testTimer::Service::construct,"testTimer");
 //        regEvents_prodtestTimer();
     }
     XPASS;

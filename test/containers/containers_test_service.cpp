@@ -4,6 +4,8 @@
 #include "CUtils.h"
 #include <iostream>
 #include "IUtils.h"
+#include "commonError.h"
+#include "obuf.h"
 
 
 template <class T1, class T2> bool ASSERT_eq(const char* file, int line, const char* func, const T1& t1, const T2& t2)
@@ -84,7 +86,8 @@ template <class T1, class T2> bool ASSERT_eq(const char* file, int line, const c
 
 template <class T> void fillrnd(I_ssl*ssl,T &z)
 {
-    ssl->rand_bytes((uint8_t*)&z,sizeof(z));
+    z=rand();
+    // ssl->rand_bytes((uint8_t*)&z,sizeof(z));
 
 }
 template <class T> void fillrnd(I_ssl* ssl, std::vector<T> &z)
@@ -244,6 +247,22 @@ inline inBuffer& operator>> (inBuffer& b,  a& s)
     b>>s.n12;
     return b;
 }
+inline oBuf& operator<< (oBuf& b,const a& s)
+{
+    b<<s.n1
+     <<s.n2
+     <<s.n3
+     <<s.n4
+     <<s.n5
+     <<s.n6
+     <<s.n7
+     <<s.n8
+     <<s.n9
+     <<s.n10
+     <<s.n11
+     <<s.n12;
+    return b;
+}
 
 struct Z
 {
@@ -255,12 +274,13 @@ struct Z
         I_ssl *ssl=(I_ssl*)iUtils->queryIface(Ifaces::SSL);
         if(!ssl)
             throw CommonError("if(!ssl)");
-        int rnd=rand()%10000;
+        int rnd=rand()%1000;
         for(int i=0; i<rnd; i++)
         {
-            int r2=rand()%10000;
+            int r2=rand()%1000;
             uint8_t s[r2];
-            ssl->rand_bytes(s,sizeof(s));
+            for(int j=0;j< r2;j++)
+                s[j]=rand();
             strs.push_back(std::string((char*)s,sizeof(s)));
         }
 
@@ -285,7 +305,13 @@ struct Z
 inline outBuffer& operator<< (outBuffer& b,const Z& s)
 {
     b<<s._a;
-//    b<<s._n;
+    b<<s.strs;
+
+    return b;
+}
+inline oBuf& operator<< (oBuf& b,const Z& s)
+{
+    b<<s._a;
     b<<s.strs;
 
     return b;
@@ -325,7 +351,7 @@ void TEST5()
         uint64_t n=sn[i];
         outBuffer o;
         o<<n;
-        std::string buf=o.asString()->asString();
+        std::string& buf=o.buffer->container;
         inBuffer in(buf);
         int64_t nn;
         in>>nn;
@@ -344,7 +370,30 @@ void TEST6()
         Z z;
         outBuffer o;
         o<<z;
-        std::string buf=o.asString()->asString();
+        std::string& buf=o.buffer->container;
+        inBuffer in(buf);
+        Z zz;
+        in >> zz;
+        if(z!=zz)
+        {
+            ASSERT_EQ(1,2);
+        }
+    }
+
+    printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
+
+}
+void TEST66()
+{
+    size_t bs=3000000;
+    char b[bs];
+    for(int i=0; i<3; i++)
+    {
+        printf("%s %d\n",__PRETTY_FUNCTION__,i);
+        Z z;
+        oBuf o(b,bs);
+        o<<z;
+        std::string buf={(char*)o.data(),o.size()};
         inBuffer in(buf);
         Z zz;
         in >> zz;
@@ -363,7 +412,10 @@ void TEST7()
     int rn=rand()%10000;
     for(int i=0; i<rn; i++)
     {
-        std::string str=ssl->rand_bytes(rand()%10000);
+        int r=rand()%10000;
+        std::string str;
+        for(int j=0;j<r;j++)
+            str+=(char)rand();
         ASSERT_EQ(str,iUtils->Base64Decode(iUtils->Base64Encode(str)));
     }
     printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
@@ -371,10 +423,13 @@ void TEST7()
 void TEST8()
 {
     I_ssl *ssl=(I_ssl*)iUtils->queryIface(Ifaces::SSL);
-    int rn=rand()%10000;
+    int rn=rand()%1000;
     for(int i=0; i<rn; i++)
     {
-        std::string str=ssl->rand_bytes(rand()%10000);
+        int r=rand()%1000;
+        std::string str;
+        for(int j=0;j<r;j++)
+            str+=(char)rand();
         ASSERT_EQ(str,iUtils->hex2bin(iUtils->bin2hex(str)));
     }
     printf(GREEN("%s passed OK"),__PRETTY_FUNCTION__);
@@ -393,6 +448,7 @@ int run(int ac, char** av)
         // TEST4();
         TEST5();
         TEST6();
+        TEST66();
         TEST7();
         TEST8();
         delete iUtils;

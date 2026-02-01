@@ -1,4 +1,4 @@
-#include <ISSL.h>
+#include "ISSL.h"
 #include "CInstance.h"
 
 
@@ -35,34 +35,34 @@ void CInstance::passEvent(const REF_getter<Event::Base>&e)
 
     if(m_terminating)return;
     XTRY;
-    REF_getter<Route> r=e->route.pop_front();
-    switch(r->type)
+    Route r=e->route.pop_back();
+    switch(r.type)
     {
     case Route::LOCALSERVICE:
     {
         MUTEX_INSPECTOR;
-        LocalServiceRoute* rt=(LocalServiceRoute* )r.get();
-        forwardEvent(rt->id,e);
+        // LocalServiceRoute* rt=(LocalServiceRoute* )r.get();
+        forwardEvent(r.localServiceRoute.id,e);
     }
     break;
     case Route::LISTENER:
     {
         MUTEX_INSPECTOR;
-        ListenerRoute* rt=(ListenerRoute* )r.get();
-        rt->id->listenToEvent(e);
+        // ListenerRoute* rt=(ListenerRoute* )r.get();
+        r.listenerRoute.id->listenToEvent(e);
     }
     break;
     case Route::OBJECTHANDLER_POLLED:
     {
         MUTEX_INSPECTOR;
-        e->route.push_front(r);
+        e->route.push_back(r);
         forwardEvent(ServiceEnum::ObjectProxyPolled,e);
         break;
     }
     case Route::OBJECTHANDLER_THREADED:
     {
         MUTEX_INSPECTOR;
-        e->route.push_front(r);
+        e->route.push_back(r);
         forwardEvent(ServiceEnum::ObjectProxyThreaded,e);
         break;
     }
@@ -73,14 +73,14 @@ void CInstance::passEvent(const REF_getter<Event::Base>&e)
         XTRY;
         if(!e.valid())
             throw CommonError("if(!e.valid()) %s",_DMI().c_str());
-        RemoteAddrRoute* rt=(RemoteAddrRoute* )r.get();
-        forwardEvent(ServiceEnum::RPC,new rpcEvent::PassPacket(rt->addr,e));
+        // RemoteAddrRoute* rt=(RemoteAddrRoute* )r.get();
+        forwardEvent(ServiceEnum::RPC,new rpcEvent::PassPacket(r.remoteAddrRoute.addr,e));
         XPASS;
 
     }
     break;
     default:
-        throw CommonError("passEvent: invalid route type %d",r->type);
+        throw CommonError("passEvent: invalid route type %d",r.type);
     }
     XPASS;
 
@@ -89,7 +89,9 @@ void CInstance::sendEvent(const SERVICE_id& svs,  const REF_getter<Event::Base>&
 {
     if(m_terminating)return;
     XTRY;
-    e->route.push_front(new LocalServiceRoute(svs));
+    Route r(Route::LOCALSERVICE);
+    r.localServiceRoute.id=svs;
+    e->route.push_back(r);
     forwardEvent(svs,e);
     XPASS;
 }
@@ -115,10 +117,10 @@ void CInstance::sendEvent(const std::string& dstHost, const SERVICE_id& dstServi
         {
             logErr2("exception: %s",ex.what());
         }
-        catch(const CommonError& ex)
-        {
-            logErr2("exception: %s",ex.what());
-        }
+        // catch(const CommonError& ex)
+        // {
+        //     logErr2("exception: %s",ex.what());
+        // }
     }
 
     XPASS;
@@ -134,7 +136,9 @@ void CInstance::sendEvent(const msockaddr_in& addr, const SERVICE_id& svs,  cons
 void CInstance::sendEvent(ListenerBase *l,  const REF_getter<Event::Base>&e)
 {
 //    if(m_terminating)return;
-    e->route.push_front(new ListenerRoute(l));
+    Route r(Route::LISTENER);
+    r.listenerRoute.id=l;
+    e->route.push_back(r);
     l->listenToEvent(e);
 }
 UnknownBase* CInstance::getServiceNoCreate(const SERVICE_id& svs)
@@ -236,15 +240,15 @@ void CInstance::forwardEvent(const SERVICE_id& svs,  const REF_getter<Event::Bas
             l->listenToEvent(e);
             XPASS;
         }
-        else throw CommonError("!U ------------- %s %d",__FILE__,__LINE__);
+        else throw CommonError("!U -------------");
     }
     catch(const CommonError &err)
     {
-        logErr2("CommonError catched for event %s %s %s",iUtils->genum_name(e->id),e->route.dump().c_str(),err.what());
+        logErr2("CommonError catched for event %s %s",iUtils->genum_name(e->id),err.what());
     }
     catch(const std::exception &err)
     {
-        logErr2("std::exception catched for event %s %s %s",iUtils->genum_name(e->id),e->route.dump().c_str(),err.what());
+        logErr2("std::exception catched for event %s %s",iUtils->genum_name(e->id),err.what());
     }
 
     XPASS;
@@ -296,27 +300,17 @@ UnknownBase* CInstance::initService(const SERVICE_id& sid)
             std::string pn;
             {
                 MUTEX_INSPECTOR;
-                M_LOCK(locals->pluginInfo);
-                auto i=locals->pluginInfo.services.find(sid);
-                if(i!=locals->pluginInfo.services.end())
                 {
-                    pn=i->second;
-                }
-                else
-                {
-                    MUTEX_INSPECTOR;
-                    XTRY;
+                    M_LOCK(locals->pluginInfo);
+                    auto i=locals->pluginInfo.services.find(sid);
+                    if(i!=locals->pluginInfo.services.end())
                     {
-                        M_UNLOCK(locals->pluginInfo);
-                        for(auto &z: locals->pluginInfo.services)
-                        {
-                            logErr2("have: %s -> %s",iUtils->genum_name(z.first),z.second.c_str());
-                        }
+                        pn=i->second;
                     }
-
-                    throw CommonError("cannot find plugin for service %s (sid %s)",iUtils->serviceName(sid).c_str(),iUtils->genum_name(sid));
-                    XPASS;
                 }
+                if(!pn.size())
+                    throw CommonError("cannot find plugin for service  (sid %s)",iUtils->genum_name(sid));
+
             }
             m_utils->registerPluginDLL(pn);
             {
@@ -336,7 +330,7 @@ UnknownBase* CInstance::initService(const SERVICE_id& sid)
                 }
             }
         }
-
+        if(m_terminating)return NULL;
         {
             {
                 MUTEX_INSPECTOR;
@@ -358,9 +352,9 @@ UnknownBase* CInstance::initService(const SERVICE_id& sid)
                         MUTEX_INSPECTOR;
                         name=iUtils->serviceName(sid);
                     }
-                    logErr2("running service %s",name.c_str());
+                    DBG(logErr2("running service %s",name.c_str()));
                     if(!config_z)
-                        throw CommonError("if(!config_z) %s %d",__FILE__,__LINE__);
+                        throw CommonError("if(!config_z)");
                     CFG_PUSH(name,config_z);
                     {
                         MUTEX_INSPECTOR;
@@ -381,9 +375,12 @@ UnknownBase* CInstance::initService(const SERVICE_id& sid)
                     W_LOCK(services.m_lock);
                     services.container.insert(std::make_pair(sid,u));
                 }
+                if(m_terminating)return NULL;
             }
         }
         try {
+            if(!u)
+                throw CommonError("if(!u)");
             auto l=dynamic_cast<ListenerBase*>(u);
             if(!l)
                 throw CommonError("if(!l)");
@@ -416,6 +413,7 @@ void CInstance::initServices()
     std::set<std::string> run=config_z->get_stringset("Start",iUtils->join(",",svs),"list of initially started services");
     for(auto& i:run)
     {
+        if(m_terminating)return;
         MUTEX_INSPECTOR;
         SERVICE_id sid;
 //        logErr2("start service %s",i.c_str());
@@ -453,7 +451,7 @@ void CInstance::deinitServices()
             auto u=i->second;
             MUTEX_INSPECTORS(u->classname);
             name=u->classname;
-            printf(BLUE("deleting service %s %s"),u->classname.c_str(),_DMI().c_str());
+            DBG(printf(BLUE("deleting service %s %s"),u->classname.c_str(),_DMI().c_str()));
             u->deinit();
             try {
                 delete u;
@@ -463,7 +461,7 @@ void CInstance::deinitServices()
 
             }
         }
-        printf(BLUE("deleted service %s"),name.c_str());
+        DBG(printf(BLUE("deleted service %s"),name.c_str()));
     }
 }
 
@@ -478,7 +476,9 @@ GlobalCookie_id CInstance::globalCookie()
     if(CONTAINER(m_globalCookie).size()==0)
     {
         I_ssl *ssl=(I_ssl*)iUtils->queryIface(Ifaces::SSL);
-        CONTAINER(m_globalCookie)=ssl->rand_bytes(8);
+        CONTAINER(m_globalCookie).resize(8);
+        for(int i=0; i<8; i++)
+            CONTAINER(m_globalCookie)[i]=rand();
 
     }
     return m_globalCookie;

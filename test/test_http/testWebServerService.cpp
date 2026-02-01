@@ -18,7 +18,9 @@ bool testWebServer::Service::on_startService(const systemEvent::startService*)
     auto svs=dynamic_cast<ListenerBase*> (iInstance->getServiceOrCreate(ServiceEnum::HTTP));
     if(!svs)
         throw CommonError("if(!svs)");
-    sendEvent(svs,new httpEvent::DoListen(bindAddr,this));
+        SECURE sec;
+        sec.use_ssl=false;
+    sendEvent(svs,new httpEvent::DoListen(bindAddr,sec,this));
 
     return true;
 }
@@ -96,11 +98,11 @@ void registertestServerWebService(const char* pn)
     if(pn)
     {
         std::set<EVENT_id> es;
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::testWebServer,"testHTTP",es);
+        iUtils->registerPlugingInfo(pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::testWebServer,"testHTTP",es);
     }
     else
     {
-        iUtils->registerService(COREVERSION,ServiceEnum::testWebServer,testWebServer::Service::construct,"testHTTP");
+        iUtils->registerService(ServiceEnum::testWebServer,testWebServer::Service::construct,"testHTTP");
 //        regEvents_prodtestWebServer();
     }
     XPASS;
@@ -115,21 +117,10 @@ void registertestServerWebService(const char* pn)
 bool testWebServer::Service::on_RequestIncoming(const httpEvent::RequestIncoming*e)
 {
 
-    HTTP::Response resp(getIInstance());
-    {
-        bool keepAlive=e->req->headers["Connection"]=="Keep-Alive";
-        if(keepAlive)
-        {
-            resp.http_header_out["Connection"]="Keep-Alive";
-        }
-        resp.content="<div>received response </>";
-//	resp.content=iUtils->load_file("index.nginx-debian.html");
-        if(keepAlive)
-            resp.makeResponsePersistent(e->esi);
-        else
-            resp.makeResponse(e->esi);
+    HTTP::Response resp(e->req);
+    resp.make_response("<div>received response </>");
 
-    }
+
 
     return true;
 }

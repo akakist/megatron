@@ -6,6 +6,8 @@
 #include "webHandlerService.h"
 
 #include <Events/System/Net/httpEvent.h>
+#include "Events/Tools/webHandlerEvent.h"
+
 #include "mutexInspector.h"
 #include "version_mega.h"
 #include "events_webHandler.hpp"
@@ -41,7 +43,9 @@ bool WebHandler::Service::on_startService(const systemEvent::startService *)
     }
     for(auto &i:m_bindAddr)
     {
-        sendEvent(ServiceEnum::HTTP,new httpEvent::DoListen(i,ListenerBase::serviceId));
+        SECURE sec;
+        sec.use_ssl=false;
+        sendEvent(ServiceEnum::HTTP,new httpEvent::DoListen(i,sec, this));
     }
 
 
@@ -66,38 +70,40 @@ bool WebHandler::Service::on_RegisterDirectory(const webHandlerEvent::RegisterDi
     n->addChild(new WebHandler::Node(n,v[v.size()-1],e->displayName));
     return true;
 }
-
+#include "httpUrlParser.h"
 bool WebHandler::Service::on_RequestIncoming(const httpEvent::RequestIncoming* e)
 {
-    DBG(logErr2("%s",e->req->url.c_str()));
-    if(e->req->url=="/webdump")
+    URIParser parser(e->req->uri());
+
+    // DBG(logErr2("%s",e->req->url.c_str()));
+    if(parser.path()=="/webdump")
     {
-        std::string ps=iUtils->hex2bin(e->req->params["p"]);
+        std::string ps=iUtils->hex2bin((std::string)parser.params_["p"]);
         WebDumpable *d;
         if(sizeof(d)!=ps.size()) throw CommonError("sizeof(d)!=ps.size()");
         memcpy(&d,ps.data(),ps.size());
         std::string out=iUtils->dumpWebDumpable(d);
-        HTTP::Response cc(iInstance);
-        cc.content=out;
-        cc.makeResponse(e->esi);
+        HTTP::Response cc(e->req);
+        cc.make_response(out);
         return true;
     }
 
-    REF_getter<WebHandler::Node> N=root->getByPath(e->req->url);
+    REF_getter<WebHandler::Node> N=root->getByPath((std::string)parser.path());
     if(!N.valid())
     {
         DBG(logErr2("!N valid"));
-        HTTP::Response cc(iInstance);
+        HTTP::Response cc(e->req);
         {
+            std::string out;
             std::string url;
             {
-                url=e->req->url;
+                url=parser.path();
             }
             {
-                cc.content.append("url "+url+" Not found");
+                out.append("url "+url+" Not found");
             }
             {
-                cc.makeResponse(e->esi);
+                cc.make_response(out);
             }
         }
         return true;
@@ -114,14 +120,14 @@ bool WebHandler::Service::on_RequestIncoming(const httpEvent::RequestIncoming* e
     else if(N->nodeType==WebHandler::Node::NT_directory)
     {
         DBG(logErr2("N->nodeType==WebHandler::Node::NT_directory"));
-        HTTP::Response cc(iInstance);
-        cc.content+="<h1>"+N->displayName+"</h1><p>";
+        HTTP::Response cc(e->req);
+        std::string out="<h1>"+N->displayName+"</h1><p>";
         std::map<std::string, REF_getter<Node> > c=N->getChildren();
         for(auto &i:c)
         {
-            cc.content+="<a href='"+i.second->path()+"'>"+i.second->displayName+"</a><br>";
+            out+="<a href='"+i.second->path()+"'>"+i.second->displayName+"</a><br>";
         }
-        cc.makeResponse(e->esi);
+        cc.make_response(out);
         return true;
     }
     else
@@ -157,11 +163,11 @@ void registerWebHandlerModule(const char* pn)
 {
     if(pn)
     {
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::WebHandler,"WebHandler",getEvents_webHandler());
+        iUtils->registerPlugingInfo(pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::WebHandler,"WebHandler",getEvents_webHandler());
     }
     else
     {
-        iUtils->registerService(COREVERSION,ServiceEnum::WebHandler,WebHandler::Service::construct,"WebHandler");
+        iUtils->registerService(ServiceEnum::WebHandler,WebHandler::Service::construct,"WebHandler");
         regEvents_webHandler();
     }
 }

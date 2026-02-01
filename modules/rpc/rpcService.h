@@ -4,12 +4,12 @@
 #include <SOCKET_id.h>
 
 #include <epoll_socket_info.h>
-#include <json/value.h>
+
 #include <broadcaster.h>
 #include <msockaddr_in.h>
 
 
-#include "listenerBuffered1Thread.h"
+#include "listenerSimple.h"
 #include <IRPC.h>
 
 #include "Events/System/Net/rpcEvent.h"
@@ -33,19 +33,14 @@ namespace RPC
 
     struct outCache: public Refcountable
     {
-        std::deque<REF_getter<refbuffer> >  container;
+        RWLock lk;
+        std::deque<REF_getter<refbuffer> >  container_lk;
 
-        Json::Value jdump()
-        {
-            Json::Value j;
-            j["container.size()"]=(int)container.size();
-            return j;
-        }
 
     };
     struct Session: public Refcountable
 #ifdef WEBDUMP
-            , public WebDumpable
+        , public WebDumpable
 #endif
     {
 
@@ -56,24 +51,13 @@ namespace RPC
         Session(SOCKET_id sockId,const REF_getter<epoll_socket_info>& _esi):socketId(sockId),
             esi(_esi) {}
 
-        Json::Value jdump()
-        {
-            Json::Value v;
-            v["socketId"]=std::to_string(CONTAINER(socketId));
-#ifdef WEBDUMP
-            v["esi"]=esi->getWebDumpableLink("esi");
-#endif
-            v["outCache_"]=outCache_.jdump();
-            return v;
-        }
         std::string wname()
         {
             return std::to_string(CONTAINER(socketId));
         }
-        Json::Value wdump()
+        std::string wdump()
         {
-            Json::Value j;
-            return jdump();
+            return "";
         }
 
     };
@@ -82,105 +66,68 @@ namespace RPC
 
 
         __sessions()
-            {}
+        {}
 
         struct subscr {
+            RWLock lk;
             std::set<route_t> container_;
-            Json::Value jdump()
-            {
-                Json::Value j;
-                for(auto &z: container_)
-                {
-                    j.append(z.dump());
-                }
-                return j;
-            }
         };
 
-        subscr subscribers_;
+        subscr subscribers_mx;
 
         struct sock2sess
         {
-
+            RWLock lk;
             std::map<SOCKET_id, REF_getter<Session> > container_;
-            Json::Value jdump()
-            {
-                Json::Value j;
-                for(auto &z: container_)
-                {
-#ifdef WEBDUMP
-                    j[std::to_string(CONTAINER(z.first))]=z.second->getWebDumpableLink("Session");
-#endif
-                }
-                return j;
-            }
 
         };
-        sock2sess sock2sess_;
+        sock2sess sock2sess_mx;
 
         struct sa2sess
         {
+            RWLock lk;
             std::map<msockaddr_in,REF_getter<Session> > container_;
-            Json::Value jdump()
-            {
-                Json::Value j;
-                for(auto &z: container_)
-                {
-#ifdef WEBDUMP
-                    j[z.first.dump()]=z.second->getWebDumpableLink("Session");
-#endif
-                }
-                return j;
-            }
 
 
         };
-        sa2sess sa2sess_;
+        sa2sess sa2sess_mx;
 
         // all
-        struct passCache{
+        struct passCache {
+            RWLock lk;
             std::map<SOCKET_id,std::deque<REF_getter<refbuffer>>>passCache;
-            Json::Value jdump()
-            {
-                Json::Value j;
-                for(auto &z: passCache)
-                {
-                    j[std::to_string(CONTAINER(z.first))]=(int)z.second.size();
-                }
-                return j;
-            }
         };
-        passCache passCache_;
+        passCache passCache_mx;
 
-        Json::Value jdump()
-        {
-            Json::Value j;
-            j["passCache_"]=passCache_.jdump();
-            j["sa2sess_"]=sa2sess_.jdump();
-            j["sock2sess_"]=sock2sess_.jdump();
-            j["subscribers_"]=subscribers_.jdump();
-            return j;
-        }
 
         void clear()
         {
-            sa2sess_.container_.clear();
-            subscribers_.container_.clear();
-            sock2sess_.container_.clear();
+            {
+                W_LOCK(sa2sess_mx.lk);
+                sa2sess_mx.container_.clear();
+            }
+            {
+
+                W_LOCK(subscribers_mx.lk);
+                subscribers_mx.container_.clear();
+            }
+            {
+                W_LOCK(sock2sess_mx.lk);
+                sock2sess_mx.container_.clear();
+            }
         }
     public:
     };
 
     class Service:
         public UnknownBase,
-        public ListenerBuffered1Thread,
+        public ListenerSimple,
         public Broadcaster,
         public IRPC
     {
 
 
-        std::string myOscar;
-        const real iterateTimeout_;
+        SECURE secure;
 
         ListenerBase* myOscarListener;
 
@@ -197,7 +144,6 @@ namespace RPC
             std::set<msockaddr_in>m_bindAddr_reserveSH;
         };
         _shared_Addr sharedAddr;
-        const real m_connectionActivityTimeout;
 
     protected:
 
@@ -227,10 +173,13 @@ namespace RPC
 
         bool on_SubscribeNotifications(const rpcEvent::SubscribeNotifications* E);
         bool on_UnsubscribeNotifications(const rpcEvent::UnsubscribeNotifications* E);
+        bool DoListen(const rpcEvent::DoListen* E);
 
 
         bool on_TickAlarm(const timerEvent::TickAlarm*);
+#ifdef WEBDUMP
         bool on_RequestIncoming(const webHandlerEvent::RequestIncoming*);
+#endif
 
 
 
@@ -247,7 +196,7 @@ namespace RPC
 
         void deinit()
         {
-            ListenerBuffered1Thread::deinit();
+            ListenerSimple::deinit();
         }
 
         Service(const SERVICE_id &svs, const std::string&  nm,  IInstance *ifa);
@@ -255,24 +204,6 @@ namespace RPC
 
         ~Service();
 
-        struct _evcount
-        {
-            std::map<EVENT_id,int> ev_handled;
-            void inc(EVENT_id id)
-            {
-                ev_handled[id]++;
-            }
-            Json::Value jdump()
-            {
-                Json::Value j;
-                for(auto &z: ev_handled)
-                {
-                    j[iUtils->genum_name(z.first)]=z.second;
-                }
-                return j;
-            }
-        };
-        _evcount evcount;
 
 
     };

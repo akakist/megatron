@@ -75,10 +75,10 @@ public:
     {
         increfcount ();
     }
-
     ~REF_getter ()
     {
-        decrefcount ();
+        if(___ptr)
+            decrefcount ();
     }
     bool operator== (const REF_getter & bcg) const
     {

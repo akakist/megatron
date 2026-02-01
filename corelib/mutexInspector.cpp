@@ -1,10 +1,19 @@
-#include "mutexInspector.h"
 #include "IUtils.h"
 #include "commonError.h"
 #include "mutex_inspector_entry.h"
+#include "mutexInspector.h"
 #ifdef _WIN32
 #include "compat_win32.h"
 #endif
+std::string _DMI_()
+{
+#ifdef MUTEX_INSPECTOR_DEBUG
+    // MUTEX_INSPECTOR;
+    if (!iUtils) return std::string("");
+    return iUtils->getIThreadNameController()->dump_mutex_inspector(pthread_self());
+#endif
+    return std::string("");
+}
 MutexInspector::MutexInspector(const char *ff, int ll, const char *func)
 {
     mutex_inspector_entry e;

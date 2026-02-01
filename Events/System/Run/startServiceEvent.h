@@ -1,12 +1,12 @@
 #pragma once
 
 #include "event_mt.h"
-#include "genum.hpp"
 
+#include "ghash.h"
 namespace systemEventEnum
 {
 
-    const EVENT_id startService(genum_startService);
+    const EVENT_id startService(ghash("@g_startService"));
 }
 namespace systemEvent
 {
@@ -21,10 +21,6 @@ namespace systemEvent
             return NULL;
         }
         startService():NoPacked( systemEventEnum::startService) {}
-        void jdump(Json::Value &) const
-        {
-
-        }
     };
 
 }

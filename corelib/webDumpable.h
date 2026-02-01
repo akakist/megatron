@@ -1,8 +1,6 @@
 #pragma once
 #include <string>
 #include <stdint.h>
-#include <json/json.h>
-
 /// base class to make object webdumpable on http page
 
 class WebDumpable
@@ -13,7 +11,7 @@ private:
 
 public:
     virtual std::string wname()=0;
-    virtual Json::Value wdump()=0;
+    virtual std::string wdump()=0;
     virtual ~WebDumpable();
     WebDumpable();
     WebDumpable* getWebDumpablePtr()

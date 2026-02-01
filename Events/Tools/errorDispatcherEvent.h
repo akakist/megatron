@@ -3,8 +3,8 @@
 #include "SERVICE_id.h"
 #include "event_mt.h"
 #include "route_t.h"
-#include "genum.hpp"
 
+#include "ghash.h"
 
 
 
@@ -12,15 +12,15 @@
 
 namespace ServiceEnum
 {
-    const SERVICE_id ErrorDispatcher(genum_ErrorDispatcher);
+    const SERVICE_id ErrorDispatcher(ghash("@g_ErrorDispatcher"));
 
 }
 namespace errorDispatcherEventEnum
 {
-    const EVENT_id SendMessage(genum_errorDispatcherSendMessage);
-    const EVENT_id Subscribe(genum_errorDispatcherSubscribe);
-    const EVENT_id Unsubscribe(genum_errorDispatcherUnsubscribe);
-    const EVENT_id NotifySubscriber(genum_errorDispatcherNotifySubscriber);
+    const EVENT_id SendMessage(ghash("@g_errorDispatcherSendMessage"));
+    const EVENT_id Subscribe(ghash("@g_errorDispatcherSubscribe"));
+    const EVENT_id Unsubscribe(ghash("@g_errorDispatcherUnsubscribe"));
+    const EVENT_id NotifySubscriber(ghash("@g_errorDispatcherNotifySubscriber"));
 }
 
 
@@ -44,9 +44,6 @@ namespace errorDispatcherEvent
         void pack(outBuffer&) const
         {
         }
-        void jdump(Json::Value &) const
-        {
-        }
     };
 
 
@@ -66,9 +63,6 @@ namespace errorDispatcherEvent
         {
         }
         void pack(outBuffer&) const
-        {
-        }
-        void jdump(Json::Value &) const
         {
         }
     };
@@ -97,11 +91,6 @@ namespace errorDispatcherEvent
         {
             o<<opcode<<msg;
         }
-        void jdump(Json::Value &v) const
-        {
-            v["opcode"]=opcode;
-            v["msg"]=msg;
-        }
 
     };
 
@@ -128,9 +117,6 @@ namespace errorDispatcherEvent
         void pack(outBuffer&o) const
         {
             o<<opcode<<msg;
-        }
-        void jdump(Json::Value &) const
-        {
         }
 
 

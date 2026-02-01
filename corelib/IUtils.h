@@ -22,6 +22,8 @@ extern IUtils * iUtils;
 #include "pollable.h"
 #include "construct.h"
 #include "ifacesEvent.h"
+#include "msockaddr_in.h"
+#include "refstring.h"
 class epoll_socket_info;
 struct Utils_local;
 
@@ -101,6 +103,8 @@ public:
 
     /// закодировать в HEX
     virtual std::string hex2bin(const std::string &s)=0;
+    virtual std::string hex2bin(const std::string_view &s)=0;
+
 
     /// раскодировать из HEX
     virtual std::string bin2hex(const std::string & in)=0;
@@ -135,24 +139,13 @@ public:
     virtual std::string dump(const std::map<SERVICE_id,std::set<msockaddr_in> > &s)=0;
     virtual std::string dump(const std::map<msockaddr_in,std::set<SERVICE_id> > &s)=0;
 
-    virtual  const char* genum_name(int n) =0;
+    virtual  const char* genum_name(uint32_t n) =0;
 
 
-#ifdef __WITH_ZLIB
-    virtual REF_getter<refbuffer>  zcompress(const REF_getter<refbuffer>& data)=0;
-    virtual REF_getter<refbuffer>  zexpand(const REF_getter<refbuffer>& data)=0;
-#endif
 
     virtual std::string replace_vals(std::map<std::string,std::string> &p, const std::string &src)=0;
 
-    virtual std::string rus_datetime(const time_t& t)=0;
-    virtual std::string rus_date(const time_t& t)=0;
-    virtual time_t from_rus_datetime(const std::string& s)=0;
-    virtual std::string en_datetime(const time_t& t)=0;
-    virtual std::string en_date(const time_t& t)=0;
-    virtual time_t from_en_datetime(const std::string& s)=0;
 
-    virtual std::string makeSlug(const std::string& s)=0;
 
 
     virtual ~IUtils() {}
@@ -166,7 +159,7 @@ public:
     virtual IThreadNameController* getIThreadNameController()=0;
 
 
-    virtual void registerIface(const VERSION_id&,const SERVICE_id& id, Ifaces::Base* p)=0;
+    virtual void registerIface(const SERVICE_id& id, Ifaces::Base* p)=0;
     virtual Ifaces::Base* queryIface(const SERVICE_id& id)=0;
 
 
@@ -189,11 +182,11 @@ public:
         PLUGIN_TYPE_IFACE,
         PLUGIN_TYPE_SERVICE,
     };
-    virtual void registerPlugingInfo(const VERSION_id& version, const char* pluginFileName, PluginType pt, const SERVICE_id &id, const char* name, const std::set<EVENT_id> &evts)=0;
+    virtual void registerPlugingInfo(const char* pluginFileName, PluginType pt, const SERVICE_id &id, const char* name, const std::set<EVENT_id> &evts)=0;
     virtual void registerPluginDLL(const std::string& pn)=0;
 
     /// зарегистрировать сервис
-    virtual void registerService(const VERSION_id& ver, const SERVICE_id& id, unknown_static_constructor cs, const std::string& literalName)=0;
+    virtual void registerService(const SERVICE_id& id, unknown_static_constructor cs, const std::string& literalName)=0;
 
 
     /// зарегистрировать евент
@@ -237,6 +230,7 @@ public:
     virtual void pushLogPrefix(const std::string& l)=0;
     virtual void popLogPrefix()=0;
     virtual std::deque<std::string> getLogPrefix()=0;
+
 
 };
 

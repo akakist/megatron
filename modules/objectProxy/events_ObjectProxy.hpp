@@ -2,8 +2,6 @@
 #define __________ObjectProxy_EventInfo__HH
 
 
-#include "IUtils.h"
-
 #include <Events/System/Net/rpcEvent.h>
 #include <Events/System/Run/startServiceEvent.h>
 inline std::set<EVENT_id> getEvents_ObjectProxy()

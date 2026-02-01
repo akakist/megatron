@@ -28,7 +28,7 @@ void _neighbours::remove(const msockaddr_in& sa)
     outBuffer o;
     o<<sas;
     ConfigDB_private c;
-    c.set("_neighbours."+dbName,o.asString()->asString());
+    c.set("_neighbours."+dbName,o.buffer->container);
 
 }
 
@@ -42,7 +42,7 @@ std::vector<msockaddr_in> _neighbours::getAllAndClear()
     outBuffer o;
     o<<sas;
     ConfigDB_private c;
-    c.set("_neighbours."+dbName,o.asString()->asString());
+    c.set("_neighbours."+dbName,o.buffer->container);
     return ret;
 }
 void _neighbours::add(const msockaddr_in &sa, int pingTime)
@@ -52,6 +52,6 @@ void _neighbours::add(const msockaddr_in &sa, int pingTime)
     outBuffer o;
     o<<sas;
     ConfigDB_private c;
-    c.set("_neighbours."+dbName,o.asString()->asString());
+    c.set("_neighbours."+dbName,o.buffer->container);
 
 }

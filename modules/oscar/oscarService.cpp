@@ -17,6 +17,7 @@ Oscar::Service::Service(const SERVICE_id &svs, const std::string&  nm,IInstance*
     try
     {
         XTRY;
+        maxPacketSize=ifa->getConfig()->get_int64_t("maxPacketSize",1024*1024*16,"Max packet size in oscar protocol");
         XPASS;
     }
     catch (const std::exception &e)
@@ -34,7 +35,7 @@ Oscar::Service::~Service()
 bool Oscar::Service::on_Connect(const oscarEvent::Connect* e)
 {
     MUTEX_INSPECTOR;
-    sendEvent(socketListener,new socketEvent::AddToConnectTCP(e->socketId,e->addr,e->socketDescription,e->route));
+    sendEvent(socketListener,new socketEvent::AddToConnectTCP(e->socketId,e->addr,e->socketDescription, e->secure,e->route));
     return true;
 }
 bool Oscar::Service::on_SendPacket(const oscarEvent::SendPacket* e)
@@ -46,23 +47,19 @@ bool Oscar::Service::on_SendPacket(const oscarEvent::SendPacket* e)
 bool Oscar::Service::on_AddToListenTCP(const oscarEvent::AddToListenTCP* e)
 {
     MUTEX_INSPECTOR;
-    sendEvent(socketListener,new socketEvent::AddToListenTCP(e->socketId,e->addr,e->socketDescription,false, e->route));
+    sendEvent(socketListener,new socketEvent::AddToListenTCP(e->socketId,e->addr,e->socketDescription,false, e->secure, e->route));
     return true;
 }
 bool Oscar::Service::on_Accepted(const socketEvent::Accepted*e)
 {
     MUTEX_INSPECTOR;
 
-//    outBuffer o;
-//    o<<"HELLO"<<COREVERSION;
-//    sendPacketPlain(SB_HELLO,e->esi,o);
     passEvent(new oscarEvent::Accepted(e->esi,e->route));
     return true;
 }
 bool Oscar::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 {
 
-//    logErr2("@@ %s",__PRETTY_FUNCTION__);
     MUTEX_INSPECTOR;
     try
     {
@@ -92,9 +89,16 @@ bool Oscar::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                             if (!success) return true;
                             {
                                 XTRY;
+                                if(len>maxPacketSize)
+                                {
+                                    logErr2("packet size %lu more maxPacketSize %lu",len,maxPacketSize);
+                                    return true;
+
+                                }
                                 if(b.remains()<len)
                                 {
-                                    logErr2("if(b.remains()<len)");
+                                    
+                                    // logErr2("if(b.remains()<len)");
                                     return true;
                                 }
 
@@ -102,23 +106,18 @@ bool Oscar::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 
                                 if (!success)
                                 {
-                                    logErr2("---------_ERROR if (!success) %s %d",__FILE__,__LINE__);
+                                    logErr2("---------_ERROR if (!success)");
                                     return true;
                                 }
 
                                 if(b.remains()==0)
                                 {
                                     evt->esi->inBuffer_._mx_data.clear();
-//                                    return true;
                                 }
                                 else
                                 {
-
                                     evt->esi->inBuffer_._mx_data.erase(0,evt->esi->inBuffer_._mx_data.size()-b.remains());
                                 }
-
-
-
                                 recvd=true;
                                 XPASS;
                             }
@@ -140,8 +139,6 @@ bool Oscar::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                 XPASS;
             }
             if(!recvd) return true;
-
-
             {
                 XTRY;
                 switch(start_byte)
@@ -151,37 +148,15 @@ bool Oscar::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 
                     if(evt->esi->streamType_==epoll_socket_info::STREAMTYPE_CONNECTED)
                     {
-                        passEvent(new oscarEvent::PacketOnConnector(evt->esi,toRef(req),evt->route));
+                        passEvent(new oscarEvent::PacketOnConnector(evt->esi,toRef(std::move(req)),evt->route));
                     }
                     else
                     {
-                        passEvent(new oscarEvent::PacketOnAcceptor(evt->esi,toRef(req),evt->route));
+                        passEvent(new oscarEvent::PacketOnAcceptor(evt->esi,toRef(std::move(req)),evt->route));
                     }
                     continue;
                 }
                 break;
-//                case Oscar::SB_HELLO:
-//                {
-//
-//                    inBuffer in(req);
-//                    std::string hello=in.get_PSTR();
-//                    if(hello!="HELLO")
-//                        throw CommonError("!HELLO");
-//                    int64_t ver=in.get_PN();
-//                    if(ver>>8 != COREVERSION>>8)
-//                    {
-//                        if(COREVERSION>ver)
-//                            sendEvent(ServiceEnum::ErrorDispatcher,new errorDispatcherEvent::SendMessage("ED_VERSION_WRONG","Packet version wrong for peer. You running newest version, please wait"));
-//                        else
-//                        {
-//                            sendEvent(ServiceEnum::ErrorDispatcher,new errorDispatcherEvent::SendMessage("ED_VERSION_WRONG","Packet version wrong for peer in oscar. Your need upgrade software"));
-//                        }
-
-//                        evt->esi->close("oscar: invalid peer version");
-//                        return true;
-//                    }
-//                }
-//                break;
                 default:
                     logErr2("Invalid start byte %d",start_byte);
                     evt->esi->close("oscar: invalid start byte");
@@ -229,14 +204,17 @@ bool Oscar::Service::on_NotifyBindAddress(const socketEvent::NotifyBindAddress*e
     passEvent(new oscarEvent::NotifyBindAddress(e->addr,e->socketDescription,e->rebind,e->route));
     return true;
 }
+#include "obuf.h"
 void Oscar::Service::sendPacketPlain(const Oscar::StartByte& startByte, const REF_getter<epoll_socket_info>& esi, const outBuffer &o)
 {
     MUTEX_INSPECTOR;
     XTRY;
-    outBuffer O2;
+    size_t bs=o.size()+0x100;
+    char b[bs];
+    oBuf O2(b,bs);
     O2.put_8(startByte);
     O2<<o.asString();
-    esi->write_(O2.asString()->asString());
+    esi->write_buf(O2.data(), O2.size());
     XPASS;
 }
 void Oscar::Service::sendPacketPlain(const Oscar::StartByte& startByte, const REF_getter<epoll_socket_info>& esi, const REF_getter<refbuffer> &o)
@@ -245,10 +223,12 @@ void Oscar::Service::sendPacketPlain(const Oscar::StartByte& startByte, const RE
     XTRY;
     if(!esi.valid())
         throw CommonError("if(!esi.valid()) %s",__PRETTY_FUNCTION__);
-    outBuffer O2;
+    size_t bs=o->container.size()+0x100;
+    char b[bs];
+    oBuf O2(b,bs);
     O2.put_8(startByte);
     O2<<o;
-    esi->write_(O2.asString()->asString());
+    esi->write_buf(O2.data(), O2.size());
     XPASS;
 }
 bool Oscar::Service::on_startService(const systemEvent::startService*)
@@ -261,11 +241,11 @@ void registerOscarModule(const char* pn)
 {
     if(pn)
     {
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::Oscar,"Oscar",getEvents_oscar());
+        iUtils->registerPlugingInfo(pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::Oscar,"Oscar",getEvents_oscar());
     }
     else
     {
-        iUtils->registerService(COREVERSION,ServiceEnum::Oscar,Oscar::Service::construct,"Oscar");
+        iUtils->registerService(ServiceEnum::Oscar,Oscar::Service::construct,"Oscar");
         regEvents_oscar();
     }
 
@@ -276,36 +256,38 @@ bool Oscar::Service::handleEvent(const REF_getter<Event::Base>& e)
 {
     XTRY;
     auto &ID=e->id;
-    if( socketEventEnum::Accepted==ID)
+    switch(ID)
+    {
+    case socketEventEnum::Accepted:
         return on_Accepted((const socketEvent::Accepted*)e.get());
-    if( socketEventEnum::StreamRead==ID)
+    case socketEventEnum::StreamRead:
         return on_StreamRead((const socketEvent::StreamRead*)e.get());
-    if( socketEventEnum::Connected==ID)
+    case socketEventEnum::Connected:
         return on_Connected((const socketEvent::Connected*)e.get());
-    if( socketEventEnum::NotifyBindAddress==ID)
+    case socketEventEnum::NotifyBindAddress:
         return on_NotifyBindAddress((const socketEvent::NotifyBindAddress*)e.get());
-    if( socketEventEnum::NotifyOutBufferEmpty==ID)
+    case socketEventEnum::NotifyOutBufferEmpty:
         return on_NotifyOutBufferEmpty((const socketEvent::NotifyOutBufferEmpty*)e.get());
-    if( socketEventEnum::ConnectFailed==ID)
+    case socketEventEnum::ConnectFailed:
         return on_ConnectFailed((const socketEvent::ConnectFailed*)e.get());
-    if( oscarEventEnum::SendPacket==ID)
+    case oscarEventEnum::SendPacket:
         return(this->on_SendPacket((const oscarEvent::SendPacket*)e.get()));
 
-    if( oscarEventEnum::AddToListenTCP==ID)
+    case oscarEventEnum::AddToListenTCP:
         return(this->on_AddToListenTCP((const oscarEvent::AddToListenTCP*)e.get()));
 
-    if( oscarEventEnum::Connect==ID)
+    case oscarEventEnum::Connect:
         return(this->on_Connect((const oscarEvent::Connect*)e.get()));
 
-    if(systemEventEnum::startService==ID)
+    case systemEventEnum::startService:
         return on_startService((const systemEvent::startService*)e.get());
 
 
-    if( socketEventEnum::Disaccepted==ID)
+    case socketEventEnum::Disaccepted:
         return on_Disaccepted((const socketEvent::Disaccepted*)e.get());
-    if( socketEventEnum::Disconnected==ID)
+    case socketEventEnum::Disconnected:
         return on_Disconnected((const socketEvent::Disconnected*)e.get());
-
+    }
     XPASS;
     return false;
 

@@ -5,33 +5,35 @@
 #include "SERVICE_id.h"
 #include "event_mt.h"
 #include "mutexInspector.h"
+
+#include "ghash.h"
 namespace ServiceEnum
 {
-    const SERVICE_id DFSReferrer(genum_DFSReferrer);
-    const SERVICE_id ReferrerClient(genum_RefferrerClient);
+    const SERVICE_id DFSReferrer(ghash("@g_DFSReferrer"));
+    const SERVICE_id ReferrerClient(ghash("@g_RefferrerClient"));
 }
 
 namespace dfsReferrerEventEnum
 {
 
-    const EVENT_id Ping(genum_DFSReferrer_Ping);
-    const EVENT_id Hello(genum_DFSReferrer_Hello);
-    const EVENT_id SubscribeNotifications(genum_DFSReferrer_SubscribeNotifications);
-    const EVENT_id Noop(genum_DFSReferrer_Noop);
+    const EVENT_id Ping(ghash("@g_DFSReferrer_Ping"));
+    const EVENT_id Hello(ghash("@g_DFSReferrer_Hello"));
+    const EVENT_id SubscribeNotifications(ghash("@g_DFSReferrer_SubscribeNotifications"));
+    const EVENT_id Noop(ghash("@g_DFSReferrer_Noop"));
 
-    const EVENT_id ToplinkDeliverREQ(genum_DFSReferrer_ToplinkDeliverREQ);
-    const EVENT_id ToplinkDeliverRSP(genum_DFSReferrer_ToplinkDeliverRSP);
+    const EVENT_id ToplinkDeliverREQ(ghash("@g_DFSReferrer_ToplinkDeliverREQ"));
+    const EVENT_id ToplinkDeliverRSP(ghash("@g_DFSReferrer_ToplinkDeliverRSP"));
 
 
 
-    const EVENT_id Pong(genum_DFSReferrer_Pong);
-    const EVENT_id NotifyReferrerUplinkIsConnected(genum_DFSReferrerNotifyReferrerUplinkIsConnected);
-    const EVENT_id NotifyReferrerUplinkIsDisconnected(genum_DFSReferrerNotifyReferrerUplinkIsDisconnected);
-    const EVENT_id NotifyReferrerDownlinkDisconnected(genum_DFSReferrerNotifyReferrerDownlinkDisconnected);
-    const EVENT_id InitClient(genum_DFSReferrerInitClient);
+    const EVENT_id Pong(ghash("@g_DFSReferrer_Pong"));
+    const EVENT_id NotifyReferrerUplinkIsConnected(ghash("@g_DFSReferrerNotifyReferrerUplinkIsConnected"));
+    const EVENT_id NotifyReferrerUplinkIsDisconnected(ghash("@g_DFSReferrerNotifyReferrerUplinkIsDisconnected"));
+    const EVENT_id NotifyReferrerDownlinkDisconnected(ghash("@g_DFSReferrerNotifyReferrerDownlinkDisconnected"));
+    const EVENT_id InitClient(ghash("@g_DFSReferrerInitClient"));
 
-    const EVENT_id UpdateConfigREQ(genum_DFSReferrerUpdateConfigREQ);
-    const EVENT_id UpdateConfigRSP(genum_DFSReferrerUpdateConfigRSP);
+    const EVENT_id UpdateConfigREQ(ghash("@g_DFSReferrerUpdateConfigREQ"));
+    const EVENT_id UpdateConfigRSP(ghash("@g_DFSReferrerUpdateConfigRSP"));
 
 }
 namespace dfsReferrer {
@@ -62,13 +64,6 @@ namespace dfsReferrerEvent {
             :NoPacked(dfsReferrerEventEnum::InitClient),caps(_caps) {}
 
         std::set<msockaddr_in>caps;
-        void jdump(Json::Value &j) const
-        {
-            for(auto& z:caps)
-            {
-                j["caps"].append(z.dump());
-            }
-        }
     };
 
     class NotifyReferrerDownlinkDisconnected: public Event::NoPacked
@@ -83,10 +78,6 @@ namespace dfsReferrerEvent {
             :NoPacked(dfsReferrerEventEnum::NotifyReferrerDownlinkDisconnected,r),socketId(_sid) {}
 
         const SOCKET_id& socketId;
-        void jdump(Json::Value &j) const
-        {
-            j["socketId"]=std::to_string(CONTAINER(socketId));
-        }
     };
     class NotifyReferrerUplinkIsConnected: public Event::NoPacked
     {
@@ -102,10 +93,6 @@ namespace dfsReferrerEvent {
             :NoPacked(dfsReferrerEventEnum::NotifyReferrerUplinkIsConnected,r),sa(_sa) {}
 
         msockaddr_in sa;
-        void jdump(Json::Value &j) const
-        {
-            j["sa"]=sa.dump();
-        }
     };
     class NotifyReferrerUplinkIsDisconnected: public Event::NoPacked
     {
@@ -119,10 +106,6 @@ namespace dfsReferrerEvent {
             :NoPacked(dfsReferrerEventEnum::NotifyReferrerUplinkIsDisconnected,r), sa(_sa) {}
 
         msockaddr_in sa;
-        void jdump(Json::Value &j) const
-        {
-            j["sa"]=sa.dump();
-        }
 
     };
 
@@ -169,36 +152,6 @@ namespace dfsReferrerEvent {
 
             o<<pingType<<globalCookieOfSender<<externalListenPort<<internalListenAddr<<ping_time<<connection_sequence_id<<clientType;
         }
-        void jdump(Json::Value &v) const
-        {
-            v["globalCookieOfSender"]=iUtils->bin2hex(CONTAINER(globalCookieOfSender));
-            v["internalListenAddr"]=iUtils->dump(internalListenAddr);
-            v["externalListenPort"]=externalListenPort;
-            v["ping_time"]=std::to_string(ping_time);
-            v["connection_sequence_id"]=connection_sequence_id;
-            v["internalListenAddr"]=iUtils->dump(internalListenAddr);
-            switch(pingType)
-            {
-            case dfsReferrer::PingType::PT_CACHED:
-                v["pingType"]="PT_CACHED";
-                break;
-            case dfsReferrer::PingType::PT_MASTER_SHORT:
-                v["pingType"]="PT_MASTER_SHORT";
-                break;
-            case dfsReferrer::PingType::PT_MASTER_LONG:
-                v["pingType"]="PT_MASTER_LONG";
-                break;
-            case dfsReferrer::PingType::PT_CAPS_SHORT:
-                v["pingType"]="PT_CAPS_SHORT";
-                break;
-            case dfsReferrer::PingType::PT_CAPS_LONG:
-                v["pingType"]="PT_CAPS_LONG";
-                break;
-            default:
-                v["pingType"]="___UNDEF";
-                break;
-            }
-        }
 
     };
     class Pong: public Event::Base
@@ -231,36 +184,6 @@ namespace dfsReferrerEvent {
         {
 
             o<<pingType<<visible_name_of_pinger<<globalCookieOfResponder<<nodeLevelInHierarhy<<ping_time<<connection_sequence_id;
-        }
-        void jdump(Json::Value &v) const
-        {
-
-            v["globalCookieOfResponder"]=iUtils->bin2hex(CONTAINER(globalCookieOfResponder));
-            v["ping_time"]=std::to_string(ping_time);
-            v["connection_sequence_id"]=connection_sequence_id;
-            v["visible_name"]=visible_name_of_pinger.dump();
-            v["nodeLevelInHierarhy"]=nodeLevelInHierarhy;
-            switch(pingType)
-            {
-            case dfsReferrer::PingType::PT_CACHED:
-                v["pingType"]="PT_CACHED";
-                break;
-            case dfsReferrer::PingType::PT_MASTER_SHORT:
-                v["pingType"]="PT_MASTER_SHORT";
-                break;
-            case dfsReferrer::PingType::PT_MASTER_LONG:
-                v["pingType"]="PT_MASTER_LONG";
-                break;
-            case dfsReferrer::PingType::PT_CAPS_SHORT:
-                v["pingType"]="PT_CAPS_SHORT";
-                break;
-            case dfsReferrer::PingType::PT_CAPS_LONG:
-                v["pingType"]="PT_CAPS_LONG";
-                break;
-            default:
-                v["pingType"]="___UNDEF";
-                break;
-            }
         }
 
     };
@@ -317,11 +240,6 @@ namespace dfsReferrerEvent {
         {
             o<<destinationService<<eventData<<uuid;
         }
-        void jdump(Json::Value &v) const
-        {
-
-            v["destinationService"]=iUtils->genum_name(id);
-        }
 
     };
     class ToplinkDeliverRSP: public Event::Base
@@ -360,9 +278,6 @@ namespace dfsReferrerEvent {
 
             o<<eventData;
         }
-        void jdump(Json::Value &) const
-        {
-        }
         REF_getter<Event::Base> getEvent() const
         {
             MUTEX_INSPECTOR;
@@ -385,9 +300,6 @@ namespace dfsReferrerEvent {
         SubscribeNotifications(const route_t& r)
             :Base(dfsReferrerEventEnum::SubscribeNotifications,r) {}
 
-        void jdump(Json::Value &) const
-        {
-        }
         void unpack(inBuffer&)
         {
         }
@@ -422,10 +334,6 @@ namespace dfsReferrerEvent {
 
             o<<bod;
         }
-        void jdump(Json::Value &v) const
-        {
-            v["body"]=bod;
-        }
     };
 
     class UpdateConfigRSP: public Event::Base
@@ -452,10 +360,6 @@ namespace dfsReferrerEvent {
         {
 
             o<<bod;
-        }
-        void jdump(Json::Value &v) const
-        {
-            v["body"]=bod;
         }
     };
 }

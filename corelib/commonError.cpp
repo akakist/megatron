@@ -20,14 +20,10 @@
 #include <stdarg.h>
 
 
-#if !defined __MOBILE__
-static Mutex *__logLock=nullptr;
-#endif
-bool prevLogUnlinked=false;
 CommonError::CommonError(const std::string& str):m_error(str)
 {
 #ifdef DEBUG
-    fprintf(stderr,"CommonError raised: %s %s\n",m_error.c_str(),_DMI().c_str());
+    fprintf(stdout,"CommonError raised: %s %s\n",m_error.c_str(),_DMI().c_str());
 #endif
 }
 CommonError::CommonError(const char* fmt, ...) :m_error(fmt)
@@ -40,28 +36,11 @@ CommonError::CommonError(const char* fmt, ...) :m_error(fmt)
     va_end(ap);
     m_error=str;
 #ifdef DEBUG
-    fprintf(stderr,"CommonError raised: %s %s\n",m_error.c_str(),_DMI().c_str());
+    fprintf(stdout,"CommonError raised: %s %s\n",m_error.c_str(),_DMI().c_str());
 #endif
 
 }
 
-#if !defined __MOBILE__
-
-static std::string getLogName()
-{
-    if(!iUtils) return ".log";
-    std::string fn=(std::string)iUtils->app_name()+".log";
-    {
-        fn=iUtils->gLogDir()+"/"+fn;
-    }
-    if(!prevLogUnlinked)
-    {
-        prevLogUnlinked=true;
-    }
-    return fn;
-}
-#else
-#endif
 
 void logErr2(const char* fmt, ...)
 {
@@ -78,17 +57,15 @@ void logErr2(const char* fmt, ...)
         if(1)
         {
             {
-                fprintf(stderr,"%s: ",iUtils->app_name().c_str());
 #ifdef WITH_SLOG
                 fprintf(stderr," %s ",s_prf.c_str());
 #endif
             }
-            vfprintf(stderr,fmt, ap);
-            fprintf(stderr,"\n");
+            vfprintf(stdout,fmt, ap);
+            fprintf(stdout,"\n");
 #endif
         }
 
     }
 }
-
 

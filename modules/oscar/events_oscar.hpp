@@ -2,9 +2,8 @@
 #define __________oscar_EventInfo__HH
 
 
-#include "IUtils.h"
-
-#include "Events/Tools/errorDispatcherEvent.h"
+#include <Events/System/Net/socketEvent.h>
+#include <Events/System/Net/oscarEvent.h>
 #include <Events/System/Net/oscarEvent.h>
 #include <Events/System/Net/socketEvent.h>
 #include <Events/System/Run/startServiceEvent.h>
@@ -12,7 +11,6 @@ inline std::set<EVENT_id> getEvents_oscar()
 {
 
 	std::set<EVENT_id> out;
-	out.insert(errorDispatcherEventEnum::SendMessage);
 	out.insert(oscarEventEnum::Accepted);
 	out.insert(oscarEventEnum::AddToListenTCP);
 	out.insert(oscarEventEnum::Connect);
@@ -42,7 +40,6 @@ inline std::set<EVENT_id> getEvents_oscar()
 
 inline void regEvents_oscar()
 {
-	iUtils->registerEvent(errorDispatcherEvent::SendMessage::construct);
 	iUtils->registerEvent(oscarEvent::Accepted::construct);
 	iUtils->registerEvent(oscarEvent::AddToListenTCP::construct);
 	iUtils->registerEvent(oscarEvent::Connect::construct);

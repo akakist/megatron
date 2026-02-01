@@ -34,9 +34,6 @@ namespace Oscar
         public ListenerSimple,
         public Broadcaster
     {
-//        size_t m_maxPacketSize;
-
-
         ListenerBase* socketListener;
         bool on_Connect(const oscarEvent::Connect* e);
         bool on_SendPacket(const oscarEvent::SendPacket* e);
@@ -61,11 +58,6 @@ namespace Oscar
         void sendPacketPlain(const Oscar::StartByte& startByte, const REF_getter<epoll_socket_info>& esi, const REF_getter<refbuffer> &o);
 
         void processRequest(const SOCKET_id&  socketId, const std::string& buf,const route_t & route);
-        Json::Value jdump()
-        {
-            Json::Value v;
-            return v;
-        }
     public:
 
     public:
@@ -78,5 +70,6 @@ namespace Oscar
         static UnknownBase* construct(const SERVICE_id& id, const std::string&  nm,IInstance* ifa);
         ~Service();
         IInstance* iInstance;
+        size_t maxPacketSize;
     };
 }

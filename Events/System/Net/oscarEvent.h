@@ -5,28 +5,29 @@
 #include "epoll_socket_info.h"
 #include "event_mt.h"
 #include "route_t.h"
-#include "genum.hpp"
+
 namespace ServiceEnum
 {
-    const SERVICE_id Oscar(genum_Oscar);
-    const SERVICE_id OscarSecure(genum_OscarSecure);
+
+    constexpr SERVICE_id Oscar(ghash("@g_Oscar"));
+    // const SERVICE_id OscarSecure(ghash("@g_OscarSecure);
 }
 
 namespace oscarEventEnum
 {
 
-    const EVENT_id SendPacket(genum_oscar_SendPacket);
-    const EVENT_id AddToListenTCP(genum_oscar_AddToListenTCP);
-    const EVENT_id Connect(genum_oscar_Connect);
-    const EVENT_id PacketOnAcceptor(genum_oscar_PacketOnAcceptor);
-    const EVENT_id PacketOnConnector(genum_oscar_PacketOnConnector);
-    const EVENT_id Connected(genum_oscar_Connected);
-    const EVENT_id Disconnected(genum_oscar_Disconnected);
-    const EVENT_id Accepted(genum_oscar_Accepted);
-    const EVENT_id Disaccepted(genum_oscar_Disaccepted);
-    const EVENT_id NotifyBindAddress(genum_oscar_NotifyBindAddress);
-    const EVENT_id NotifyOutBufferEmpty(genum_oscar_NotifyOutBufferEmpty);
-    const EVENT_id ConnectFailed(genum_oscar_ConnectFailed);
+    constexpr EVENT_id SendPacket(ghash("@g_oscar_SendPacket"));
+    constexpr EVENT_id AddToListenTCP(ghash("@g_oscar_AddToListenTCP"));
+    constexpr EVENT_id Connect(ghash("@g_oscar_Connect"));
+    constexpr EVENT_id PacketOnAcceptor(ghash("@g_oscar_PacketOnAcceptor"));
+    constexpr EVENT_id PacketOnConnector(ghash("@g_oscar_PacketOnConnector"));
+    constexpr EVENT_id Connected(ghash("@g_oscar_Connected"));
+    constexpr EVENT_id Disconnected(ghash("@g_oscar_Disconnected"));
+    constexpr EVENT_id Accepted(ghash("@g_oscar_Accepted"));
+    constexpr EVENT_id Disaccepted(ghash("@g_oscar_Disaccepted"));
+    constexpr EVENT_id NotifyBindAddress(ghash("@g_oscar_NotifyBindAddress"));
+    constexpr EVENT_id NotifyOutBufferEmpty(ghash("@g_oscar_NotifyOutBufferEmpty"));
+    constexpr EVENT_id ConnectFailed(ghash("@g_oscar_ConnectFailed"));
 }
 
 
@@ -50,9 +51,6 @@ namespace oscarEvent
 
         /// buffer
         const REF_getter<refbuffer> buf;
-        void jdump(Json::Value &) const
-        {
-        }
     };
 
 /// приход буфера на коннекторе
@@ -70,9 +68,6 @@ namespace oscarEvent
         const REF_getter<epoll_socket_info>  esi;
         /// buffer
         const REF_getter<refbuffer> buf;
-        void jdump(Json::Value &) const
-        {
-        }
     };
 
 /// приход буфера на слушателе
@@ -90,9 +85,6 @@ namespace oscarEvent
         const REF_getter<epoll_socket_info>  esi;
         /// buffer
         const REF_getter<refbuffer> buf;
-        void jdump(Json::Value &) const
-        {
-        }
     };
 
     class NotifyOutBufferEmpty: public Event::NoPacked
@@ -107,9 +99,6 @@ namespace oscarEvent
             return NULL;
         }
         const REF_getter<epoll_socket_info> esi;
-        void jdump(Json::Value &) const
-        {
-        }
     };
 
     class NotifyBindAddress: public Event::NoPacked
@@ -122,9 +111,6 @@ namespace oscarEvent
         NotifyBindAddress(const msockaddr_in & __S,const char* _socketDescription,bool _rebind, const route_t&r)
             :NoPacked(oscarEventEnum::NotifyBindAddress,r),
              addr(__S),socketDescription(_socketDescription),rebind(_rebind)
-        {
-        }
-        void jdump(Json::Value &) const
         {
         }
         const msockaddr_in  addr;
@@ -147,11 +133,6 @@ namespace oscarEvent
         }
         const REF_getter<epoll_socket_info>  esi;
         const std::string reason;
-        void jdump(Json::Value & j) const
-        {
-            j["esi"]=esi->__jdump();
-            j["reason"]=reason;
-        }
     };
 
     class Disaccepted: public Event::NoPacked
@@ -168,9 +149,6 @@ namespace oscarEvent
         }
         const REF_getter<epoll_socket_info>  esi;
         const std::string reason;
-        void jdump(Json::Value &) const
-        {
-        }
     };
 
     class Connected: public Event::NoPacked
@@ -186,9 +164,6 @@ namespace oscarEvent
         {
         }
         const REF_getter<epoll_socket_info>  esi;
-        void jdump(Json::Value &) const
-        {
-        }
     };
 
     class ConnectFailed: public Event::NoPacked
@@ -203,9 +178,6 @@ namespace oscarEvent
             esi(_esi),addr(_addr) {}
         const REF_getter<epoll_socket_info> esi;
         const msockaddr_in  addr;
-        void jdump(Json::Value &) const
-        {
-        }
     };
 
     class Connect: public Event::NoPacked
@@ -215,15 +187,13 @@ namespace oscarEvent
         {
             return NULL;
         }
-        Connect(const SOCKET_id& _socketId, const msockaddr_in& _addr,const char* _socketDescription,const route_t & r):
+        Connect(const SOCKET_id& _socketId, const msockaddr_in& _addr,const char* _socketDescription, const SECURE& _sec, const route_t & r):
             NoPacked(oscarEventEnum::Connect,r),
-            socketId(_socketId), addr(_addr),socketDescription(_socketDescription) {}
+            socketId(_socketId), addr(_addr),socketDescription(_socketDescription), secure(_sec) {}
         const SOCKET_id socketId;
         const msockaddr_in addr;
         const char* socketDescription;
-        void jdump(Json::Value &) const
-        {
-        }
+        const SECURE secure;
     };
 
 
@@ -234,15 +204,13 @@ namespace oscarEvent
         {
             return NULL;
         }
-        AddToListenTCP(const SOCKET_id& _socketId, const msockaddr_in& _addr,const char* _socketDescription,const route_t & r):
+        AddToListenTCP(const SOCKET_id& _socketId, const msockaddr_in& _addr,const char* _socketDescription, const SECURE& _sec, const route_t & r):
             NoPacked(oscarEventEnum::AddToListenTCP,r),
-            socketId(_socketId), addr(_addr),socketDescription(_socketDescription) {}
+            socketId(_socketId), addr(_addr),socketDescription(_socketDescription),secure(_sec) {}
         const SOCKET_id socketId;
         const msockaddr_in addr;
         const char* socketDescription;
-        void jdump(Json::Value &) const
-        {
-        }
+        SECURE secure;
     };
 
 /// callback notification about socket is accepted
@@ -259,8 +227,5 @@ namespace oscarEvent
         }
         /// socket object
         const REF_getter<epoll_socket_info> esi;
-        void jdump(Json::Value &) const
-        {
-        }
     };
 }

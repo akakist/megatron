@@ -2,7 +2,6 @@
 #include <stdarg.h>
 
 #include "mutexInspector.h"
-#include "version_mega.h"
 #include "events_logger.hpp"
 Logger::Service::Service(const SERVICE_id& id, const std::string& nm, IInstance *ifa):
     UnknownBase(nm),
@@ -40,15 +39,16 @@ void registerErrorDispatcherService(const char* pn)
     if(pn)
     {
 
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::Logger,"Logger",getEvents_logger());
+        iUtils->registerPlugingInfo(pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::Logger,"Logger",getEvents_logger());
     }
     else
     {
-        iUtils->registerService(COREVERSION,ServiceEnum::Logger,Logger::Service::construct,"Logger");
+        iUtils->registerService(ServiceEnum::Logger,Logger::Service::construct,"Logger");
         regEvents_logger();
     }
     XPASS;
 }
+
 
 bool Logger::Service::on_LogMessage(const loggerEvent::LogMessage *e)
 {

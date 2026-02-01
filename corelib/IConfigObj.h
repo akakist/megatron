@@ -34,7 +34,7 @@ public:
 
 
     /// print not referenced items to find not used
-    virtual void printUnusedItems()=0;
+    // virtual void printUnusedItems()=0;
 
     virtual void push_prefix(const std::string& p)=0;
     virtual void pop_prefix()=0;

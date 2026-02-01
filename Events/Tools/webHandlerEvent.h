@@ -1,24 +1,25 @@
 #pragma once
-
+// #ifdef WEBDUMP
 #include "EVENT_id.h"
 #include "SERVICE_id.h"
 #include "epoll_socket_info.h"
 #include "event_mt.h"
-#include "genum.hpp"
+
 #include "httpConnection.h"
 #include "route_t.h"
-#include "genum.hpp"
+
+#include "ghash.h"
 namespace ServiceEnum
 {
-    const SERVICE_id WebHandler(genum_WebHandler);
+    const SERVICE_id WebHandler(ghash("@g_WebHandler"));
 }
 
 namespace webHandlerEventEnum
 {
 
-    const EVENT_id RegisterHandler(genum_webHandlerRegisterHandler);
-    const EVENT_id RegisterDirectory(genum_webHandlerRegisterDirectory);
-    const EVENT_id RequestIncoming(genum_webHandlerRequestIncoming);
+    const EVENT_id RegisterHandler(ghash("@g_webHandlerRegisterHandler"));
+    const EVENT_id RegisterDirectory(ghash("@g_webHandlerRegisterDirectory"));
+    const EVENT_id RequestIncoming(ghash("@g_webHandlerRequestIncoming"));
 }
 
 namespace webHandlerEvent
@@ -39,9 +40,6 @@ namespace webHandlerEvent
              req(__R),esi(__esi) {}
         const REF_getter<HTTP::Request> req;
         const REF_getter<epoll_socket_info> esi;
-        void jdump(Json::Value &) const
-        {
-        }
 
     };
 
@@ -56,9 +54,6 @@ namespace webHandlerEvent
             :NoPacked(webHandlerEventEnum::RegisterHandler,r),
              url(_url),displayName(_displayName) {}
         const std::string url,displayName;
-        void jdump(Json::Value &) const
-        {
-        }
 
     };
 
@@ -74,10 +69,8 @@ namespace webHandlerEvent
             :NoPacked(webHandlerEventEnum::RegisterDirectory),
              url(_url),displayName(_displayName) {}
         const std::string url,displayName;
-        void jdump(Json::Value &) const
-        {
-        }
 
     };
 
 };
+// #endif

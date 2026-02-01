@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string>
-#include <unknown.h>
+#include "unknown.h"
 #include <IInstance.h>
 #include <tools_mt.h>
 #include "httpService.h"
@@ -15,10 +15,10 @@
 #include <version_mega.h>
 #include <st_malloc.h>
 #include <logging.h>
-#include "splitStr.h"
 #include <stdlib.h>
 #include <fcntl.h>
 #include <time.h>
+// #include "ISSL.h"
 #include "events_http.hpp"
 #include "resplit.h"
 
@@ -45,8 +45,8 @@ HTTP::Service::Service(const SERVICE_id& id, const std::string&nm, IInstance* _i
     {
         {
             W_LOCK(mx.lk);
-            mx.docUrls=_if->getConfig()->get_stringset("doc_urls","/pics,/html,/css","");
-            mx.documentRoot=_if->getConfig()->get_string("document_root","./www","");
+            // mx.docUrls=_if->getConfig()->get_stringset("doc_urls","/pics,/html,/css","");
+            // mx.documentRoot=_if->getConfig()->get_string("document_root","./www","");
         }
         try {
             std::string bod;
@@ -108,7 +108,7 @@ bool HTTP::Service::on_DoListen(const httpEvent::DoListen* e)
     SOCKET_id newid=iUtils->getNewSocketId();
     msockaddr_in sa=e->addr;
     DBG(logErr2("on_DoListen %s",e->route.dump().c_str()));
-    sendEvent(socketListener,new socketEvent::AddToListenTCP(newid,sa,"HTTP",false,e->route));
+    sendEvent(socketListener,new socketEvent::AddToListenTCP(newid,sa,"HTTP",false,e->secure,e->route));
 
     return true;
 }
@@ -116,6 +116,7 @@ bool HTTP::Service::on_DoListen(const httpEvent::DoListen* e)
 bool HTTP::Service::on_startService(const systemEvent::startService*)
 {
     MUTEX_INSPECTOR;
+    printf("@@@ %s\n",__FUNCTION__);
     socketListener=dynamic_cast<ListenerBase*>(iInstance->getServiceOrCreate(ServiceEnum::Socket));
     if(!socketListener)
         throw CommonError("if(!socketListener)");
@@ -134,31 +135,33 @@ bool HTTP::Service::handleEvent(const REF_getter<Event::Base>& evt)
     MUTEX_INSPECTOR;
     auto &ID=evt->id;
 
+    switch(ID)
+    {
+    case httpEventEnum::WSWrite:
+        return on_WSWrite((httpEvent::WSWrite*)evt.get());
 
-    if( socketEventEnum::Disaccepted==ID)
-        return on_Disaccepted((const socketEvent::Disaccepted*)evt.get());
-    if( socketEventEnum::Disconnected==ID)
-        return on_Disconnected((const socketEvent::Disconnected*)evt.get());
+    case socketEventEnum::Disaccepted:
+        return on_Disaccepted((socketEvent::Disaccepted*)evt.get());
+    case socketEventEnum::Disconnected:
+        return on_Disconnected((socketEvent::Disconnected*)evt.get());
 
-    if( socketEventEnum::Accepted==ID)
+    case socketEventEnum::Accepted:
         return on_Accepted((const socketEvent::Accepted*)evt.get());
-    if( socketEventEnum::StreamRead==ID)
+    case socketEventEnum::StreamRead:
         return on_StreamRead((const socketEvent::StreamRead*)evt.get());
-    if( socketEventEnum::Connected==ID)
+    case socketEventEnum::Connected:
         return on_Connected((const socketEvent::Connected*)evt.get());
-    if( socketEventEnum::NotifyBindAddress==ID)
+    case socketEventEnum::NotifyBindAddress:
         return on_NotifyBindAddress((const socketEvent::NotifyBindAddress*)evt.get());
-    if( socketEventEnum::NotifyOutBufferEmpty==ID)
+    case socketEventEnum::NotifyOutBufferEmpty:
         return on_NotifyOutBufferEmpty((const socketEvent::NotifyOutBufferEmpty*)evt.get());
-    if( httpEventEnum::DoListen==ID)
+    case httpEventEnum::DoListen:
         return(this->on_DoListen((const httpEvent::DoListen*)evt.get()));
-    if( httpEventEnum::RegisterProtocol==ID)
-        return(this->on_RegisterProtocol((const httpEvent::RegisterProtocol*)evt.get()));
-    if( httpEventEnum::GetBindPortsREQ==ID)
+    case httpEventEnum::GetBindPortsREQ:
         return(this->on_GetBindPortsREQ((const httpEvent::GetBindPortsREQ*)evt.get()));
-    if( systemEventEnum::startService==ID)
+    case systemEventEnum::startService:
         return on_startService((const systemEvent::startService*)evt.get());
-    if( rpcEventEnum::IncomingOnAcceptor==ID)
+    case rpcEventEnum::IncomingOnAcceptor:
     {
         MUTEX_INSPECTOR;
         rpcEvent::IncomingOnAcceptor *E=(rpcEvent::IncomingOnAcceptor *)evt.get();
@@ -174,6 +177,8 @@ bool HTTP::Service::handleEvent(const REF_getter<Event::Base>& evt)
         return false;
     }
 
+    }
+
     return false;
 }
 
@@ -182,154 +187,384 @@ bool HTTP::Service::on_Accepted(const socketEvent::Accepted* evt)
     MUTEX_INSPECTOR;
     return true;
 }
+// #include "sha1.hpp"
+#include "sha1_1.hpp"
+#include "base64.hpp"
+std::string calc_key_answer(const std::string& key_ws)
+{
+    std::string rfc=         "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+    std::string k=key_ws+"258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+    unsigned char message_digest[20];
+
+
+    websocketpp::sha1::calc(k.data(),k.size(),message_digest);
+    auto key = websocketpp::base64_encode(message_digest,20);
+
+
+    return key;
+
+}
+HTTP::WebSocketFrameType HTTP::Service::WebSocket_getFrame(unsigned char* in_buffer, int in_length, /*unsigned char* out_buffer, int out_size, int* out_length,*/ std::string &o)
+{
+    if(in_length < 2) return INCOMPLETE_FRAME;
+
+    unsigned char msg_opcode = in_buffer[0] & 0x0F;
+    unsigned char msg_fin = (in_buffer[0] >> 7) & 0x01;
+    unsigned char msg_masked = (in_buffer[1] >> 7) & 0x01;
+
+    // *** message decoding
+
+    int payload_length = 0;
+    int pos = 2;
+    int length_field = in_buffer[1] & (~0x80);
+    unsigned int mask = 0;
+
+    //printf("IN:"); for(int i=0; i<20; i++) printf("%02x ",buffer[i]); printf("\n");
+
+    if(length_field <= 125) {
+        payload_length = length_field;
+    }
+    else if(length_field == 126) { //msglen is 16bit!
+        //payload_length = in_buffer[2] + (in_buffer[3]<<8);
+        payload_length = (
+                             (in_buffer[2] << 8) |
+                             (in_buffer[3])
+                         );
+        pos += 2;
+    }
+    else if(length_field == 127) { //msglen is 64bit!
+        payload_length = (
+                             (uint64_t(in_buffer[2]) << 56) |
+                             (uint64_t(in_buffer[3]) << 48) |
+                             (uint64_t(in_buffer[4]) << 40) |
+                             (uint64_t(in_buffer[5]) << 32) |
+                             (uint64_t(in_buffer[6]) << 24) |
+                             (uint64_t(in_buffer[7]) << 16) |
+                             (uint64_t(in_buffer[8]) << 8) |
+                             (uint64_t(in_buffer[9]))
+                         );
+        pos += 8;
+    }
+
+    //printf("PAYLOAD_LEN: %08x\n", payload_length);
+    if(in_length < payload_length+pos) {
+        return HTTP::INCOMPLETE_FRAME;
+    }
+
+    if(msg_masked) {
+        mask = *((unsigned int*)(in_buffer+pos));
+        //printf("MASK: %08x\n", mask);
+        pos += 4;
+
+        // unmask data:
+        unsigned char* c = in_buffer+pos;
+        for(int i=0; i<payload_length; i++) {
+            c[i] = c[i] ^ ((unsigned char*)(&mask))[i%4];
+        }
+    }
+
+    // if(payload_length > out_size) {
+    //TODO: if output buffer is too small -- ERROR or resize(free and allocate bigger one) the buffer ?
+    // }
+    o+=std::string((char*)(in_buffer+pos),payload_length);
+    // memcpy((void*)out_buffer, (void*)(in_buffer+pos), payload_length);
+    // out_buffer[payload_length] = 0;
+    // *out_length = payload_length+1;
+
+    //printf("TEXT: %s\n", out_buffer);
+
+    if(msg_opcode == 0x0) return (msg_fin)?TEXT_FRAME:INCOMPLETE_TEXT_FRAME; // continuation frame ?
+    if(msg_opcode == 0x1) return (msg_fin)?TEXT_FRAME:INCOMPLETE_TEXT_FRAME;
+    if(msg_opcode == 0x2) return (msg_fin)?BINARY_FRAME:INCOMPLETE_BINARY_FRAME;
+    if(msg_opcode == 0x9) return PING_FRAME;
+    if(msg_opcode == 0xA) return PONG_FRAME;
+
+    return ERROR_FRAME;
+}
+std::string HTTP::Service::WebSocket_makeFrame(WebSocketFrameType frame_type, unsigned char* msg, int msg_length/*, unsigned char* buffer, int buffer_size*/)
+{
+    unsigned char* buffer=(unsigned char*)malloc(msg_length+1000);
+
+    int pos = 0;
+    int size = msg_length;
+    buffer[pos++] = (unsigned char)frame_type; // text frame
+
+    if(size <= 125) {
+        buffer[pos++] = size;
+    }
+    else if(size <= 65535) {
+        buffer[pos++] = 126; //16 bit length follows
+
+        buffer[pos++] = (size >> 8) & 0xFF; // leftmost first
+        buffer[pos++] = size & 0xFF;
+    }
+    else { // >2^16-1 (65535)
+        buffer[pos++] = 127; //64 bit length follows
+
+        // write 8 bytes length (significant first)
+
+        // since msg_length is int it can be no longer than 4 bytes = 2^32-1
+        // padd zeroes for the first 4 bytes
+        for(int i=3; i>=0; i--) {
+            buffer[pos++] = 0;
+        }
+        // write the actual 32bit msg_length in the next 4 bytes
+        for(int i=3; i>=0; i--) {
+            buffer[pos++] = ((size >> 8*i) & 0xFF);
+        }
+    }
+    memcpy((void*)(buffer+pos), msg, size);
+    std::string ret((char*)buffer,size+pos);
+    free(buffer);
+    return ret;
+
+    // return (size+pos);
+}
+bool HTTP::Service::handleChunkedBuffer(const socketEvent::StreamRead* evt, const REF_getter<HTTP::Request>& W)
+{
+    auto& data=W->post_content;
+
+    int i=0;
+    while(1)
+    {
+        XTRY;
+        auto pz=data.find("\r\n",0);
+
+
+        if(pz==std::string::npos)
+        {
+            return true;
+        }
+        if(pz==0)
+        {
+            XTRY;
+            passEvent(new httpEvent::RequestChunkingCompleted(W,W->esi,W->chunkId,evt->route));
+            return true;
+            XPASS;
+        }
+
+
+        std::string len_buf=data.substr(0,pz);
+        auto chunk_size = std::stoul(len_buf, NULL, 16);
+        if(chunk_size==0)
+        {
+            passEvent(new httpEvent::RequestChunkingCompleted(W,W->esi,W->chunkId,evt->route));
+            return true;
+        }
+
+        pz=pz+2; /// + crtlf after number
+
+        size_t payload_size=chunk_size+pz+2;
+        if(data.size()>=payload_size)
+        {
+            auto chunk=data.substr(pz,chunk_size);
+            if(data.size()==payload_size)
+                data.clear();
+            else
+                data=data.substr(payload_size, data.size()- payload_size);
+            passEvent(new httpEvent::RequestChunkReceived(W,W->esi,W->chunkId++, chunk, evt->route));
+        }
+        else
+        {
+            return true;
+        }
+
+        XPASS;
+    }
+
+
+}
 bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 {
     MUTEX_INSPECTOR;
 
-
     REF_getter<HTTP::Request> W=getData(evt->esi.get());
-
-
-    W->m_last_io_time=time(NULL);
-    if (W->parse_state.count(1)==0)
+    if(W->isWebSocket)
     {
-        std::string head;
         {
             W_LOCK(evt->esi->inBuffer_.lk);
             auto &data=evt->esi->inBuffer_._mx_data;
-            auto pz=data.find("\r\n\r\n");
-            if(pz!=std::string::npos)
-            {
-                head=data.substr(0,pz);
-                data=data.substr(pz+4);
-            }
-            else
-                return true;
-//            if (!W.___ptr->__gets$(head,"\r\n\r\n", evt->esi->inBuffer_._mx_data))
-//            {
-//                return true;
-//            }
+            W->websocket_buffer+=data;
+            data.clear();
         }
-        std::deque<std::string> dq=splitStr("\r\n",head);//iUtils->splitStringDQ("\r\n",head);
-        if (dq.size())
+        std::string o;
+        auto res=WebSocket_getFrame((uint8_t*)W->websocket_buffer.data(),W->websocket_buffer.size(),/*out,sizeof(out),&outl,*/o);
+        switch(res)
         {
+        case ERROR_FRAME:
+            logErr2("case ERROR_FRAME:");
+            return true;
+            break;
 
-            std::string fl=dq[0];
-            dq.pop_front();
-            std::string::size_type pz = fl.find(" ", 0);
-            if (pz == std::string::npos)
-            {
-                return true;
-            }
-            W->METHOD =fl.substr(0, pz);
+        case INCOMPLETE_FRAME:
+            logErr2("INCOMPLETE_FRAME");
+            break;
+        case OPENING_FRAME:
+            logErr2("OPENING_FRAME");
+            break;
+        case CLOSING_FRAME:
+            logErr2("CLOSING_FRAME");
+            break;
+        case INCOMPLETE_TEXT_FRAME:
+            logErr2("INCOMPLETE_TEXT_FRAME");
+            break;
+        case INCOMPLETE_BINARY_FRAME:
+            logErr2("INCOMPLETE_BINARY_FRAME");
+            break;
+        case TEXT_FRAME:
+            W->websocket_buffer.clear();
+            // logErr2("TEXT_FRAME");
+            break;
+        case BINARY_FRAME:
+            logErr2("BINARY_FRAME");
+            break;
+        case PING_FRAME:
+            logErr2("PING_FRAME");
+            break;
+        case PONG_FRAME:
+            logErr2("PONG_FRAME");
+            break;
+        };
 
-//            if (W->METHOD != "GET" && W->METHOD != "POST")
-//            {
-//                logErr2("if (W->METHOD != GET && W->METHOD != POST)");
-//                return true;
-//            }
+        passEvent(new httpEvent::WSTextMessage(W,o,evt->route));
 
-//            auto pzProto=fl.find(" ",pz+1);
-            W->url = fl.substr(pz + 1, fl.find(" ", pz + 1) - pz - 1);
-//            W->url = fl.substr(pz + 1);
-//            W->url = iUtils->unescapeURL(W->url);
-//            if (W->url.find("..", 0) != std::string::npos)
-//            {
-//                return true;
-//            }
-        }
-        while (dq.size())
-        {
-            std::string	line=dq[0];
-            dq.pop_front();
-            std::string::size_type pop = line.find(":", 0);
-            if (pop == std::string::npos)
-            {
-                return true;
-            }
-            std::string k=line.substr(0, pop);
-            std::string v=line.substr(pop + 2, line.length() - pop - 2);
-            W->headers[k]=v;
-        }
-        if (W->headers.count("Cookie"))
-        {
-
-            std::deque <std::string> v = splitStr("; ", W->headers["Cookie"]);
-            for (unsigned int i = 0; i < v.size(); i++)
-            {
-                std::string q = v[i];
-                if (q == " ")
-                {
-                    continue;
-                }
-                size_t z;
-                z = q.find("=", 0);
-                if (z == std::string::npos)
-                {
-                    continue;
-                }
-                std::string k=q.substr(0, z);
-                std::string v=q.substr(z + 1, q.size() - z - 1);
-                W->in_cookies[k] = v;
-            }
-        }
-//        W->original_url=W->url;
-        {
-
-            std::string::size_type qp = W->url.find("?", 0);
-            if (qp != std::string::npos)
-            {
-                W->original_params=W->url.substr(qp + 1, W->url.size() - qp - 1);
-                W->split_params(W->original_params);
-                W->url = W->url.substr(0, qp);
-            }
-        }
-
-        W->parse_state.insert(1);
+        return true;
     }
 
-    if (W->parse_state.count(2)==0)
+
+    W->m_last_io_time=time(NULL);
     {
-
-        if (W->METHOD == "POST")
         {
+            W_LOCK(evt->esi->inBuffer_.lk);
+            if(!W->parse_data.done_header)
+            {
+                if(W->header_content.empty())
+                {
+                    W->header_content=std::move(evt->esi->inBuffer_._mx_data);
+                    evt->esi->inBuffer_._mx_data.clear();
+                }
+                else
+                {
+                    W->header_content.append(evt->esi->inBuffer_._mx_data);
+                    evt->esi->inBuffer_._mx_data.clear();
+                }
+            }
+            else
+            {
+                if(W->post_content.empty())
+                {
+                    W->post_content=std::move(evt->esi->inBuffer_._mx_data);
+                    evt->esi->inBuffer_._mx_data.clear();
+                }
+                else
+                {
+                    W->post_content.append(evt->esi->inBuffer_._mx_data);
+                    evt->esi->inBuffer_._mx_data.clear();
+                }
+            }
+        }
 
-            if (W->headers["Content-Type"].find("multipart/form", 0) == std::string::npos)
+
+
+
+        if(!W->parse_data.done_header)
+            W->parse(W->header_content.data(),W->header_content.size());
+        if(!W->parse_data.done_header)
+            return true;
+
+        if (W->parse_data.method == HTTP::METHOD_POST && W->parse_data.post_start)
+        {
+            if(!W->chunked)
+            {
+                if(W->parse_data.header_params.TRANSFER_ENCODING.pz)
+                {
+                    std::string_view t=W->tosv_h(W->parse_data.header_params.TRANSFER_ENCODING);
+                    if (t=="chunked")
+                    {
+                        logErr2("chunked");
+                        W->chunked=true;
+                    }
+                }
+            }
+
+        }
+
+        if(W->parse_data.header_params.CONNECTION==HTTP::CONN_UPGRADE)
+        {
+            {
+                auto ug=W->tosv_h(W->parse_data.header_params.UPGRADE);
+                if(ug=="websocket")
+                {
+                    auto vs=W->tosv_h(W->parse_data.header_params.Sec_WebSocket_Version);
+                    if(vs!="13")
+                    {
+                        /// do smth for version
+                    }
+
+                    auto key=W->tosv_h(W->parse_data.header_params.Sec_WebSocket_Key);
+                    std::stringstream o;
+                    o <<  "HTTP/1.1 101 Switching Protocols\r\n"
+                      << "Upgrade: websocket\r\n"
+                      << "Connection: Upgrade\r\n";
+                    auto ka=calc_key_answer(std::string(key));
+                    o << "Sec-WebSocket-Accept: " << ka  << "\r\n";
+                    o << "\r\n";
+                    W->isWebSocket=true;
+                    evt->esi->write_(o.str());
+                }
+            }
+        }
+
+
+
+    }
+    if(W->chunked || W->isWebSocket)
+    {
+        if(!W->sendRequestIncomingIsSent)
+        {
+            W->sendRequestIncomingIsSent=true;
+            passEvent(new httpEvent::RequestIncoming(W,evt->esi,evt->route));
+
+        }
+        if(W->chunked)
+        {
+            // logErr2("if(W->chunked)");
+            handleChunkedBuffer(evt,W);
+        }
+        return  true;
+
+    }
+
+    {
+        if (W->parse_data.method == HTTP::METHOD_POST)
+        {
+            if(W->chunked)
+            {
+                handleChunkedBuffer(evt,W);
+            }
+            std::string_view ct(W->tosv_h(W->parse_data.header_params.CONTENT_TYPE));
+            if (ct.find("application/x-www-form-urlencoded", 0) != std::string_view::npos)
             {
 
-                size_t clen = atoi(W->headers["Content-Length"].c_str());
+                size_t clen = W->parse_data.header_params.CONTENT_LENGTH;
                 if (clen <= 0 || clen > m_maxPost)
                 {
                     return true;
                 }
-                {
-                    W_LOCK(evt->esi->inBuffer_.lk);
-                    if(evt->esi->inBuffer_._mx_data.size()==clen)
-                    {
-                        W->postContent=std::move(evt->esi->inBuffer_._mx_data);
-                        evt->esi->inBuffer_._mx_data.clear();
-                    }
-                    else
-                    {
-                        W->postContent=evt->esi->inBuffer_._mx_data.substr(0,clen);
-                        evt->esi->inBuffer_._mx_data=evt->esi->inBuffer_._mx_data.substr(clen);
-                    }
-                }
-                W->split_params(W->postContent);
             }
-            else
+            else if (W->parse_data.header_params.CONTENT_TYPE.pz)
             {
 
 
                 //Multipart form
-                const std::string &t= W->headers["Content-Type"];
-                std::string::size_type pz = t.find("boundary=", 0);
+                const std::string_view t= W->tosv_h(W->parse_data.header_params.CONTENT_TYPE);
+                auto pz = t.find("boundary=", 0);
                 if (pz == std::string::npos)
                 {
 
                     return true;
                 }
-                std::string bound = "--" + t.substr(pz + 9, t.length() - pz - 9);
+                std::string bound = "--" + std::string(t.substr(pz + 9, t.length() - pz - 9));
                 std::string ebound = bound + "--";
                 std::string sbuf;
                 {
@@ -345,8 +580,6 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                         }
                         else
                             return true;
-
-//                        if (!W->__gets$(sbuf,ebound, evt->esi->inBuffer_._mx_data)) return true;
                     }
 
                     while (sbuf.size())
@@ -381,7 +614,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                                 std::string::size_type pp=s.find("\r\n");
                                 if (pp==std::string::npos)
                                 {
-                                    logErr2("bad multipart %s %d",__FILE__,__LINE__);
+                                    logErr2("bad multipart");
                                     return true;
                                 }
                                 sloc=s.substr(0,pp);
@@ -394,7 +627,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                                 std::string::size_type pz=sloc.find(": ");
                                 if (pz==std::string::npos)
                                 {
-                                    logErr2("bad multipart %s %d",__FILE__,__LINE__);
+                                    logErr2("bad multipart");
                                     return  true;
                                 }
                                 std::string key=sloc.substr(0,pz);
@@ -438,6 +671,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                                         if (key=="filename") filename=val;
                                     }
                                 }
+#ifdef PARAMS
                                 W->params[name]=content;
                                 if (filename.size())
                                     W->params[name+"_FILENAME"]=filename;
@@ -445,30 +679,20 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                                 {
                                     std::string q = iUtils->strupper(i.first);
                                     std::string k=name + "_" + q;
+
                                     W->params[k] = i.second;
                                 }
+#endif
                             }
                         }
                     }
                 }
             }
         }
-        W->parse_state.insert(2);
+        // W->parse_state.insert(2);
     }
-    if(W->headers.count("Connection"))
-    {
-        if(W->headers["Connection"]=="Keep-Alive")
-        {
-            W->isKeepAlive=true;
-        }
-        else
-        {
-            W->isKeepAlive=false;
-        }
-    }
-    else
-    {
-    }
+
+
 
 
     if(!W->sendRequestIncomingIsSent)
@@ -563,7 +787,7 @@ bool HTTP::Service::on_NotifyOutBufferEmpty(const socketEvent::NotifyOutBufferEm
                 return true;
             }
 
-            e->esi->write_((char*)buf.buf,res);
+            e->esi->write_buf((char*)buf.buf,res);
             F->written_bytes+=res;
             return true;
         }
@@ -575,11 +799,11 @@ void registerHTTPModule(const char* pn)
 {
     if(pn)
     {
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::HTTP,"HTTP",getEvents_http());
+        iUtils->registerPlugingInfo(pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::HTTP,"HTTP",getEvents_http());
     }
     else
     {
-        iUtils->registerService(COREVERSION,ServiceEnum::HTTP,HTTP::Service::construct,"HTTP");
+        iUtils->registerService(ServiceEnum::HTTP,HTTP::Service::construct,"HTTP");
         regEvents_http();
     }
 }
@@ -595,7 +819,8 @@ std::string datef(const time_t &__t)
                                         };
 
     char outstr[200];
-    struct tm tt=*localtime(&t);
+    struct tm tt;
+    localtime_r(&t,&tt);
     snprintf(outstr,sizeof(outstr),"%s, %02d %s %d %02d:%02d:%02d GMT",
              wkday[tt.tm_wday%7],tt.tm_mday,month[tt.tm_mon%12],tt.tm_year+1900,tt.tm_hour,tt.tm_min,tt.tm_sec);
     return outstr;
@@ -665,7 +890,7 @@ std::string datef(const time_t &__t)
     }
 
     F->contentLength=0;
-    if (!W->headers.count("Range"))
+    if (W->parse_data.header_params.RANGE.pz==0)
     {
 
         F->startb=0;
@@ -680,7 +905,7 @@ std::string datef(const time_t &__t)
         F->startb=0;
         F->endb=F->fileSize-1;
         F->hasRange=true;
-        std::string s = W->headers["Range"];
+        std::string s(W->tosv_h(W->parse_data.header_params.RANGE));
         size_t n = s.find("=", 0);
         if (n != std::string::npos)
         {
@@ -724,12 +949,13 @@ std::string datef(const time_t &__t)
     time_t last_modified;
     {
         M_LOCK(lastModified);
-        if(lastModified.container.count(W->url))
-            last_modified=lastModified.container[W->url];
+        auto url=W->uri();
+        if(lastModified.container.count(url))
+            last_modified=lastModified.container[url];
         else
         {
             last_modified=time(NULL);
-            lastModified.container[W->url]=last_modified;
+            lastModified.container[url]=last_modified;
         }
 
     }
@@ -757,10 +983,10 @@ std::string datef(const time_t &__t)
 
     out.push_back("Last-Modified: "+datef(last_modified)+"\r\n");
 
-    if(W->isKeepAlive)
-        out.push_back("Connection: keep-alive\r\n");
+    if(W->parse_data.header_params.CONNECTION==HTTP::CONN_KEEP_ALIVE)
+        out.push_back("Connection: Keep-Alive\r\n");
     else
-        out.push_back("Connection: close\r\n");
+        out.push_back("Connection: Close\r\n");
 
 
     if(F->hasRange)
@@ -807,27 +1033,46 @@ std::string datef(const time_t &__t)
 
 
 
-bool HTTP::Service::on_Disaccepted(const socketEvent::Disaccepted*e)
+bool HTTP::Service::on_Disaccepted( socketEvent::Disaccepted*e)
 {
     MUTEX_INSPECTOR;
+    REF_getter<HTTP::Request> rq=getData(e->esi.get());
+    if(rq.valid())
+    {
+        if(rq->isWebSocket)
+        {
+            passEvent(new httpEvent::WSDisaccepted(rq,e->route));
+        }
+    }
     clearData(e->esi.get());
     return true;
 }
-bool HTTP::Service::on_Disconnected(const socketEvent::Disconnected*e)
+bool HTTP::Service::on_Disconnected( socketEvent::Disconnected*e)
 {
     MUTEX_INSPECTOR;
+    REF_getter<HTTP::Request> rq=getData(e->esi.get());
+    if(rq.valid())
+    {
+        if(rq->isWebSocket)
+        {
+            passEvent(new httpEvent::WSDisconnected(rq,e->route));
+        }
+    }
+
+
     clearData(e->esi.get());
+
     return true;
 }
 
 
 REF_getter<HTTP::Request> HTTP::Service::getData(epoll_socket_info* esi)
 {
-
+    W_LOCK (esi->additions_lk);
     auto it=esi->additions_.find(ServiceEnum::HTTP);
     if(it==esi->additions_.end())
     {
-        REF_getter<Refcountable> p=new HTTP::Request;
+        REF_getter<Refcountable> p=new HTTP::Request(esi);
         esi->additions_.insert(std::make_pair(ServiceEnum::HTTP,p));
         it=esi->additions_.find(ServiceEnum::HTTP);
     }
@@ -839,11 +1084,22 @@ REF_getter<HTTP::Request> HTTP::Service::getData(epoll_socket_info* esi)
 }
 void HTTP::Service::setData(epoll_socket_info* esi, const REF_getter<HTTP::Request> & p)
 {
+    W_LOCK (esi->additions_lk);
     esi->additions_.insert(std::make_pair(ServiceEnum::HTTP,p.get()));
 
 }
 void HTTP::Service::clearData(epoll_socket_info* esi)
 {
+    W_LOCK (esi->additions_lk);
     esi->additions_.erase(ServiceEnum::HTTP);
 
+}
+
+
+bool HTTP::Service::on_WSWrite(const httpEvent::WSWrite* e)
+{
+    // printf("on_WSWrite %s",e->msg.c_str());
+    std::string msg=WebSocket_makeFrame(TEXT_FRAME,(unsigned char*)e->msg.data(),e->msg.size());
+    e->r->esi->write_(msg);
+    return true;
 }

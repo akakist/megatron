@@ -3,21 +3,21 @@
 #include "Real.h"
 #include "SERVICE_id.h"
 #include "event_mt.h"
-#include "genum.hpp"
+
 namespace ServiceEnum
 {
-    const SERVICE_id Timer(genum_Timer);
+    const SERVICE_id Timer(ghash("@g_Timer"));
 }
 
 namespace timerEventEnum
 {
-    const EVENT_id SetTimer(genum_timerSetTimer);
-    const EVENT_id SetAlarm(genum_timerSetAlarm);
-    const EVENT_id ResetAlarm(genum_timerResetAlarm);
-    const EVENT_id StopTimer(genum_timerStopTimer);
-    const EVENT_id StopAlarm(genum_timerStopAlarm);
-    const EVENT_id TickTimer(genum_timerTickTimer);
-    const EVENT_id TickAlarm(genum_timerTickAlarm);
+    const EVENT_id SetTimer(ghash("@g_timerSetTimer"));
+    const EVENT_id SetAlarm(ghash("@g_timerSetAlarm"));
+    const EVENT_id ResetAlarm(ghash("@g_timerResetAlarm"));
+    const EVENT_id StopTimer(ghash("@g_timerStopTimer"));
+    const EVENT_id StopAlarm(ghash("@g_timerStopAlarm"));
+    const EVENT_id TickTimer(ghash("@g_timerTickTimer"));
+    const EVENT_id TickAlarm(ghash("@g_timerTickAlarm"));
 }
 
 namespace timerEvent
@@ -32,8 +32,8 @@ namespace timerEvent
         }
         const int tid;
         REF_getter<refbuffer> data;
-        REF_getter<refbuffer> cookie;
-        TickTimer(const int& _tid,const REF_getter<refbuffer>& _data,const REF_getter<refbuffer>& _cookie, const route_t & r):NoPacked(timerEventEnum::TickTimer,r),
+        REF_getter<Refcountable> cookie;
+        TickTimer(const int& _tid,const REF_getter<refbuffer>& _data,const REF_getter<Refcountable>& _cookie, const route_t & r):NoPacked(timerEventEnum::TickTimer,r),
             tid(_tid),data(_data),cookie(_cookie)
         {
             if(!data.valid())
@@ -41,10 +41,6 @@ namespace timerEvent
             if(!cookie.valid())
                 cookie=new refbuffer;
 
-        }
-        void jdump(Json::Value &v) const
-        {
-            v["tid"]=tid;
         }
     };
 
@@ -57,8 +53,8 @@ namespace timerEvent
         }
         const int tid;
         REF_getter<refbuffer> data;
-        REF_getter<refbuffer> cookie;
-        TickAlarm(const int& _tid,const REF_getter<refbuffer>& _data,const REF_getter<refbuffer>& _cookie, const route_t & r):NoPacked(timerEventEnum::TickAlarm,r),
+        REF_getter<Refcountable> cookie;
+        TickAlarm(const int& _tid,const REF_getter<refbuffer>& _data,const REF_getter<Refcountable>& _cookie, const route_t & r):NoPacked(timerEventEnum::TickAlarm,r),
             tid(_tid),data(_data),cookie(_cookie)
         {
             if(!data.valid())
@@ -66,10 +62,6 @@ namespace timerEvent
             if(!cookie.valid())
                 cookie=new refbuffer;
 
-        }
-        void jdump(Json::Value &v) const
-        {
-            v["tid"]=tid;
         }
     };
 
@@ -88,10 +80,6 @@ namespace timerEvent
             if(!data.valid())
                 data=new refbuffer;
         }
-        void jdump(Json::Value &v) const
-        {
-            v["tid"]=tid;
-        }
     };
 
     class StopAlarm:public Event::NoPacked
@@ -109,10 +97,6 @@ namespace timerEvent
             if(!data.valid())
                 data=new refbuffer;
         }
-        void jdump(Json::Value &v) const
-        {
-            v["tid"]=tid;
-        }
     };
 
     class SetTimer:public Event::NoPacked
@@ -124,9 +108,9 @@ namespace timerEvent
         }
         const int tid;
         REF_getter<refbuffer> data;
-        REF_getter<refbuffer> cookie;
+        REF_getter<Refcountable> cookie;
         const real delay_secs;
-        SetTimer(const int &_id, const REF_getter<refbuffer>& _data, const REF_getter<refbuffer>& _cookie, const real&  _delay_secs, const route_t& r)
+        SetTimer(const int &_id, const REF_getter<refbuffer>& _data, const REF_getter<Refcountable>& _cookie, const real&  _delay_secs, const route_t& r)
             :NoPacked(timerEventEnum::SetTimer,r),
              tid(_id),data(_data),cookie(_cookie),
              delay_secs(_delay_secs)
@@ -136,10 +120,6 @@ namespace timerEvent
             if(!cookie.valid())
                 cookie=new refbuffer;
 
-        }
-        void jdump(Json::Value &v) const
-        {
-            v["tid"]=tid;
         }
     };
     class SetAlarm:public Event::NoPacked
@@ -151,9 +131,9 @@ namespace timerEvent
         }
         const int tid;
         REF_getter<refbuffer> data;
-        REF_getter<refbuffer> cookie;
+        REF_getter<Refcountable> cookie;
         const real delay_secs;
-        SetAlarm(const int &_id, const REF_getter<refbuffer>& _data, const REF_getter<refbuffer>& _cookie, const real&  _delay_secs, const route_t& r)
+        SetAlarm(const int &_id, const REF_getter<refbuffer>& _data, const REF_getter<Refcountable>& _cookie, const real&  _delay_secs, const route_t& r)
             :NoPacked(timerEventEnum::SetAlarm,r),
              tid(_id),data(_data),cookie(_cookie),
              delay_secs(_delay_secs)
@@ -163,10 +143,6 @@ namespace timerEvent
             if(!cookie.valid())
                 cookie=new refbuffer;
 
-        }
-        void jdump(Json::Value &v) const
-        {
-            v["tid"]=tid;
         }
     };
 
@@ -179,9 +155,9 @@ namespace timerEvent
         }
         const int tid;
         REF_getter<refbuffer> data;
-        REF_getter<refbuffer> cookie;
+        REF_getter<Refcountable> cookie;
         const real delay_secs;
-        ResetAlarm(const int &_id, const REF_getter<refbuffer>& _data, const REF_getter<refbuffer>& _cookie, const real&  _delay_secs, const route_t& r)
+        ResetAlarm(const int &_id, const REF_getter<refbuffer>& _data, const REF_getter<Refcountable>& _cookie, const real&  _delay_secs, const route_t& r)
             :NoPacked(timerEventEnum::ResetAlarm,r),
              tid(_id),data(_data),cookie(_cookie),
              delay_secs(_delay_secs)
@@ -191,10 +167,6 @@ namespace timerEvent
             if(!cookie.valid())
                 cookie=new refbuffer;
 
-        }
-        void jdump(Json::Value &v) const
-        {
-            v["tid"]=tid;
         }
     };
 }

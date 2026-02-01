@@ -8,7 +8,6 @@
 #include "IInstance.h"
 #include "listenerBuffered1Thread.h"
 #include "broadcaster.h"
-#include <ostream>
 
 
 #include "Events/System/Run/startServiceEvent.h"

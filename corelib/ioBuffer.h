@@ -52,7 +52,7 @@ public:
     void unpack(std::string& s, int64_t size);
 
     /// get 'size' bytes into 'buf', throws if reminder < size
-    void unpack(uint8_t* buf, size_t sz);
+    void unpack(void* buf, size_t sz);
 
     /// get 'size' bytes into 's', nothrows, success indicate that buffer enough
     void unpack_nothrow(std::string& s, size_t size, bool &success);
@@ -100,27 +100,28 @@ public:
 */
 class outBuffer
 {
+public:
 private:
     outBuffer(const outBuffer&);             // Not defined to prevent usage
     outBuffer& operator=(const outBuffer&);  // Not defined to prevent usage
 
-    REF_getter<refbuffer> buffer;
-    size_t bufsize;
-    size_t cur_pos;
+    // size_t bufsize;
+    // size_t cur_pos;
 
-    void adjust(size_t n);
-    void construct();
+    // void adjust(size_t n);
+    // void construct();
 
     outBuffer& Pack$(const std::string& s );
     outBuffer& put_PN$(const uint64_t &N);
     outBuffer& put_8$(unsigned char c)
     {
-        buffer->buffer[cur_pos++]=c;
+        buffer->container+=((char)c);
         return *this;
     }
 
 public:
 
+    REF_getter<refbuffer> buffer;
 
     outBuffer();
     ~outBuffer();
@@ -130,7 +131,7 @@ public:
     /// pack data
     outBuffer& pack(const std::string& s);
     outBuffer& pack(const char * s, size_t len);
-    outBuffer& pack(const unsigned char * s, size_t len);
+    outBuffer& pack(const void * s, size_t len);
 
     const unsigned char *data()const;
     unsigned char *const_data()const;

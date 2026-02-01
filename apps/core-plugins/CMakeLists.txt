@@ -1,4 +1,3 @@
-#cmake_minimum_required (VERSION 2.6)
 
 add_library(core-modules SHARED
 core-modules.cpp 
@@ -31,6 +30,6 @@ core-modules.cpp
 ../../modules/webHandler/webHandlerService.cpp
 
 )
-target_link_libraries(core-modules megatron-core crypto)
+target_link_libraries(core-modules megatron-core ${OPENSSL_LIBRARIES})
 install(TARGETS core-modules DESTINATION ${PLUGIN_TARGET_DIR})
 

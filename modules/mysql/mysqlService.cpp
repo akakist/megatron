@@ -3,7 +3,7 @@
 #include "IUtils.h"
 #include "mysqlService.h"
 #include <string>
-#include <mysql/mysql.h>
+#include <mysql.h>
 #include "commonError.h"
 #ifdef _WIN32
 #include "compat_win32.h"
@@ -23,7 +23,6 @@
 #pragma comment(lib, "libmysql.lib")
 #endif
 #include "_QUERY.h"
-#include "version_mega.h"
 #include "st_malloc.h"
 #include "mutexInspector.h"
 
@@ -81,6 +80,7 @@ REF_getter<QueryResult> DBH_mysql::exec(const std::string &query)
         logErr2("exec: mysql_real_query failed on query: [%s] error [%s]", query.c_str(),mysql_error(dbh));
         throw CommonError("exec: mysql_real_query failed on query: [%s] error [%s]", query.c_str(),mysql_error(dbh));
     }
+
 
     int sets_cnt=0;
 
@@ -159,7 +159,7 @@ std::string DBH_mysql::escape(const std::string& s)
 
     //char* to=(char*)alloca(s.size()*2+2);
     st_malloc buf(s.size()*2);
-//    if (!buf.buf) throw CommonError("alloca failed %s %d",__FILE__,__LINE__);
+//    if (!buf.buf) throw CommonError("alloca failed");
     size_t len=mysql_real_escape_string(dbh, (char*)buf.buf, s.data(), (unsigned long)s.size()) ;
     return std::string((char*)buf.buf,len);
 
@@ -168,6 +168,12 @@ void DBH_mysql::makeConnection(const mysqlConf& conf)
 {
     dbh=new MYSQL;
     mysql_init(dbh);
+    // my_bool enforce_tls= 0;
+    // mysql_optionsv(dbh, MYSQL_OPT_SSL_ENFORCE, (void *)&enforce_tls);
+
+    dbh->options.use_ssl=0;
+    // dbh->options.s
+
     MYSQL* r=mysql_real_connect(dbh,
                                 conf.host=="NULL"?NULL:conf.host.c_str(),
                                 conf.user=="NULL"?NULL:conf.user.c_str(),
@@ -181,17 +187,20 @@ void DBH_mysql::makeConnection(const mysqlConf& conf)
 
         const char *e=mysql_error(dbh);
         char errs[500];
-        snprintf(errs,sizeof(errs),"mysql_real_connect to '%s' failed [%s]",conf.database.c_str(),e?e:"mysql error undefined");
+        snprintf(errs,sizeof(errs),"mysql_real_connect to '%s' failed [%s] in svs",conf.database.c_str(),e?e:"mysql error undefined");
         logErr2(errs);
         delete dbh;
         dbh=NULL;
         logErr2(errs);
         throw CommonError(errs);
     }
-    if (conf.start_code.size())
-    {
-        execSimple(conf.start_code);
-    }
+    // my_bool enforce_tls= 0;
+    // mysql_optionsv(dbh, MYSQL_OPT_SSL_ENFORCE, (void *)&enforce_tls);
+
+    // if (conf.start_code.size())
+    // {
+    //     execSimple(conf.start_code);
+    // }
 }
 DBH_mysql::~DBH_mysql()
 {
@@ -218,15 +227,15 @@ DBH_source_mysql::DBH_source_mysql(const SERVICE_id& _id, const std::string&  nm
 {
 
     IConfigObj* conf=ifa->getConfig();
-    cfg.max_connections=conf->get_int64_t2("mysql.max_connections",20,"");
-    cfg.host=conf->get_string2("mysql.host","NULL","");
-    cfg.user=conf->get_string2("mysql.user","root","");
-    cfg.passwd=conf->get_string2("mysql.passwd","NULL","");
-    cfg.database=conf->get_string2("mysql.database","md","");
-    cfg.start_code=conf->get_string2("mysql.start_code","SET NAMES utf8","");
-    cfg.port=conf->get_int64_t2("mysql.port",0,"");
-    cfg.sock=conf->get_string2("mysql.sock","NULL","");
-    std::string sflag=conf->get_string2("mysql.flag","","");
+    cfg.max_connections=conf->get_int64_t2("mysql_max_connections",20,"");
+    cfg.host=conf->get_string2("mysql_host","NULL","");
+    cfg.user=conf->get_string2("mysql_user","root","");
+    cfg.passwd=conf->get_string2("mysql_passwd","NULL","");
+    cfg.database=conf->get_string2("mysql_database","md","");
+    // cfg.start_code=conf->get_string2("mysql_start_code","SET NAMES utf8","");
+    cfg.port=conf->get_int64_t2("mysql_port",0,"");
+    cfg.sock=conf->get_string2("mysql_sock","NULL","");
+    std::string sflag=conf->get_string2("mysql_flag","","");
     std::vector<std::string> v=iUtils->splitString("|",sflag);
     cfg.flag=0;
     for (size_t i=0; i<v.size(); i++)
@@ -320,11 +329,11 @@ void registerMysqlModule(const char*pn)
     if(pn)
     {
         std::set<EVENT_id>evts;
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::Mysql,"mysql",evts);
+        iUtils->registerPlugingInfo(pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::Mysql,"mysql",evts);
     }
     else
     {
-        iUtils->registerService(COREVERSION,ServiceEnum::Mysql,DBH_source_mysql::construct,"mysql");
+        iUtils->registerService(ServiceEnum::Mysql,DBH_source_mysql::construct,"mysql");
     }
     XPASS;
 

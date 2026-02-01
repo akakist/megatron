@@ -1,4 +1,6 @@
 #include "broadcaster.h"
+#include "mutexInspector.h"
+#include "commonError.h"
 void Broadcaster::sendEvent(const SERVICE_id& svs, const REF_getter<Event::Base>&e)
 {
     XTRY;

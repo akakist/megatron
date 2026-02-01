@@ -3,6 +3,7 @@
 #include "IUtils.h"
 #include "ioBuffer.h"
 #include "mutexInspector.h"
+#include "commonError.h"
 
 
 
@@ -10,7 +11,7 @@ inBuffer::inBuffer(const unsigned char* d, size_t siz) :  out_pos(0), m_size(siz
 inBuffer::inBuffer(const char* d, size_t siz) :  out_pos(0), m_size(siz), m_data(( unsigned char*)d) { }
 
 inBuffer::inBuffer(const std::string& s) :  out_pos(0), m_size(s.size()), m_data(( unsigned char*)s.data()) { }
-inBuffer::inBuffer(const REF_getter<refbuffer>& s) :  out_pos(0), m_size(s->size_), m_data(( unsigned char*)s->buffer) { }
+inBuffer::inBuffer(const REF_getter<refbuffer>& s) :  out_pos(0), m_size(s->container.size()), m_data(( unsigned char*)s->container.data()) { }
 
 unsigned char inBuffer::get_8()
 {
@@ -25,32 +26,35 @@ unsigned char inBuffer::get_8()
 outBuffer& outBuffer::pack(const std::string& s)
 {
     XTRY;
-    adjust(s.size());
-    memcpy(&buffer->buffer[cur_pos],s.data(),s.size());
-    cur_pos+=s.size();
+    buffer->container+=s;
+    // adjust(s.size());
+    // memcpy(&buffer->buffer[cur_pos],s.data(),s.size());
+    // cur_pos+=s.size();
     XPASS;
     return *this;
 }
 outBuffer& outBuffer::pack(const char * s, size_t len)
 {
     XTRY;
-    adjust(len);
-    memcpy(&buffer->buffer[cur_pos],s,len);
-    cur_pos+=len;
+    buffer->container.append(s,len);
+    // adjust(len);
+    // memcpy(&buffer->buffer[cur_pos],s,len);
+    // cur_pos+=len;
     XPASS;
     return *this;
 }
-outBuffer& outBuffer::pack(const unsigned char * s, size_t len)
+outBuffer& outBuffer::pack(const void * s, size_t len)
 {
     XTRY;
-    adjust(len);
-    memcpy(&buffer->buffer[cur_pos],s,len);
-    cur_pos+=len;
+    // adjust(len);
+    buffer->container.append((char*)s,len);
+    // memcpy(&buffer->buffer[cur_pos],s,len);
+    // cur_pos+=len;
     XPASS;
     return *this;
 }
 
-void inBuffer::unpack(uint8_t* buf, size_t sz)
+void inBuffer::unpack(void* buf, size_t sz)
 {
     if (sz > m_size-out_pos)
     {
@@ -92,59 +96,62 @@ void inBuffer::unpack(std::string& s, int64_t size)
 }
 void outBuffer::clear()
 {
-    cur_pos=0;
+    buffer->container.clear();
+    // cur_pos=0;
 }
 REF_getter<refbuffer> outBuffer::asString() const
 {
 
-    buffer->size_=cur_pos;
-    buffer->buffer=(uint8_t*)realloc(buffer->buffer,buffer->size_+0x20);
-    if(!buffer->buffer)
-        throw std::runtime_error("alloc error");
-    buffer->capacity=buffer->size_+0x20;
     return buffer;
+    // buffer->size_=cur_pos;
+    // buffer->buffer=(uint8_t*)realloc(buffer->buffer,buffer->size_+0x20);
+    // if(!buffer->buffer)
+    //     throw std::runtime_error("alloc error");
+    // buffer->capacity=buffer->size_+0x20;
+    // return buffer;
 }
-outBuffer::outBuffer():buffer(nullptr), bufsize(0),cur_pos(0)
+outBuffer::outBuffer(): buffer(new refbuffer)//:buffer(nullptr), bufsize(0),cur_pos(0)
 {
-    construct();
+    // construct();
 }
 #define SPLICE__ 0x400
-void outBuffer::construct()
-{
-    buffer=new refbuffer;
+// void outBuffer::construct()
+// {
+//     ;
 
-    buffer->buffer=(unsigned char*)malloc(SPLICE__);
-    buffer->capacity=SPLICE__;
-    if (buffer==nullptr) throw CommonError("alloc error %s %d",__FILE__,__LINE__);
-    bufsize=SPLICE__;
-    cur_pos=0;
+//     // buffer->buffer=(unsigned char*)malloc(SPLICE__);
+//     // buffer->capacity=SPLICE__;
+//     // if (buffer==nullptr) throw CommonError("alloc error");
+//     // bufsize=SPLICE__;
+//     // cur_pos=0;
 
-}
+// }
 
 outBuffer::~outBuffer()
 {
 
 }
-void outBuffer::adjust(size_t n)
-{
+// void outBuffer::adjust(size_t n)
+// {
 
-    XTRY;
-    if (cur_pos+n>=bufsize)
-    {
-        size_t nnew=cur_pos+n+0x10000;
-        buffer->buffer=(unsigned char*)realloc(buffer->buffer,nnew);
-        if (!buffer->buffer) throw CommonError("alloc error sz=%d %s %d",nnew,__FILE__,__LINE__);
-        bufsize=nnew;
-    }
+//     XTRY;
+//     if (cur_pos+n>=bufsize)
+//     {
+//         size_t nnew=cur_pos+n+0x10000;
+//         buffer->buffer=(unsigned char*)realloc(buffer->buffer,nnew);
+//         if (!buffer->buffer) throw CommonError("alloc error sz=%d",nnew);
+//         bufsize=nnew;
+//     }
 
-    XPASS;
-}
+//     XPASS;
+// }
 
 outBuffer& outBuffer::put_8(unsigned char c)
 {
     XTRY;
-    adjust(1);
-    buffer->buffer[cur_pos++]=c;
+    // adjust(1);
+    buffer->container+=(char)c;
+    // buffer->buffer[cur_pos++]=c;
     XPASS;
     return *this;
 
@@ -186,7 +193,6 @@ std::string inBuffer::get_PSTR_nothrow(bool &success)
 outBuffer& outBuffer::put_PSTR(const std::string & c)
 {
     XTRY;
-    adjust(10+c.size());
     put_PN$((unsigned long)c.size());
     Pack$(c);
     XPASS;
@@ -278,13 +284,13 @@ outBuffer& outBuffer::operator<<(const bool &c)
 
 size_t outBuffer::size() const
 {
-    return cur_pos;
+    return buffer->container.size();
 }
 
 outBuffer& outBuffer::put_PN$(const uint64_t &N)
 {
     XTRY;
-    adjust(10);
+    // adjust(10);
     int start=63;
 
     /// loop to skip spaces
@@ -316,8 +322,9 @@ outBuffer& outBuffer::put_PN$(const uint64_t &N)
 
 outBuffer& outBuffer::Pack$(const std::string& s )
 {
-    memcpy(&buffer->buffer[cur_pos],s.data(),s.size());
-    cur_pos+=(int)s.size();
+    buffer->container+=s;
+    // memcpy(&buffer->buffer[cur_pos],s.data(),s.size());
+    // cur_pos+=(int)s.size();
     return *this;
 }
 
@@ -339,11 +346,11 @@ bool inBuffer::beforeEnd() const
 }
 const unsigned char *outBuffer::data()const
 {
-    return buffer->buffer;
+    return (unsigned char *)buffer->container.data();
 }
 unsigned char *outBuffer::const_data()const
 {
-    return buffer->buffer;
+    return (unsigned char *)buffer->container.data();
 }
 
 outBuffer & operator<< (outBuffer& b,const REF_getter<refbuffer> &s)
@@ -352,10 +359,10 @@ outBuffer & operator<< (outBuffer& b,const REF_getter<refbuffer> &s)
     bool packed=false;
     if(s.valid())
     {
-        if(s->buffer)
+        // if(s->buffer)
         {
-            b.put_PN(s->size_);
-            b.pack(s->buffer,s->size_);
+            b.put_PN(s->container.size());
+            b.pack(s->container);
             packed=true;
         }
     }
@@ -369,13 +376,58 @@ inBuffer & operator>> (inBuffer& b,  REF_getter<refbuffer> &s)
 
     auto size= static_cast<size_t>(b.get_PN());
     s=new refbuffer;
-    if(size)
-    {
-        s->buffer=(uint8_t*)malloc(size+0x20);
-        if(!s->buffer) throw CommonError("memory alloc error %d",size);
-        s->size_=size;
-        s->capacity=size+0x20;
-        b.unpack(s->buffer,s->size_);
-    }
+    b.unpack(s->container,size);
+    // if(size)
+    // {
+    //     s->buffer=(uint8_t*)malloc(size+0x20);
+    //     if(!s->buffer) throw CommonError("memory alloc error %d",size);
+    //     s->size_=size;
+    //     s->capacity=size+0x20;
+    //     b.unpack(s->buffer,s->size_);
+    // }
     return b;
+}
+
+#include <cstdint>
+#include <cstring>
+#include <arpa/inet.h>  // для htonl/ntohl
+
+// Host to Network для 64-bit
+uint64_t htonll(uint64_t host_value) {
+    // Проверяем endianness системы
+    static const union { 
+        uint32_t i; 
+        uint8_t c[4]; 
+    } test = {0x01020304};
+    
+    // Если система big-endian, ничего не меняем
+    if (test.c[0] == 0x01) {
+        return host_value;
+    }
+    // Если little-endian - меняем порядок байт
+    else {
+        uint32_t low_part = htonl(static_cast<uint32_t>(host_value & 0xFFFFFFFF));
+        uint32_t high_part = htonl(static_cast<uint32_t>(host_value >> 32));
+        return (static_cast<uint64_t>(low_part) << 32) | high_part;
+    }
+}
+
+// Network to Host для 64-bit
+uint64_t ntohll(uint64_t network_value) {
+    // Обратное преобразование идентично прямому
+    return htonll(network_value);
+}
+// Преобразование double к сетевому порядку
+uint64_t double_to_network(double value) {
+    uint64_t temp;
+    std::memcpy(&temp, &value, sizeof(double));
+    return htonll(temp);  // host to network (big-endian)
+}
+
+// Преобразование обратно к double
+double network_to_double(uint64_t network_value) {
+    uint64_t host_value = ntohll(network_value);  // network to host
+    double result;
+    std::memcpy(&result, &host_value, sizeof(double));
+    return result;
 }

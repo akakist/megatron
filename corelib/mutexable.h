@@ -2,9 +2,10 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
-#include "commonError.h"
+// #include "commonError.h"
 #include "mtimespec.h"
 #include <pthread.h>
+#include <unistd.h>
 #ifdef _WIN32
 #include <windows.h>
 #endif
@@ -164,25 +165,9 @@ public:
     {
         lock_rw=PTHREAD_RWLOCK_INITIALIZER;
     }
-    void wrlock() const
-    {
-        int err=pthread_rwlock_wrlock(&lock_rw);
-        if(err!=0)
-            throw CommonError("pthread_rwlock_wrlock: %s",strerror((errno)));
-    }
-    void rdlock() const
-    {
-        int err=pthread_rwlock_rdlock(&lock_rw);
-        if(err!=0)
-            throw CommonError("pthread_rwlock_rdlock: %s",strerror((errno)));
-    }
-    void unlock() const
-    {
-        int err=pthread_rwlock_unlock(&lock_rw);
-        if(err!=0)
-            throw CommonError("pthread_rwlock_unlock: %s",strerror((errno)));
-
-    }
+    void wrlock() const;
+    void rdlock() const;
+    void unlock() const;
     ~RWLock()
     {
     }

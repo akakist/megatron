@@ -32,7 +32,7 @@ st_DBH::~st_DBH()
             dbh->exec((std::string)"ROLLBACK");
     }
 
-    if (!m_source) logErr2("undefined DBH_source %s %d",__FILE__,__LINE__);
+    if (!m_source) logErr2("undefined DBH_source");
     m_source->unget(dbh);
 }
 
@@ -67,7 +67,7 @@ std::string DBH::select_1(const QUERY &q)
     MUTEX_INSPECTOR;
     REF_getter<QueryResult> r=exec(q);
     if(r->values.size()!=1) return "";
-    if(r->values[0].size()!=1) throw CommonError("if(r->values[0].size()!=1) %s %d",__FILE__,__LINE__);
+    if(r->values[0].size()!=1) throw CommonError("if(r->values[0].size()!=1)");
     if(r->values[0].size()==1)
     {
         return r->values[0][0];
@@ -79,7 +79,7 @@ std::string DBH::select_1_orThrow(const QUERY &q)
     MUTEX_INSPECTOR;
     REF_getter<QueryResult> r=exec(q);
     if(r->values.size()!=1) throw CommonError("select_1_orThrow: "+q.prepare()+_DMI());
-    if(r->values[0].size()!=1) throw CommonError("if(r->values[0].size()!=1) %s %d",__FILE__,__LINE__);
+    if(r->values[0].size()!=1) throw CommonError("if(r->values[0].size()!=1)");
     if(r->values[0].size()==1)
     {
         return r->values[0][0];
@@ -93,7 +93,7 @@ std::string DBH::select_1_orThrow(const std::string &q)
     if(r->values.size()!=1) throw CommonError("select_1_orThrow: "+q+_DMI());
     if(r->values.size()==1)
     {
-        if(r->values[0].size()!=1) throw CommonError("if(r->values[0].size()!=1) %s %d",__FILE__,__LINE__);
+        if(r->values[0].size()!=1) throw CommonError("if(r->values[0].size()!=1)");
         if(r->values[0].size()==1)
         {
             return r->values[0][0];
@@ -109,7 +109,7 @@ std::string DBH::select_1(const std::string &q)
     if(r->values.size()!=1) return "";
     if(r->values.size()==1)
     {
-        if(r->values[0].size()!=1) throw CommonError("if(r->values[0].size()!=1) %s %d",__FILE__,__LINE__);
+        if(r->values[0].size()!=1) throw CommonError("if(r->values[0].size()!=1)");
         if(r->values[0].size()==1)
         {
             return r->values[0][0];
@@ -214,4 +214,37 @@ std::set<std::string> DBH::select_1_columnSet(const std::string&q)
     }
     return ret;
 
+}
+
+
+DBH_feature::DBH_feature(IInstance* ifa)
+{
+    dbh_src=dynamic_cast<DBH_source*>(ifa->getServiceOrCreate(ServiceEnum::Mysql));
+    if(!dbh_src)
+        throw CommonError("if(!dbh_src)");
+}
+
+
+st_TRANSACTION::st_TRANSACTION(const REF_getter<DBH> &df)
+    :dbh(df),exitState(___ROLLBACK)
+{
+    dbh->exec((std::string)"BEGIN");
+
+}
+st_TRANSACTION::~st_TRANSACTION()
+{
+    switch (exitState) {
+    case ___UNDEF:
+        logErr2("exitState UNDEF");
+        break;
+    case ___COMMIT:
+        dbh->exec((std::string)"COMMIT");
+        break;
+    case ___ROLLBACK:
+        dbh->exec((std::string)"ROLLBACK");
+        break;
+    default:
+        logErr2("exitState UNDEF");
+        break;
+    }
 }

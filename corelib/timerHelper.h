@@ -4,6 +4,7 @@
 #include "mutexInspector.h"
 #include "Events/System/timerEvent.h"
 #include "mutexable.h"
+#include "commonError.h"
 class _timerValues: public Mutexable
 {
     std::map<int,real> values;
@@ -37,15 +38,15 @@ public:
         tw.set(tid,value);
     }
     TimerHelper(IInstance* _ifa): ifa(_ifa) {}
-    void setAlarm(int tid,const REF_getter<refbuffer>&data, const REF_getter<refbuffer>&cookie, const route_t& r)
+    void setAlarm(int tid,const REF_getter<refbuffer>&data, const REF_getter<Refcountable>&cookie, const route_t& r)
     {
         ifa->sendEvent(ServiceEnum::Timer,new timerEvent::SetAlarm(tid,data,cookie,getTimerValue(tid),r));
     }
-    void setTimer(int tid,const REF_getter<refbuffer>&data, const REF_getter<refbuffer>&cookie, const route_t& r)
+    void setTimer(int tid,const REF_getter<refbuffer>&data, const REF_getter<Refcountable>&cookie, const route_t& r)
     {
         ifa->sendEvent(ServiceEnum::Timer,new timerEvent::SetTimer(tid,data,cookie,getTimerValue(tid),r));
     }
-    void resetAlarm(int tid,const REF_getter<refbuffer>&data, const REF_getter<refbuffer>&cookie, const route_t& r)
+    void resetAlarm(int tid,const REF_getter<refbuffer>&data, const REF_getter<Refcountable>&cookie, const route_t& r)
     {
         ifa->sendEvent(ServiceEnum::Timer,new timerEvent::ResetAlarm(tid,data,cookie,getTimerValue(tid),r));
     }

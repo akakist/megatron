@@ -1,125 +1,148 @@
-#include "route_t.h"
 #include "IUtils.h"
 #include "objectHandler.h"
 #include "mutexInspector.h"
 #include "listenerBase.h"
+#include "commonError.h"
+#include "route_t.h"
+std::string Route::dump()const
+{
+    std::string r;
+    switch (type)
+    {
+    case LOCALSERVICE:
+        return (std::string)"LOCAL("+iUtils->genum_name(localServiceRoute.id)+")";
+        break;
+    case REMOTEADDR:
+        return "REMOTE";
+        break;
+    case OBJECTHANDLER_POLLED:
+        return "OBJECTHANDLER_POLLED ("+objectHandlerRouteThreaded.addr_->name+")";
+        break;
+    case OBJECTHANDLER_THREADED:
+        return "OBJECTHANDLER_THREADED ("+objectHandlerRoutePolled.addr_->name+")";
+        break;
+    case SOCKETROUTE:
+        return "SOCKETROUTE";
+        break;
+    case THREAD:
+        return "THREAD";
+        break;
+    case LISTENER:
+        return "LISTENER ("+listenerRoute.id->listenerName_+")";
+        break;
+
+    default:
+        throw CommonError("invalid route");
+
+    }
+
+
+}
+
 std::string route_t::dump() const
 {
-    XTRY;
     std::vector<std::string> ret;
     ret.reserve(m_container.size());
     for(size_t i=0; i<m_container.size(); i++)
     {
-        ret.push_back(m_container[i]->dump());
+        ret.push_back(m_container[i].dump());
     }
 
     return iUtils->join("|",ret);
-    XPASS;
 
 }
 
-void SocketRoute::unpack(inBuffer&o)
+
+void Route::pack(outBuffer&o) const
 {
-    o>>CONTAINER(id);
+    o << (int)type;
+    switch (type)
+    {
+    case LOCALSERVICE:
+        o<<(uint64_t)localServiceRoute.id;
+        break;
+    case REMOTEADDR:
+        o<<remoteAddrRoute.addr;
+        break;
+    case OBJECTHANDLER_POLLED:
+        o<<(uint64_t)objectHandlerRoutePolled.addr_;
+        break;
+    case SOCKETROUTE:
+        o<<socketRoute.id;
+        break;
+    case OBJECTHANDLER_THREADED:
+        o<<(uint64_t)objectHandlerRouteThreaded.addr_;
+        break;
+    case THREAD:
+        o<<threadRoute.id;
+        break;
+    case LISTENER:
+        o<<(uint64_t)listenerRoute.id;
+        break;
+
+    default:
+        throw CommonError("invalid route");
+
+    }
+
+}
+void Route::unpack(inBuffer&o)
+{
+    int t;
+    o>>t;
+    type=(RouteType)t;
+    switch (type)
+    {
+    case LOCALSERVICE:
+    {
+        uint64_t n;
+        o>>n;
+        localServiceRoute.id=n;
+
+    }
+    break;
+    case REMOTEADDR:
+        o>>remoteAddrRoute.addr;
+        break;
+    case OBJECTHANDLER_POLLED:
+    {
+        uint64_t n;
+        o>>n;
+        objectHandlerRoutePolled.addr_=(ObjectHandlerPolled*) n;
+
+    }
+    break;
+    case OBJECTHANDLER_THREADED:
+    {
+        uint64_t n;
+        o>>n;
+        objectHandlerRouteThreaded.addr_=(ObjectHandlerThreaded*) n;
+
+    }
+    break;
+    case SOCKETROUTE:
+        o>>socketRoute.id;
+        break;
+    case THREAD:
+        o>>threadRoute.id;
+        break;
+    case LISTENER:
+    {
+        uint64_t n;
+        o>>n;
+        listenerRoute.id=(ListenerBase*) n;
+
+    }
+    break;
+
+    default:
+        throw CommonError("invalid route");
+
+    }
 }
 
-void SocketRoute::pack(outBuffer&o) const
-{
-    o<<(int)type<<CONTAINER(id);
-}
-std::string SocketRoute::dump() const
-{
-    return "socket:"+std::to_string(CONTAINER(id));
-}
-
-void LocalServiceRoute::pack(outBuffer&o) const
-{
-    o<<(int)type<<id;
-}
-void LocalServiceRoute::unpack(inBuffer&o)
-{
-    o>>id;
-}
-std::string LocalServiceRoute::dump() const
-{
-    return "local:"+iUtils->serviceName(id);
-}
-void ListenerRoute::pack(outBuffer&o) const
-{
-    throw CommonError("try to pack ListenerRoute");
-}
-void ListenerRoute::unpack(inBuffer&o)
-{
-    throw CommonError("try to unpack ListenerRoute");
-}
-std::string ListenerRoute::dump() const
-{
-    char s[100];
-    snprintf(s,sizeof(s),"listener:%s",id->listenerName_.c_str());
-    return s;
-}
-void ThreadRoute::pack(outBuffer&o) const
-{
-    o<<(int)type<<id;
-}
-void ThreadRoute::unpack(inBuffer&o)
-{
-    o>>id;
-}
-std::string ThreadRoute::dump() const
-{
-    char s[100];
-    snprintf(s,sizeof(s),"thread:%d",id);
-    return s;
-}
 
 
-void ObjectHandlerRoutePolled::pack(outBuffer&o) const
-{
-    o<<(int)type<<addr;
-}
-void ObjectHandlerRouteThreaded::pack(outBuffer&o) const
-{
-    o<<(int)type<<addr;
-}
-void ObjectHandlerRoutePolled::unpack(inBuffer&o)
-{
-    addr=o.get_PSTR();
-}
-void ObjectHandlerRouteThreaded::unpack(inBuffer&o)
-{
-    addr=o.get_PSTR();
-}
-
-std::string ObjectHandlerRoutePolled::dump() const
-{
-
-    const ObjectHandlerRoutePolled* p=this;
-    std::string s((char*)&p,sizeof(p));
-
-    return "objectHandlerPolled:"+iUtils->bin2hex(s);
-}
-std::string ObjectHandlerRouteThreaded::dump() const
-{
-
-    const ObjectHandlerRouteThreaded* p=this;
-    std::string s((char*)&p,sizeof(p));
-
-    return "ObjectHandlerThreaded:"+iUtils->bin2hex(s);
-}
-
-void RemoteAddrRoute::pack(outBuffer&o) const
-{
-    o<<(int)type<<CONTAINER(addr);
-}
-void RemoteAddrRoute::unpack(inBuffer&o)
-{
-    o>>CONTAINER(addr);
-}
-std::string RemoteAddrRoute::dump() const
-{
-    return "remote:"+std::to_string(CONTAINER(addr));
-}
 
 inBuffer& operator >> (inBuffer&b,route_t & r)
 {
@@ -138,68 +161,58 @@ outBuffer& operator << (outBuffer& b, const route_t & r)
 route_t::route_t(const SERVICE_id& id)
 {
 
-    m_container.push_front(new LocalServiceRoute(id));
+    Route r(Route::LOCALSERVICE);
+    r.localServiceRoute.id=id;
+    m_container.push_back(r);
 }
 route_t::route_t(ListenerBase* id)
 {
-
-    m_container.push_front(new ListenerRoute(id));
+    Route r(Route::LISTENER);
+    r.listenerRoute.id=id;
+    m_container.push_back(r);
 }
 route_t::route_t(ObjectHandlerPolled* id)
 {
-
-    std::string s((char*)&id,sizeof(id));
-
-    m_container.push_front(new ObjectHandlerRoutePolled(s));
+    Route r(Route::OBJECTHANDLER_POLLED);
+    r.objectHandlerRoutePolled.addr_=id;
+    m_container.push_back(r);
 }
 route_t::route_t(ObjectHandlerThreaded* id)
 {
-
-    std::string s((char*)&id,sizeof(id));
-
-    m_container.push_front(new ObjectHandlerRouteThreaded(s));
+    Route r(Route::OBJECTHANDLER_THREADED);
+    r.objectHandlerRouteThreaded.addr_=id;
+    m_container.push_back(r);
 }
 route_t::route_t(const std::string &javaCookie,ObjectHandlerPolled* id)
 {
-    m_container.push_front(new LocalServiceRoute(atoi(javaCookie.c_str())));
-    std::string s((char*)&id,sizeof(id));
-    m_container.push_front(new ObjectHandlerRoutePolled(s));
+    {
+        Route r(Route::LOCALSERVICE);
+        r.localServiceRoute.id=atoi(javaCookie.c_str());
+        m_container.push_back(r);
+    }
+    {
+        Route r(Route::OBJECTHANDLER_POLLED);
+        r.objectHandlerRoutePolled.addr_=id;
+        m_container.push_back(r);
+    }
 
 }
 route_t::route_t(const std::string &javaCookie,ObjectHandlerThreaded* id)
 {
-    m_container.push_front(new LocalServiceRoute(atoi(javaCookie.c_str())));
-    std::string s((char*)&id,sizeof(id));
-    m_container.push_front(new ObjectHandlerRouteThreaded(s));
-
+    {
+        Route r(Route::LOCALSERVICE);
+        r.localServiceRoute.id=atoi(javaCookie.c_str());
+        m_container.push_back(r);
+    }
+    {
+        Route r(Route::OBJECTHANDLER_THREADED);
+        r.objectHandlerRouteThreaded.addr_=id;
+        m_container.push_back(r);
+    }
 }
 
 
-void route_t::push_front(const REF_getter<Route>& v)
-{
 
-    XTRY;
-    m_container.push_front(v);
-    XPASS;
-}
-void route_t::push_front(const route_t& r)
-{
-    if(r.m_container.size()!=1)
-        throw CommonError("if(r.m_container.size()!=1)");
-    m_container.push_front(r.m_container[0]);
-}
-
-REF_getter<Route> route_t::pop_front()
-{
-
-    XTRY;
-    if(m_container.size()==0) throw CommonError("route_t::pop_front: m_container.size()==0 %s",_DMI().c_str());
-
-    REF_getter<Route> r=*m_container.begin();
-    m_container.pop_front();
-    return r;
-    XPASS;
-}
 size_t route_t::size()const
 {
     return m_container.size();
@@ -211,7 +224,7 @@ void route_t::pack(outBuffer&o) const
     o<<m_container.size();
     for(size_t i=0; i<m_container.size(); i++)
     {
-        m_container[i]->pack(o);
+        m_container[i].pack(o);
     }
     XPASS;
 }
@@ -226,6 +239,7 @@ void route_t::unpack(inBuffer&o)
         XPASS;
 
     }
+    // m_container.reserve(sz);
     for(size_t i=0; i<sz; i++)
     {
         XTRY;
@@ -237,6 +251,7 @@ void route_t::unpack(inBuffer&o)
             type=(Route::RouteType)t;
             XPASS;
         }
+
         switch(type)
         {
         case Route::LISTENER:
@@ -245,8 +260,8 @@ void route_t::unpack(inBuffer&o)
         case Route::LOCALSERVICE:
         {
             XTRY;
-            Route *r=new LocalServiceRoute();
-            r->unpack(o);
+            Route r(Route::LOCALSERVICE);
+            o>>r.localServiceRoute.id;
             m_container.push_back(r);
             XPASS;
         }
@@ -254,8 +269,8 @@ void route_t::unpack(inBuffer&o)
         case Route::THREAD:
         {
             XTRY;
-            Route *r=new ThreadRoute();
-            r->unpack(o);
+            Route r(Route::THREAD);
+            o>>r.threadRoute.id;
             m_container.push_back(r);
             XPASS;
         }
@@ -263,8 +278,8 @@ void route_t::unpack(inBuffer&o)
         case Route::REMOTEADDR:
         {
             XTRY;
-            Route *r=new RemoteAddrRoute();
-            r->unpack(o);
+            Route r(Route::REMOTEADDR);
+            o>>r.remoteAddrRoute.addr;
             m_container.push_back(r);
             XPASS;
         }
@@ -272,8 +287,10 @@ void route_t::unpack(inBuffer&o)
         case Route::OBJECTHANDLER_POLLED:
         {
             XTRY;
-            Route *r=new ObjectHandlerRoutePolled();
-            r->unpack(o);
+            Route r(Route::OBJECTHANDLER_POLLED);
+            uint64_t z;
+            o>>z;
+            r.objectHandlerRoutePolled.addr_=(ObjectHandlerPolled *)z;
             m_container.push_back(r);
             XPASS;
         }
@@ -281,8 +298,10 @@ void route_t::unpack(inBuffer&o)
         case Route::OBJECTHANDLER_THREADED:
         {
             XTRY;
-            Route *r=new ObjectHandlerRouteThreaded();
-            r->unpack(o);
+            Route r(Route::OBJECTHANDLER_THREADED);
+            uint64_t z;
+            o>>z;
+            r.objectHandlerRouteThreaded.addr_=(ObjectHandlerThreaded *)z;
             m_container.push_back(r);
             XPASS;
         }
@@ -290,8 +309,8 @@ void route_t::unpack(inBuffer&o)
         case Route::SOCKETROUTE:
         {
             XTRY;
-            Route *r=new SocketRoute();
-            r->unpack(o);
+            Route r(Route::SOCKETROUTE);
+            o>>r.socketRoute.id;
             m_container.push_back(r);
             XPASS;
         }
@@ -312,47 +331,54 @@ int route_t::operator<(const route_t& a) const
     if(a.m_container.size()!=m_container.size()) return a.m_container.size()<m_container.size();
     for(size_t i=0; i<m_container.size(); i++)
     {
-        if(a.m_container[i]->type!=m_container[i]->type) return a.m_container[i]->type < m_container[i]->type;
-        switch(a.m_container[i]->type)
+        if(a.m_container[i].type!=m_container[i].type) return a.m_container[i].type < m_container[i].type;
+        switch(a.m_container[i].type)
         {
         case Route::LOCALSERVICE:
         {
-            if(static_cast<const LocalServiceRoute*>(a.m_container[i].get())->id != static_cast<const LocalServiceRoute*>(m_container[i].get())->id)
-                return static_cast<const LocalServiceRoute*>(a.m_container[i].get())->id < static_cast<const LocalServiceRoute*>(m_container[i].get())->id;
+            if(a.m_container[i].localServiceRoute.id != m_container[i].localServiceRoute.id)
+                return a.m_container[i].localServiceRoute.id < m_container[i].localServiceRoute.id;
         }
         break;
+        case Route::LISTENER:
+        {
+            if(a.m_container[i].listenerRoute.id != m_container[i].listenerRoute.id)
+                return a.m_container[i].listenerRoute.id < m_container[i].listenerRoute.id;
+        }
+        break;
+
         case Route::THREAD:
         {
-            if(static_cast<const ThreadRoute*>(a.m_container[i].get())->id != static_cast<const ThreadRoute*>(m_container[i].get())->id)
-                return static_cast<const ThreadRoute*>(a.m_container[i].get())->id < static_cast<const ThreadRoute*>(m_container[i].get())->id;
+            if(a.m_container[i].threadRoute.id != m_container[i].threadRoute.id)
+                return a.m_container[i].threadRoute.id < m_container[i].threadRoute.id;
         }
         break;
         case Route::REMOTEADDR:
         {
-            if(CONTAINER(static_cast<const RemoteAddrRoute*>(a.m_container[i].get())->addr) != CONTAINER(static_cast<const RemoteAddrRoute*>(m_container[i].get())->addr))
-                return CONTAINER(static_cast<const RemoteAddrRoute*>(a.m_container[i].get())->addr) < CONTAINER(static_cast<const RemoteAddrRoute*>(m_container[i].get())->addr);
+            if(a.m_container[i].remoteAddrRoute.addr != m_container[i].remoteAddrRoute.addr)
+                return a.m_container[i].remoteAddrRoute.addr < m_container[i].remoteAddrRoute.addr;
         }
         break;
         case Route::OBJECTHANDLER_POLLED:
         {
-            if(static_cast<const ObjectHandlerRoutePolled*>(a.m_container[i].get())->addr != static_cast<const ObjectHandlerRoutePolled*>(m_container[i].get())->addr)
-                return static_cast<const ObjectHandlerRoutePolled*>(a.m_container[i].get())->addr < static_cast<const ObjectHandlerRoutePolled*>(m_container[i].get())->addr;
+            if(a.m_container[i].objectHandlerRoutePolled.addr_ != m_container[i].objectHandlerRoutePolled.addr_)
+                return a.m_container[i].objectHandlerRoutePolled.addr_ < m_container[i].objectHandlerRoutePolled.addr_;
         }
         break;
         case Route::OBJECTHANDLER_THREADED:
         {
-            if(static_cast<const ObjectHandlerRouteThreaded*>(a.m_container[i].get())->addr != static_cast<const ObjectHandlerRouteThreaded*>(m_container[i].get())->addr)
-                return static_cast<const ObjectHandlerRouteThreaded*>(a.m_container[i].get())->addr < static_cast<const ObjectHandlerRouteThreaded*>(m_container[i].get())->addr;
+            if(a.m_container[i].objectHandlerRouteThreaded.addr_ != m_container[i].objectHandlerRouteThreaded.addr_)
+                return a.m_container[i].objectHandlerRouteThreaded.addr_ < m_container[i].objectHandlerRouteThreaded.addr_;
         }
         break;
         case Route::SOCKETROUTE:
         {
-            if(CONTAINER(static_cast<const SocketRoute*>(a.m_container[i].get())->id) != CONTAINER(static_cast<const SocketRoute*>(m_container[i].get())->id))
-                return CONTAINER(static_cast<const SocketRoute*>(a.m_container[i].get())->id) < CONTAINER(static_cast<const SocketRoute*>(m_container[i].get())->id);
+            if(a.m_container[i].socketRoute.id != m_container[i].socketRoute.id)
+                return a.m_container[i].socketRoute.id < m_container[i].socketRoute.id;
         }
         break;
         default:
-            throw CommonError("invalid route type %d",a.m_container[i]->type);
+            throw CommonError("invalid route type %d",a.m_container[i].type);
         }
     }
     XPASS;
@@ -367,43 +393,49 @@ bool route_t::operator==(const route_t& a) const
     if(a.m_container.size()!=m_container.size()) return false;
     for(size_t i=0; i<m_container.size(); i++)
     {
-        auto at=a.m_container[i]->type;
-        if(at!=m_container[i]->type) return false;
+        auto at=a.m_container[i].type;
+        if(at!=m_container[i].type) return false;
         switch(at)
         {
+        case Route::LISTENER:
+        {
+            if(a.m_container[i].listenerRoute.id != m_container[i].listenerRoute.id)
+                return false;
+        }
+        break;
         case Route::LOCALSERVICE:
         {
-            if(static_cast<const LocalServiceRoute*>(a.m_container[i].get())->id != static_cast<const LocalServiceRoute*>(m_container[i].get())->id)
+            if(a.m_container[i].localServiceRoute.id != m_container[i].localServiceRoute.id)
                 return false;
         }
         break;
         case Route::THREAD:
         {
-            if(static_cast<const ThreadRoute*>(a.m_container[i].get())->id != static_cast<const ThreadRoute*>(m_container[i].get())->id)
+            if(a.m_container[i].threadRoute.id != m_container[i].threadRoute.id)
                 return false;
         }
         break;
         case Route::REMOTEADDR:
         {
-            if(CONTAINER(static_cast<const RemoteAddrRoute*>(a.m_container[i].get())->addr) != CONTAINER(static_cast<const RemoteAddrRoute*>(m_container[i].get())->addr))
+            if(CONTAINER(a.m_container[i].remoteAddrRoute.addr) != CONTAINER(m_container[i].remoteAddrRoute.addr))
                 return false;
         }
         break;
         case Route::OBJECTHANDLER_POLLED:
         {
-            if(static_cast<const ObjectHandlerRoutePolled*>(a.m_container[i].get())->addr != static_cast<const ObjectHandlerRoutePolled*>(m_container[i].get())->addr)
+            if(a.m_container[i].objectHandlerRoutePolled.addr_ != m_container[i].objectHandlerRoutePolled.addr_)
                 return false;
         }
         break;
         case Route::OBJECTHANDLER_THREADED:
         {
-            if(static_cast<const ObjectHandlerRouteThreaded*>(a.m_container[i].get())->addr != static_cast<const ObjectHandlerRouteThreaded*>(m_container[i].get())->addr)
+            if(a.m_container[i].objectHandlerRouteThreaded.addr_ != m_container[i].objectHandlerRouteThreaded.addr_)
                 return false;
         }
         break;
         case Route::SOCKETROUTE:
         {
-            if(CONTAINER(static_cast<const SocketRoute*>(a.m_container[i].get())->id) != CONTAINER(static_cast<const SocketRoute*>(m_container[i].get())->id))
+            if(CONTAINER(a.m_container[i].socketRoute.id) != CONTAINER(m_container[i].socketRoute.id))
                 return false;
         }
         break;
@@ -419,15 +451,13 @@ std::string route_t::getLastJavaCookie() const
     if(m_container.size()!=1)
         throw CommonError("route_t: if(m_container.size()!=1)");
     auto r=m_container[0];
-    if(r.valid())
     {
-        if(r->type==Route::LOCALSERVICE)
+        if(r.type=Route::LOCALSERVICE)
         {
-            LocalServiceRoute* lrt=(LocalServiceRoute* )r.get();
-            return std::to_string(lrt->id);
+            return std::to_string(r.localServiceRoute.id);
         }
 
     }
-    throw CommonError("invalid case %s %d",__FILE__,__LINE__);
+    throw CommonError("invalid case");
 
 }

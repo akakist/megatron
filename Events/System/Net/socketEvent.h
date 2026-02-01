@@ -7,30 +7,30 @@
 #include "event_mt.h"
 #include "msockaddr_in.h"
 #include "route_t.h"
-#include "genum.hpp"
+
 namespace ServiceEnum
 {
-    const SERVICE_id Socket(genum_Socket);
-    const SERVICE_id Socks5(genum_Socks5);
+    const SERVICE_id Socket(ghash("@g_Socket"));
+    const SERVICE_id Socks5(ghash("@g_Socks5"));
 }
 
 namespace socketEventEnum
 {
 
-    const EVENT_id AddToListenTCP(genum_socket_AddToListenTCP);
-    const EVENT_id AddToConnectTCP(genum_socket_AddToConnectTCP);
-    const EVENT_id Accepted(genum_socket_Accepted);
-    const EVENT_id StreamRead(genum_socket_StreamRead);
-    const EVENT_id Connected(genum_socket_Connected);
-    const EVENT_id Disconnected(genum_socket_Disconnected);
-    const EVENT_id Disaccepted(genum_socket_Disaccepted);
-    const EVENT_id NotifyBindAddress(genum_socket_NotifyBindAddress);
-    const EVENT_id NotifyOutBufferEmpty(genum_socket_NotifyOutBufferEmpty);
-    const EVENT_id ConnectFailed(genum_socket_ConnectFailed);
-    const EVENT_id UdpAssoc(genum_socket_UdpAssoc);
-    const EVENT_id UdpAssocRSP(genum_socket_UdpAssocRSP);
-    const EVENT_id UdpPacketIncoming(genum_socket_UdpPacketIncoming);
-    const EVENT_id Write(genum_socket_Write);
+    const EVENT_id AddToListenTCP(ghash("@g_socket_AddToListenTCP"));
+    const EVENT_id AddToConnectTCP(ghash("@g_socket_AddToConnectTCP"));
+    const EVENT_id Accepted(ghash("@g_socket_Accepted"));
+    const EVENT_id StreamRead(ghash("@g_socket_StreamRead"));
+    const EVENT_id Connected(ghash("@g_socket_Connected"));
+    const EVENT_id Disconnected(ghash("@g_socket_Disconnected"));
+    const EVENT_id Disaccepted(ghash("@g_socket_Disaccepted"));
+    const EVENT_id NotifyBindAddress(ghash("@g_socket_NotifyBindAddress"));
+    const EVENT_id NotifyOutBufferEmpty(ghash("@g_socket_NotifyOutBufferEmpty"));
+    const EVENT_id ConnectFailed(ghash("@g_socket_ConnectFailed"));
+    const EVENT_id UdpAssoc(ghash("@g_socket_UdpAssoc"));
+    const EVENT_id UdpAssocRSP(ghash("@g_socket_UdpAssocRSP"));
+    const EVENT_id UdpPacketIncoming(ghash("@g_socket_UdpPacketIncoming"));
+    const EVENT_id Write(ghash("@g_socket_Write"));
 }
 
 
@@ -60,14 +60,6 @@ namespace socketEvent
         const msockaddr_in  addr4;
         const msockaddr_in  addr6;
         const char* socketDescription;
-        void jdump(Json::Value &j) const
-        {
-            j["socketId4"]=std::to_string(CONTAINER(socketId4));
-            j["socketId6"]=std::to_string(CONTAINER(socketId6));
-            j["addr4"]=addr4.jdump();
-            j["addr6"]=addr6.jdump();
-            j["socketDescription"]=socketDescription;
-        }
     };
     class UdpAssocRSP: public Event::NoPacked
     {
@@ -99,14 +91,6 @@ namespace socketEvent
         const REF_getter<epoll_socket_info> esi4;
         const REF_getter<epoll_socket_info> esi6;
         const int errcode;
-        void jdump(Json::Value &j) const
-        {
-            j["socketId4"]=std::to_string(CONTAINER(socketId4));
-            j["socketId6"]=std::to_string(CONTAINER(socketId6));
-            j["addr"]=addr4.jdump();
-            j["addr"]=addr6.jdump();
-            j["errcode"]=errcode;
-        }
     };
 
     class UdpPacketIncoming: public Event::NoPacked
@@ -123,12 +107,6 @@ namespace socketEvent
         const msockaddr_in  addrFrom;
         const int errcode;
         const std::string data;
-        void jdump(Json::Value &j) const
-        {
-//            j["socketId"]=std::to_string(CONTAINER(socketId));
-            j["addrFrom"]=addrFrom.jdump();
-            j["errcode"]=errcode;
-        }
     };
 
     class Write: public Event::NoPacked
@@ -141,9 +119,6 @@ namespace socketEvent
         Write(const SOCKET_id & _socketId,const std::string& _buf)
             :NoPacked(socketEventEnum::Write),
              socketId(_socketId),buf(_buf)
-        {
-        }
-        void jdump(Json::Value &) const
         {
         }
         const SOCKET_id socketId;
@@ -162,9 +137,6 @@ namespace socketEvent
              esi(esi_)
         {
         }
-        void jdump(Json::Value &) const
-        {
-        }
         const REF_getter<epoll_socket_info>  esi;
     };
 
@@ -180,9 +152,6 @@ namespace socketEvent
             return NULL;
         }
         const REF_getter<epoll_socket_info> esi;
-        void jdump(Json::Value &) const
-        {
-        }
     };
 
     class NotifyBindAddress: public Event::NoPacked
@@ -196,11 +165,6 @@ namespace socketEvent
             :NoPacked(socketEventEnum::NotifyBindAddress,r),
              addr(__S),socketDescription(_socketDescription),rebind(_rebind)
         {
-        }
-        void jdump(Json::Value &j) const
-        {
-//            j["local_name"]=esi->local_name.jdump();
-            j["socketDescription"]=socketDescription;
         }
         const msockaddr_in  addr;
         const char* socketDescription;
@@ -219,11 +183,8 @@ namespace socketEvent
              esi(__S),reason(_reason)
         {
         }
-        void jdump(Json::Value &) const
-        {
-        }
-        const REF_getter<epoll_socket_info>  esi;
-        const std::string reason;
+        REF_getter<epoll_socket_info>  esi;
+        std::string reason;
 
     };
 
@@ -239,11 +200,8 @@ namespace socketEvent
              esi(__S),reason(_reason)
         {
         }
-        void jdump(Json::Value &) const
-        {
-        }
-        const REF_getter<epoll_socket_info>  esi;
-        const std::string reason;
+        REF_getter<epoll_socket_info>  esi;
+        std::string reason;
 
     };
 
@@ -257,9 +215,6 @@ namespace socketEvent
         Connected(const REF_getter<epoll_socket_info>  & __S,const route_t&r)
             :NoPacked(socketEventEnum::Connected,r),
              esi(__S)
-        {
-        }
-        void jdump(Json::Value &) const
         {
         }
         const REF_getter<epoll_socket_info>  esi;
@@ -279,9 +234,6 @@ namespace socketEvent
         REF_getter<epoll_socket_info> esi;
         const msockaddr_in  addr;
         int _errno;
-        void jdump(Json::Value &) const
-        {
-        }
     };
 
 
@@ -293,16 +245,14 @@ namespace socketEvent
         {
             return NULL;
         }
-        AddToListenTCP(const SOCKET_id& _socketId,const msockaddr_in  &_addr,const char* _socketDescription,const bool& _rebind,const route_t & r):
+        AddToListenTCP(const SOCKET_id& _socketId,const msockaddr_in  &_addr,const char* _socketDescription,const bool& _rebind, const SECURE& _secure, const route_t & r):
             NoPacked(socketEventEnum::AddToListenTCP,r),
-            socketId(_socketId),addr(_addr),socketDescription(_socketDescription),rebind(_rebind) {}
+            socketId(_socketId),addr(_addr),socketDescription(_socketDescription),rebind(_rebind),secure(_secure) {}
         const SOCKET_id socketId;
         const msockaddr_in  addr;
         const char* socketDescription;
         const bool rebind;
-        void jdump(Json::Value &) const
-        {
-        }
+        const SECURE secure;
     };
     class AddToConnectTCP: public Event::NoPacked
     {
@@ -311,18 +261,13 @@ namespace socketEvent
         {
             return NULL;
         }
-        AddToConnectTCP(const SOCKET_id& _socketId,const msockaddr_in  &_addr, const char* _socketDescription, const route_t & r):
+        AddToConnectTCP(const SOCKET_id& _socketId,const msockaddr_in  &_addr, const char* _socketDescription, const SECURE& _secure, const route_t & r):
             NoPacked(socketEventEnum::AddToConnectTCP,r),
-            socketId(_socketId),addr(_addr),socketDescription(_socketDescription) {}
+            socketId(_socketId),addr(_addr),socketDescription(_socketDescription),secure(_secure) {}
         const SOCKET_id socketId;
         const msockaddr_in  addr;
         const char* socketDescription;
-        void jdump(Json::Value &j) const
-        {
-            j["socketId"]=std::to_string(CONTAINER(socketId));
-            j["addr"]=addr.jdump();
-            j["socketDescription"]=socketDescription;
-        }
+        const SECURE secure;
     };
     class Accepted: public Event::NoPacked
     {
@@ -336,9 +281,6 @@ namespace socketEvent
             return NULL;
         }
         const REF_getter<epoll_socket_info> esi;
-        void jdump(Json::Value &) const
-        {
-        }
     };
 }
 

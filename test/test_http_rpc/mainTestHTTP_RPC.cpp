@@ -3,12 +3,15 @@
 #include "configObj.h"
 #include "CUtils.h"
 #include <unistd.h>
+#include <thread>
+#include "commonError.h"
+#include "Events/System/Net/rpcEvent.h"
 void registerRPCService(const char* pn);
 void registerSocketModule(const char* pn);
 void registerTimerService(const char* pn);
 void registerSSL(const char* pn);
 void registerOscarModule(const char* pn);
-void registerOscarSecureModule(const char* pn);
+// void registerOscarSecureModule(const char* pn);
 //void registertestServerWebService(const char* pn);
 void registerHTTPModule(const char* pn);
 void registerprodtestServerService(const char* pn);
@@ -27,7 +30,7 @@ int mainTestHTTP_RPC(int argc, char** argv )
         registerTimerService(NULL);
         registerSSL(NULL);
         registerOscarModule(NULL);
-        registerOscarSecureModule(NULL);
+        // registerOscarSecureModule(NULL);
 //        registertestServerWebService(NULL);
         registerHTTPModule(NULL);
         registerprodtestServerService(NULL);
@@ -42,67 +45,66 @@ int mainTestHTTP_RPC(int argc, char** argv )
         {
             IInstance *instance1=iUtils->createNewInstance("prodtestServer");
             ConfigObj *cnf1=new ConfigObj("prodtestServer",
-                                          "\nRPC.ConnectionActivity=600.000000"
-                                          "\nRPC.IterateTimeoutSec=60.000000"
                                           "\nStart=prodtestServer,RPC"
                                           "\nOscarSecure.RSA_keysize=256"
                                           "\nOscarSecure.maxPacketSize=33554432"
-                                          "\nRPC.BindAddr_MAIN=127.0.0.1:2000"
+                                          "\nRPC_BindAddr_MAIN=127.0.0.1:2000"
     "\n#unix@/tmp/sock"
-                                          "\nRPC.BindAddr_RESERVE=NONE"
-                                          "\nRPC.oscarType=Oscar"
-                                          "\nSocketIO.listen_backlog=128"
-                                          "\nSocketIO.size=1024"
-                                          "\nSocketIO.timeout_millisec=10"
+                                          "\nRPC_BindAddr_RESERVE=NONE"
+                                          "\nRPC_oscarType=Oscar"
+                                          "\nSocketIO_listen_backlog=128"
+                                          "\nSocketIO_size=1024"
+                                          "\nSocketIO_timeout_millisec=10"
                                           "\nWebHandler.bindAddr=INADDR_ANY:6002"
 
                                           "\n# http listen address"
-                                          "\nHTTP.max_post=1000000"
-                                          "\nHTTP.doc_urls=/pics,/html,/css"
-                                          "\nHTTP.document_root=./www"
-                                          "\nSocketIO.epoll_timeout_millisec=2000"
+                                          "\nHTTP_max_post=1000000"
+                                          "\nHTTP_doc_urls=/pics,/html,/css"
+                                          "\nHTTP_document_root=./www"
+                                          "\nSocketIO_epoll_timeout_millisec=2000"
                                           "\n"
                                           "\n# socket poll thread count"
-                                          "\nSocketIO.n_workers=3"
-                                          "\nOscar.maxPacketSize=33554432"
+                                          "\nSocketIO_n_workers=2"
+                                          "\nOscar_maxPacketSize=33554432"
                                          );
             instance1->setConfig(cnf1);
             instance1->initServices();
+            msockaddr_in sa;
+            sa.init("127.0.0.1:2000");
+            SECURE sec;
+            instance1->sendEvent(ServiceEnum::RPC,new rpcEvent::DoListen(sa,sec));
         }
 
         {
             IInstance *instance1=iUtils->createNewInstance("prodtestServerWeb");
             ConfigObj *cnf1=new ConfigObj("prodtestServerWeb",
-                                          "\nRPC.ConnectionActivity=600.000000"
-                                          "\nRPC.IterateTimeoutSec=60.000000"
-                                          "\nRPC.ListenerBuffered.MaxThreadsCount=10"
                                           "\nStart=prodtestServerWeb,RPC"
                                           "\nOscarSecure.RSA_keysize=256"
                                           "\nOscarSecure.maxPacketSize=33554432"
-                                          "\nRPC.BindAddr_MAIN=INADDR_ANY:0"
-                                          "\nRPC.BindAddr_RESERVE=NONE"
-                                          "\nRPC.oscarType=Oscar"
-                                          "\nSocketIO.listen_backlog=128"
-                                          "\nSocketIO.size=1024"
-                                          "\nSocketIO.timeout_millisec=10"
+                                          "\nRPC_BindAddr_MAIN=INADDR_ANY:0"
+                                          "\nRPC_BindAddr_RESERVE=NONE"
+                                          "\nRPC_oscarType=Oscar"
+                                          "\nSocketIO_listen_backlog=128"
+                                          "\nSocketIO_size=1024"
+                                          "\nSocketIO_timeout_millisec=10"
                                           "\nWebHandler.bindAddr=INADDR_ANY:6001"
                                           "\n# http listen address"
-                                          "\ntestHTTP.bindAddr=0.0.0.0:8088"
-                                          "\nHTTP.max_post=1000000"
-                                          "\nHTTP.doc_urls=/pics,/html,/css"
-                                          "\nHTTP.document_root=./www"
-                                          "\nSocketIO.epoll_timeout_millisec=2000"
+                                          "\ntestHTTP_bindAddr=0.0.0.0:8188"
+                                          "\nHTTP_max_post=1000000"
+                                          "\nHTTP_doc_urls=/pics,/html,/css"
+                                          "\nHTTP_document_root=./www"
+                                          "\nSocketIO_epoll_timeout_millisec=2000"
                                           "\n"
                                           "\n# socket poll thread count"
-                                          "\nSocketIO.n_workers=4"
+                                          "\nSocketIO_n_workers=20"
 
-                                          "\nOscar.maxPacketSize=33554432"
+                                          "\nOscar_maxPacketSize=33554432"
                                           "\n"
                                           "\n# http listen address:"
-                                          "\nprodtestServerWeb.bindAddr=0.0.0.0:8088"
+                                          "\nprodtestServerWeb_bindAddr=0.0.0.0:8188"
                                           "\n"
                                           "\n# server prodtest address"
-                                          "\nprodtestServerWeb.prodtestServerAddr=127.0.0.1:2000"
+                                          "\nprodtestServerWeb_prodtestServerAddr=127.0.0.1:2000"
 "\n#unix@/tmp/sock"
                                          );
             instance1->setConfig(cnf1);
@@ -110,10 +112,26 @@ int mainTestHTTP_RPC(int argc, char** argv )
         }
 
         sleep(2);
-        auto ef=system("ab -n 1000000 -k -c 200  http://127.0.0.1:8088/");
-        if(ef!=0)
-            sleep(60*60);
-        iUtils->setTerminate(ef);
+
+        std::vector<std::thread> ths;
+//        ths.resize(4);
+        for(int i=0;i<1;i++)
+        {
+    	ths.push_back(std::thread([]{
+            auto r=system("ab -n 10000000  -k -c 200  http://127.0.0.1:8188/");
+    	    }));
+        }
+        for(auto& z: ths)
+        {
+    	    z.join();
+        }
+
+
+        // auto ef=system("ab -n 10000000 -k -c 200  http://127.0.0.1:8188/");
+        // if(ef!=0)
+            // sleep(60*60);
+            sleep(100);
+        iUtils->setTerminate(0);
         sleep(1);
         delete iUtils;
         return 0;

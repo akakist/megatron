@@ -4,83 +4,6 @@
 #endif
 #include "st_FILE.h"
 #include "resplit.h"
-
-void ConfigObj::appendLine(const std::string& key, const bool& val, const std::string& comment)
-{
-    if(val) appendLine(key,(std::string)"true", comment);
-    else appendLine(key,(std::string)"false",comment);
-}
-void ConfigObj::appendLine(const std::string& key, const real& val, const std::string& comment)
-{
-    appendLine(key,std::to_string(val),comment);
-}
-void ConfigObj::appendLine(const std::string& key, const int64_t& val, const std::string& comment)
-{
-    appendLine(key,std::to_string(val),comment);
-
-}
-void ConfigObj::appendLine(const std::string& key, const uint64_t& val, const std::string& comment)
-{
-    appendLine(key,std::to_string(val),comment);
-
-}
-
-void ConfigObj::appendLine(const std::string& key, const std::string& val, const std::string& comment)
-{
-
-#if !defined __MOBILE__
-
-
-    std::string::size_type pz=m_filename.rfind('/');
-    if(pz!=std::string::npos)
-    {
-        std::string path=m_filename.substr(0,pz);
-        DBG(logErr2("check path %s",path.c_str()));
-        iUtils->checkPath(path);
-    }
-    st_FILE f(m_filename,"a+b");
-
-
-    if(comment.size())
-    {
-        fprintf(f.f,"\n# %s\n",comment.c_str());
-    }
-    fprintf(f.f,"%s=%s\n",key.c_str(),val.c_str());
-
-#endif
-}
-
-void ConfigObj::printUnusedItems()
-{
-
-    M_LOCK(this);
-    for(auto& i:m_container)
-    {
-        if(!i.second.second)
-        {
-            DBG(logErr2("config: unused item %s -> %s",i.first.c_str(),i.second.first.c_str()));
-        }
-    }
-}
-
-
-void ConfigObj::load_from_file()
-{
-    M_LOCK(this);
-    std::map<std::string,std::string> m;
-    try {
-        m=iUtils->loadStringMapFromFile(m_filename);
-    }
-    catch(...)
-    {
-        logErr2("exception on load file %s",m_filename.c_str());
-    }
-    for(auto&  i:m)
-    {
-        m_container[i.first]=std::make_pair(i.second,false);
-
-    }
-}
 void ConfigObj::load_from_buffer(const std::string& buf)
 {
     M_LOCK(this);
@@ -113,18 +36,24 @@ std::set<msockaddr_in>ConfigObj::get_tcpaddr(const std::string&_name, const std:
     std::string val;
     std::string name=m_getPath(_name);
     auto i=m_container.find(name);
-    if (i!=m_container.end())
+    auto s=getenv(name.c_str());
+    if(s)
+    {
+        val=s;
+    }
+    else if (i!=m_container.end())
     {
         val=i->second.first;
         i->second.second=true;
     }
     else
     {
+        logErr2("# %s",comment.c_str());
         logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str());
         val=defv;
-        appendLine(name,defv,comment);
+        // appendLine(name,defv,comment);
     }
-    std::deque<std::string> vz=resplitDQ(val,std::regex("[;, ]"));//->splitStringDQ(";, ",val.c_str());
+    std::deque<std::string> vz=resplitDQ(val,std::regex("[;, ]"));
 
     while(vz.size())
     {
@@ -135,8 +64,6 @@ std::set<msockaddr_in>ConfigObj::get_tcpaddr(const std::string&_name, const std:
         {
             continue;
         }
-        // Url u;
-        // u.parse(v);
         m_bindAddr.init(v);
         ret.insert(m_bindAddr);
         continue;
@@ -154,17 +81,24 @@ std::set<msockaddr_in>ConfigObj::get_tcpaddr2(const std::string&_name, const std
     std::string val;
     std::string name=m_getPath2(_name);
     auto i=m_container.find(name);
-    if (i!=m_container.end())
+    auto s=getenv(name.c_str());
+    if(s)
+    {
+        val=s;
+    }
+    else if (i!=m_container.end())
     {
         val=i->second.first;
         i->second.second=true;
     }
     else
     {
+        logErr2("# %s",comment.c_str());
         logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str());
         val=defv;
-        appendLine(name,defv,comment);
+        // appendLine(name,defv,comment);
     }
+
     std::deque<std::string> vz=iUtils->splitStringDQ(";, ",val.c_str());
 
     while(vz.size())
@@ -176,8 +110,6 @@ std::set<msockaddr_in>ConfigObj::get_tcpaddr2(const std::string&_name, const std
         {
             continue;
         }
-        // Url u;
-        // u.parse(v);
         m_bindAddr.init(v);
         ret.insert(m_bindAddr);
         continue;
@@ -193,18 +125,23 @@ std::string ConfigObj::get_string(const std::string& _name, const std::string& d
     M_LOCK(this);
     std::string v;
     std::string name=m_getPath(_name);
+    auto s=getenv(name.c_str());
     auto i=m_container.find(name);
-    if (i!=m_container.end())
+    if(s)
+    {
+        v=s;
+    }
+    else if (i!=m_container.end())
     {
         v=i->second.first;
         i->second.second=true;
-
     }
     else
     {
+        logErr2("# %s",comment.c_str());
         logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str());
         v=defv;
-        appendLine(name,defv,comment);
+        // appendLine(name,defv,comment);
     }
     return v;
 }
@@ -213,8 +150,13 @@ std::string ConfigObj::get_string2(const std::string& _name, const std::string& 
     M_LOCK(this);
     std::string v;
     std::string name=m_getPath2(_name);
+    auto s=getenv(name.c_str());
     auto i=m_container.find(name);
-    if (i!=m_container.end())
+    if(s)
+    {
+        v=s;
+    }
+    else if (i!=m_container.end())
     {
         v=i->second.first;
         i->second.second=true;
@@ -222,9 +164,10 @@ std::string ConfigObj::get_string2(const std::string& _name, const std::string& 
     }
     else
     {
+        logErr2("# %s",comment.c_str());
         logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str());
         v=defv;
-        appendLine(name,defv,comment);
+        // appendLine(name,defv,comment);
     }
     return v;
 }
@@ -233,8 +176,13 @@ real ConfigObj::get_real(const std::string&_name, const real& defv, const std::s
     M_LOCK(this);
     real v;
     std::string name=m_getPath(_name);
+    auto s=getenv(name.c_str());
     auto i=m_container.find(name);
-    if (i!=m_container.end())
+    if(s)
+    {
+        v=strtod(s,NULL);
+    }
+    else if (i!=m_container.end())
     {
         v=strtod(i->second.first.c_str(),NULL);
         i->second.second=true;
@@ -242,9 +190,10 @@ real ConfigObj::get_real(const std::string&_name, const real& defv, const std::s
     }
     else
     {
+        logErr2("# %s",comment.c_str());
         logErr2("%s: skipped param, using deflt %s=%f",m_filename.c_str(),name.c_str(),float(defv));
         v=defv;
-        appendLine(name,defv,comment);
+        // appendLine(name,defv,comment);
     }
     return v;
 
@@ -254,8 +203,16 @@ real ConfigObj::get_real2(const std::string&_name, const real &defv, const std::
     M_LOCK(this);
     real v;
     std::string name=m_getPath2(_name);
+
+    auto s=getenv(name.c_str());
     auto i=m_container.find(name);
-    if (i!=m_container.end())
+    if(s)
+    {
+        v=strtod(s,NULL);
+        return v;
+
+    }
+    else if (i!=m_container.end())
     {
         v=strtod(i->second.first.c_str(),NULL);
         i->second.second=true;
@@ -263,9 +220,10 @@ real ConfigObj::get_real2(const std::string&_name, const real &defv, const std::
     }
     else
     {
+        logErr2("# %s",comment.c_str());
         logErr2("%s: skipped param, using deflt %s=%f",m_filename.c_str(),name.c_str(),defv);
         v=defv;
-        appendLine(name,defv,comment);
+        // appendLine(name,defv,comment);
     }
     return v;
 
@@ -273,12 +231,22 @@ real ConfigObj::get_real2(const std::string&_name, const real &defv, const std::
 
 std::set<std::string> ConfigObj::get_stringset(const std::string& _name, const std::string& defv, const std::string& comment)
 {
+    M_LOCK(this);
     std::set<std::string> v;
     std::string name=m_getPath(_name);
 
-    M_LOCK(this);
+    auto s=getenv(name.c_str());
     auto i=m_container.find(name);
-    if (i!=m_container.end())
+    if(s)
+    {
+        std::vector<std::string> vv=iUtils->splitString(",|",s);
+        for (size_t i=0; i<vv.size(); i++)
+        {
+            v.insert(vv[i]);
+        }
+
+    }
+    else if(i!=m_container.end())
     {
         std::vector<std::string> vv=iUtils->splitString(",|;",i->second.first);
         i->second.second=true;
@@ -291,14 +259,17 @@ std::set<std::string> ConfigObj::get_stringset(const std::string& _name, const s
     }
     else
     {
+        logErr2("# %s",comment.c_str());
         logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str());
-        appendLine(name,defv,comment);
+        // appendLine(name,defv,comment);
         std::vector<std::string> vv=iUtils->splitString(",|",defv);
         for (size_t i=0; i<vv.size(); i++)
         {
             v.insert(vv[i]);
         }
     }
+
+
     return v;
 
 }
@@ -309,8 +280,19 @@ std::set<std::string> ConfigObj::get_stringset2(const std::string& _name, const 
     M_LOCK(this);
     std::string name=m_getPath2(_name);
 
+    auto s=getenv(name.c_str());
     auto i=m_container.find(name);
-    if (i!=m_container.end())
+    if(s)
+    {
+        std::vector<std::string> vv=iUtils->splitString(",|;",s);
+        for (size_t i=0; i<vv.size(); i++)
+        {
+            v.insert(vv[i]);
+        }
+        return v;
+
+    }
+    else if (i!=m_container.end())
     {
         auto vv=iUtils->splitString(",|;",i->second.first);
         i->second.second=true;
@@ -323,8 +305,9 @@ std::set<std::string> ConfigObj::get_stringset2(const std::string& _name, const 
     }
     else
     {
+        logErr2("# %s",comment.c_str());
         logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv.c_str());
-        appendLine(name,defv,comment);
+        // appendLine(name,defv,comment);
         std::vector<std::string> vv=iUtils->splitString(",|",defv);
         for (size_t i=0; i<vv.size(); i++)
         {
@@ -340,8 +323,13 @@ bool ConfigObj::get_bool(const std::string& _name, bool defv, const std::string&
     bool v;
     M_LOCK(this);
     std::string name=m_getPath(_name);
+    auto s=getenv(name.c_str());
     auto i=m_container.find(name);
-    if (i!=m_container.end())
+    if(s)
+    {
+        return (std::string)s=="true";
+    }
+    else if (i!=m_container.end())
     {
         v=i->second.first=="true";
         i->second.second=true;
@@ -349,9 +337,10 @@ bool ConfigObj::get_bool(const std::string& _name, bool defv, const std::string&
     }
     else
     {
+        logErr2("# %s",comment.c_str());
         logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv?"true":"false");
         v=defv;
-        appendLine(name,defv,comment);
+        // appendLine(name,defv,comment);
     }
     return v;
 }
@@ -360,8 +349,14 @@ bool ConfigObj::get_bool2(const std::string& _name, bool defv, const std::string
     bool v;
     M_LOCK(this);
     std::string name=m_getPath2(_name);
+    auto s=getenv(name.c_str());
     auto i=m_container.find(name);
-    if (i!=m_container.end())
+    if(s)
+    {
+        return (std::string)s=="true";
+
+    }
+    else if (i!=m_container.end())
     {
         v=i->second.first=="true";
         i->second.second=true;
@@ -369,9 +364,10 @@ bool ConfigObj::get_bool2(const std::string& _name, bool defv, const std::string
     }
     else
     {
+        logErr2("# %s",comment.c_str());
         logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),defv?"true":"false");
         v=defv;
-        appendLine(name,defv,comment);
+        // appendLine(name,defv,comment);
     }
     return v;
 }
@@ -381,8 +377,14 @@ int64_t ConfigObj::get_int64_t(const std::string&_name, int64_t defv, const std:
     int64_t v;
     M_LOCK(this);
     std::string name=m_getPath(_name);
+    auto s=getenv(name.c_str());
     auto i=m_container.find(name);
-    if (i!=m_container.end())
+    if(s)
+    {
+        return atol(s);
+
+    }
+    else if (i!=m_container.end())
     {
 #ifdef _MSC_VER
         v=atol(i->second.first.c_str());
@@ -394,9 +396,10 @@ int64_t ConfigObj::get_int64_t(const std::string&_name, int64_t defv, const std:
     }
     else
     {
+        logErr2("# %s",comment.c_str());
         logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),std::to_string(defv).c_str());
         v=defv;
-        appendLine(name,defv,comment);
+        // appendLine(name,defv,comment);
     }
     return v;
 }
@@ -405,8 +408,13 @@ int64_t ConfigObj::get_int64_t2(const std::string&_name, int64_t defv, const std
     int64_t v;
     M_LOCK(this);
     std::string name=m_getPath2(_name);
+    auto s=getenv(name.c_str());
     auto i=m_container.find(name);
-    if (i!=m_container.end())
+    if(s)
+    {
+        return atol(s);
+    }
+    else if (i!=m_container.end())
     {
 #ifdef _MSC_VER
         v=atol(i->second.first.c_str());
@@ -414,13 +422,13 @@ int64_t ConfigObj::get_int64_t2(const std::string&_name, int64_t defv, const std
         v=atol(i->second.first.c_str());
 #endif
         i->second.second=true;
-
     }
     else
     {
+        logErr2("# %s",comment.c_str());
         logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),std::to_string(defv).c_str());
         v=defv;
-        appendLine(name,defv,comment);
+        // appendLine(name,defv,comment);
     }
     return v;
 }
@@ -430,8 +438,14 @@ uint64_t ConfigObj::get_uint64_t(const std::string&_name, uint64_t defv, const s
     uint64_t v;
     M_LOCK(this);
     std::string name=m_getPath(_name);
+    auto s=getenv(name.c_str());
     auto i=m_container.find(name);
-    if (i!=m_container.end())
+    if(s)
+    {
+        v=atol(s);
+
+    }
+    else if (i!=m_container.end())
     {
 #ifdef _MSC_VER
         v=atol(i->second.first.c_str());
@@ -442,9 +456,10 @@ uint64_t ConfigObj::get_uint64_t(const std::string&_name, uint64_t defv, const s
     }
     else
     {
+        logErr2("# %s",comment.c_str());
         logErr2("%s: skipped param, using deflt %s=%s",m_filename.c_str(),name.c_str(),std::to_string(defv).c_str());
         v=defv;
-        appendLine(name,defv,comment);
+        // appendLine(name,defv,comment);
     }
     return v;
 }
@@ -455,7 +470,7 @@ std::string ConfigObj::m_getPath(const std::string&name) const
     auto i=m_prefixes.find(pthread_self());
     if(i!=m_prefixes.end())d=i->second;
     d.push_back(name);
-    return iUtils->join(".",d);
+    return iUtils->join("_",d);
 }
 std::string ConfigObj::m_getPath2(const std::string&name) const
 {

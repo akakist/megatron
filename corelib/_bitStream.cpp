@@ -15,7 +15,7 @@ inBitStream::inBitStream(const std::string& s) :  m_pos(0), m_size(s.size()), m_
 
 outBitStream& outBitStream::pack(const std::string& s)
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder");
     adjust(s.size());
     memcpy(&buffer[m_pos.pos],s.data(),s.size());
     m_pos.pos+=s.size();
@@ -24,7 +24,7 @@ outBitStream& outBitStream::pack(const std::string& s)
 
 outBitStream& outBitStream::pack(const char * s, size_t len)
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder");
     adjust(len);
     memcpy(&buffer[m_pos.pos],s,len);
     m_pos.pos+=len;
@@ -32,7 +32,7 @@ outBitStream& outBitStream::pack(const char * s, size_t len)
 }
 outBitStream& outBitStream::pack(const unsigned char * s, size_t len)
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder");
     adjust(len);
     memcpy(&buffer[m_pos.pos],s,len);
     m_pos.pos+=len;
@@ -40,7 +40,7 @@ outBitStream& outBitStream::pack(const unsigned char * s, size_t len)
 }
 void inBitStream::unpack_nothrow(std::string& s, size_t size, bool &success)
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder");
     if (size > m_size-m_pos.pos)
     {
         success=false;
@@ -72,14 +72,14 @@ void outBitStream::clear()
 
 std::string outBitStream::asString() const
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d",m_pos.bitsRemainsInByte);
 
     return std::string((char*)buffer,m_pos.pos);
 }
 outBitStream::outBitStream():buffer(NULL), bufsize(0),m_pos(0)
 {
     buffer=(unsigned char*)malloc(256);
-    if (buffer==NULL) throw CommonError("alloc error %s %d",__FILE__,__LINE__);
+    if (buffer==NULL) throw CommonError("alloc error");
     bufsize=256;
     m_pos.clear();
 }
@@ -99,14 +99,14 @@ void outBitStream::adjust(size_t n)
     {
         size_t nnew=m_pos.pos+n+1024;
         buffer=(unsigned char*)realloc(buffer,nnew);
-        if (!buffer) throw CommonError("alloc error sz=%d %s %d",nnew,__FILE__,__LINE__);
+        if (!buffer) throw CommonError("alloc error sz=%d",nnew);
         bufsize=nnew;
     }
 
 }
 outBitStream& outBitStream::putTLVLength(unsigned long len)
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d",m_pos.bitsRemainsInByte);
 
     try
     {
@@ -148,7 +148,7 @@ outBitStream& outBitStream::putTLVLength(unsigned long len)
 
 outBitStream& outBitStream::put_8(unsigned char c)
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d",m_pos.bitsRemainsInByte);
     adjust(1);
     buffer[m_pos.pos++]=c;
     return *this;
@@ -156,7 +156,7 @@ outBitStream& outBitStream::put_8(unsigned char c)
 }
 outBitStream& outBitStream::put_16LE(unsigned short l)
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d",m_pos.bitsRemainsInByte);
     adjust(2);
     buffer[m_pos.pos++]=(l & 0xFF);
     buffer[m_pos.pos++]=((l>>8) & 0xFF);
@@ -164,7 +164,7 @@ outBitStream& outBitStream::put_16LE(unsigned short l)
 }
 outBitStream& outBitStream::put_16BE(unsigned short l)
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d",m_pos.bitsRemainsInByte);
     adjust(2);
     buffer[m_pos.pos++]=((l>>8) & 0xFF);
     buffer[m_pos.pos++]=(l & 0xFF);
@@ -172,7 +172,7 @@ outBitStream& outBitStream::put_16BE(unsigned short l)
 }
 outBitStream& outBitStream::put_32LE(unsigned int l)
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d",m_pos.bitsRemainsInByte);
     adjust(4);
     buffer[m_pos.pos++]=(l & 0xFF);
     buffer[m_pos.pos++]=((l >> 8) & 0xFF);
@@ -183,7 +183,7 @@ outBitStream& outBitStream::put_32LE(unsigned int l)
 }
 outBitStream& outBitStream::put_32BE(unsigned int l)
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder ");
     adjust(4);
     buffer[m_pos.pos++]=((l >> 24) & 0xFF);
     buffer[m_pos.pos++]=((l >> 16) & 0xFF);
@@ -193,7 +193,7 @@ outBitStream& outBitStream::put_32BE(unsigned int l)
 }
 unsigned char inBitStream::get_8()
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder");
     if (m_pos.pos + 1 > m_size)
     {
         throw CommonError("inBitStream::get_8: noenough");
@@ -203,7 +203,7 @@ unsigned char inBitStream::get_8()
 }
 unsigned char inBitStream::get_8_nothrow(bool &success)
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder");
     if (m_pos.pos + 1 > m_size)
     {
         success=false;
@@ -215,7 +215,7 @@ unsigned char inBitStream::get_8_nothrow(bool &success)
 }
 unsigned short inBitStream::get_16LE()
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder");
     if (m_pos.pos + 2 > m_size) throw CommonError("get_16LE: noenough");
     unsigned short l = ((unsigned short)m_data[m_pos.pos++]);
     l+= ((unsigned short)m_data[m_pos.pos++] << 8);
@@ -224,7 +224,7 @@ unsigned short inBitStream::get_16LE()
 }
 unsigned short inBitStream::get_16LE_nothrow(bool &success)
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder");
     if (m_pos.pos + 2 > m_size)
     {
         success=false;
@@ -237,7 +237,7 @@ unsigned short inBitStream::get_16LE_nothrow(bool &success)
 }
 unsigned short inBitStream::get_16BE()
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder");
 
     if (m_pos.pos + 2 > m_size) throw CommonError("get_16BE: noenough");
     unsigned short  l = ((unsigned short)m_data[m_pos.pos++] << 8);
@@ -246,7 +246,7 @@ unsigned short inBitStream::get_16BE()
 }
 unsigned int inBitStream::get_32LE()
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder");
     if (m_pos.pos + 4 > m_size)  throw CommonError("get_32LE: noenough");
 
     unsigned int   l = ((unsigned int)m_data[m_pos.pos++]);
@@ -258,7 +258,7 @@ unsigned int inBitStream::get_32LE()
 }
 unsigned int inBitStream::get_32BE()
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder");
 
     if (m_pos.pos + 4 > m_size)  throw CommonError("get_32BE: noenough");
 
@@ -319,7 +319,7 @@ std::string inBitStream::get_PSTR()
 {
     std::string container = "";
     unsigned long sz=get_PN();
-    if (remains()<sz) throw CommonError("remains()<sz remains(%d) size(%d) %s %d",remains(),size(), __FILE__,__LINE__);
+    if (remains()<sz) throw CommonError("remains()<sz remains(%d) size(%d)",remains(),size());
     for (size_t i = 0; i < sz && beforeEnd(); i++)
     {
         unsigned char c=get_8();
@@ -484,7 +484,7 @@ outBitStream& outBitStream::operator<<(const bool& c)
 
 size_t outBitStream::size() const
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder");
     return m_pos.pos;
 }
 inBitStream& inBitStream::operator>>(double& v)
@@ -582,7 +582,7 @@ outBitStream& outBitStream::operator<<(uint64_t N)
 
 outBitStream& outBitStream::put_32LE$(unsigned int l)
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder");
     buffer[m_pos.pos++]=(l & 0xFF);
     buffer[m_pos.pos++]=((l >> 8) & 0xFF);
     buffer[m_pos.pos++]=((l >> 16) & 0xFF);
@@ -591,7 +591,7 @@ outBitStream& outBitStream::put_32LE$(unsigned int l)
 }
 outBitStream& outBitStream::put_32BE$(unsigned int l)
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder");
     buffer[m_pos.pos++]=((l >> 24) & 0xFF);
     buffer[m_pos.pos++]=((l >> 16) & 0xFF);
     buffer[m_pos.pos++]=((l >> 8) & 0xFF);
@@ -601,7 +601,7 @@ outBitStream& outBitStream::put_32BE$(unsigned int l)
 
 outBitStream& outBitStream::put_16LE$(unsigned short l)
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder");
     buffer[m_pos.pos++]=(unsigned char)(l & 0xFF);
     buffer[m_pos.pos++]=((l>>8) & 0xFF);
     return *this;
@@ -609,20 +609,20 @@ outBitStream& outBitStream::put_16LE$(unsigned short l)
 
 outBitStream& outBitStream::put_16BE$(unsigned short l)
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder");
     buffer[m_pos.pos++]=((l>>8) & 0xFF);
     buffer[m_pos.pos++]=(l & 0xFF);
     return *this;
 }
 outBitStream& outBitStream::put_8$(unsigned char c)
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder");
     buffer[m_pos.pos++]=c;
     return *this;
 }
 outBitStream& outBitStream::Pack$(const std::string& s )
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder");
     memcpy(&buffer[m_pos.pos],s.data(),s.size());
     m_pos.pos+=(int)s.size();
     return *this;
@@ -630,7 +630,7 @@ outBitStream& outBitStream::Pack$(const std::string& s )
 
 outBitStream& outBitStream::put_bits(unsigned int val, int bitcount)
 {
-    if(!m_pos.bitsRemainsInByte) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(!m_pos.bitsRemainsInByte) throw CommonError("boundary error on BitStream remainder");
     adjust(bitcount/8);
     for(int i=bitcount-1; i>=0; i--)
     {
@@ -648,7 +648,7 @@ outBitStream& outBitStream::put_bits(unsigned int val, int bitcount)
 }
 bool inBitStream::beforeEnd() const
 {
-    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder %d %s %d",m_pos.bitsRemainsInByte,__FILE__,__LINE__);
+    if(m_pos.bitsRemainsInByte!=8) throw CommonError("boundary error on BitStream remainder");
     return (m_pos.pos < m_size);
 }
 
@@ -664,7 +664,7 @@ unsigned int inBitStream::getTlvLength()
         else
         {
             int llen=get_bits(7);
-            if(llen>4) throw CommonError("if(llen>4) %s %d",__FILE__,__LINE__);
+            if(llen>4) throw CommonError("if(llen>4)");
             return get_bits(llen*8);
         }
 

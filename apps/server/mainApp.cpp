@@ -15,6 +15,9 @@
 #include "IThreadNameController.h"
 #include "megatron.h"
 #include "colorOutput.h"
+#include "megatron_config.h"
+#include "version.h"
+#include "commonError.h"
 void onterm(int signum);
 
 megatron mega;
@@ -42,6 +45,7 @@ int main(int argc, char* argv[])
 #endif
         signal(10,onterm);
 
+        fprintf(stderr, "\n%s version " GREEN2(VERSION) "\n", APP_NAME);
         if (argc>1)
         {
 #ifndef _WIN32
@@ -123,7 +127,7 @@ void onterm(int signum)
             exTime=time(NULL);
             ex=true;
             iUtils->setTerminate(1);
-
+            // printf("            iUtils->setTerminate(1);\n");
             tc->print_term(signum);
 //            if(iUtils)
 //                delete iUtils;

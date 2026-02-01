@@ -11,4 +11,7 @@
 #define CAPS_ADDRESS "@CAPS_IP@:@PORT@"
 #define CAPS_PORT "@PORT@"
 #define CAPS_IP "@CAPS_IP@"
+
+#define APP_NAME "@APP_NAME@"
+
 #endif

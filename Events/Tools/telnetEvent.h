@@ -3,9 +3,11 @@
 
 #include "EVENT_id.h"
 #include "SERVICE_id.h"
+#include "msockaddr_in.h"
+#include "ghash.h"
 namespace ServiceEnum
 {
-    const SERVICE_id Telnet (genum_Telnet);
+    const SERVICE_id Telnet(ghash("@g_Telnet"));
 
 }
 
@@ -17,10 +19,10 @@ namespace ServiceEnum
 
 namespace telnetEventEnum
 {
-    const EVENT_id RegisterType(genum_telnetRegisterType);
-    const EVENT_id RegisterCommand(genum_telnetRegisterCommand);
-    const EVENT_id Reply(genum_telnetReply);
-    const EVENT_id CommandEntered(genum_telnetCommandEntered);
+    const EVENT_id RegisterCommand(ghash("@g_telnetRegisterCommand"));
+    const EVENT_id Reply(ghash("@g_telnetReply"));
+    const EVENT_id DoListen(ghash("@g_telnetDoListen"));
+    const EVENT_id CommandEntered(ghash("@g_telnetCommandEntered"));
 }
 
 
@@ -40,41 +42,23 @@ namespace telnetEvent
             :NoPacked(telnetEventEnum::Reply,r),socketId(s),buffer(_buffer) {}
         SOCKET_id socketId;
         std::string buffer;
-        void jdump(Json::Value &) const
-        {
-        }
 
     };
 
-
-
-
-    class RegisterType: public Event::NoPacked
+    class DoListen: public Event::NoPacked
     {
-        /**
-        *   Регистрация типа параметра.
-        *   Направление - от клиента
-        *   \param name наименование параметра, которое потом будет использоваться в командах.
-        *   \param pattern regexp pattern
-        *   \param help строка которая будет выводиться в хелпе для типа.
-        */
     public:
         static Base* construct(const route_t &)
         {
             return NULL;
         }
-        RegisterType(const std::string &_name, const std::string& _pattern, const std::string& _help, const route_t& r)
-            :NoPacked(telnetEventEnum::RegisterType,r),name(_name),pattern(_pattern),help(_help) {}
-
-        std::string name,pattern,help;
-
-        void jdump(Json::Value &) const
-        {
-        }
-
-
+        DoListen(const msockaddr_in &_sa, const std::string &dname, const route_t& r)
+            :NoPacked(telnetEventEnum::DoListen,r),sa(_sa),deviceName(dname) {}
+        msockaddr_in sa;
+        std::string deviceName;
 
     };
+
 
 
 
@@ -90,15 +74,11 @@ namespace telnetEvent
         {
             return NULL;
         }
-        RegisterCommand(const std::string &_directory, const std::string& _cmd, const std::string& _help,const std::string &_params, const route_t&r):
-            NoPacked(telnetEventEnum::RegisterCommand,r),directory(_directory),cmd(_cmd),help(_help),params(_params) {}
+        RegisterCommand(const std::string &_directory, const std::string& _cmd, const std::string& _help, const route_t&r):
+            NoPacked(telnetEventEnum::RegisterCommand,r),directory(_directory),cmd(_cmd),help(_help) {}
         std::string directory;
         std::string cmd;
         std::string help;
-        std::string params;
-        void jdump(Json::Value &) const
-        {
-        }
 
     };
 
@@ -119,15 +99,13 @@ namespace telnetEvent
         {
             return NULL;
         }
-        CommandEntered(const SOCKET_id& s,const std::deque<std::string> &_tokens, const route_t& r)
-            :NoPacked(telnetEventEnum::CommandEntered,r),socketId(s),tokens(_tokens) {}
+        CommandEntered(const SOCKET_id& s,const std::string &_command, const std::string& _path, const route_t& r)
+            :NoPacked(telnetEventEnum::CommandEntered,r),socketId(s),command(_command), path(_path) {}
 
         SOCKET_id socketId;
-        std::deque<std::string> tokens;
+        std::string command;
+        std::string path;
 
-        void jdump(Json::Value &) const
-        {
-        }
 
     };
 

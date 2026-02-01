@@ -85,7 +85,7 @@ inline bool UuidIsCyclic(const std::vector<msockaddr_in>&uuid)
 inline route_t poppedFrontRoute(const route_t&r)
 {
     route_t rt=r;
-    rt.pop_front();
+    rt.pop_back();
     return rt;
 }
 template <class T>
@@ -142,18 +142,6 @@ REF_getter<refbuffer> outV(const T1& a, const T2& b, const T3& c,const T4& d,con
     return o.asString();
 }
 
-inline Json::Value jparse(const std::string& buf)
-{
-    Json::Reader r;
-    Json::Value v;
-    r.parse(buf,v);
-    return v;
-}
-inline std::string jFastWrite(const Json::Value& j)
-{
-    Json::FastWriter w;
-    return w.write(j);
-}
 
 inline std::string sqlDbName(const std::string& nm)
 {

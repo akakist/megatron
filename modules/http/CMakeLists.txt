@@ -1,4 +1,3 @@
-#cmake_minimum_required (VERSION 3.0)
 
 add_library(core-http SHARED
 
@@ -8,6 +7,6 @@ add_library(core-http SHARED
 httpService.h
 
            )
-target_link_libraries(core-http megatron-core pthread)
+target_link_libraries(core-http megatron-core  pthread )
 install(TARGETS core-http DESTINATION ${PLUGIN_TARGET_DIR})
 

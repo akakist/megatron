@@ -81,7 +81,8 @@ int main(int argc, char *argv[])
         if(n>100000000)
         {
             d.erase(d.begin()+i);
-            struct tm* t=localtime(&n);
+            struct tm t;
+            localtime_r(&n,&t);
             char s[100];
             snprintf(s,sizeof (s),"%04d%02d%02d%02d%02d%02d-%s",t->tm_yday+1900,t->tm_mon+1,t->tm_mday,t->tm_hour,t->tm_min,t->tm_sec,argv[1]);
 

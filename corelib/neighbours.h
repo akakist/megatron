@@ -2,6 +2,7 @@
 #include <set>
 #include <map>
 #include <time.h>
+#include <vector>
 #include "msockaddr_in.h"
 
 class _neighbours

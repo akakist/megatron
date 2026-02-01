@@ -1,8 +1,7 @@
 #pragma once
 #include <string>
-#include <vector>
 #include <deque>
-#include <mysql/mysql.h>
+#include <mysql.h>
 #ifdef _WIN32
 #include <time.h>
 #endif
@@ -18,10 +17,10 @@ struct mysqlConf
     std::string user;
     std::string passwd;
     std::string database;
-    std::string start_code;
+    // std::string start_code;
     int port;
     std::string sock;
-    unsigned long flag;
+    unsigned long flag=0;
 
 };
 

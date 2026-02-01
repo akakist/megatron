@@ -42,7 +42,6 @@ REF_getter<QueryResult>DBH_postgres::exec(const QUERY &query)
 
     REF_getter<QueryResult> result(new QueryResult);
 
-//#ifdef KALL
     char *paramValues[query.params.size()];
     int paramLengths[query.params.size()];
 
@@ -52,7 +51,6 @@ REF_getter<QueryResult>DBH_postgres::exec(const QUERY &query)
         paramValues[i]=(char*)query.params[i].data();
         paramLengths[i]=query.params[i].size();
     }
-//#endif
 
     while (1)
     {
@@ -318,20 +316,16 @@ void registerPostgresModule(const char*pn)
     XTRY;
     if(pn)
     {
-        iUtils->registerPlugingInfo(COREVERSION,pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::Postgres,"postgres");
+        iUtils->registerPlugingInfo(pn,IUtils::PLUGIN_TYPE_SERVICE,ServiceEnum::Postgres,"postgres");
     }
     else
     {
-        iUtils->registerService(COREVERSION,ServiceEnum::Postgres,DBH_source_postgres::construct,"postgres");
+        iUtils->registerService(ServiceEnum::Postgres,DBH_source_postgres::construct,"postgres");
     }
     XPASS;
 
 }
 
-/*void registerPostgresModule()
-{
-    iUtils->registerService(COREVERSION,ServiceEnum::Postgres,DBH_source_postgres::construct,"postgres");
-}*/
 
 UnknownBase *DBH_source_postgres::construct(const SERVICE_id& id, const std::string&  nm,IConfigObj* obj)
 {

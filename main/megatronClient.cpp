@@ -14,6 +14,7 @@
 #include "CUtils.h"
 #include "megatron_config.h"
 #include "configObj.h"
+#include "commonError.h"
 
 //IUtils *iUtils=NULL;
 
@@ -31,7 +32,7 @@ void registerErrorDispatcherService(const char*);
 
 void registerObjectProxyModule(const char*);
 void registerOscarModule(const char*);
-void registerOscarSecureModule(const char*);
+// void registerOscarSecureModule(const char*);
 void registerRPCService(const char*);
 void registerSocketModule(const char*);
 void registerTimerService(const char*);
@@ -52,7 +53,7 @@ static void registerModules()
 #endif
         registerObjectProxyModule(pn);
         registerOscarModule(pn);
-        registerOscarSecureModule(pn);
+        // registerOscarSecureModule(pn);
         registerRPCService(pn);
         registerSocketModule(pn);
         registerTimerService(pn);

@@ -5,19 +5,21 @@
 #include "SERVICE_id.h"
 #include "EVENT_id.h"
 #include "event_mt.h"
+
+#include "ghash.h"
 namespace ServiceEnum
 {
-    const SERVICE_id DFSCaps(genum_DFSCaps);
+    const SERVICE_id DFSCaps(ghash("@g_DFSCaps"));
 }
 
 namespace dfsCapsEventEnum
 {
-    const EVENT_id RegisterMyRefferrerNodeREQ(genum_DFSCaps_RegisterMyRefferrerNodeREQ);
-    const EVENT_id RegisterCloudRoot(genum_DFSCaps_RegisterCloudRoot);
-    const EVENT_id GetReferrersREQ(genum_DFSCaps_GetReferrersREQ);
-    const EVENT_id GetReferrersRSP(genum_DFSCaps_GetReferrersRSP);
-    const EVENT_id GetCloudRootsREQ(genum_DFSCaps_GetCloudRootsREQ);
-    const EVENT_id GetCloudRootsRSP(genum_DFSCaps_GetCloudRootsRSP);
+    const EVENT_id RegisterMyRefferrerNodeREQ(ghash("@g_DFSCaps_RegisterMyRefferrerNodeREQ"));
+    const EVENT_id RegisterCloudRoot(ghash("@g_DFSCaps_RegisterCloudRoot"));
+    const EVENT_id GetReferrersREQ(ghash("@g_DFSCaps_GetReferrersREQ"));
+    const EVENT_id GetReferrersRSP(ghash("@g_DFSCaps_GetReferrersRSP"));
+    const EVENT_id GetCloudRootsREQ(ghash("@g_DFSCaps_GetCloudRootsREQ"));
+    const EVENT_id GetCloudRootsRSP(ghash("@g_DFSCaps_GetCloudRootsRSP"));
 }
 namespace dfsCapsEvent {
     class RegisterMyRefferrerNodeREQ: public Event::Base
@@ -53,11 +55,6 @@ namespace dfsCapsEvent {
         {
             o<<externalListenAddr<<uplink<<downlinkCount;
         }
-        void jdump(Json::Value &v) const
-        {
-            v["externalListenAddr"]=iUtils->dump(externalListenAddr);
-            v["uplink"]=uplink.dump();
-        }
 
     };
     class RegisterCloudRoot: public Event::Base
@@ -91,12 +88,6 @@ namespace dfsCapsEvent {
         void pack(outBuffer&o) const
         {
             o<<externalListenAddr<<uplink;
-        }
-        void jdump(Json::Value &v) const
-        {
-            v["externalListenAddr"]=iUtils->dump(externalListenAddr);
-
-            v["uplink"]=uplink.dump();
         }
 
     };
@@ -134,10 +125,6 @@ namespace dfsCapsEvent {
         {
             o<<externalListenAddr;
         }
-        void jdump(Json::Value &v) const
-        {
-            v["externalListenAddr"]=iUtils->dump(externalListenAddr);
-        }
 
     };
     class GetReferrersRSP: public Event::Base
@@ -172,10 +159,6 @@ namespace dfsCapsEvent {
         void pack(outBuffer&o) const
         {
             o<<referrer_addresses;
-        }
-        void jdump(Json::Value &v) const
-        {
-            v["externalListenAddr"]=iUtils->dump(referrer_addresses);
         }
 
     };
@@ -214,10 +197,6 @@ namespace dfsCapsEvent {
         {
             o<<externalListenAddr;
         }
-        void jdump(Json::Value &v) const
-        {
-            v["externalListenAddr"]=iUtils->dump(externalListenAddr);
-        }
 
     };
     class GetCloudRootsRSP: public Event::Base
@@ -252,10 +231,6 @@ namespace dfsCapsEvent {
         void pack(outBuffer&o) const
         {
             o<<referrer_addresses;
-        }
-        void jdump(Json::Value &v) const
-        {
-            v["externalListenAddr"]=iUtils->dump(referrer_addresses);
         }
 
     };
