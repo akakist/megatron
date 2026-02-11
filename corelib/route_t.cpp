@@ -452,7 +452,7 @@ std::string route_t::getLastJavaCookie() const
         throw CommonError("route_t: if(m_container.size()!=1)");
     auto r=m_container[0];
     {
-        if(r.type=Route::LOCALSERVICE)
+        if(r.type==Route::LOCALSERVICE)
         {
             return std::to_string(r.localServiceRoute.id);
         }

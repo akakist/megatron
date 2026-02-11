@@ -3,7 +3,7 @@
 #include "IUtils.h"
 #include "mysqlService.h"
 #include <string>
-#include <mysql.h>
+#include <mariadb/mysql.h>
 #include "commonError.h"
 #ifdef _WIN32
 #include "compat_win32.h"
@@ -171,7 +171,7 @@ void DBH_mysql::makeConnection(const mysqlConf& conf)
     // my_bool enforce_tls= 0;
     // mysql_optionsv(dbh, MYSQL_OPT_SSL_ENFORCE, (void *)&enforce_tls);
 
-    dbh->options.use_ssl=0;
+    // dbh->options.use_ssl=0;
     // dbh->options.s
 
     MYSQL* r=mysql_real_connect(dbh,

@@ -143,7 +143,6 @@ bool prodtestWebServer::Service::on_RequestIncoming(const httpEvent::RequestInco
     S->esi=e->esi;
 
     {
-        // std::string query_string=e->req->params["query_string"];
         {
             sendEvent(prodtestServerAddr,ServiceEnum::prodtestServer,new prodtestEvent::AddTaskREQ(S->sessionId,
                       "query_string",0,ListenerBase::serviceId));

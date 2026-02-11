@@ -109,6 +109,10 @@ namespace HTTP
         {
             return  tosv_h(parse_data.uri);
         }
+        std::string_view cookie()
+        {
+            return  tosv_h(parse_data.header_params.COOKIE);
+        }
         std::string_view headers()
         {
             return  header_content;
@@ -214,7 +218,7 @@ namespace HTTP
         bool chunked_http_header_sent=false;
         CONN_TYPE connection=HTTP::CONN_CLOSE;
         std::string build_html_response();
-        // void makeResponse();
+        // void make_response();
         // void chunkedOut(const std::string & data);
         // void chunkedClose();
     public:
