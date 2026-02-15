@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <deque>
-#include <mariadb/mysql.h>
+#include <mysql/mysql.h>
 #ifdef _WIN32
 #include <time.h>
 #endif

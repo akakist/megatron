@@ -61,8 +61,8 @@ void logErr2(const char* fmt, ...)
                 fprintf(stderr," %s ",s_prf.c_str());
 #endif
             }
-            vfprintf(stdout,fmt, ap);
-            fprintf(stdout,"\n");
+            vfprintf(stderr,fmt, ap);
+            fprintf(stderr,"\n");
 #endif
         }
 

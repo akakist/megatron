@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <time.h>
+#include <sstream>
 // #include "ISSL.h"
 #include "events_http.hpp"
 #include "resplit.h"

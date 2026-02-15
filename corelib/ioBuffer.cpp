@@ -393,7 +393,7 @@ inBuffer & operator>> (inBuffer& b,  REF_getter<refbuffer> &s)
 #include <arpa/inet.h>  // для htonl/ntohl
 
 // Host to Network для 64-bit
-uint64_t htonll(uint64_t host_value) {
+uint64_t _htonll(uint64_t host_value) {
     // Проверяем endianness системы
     static const union { 
         uint32_t i; 
@@ -413,7 +413,7 @@ uint64_t htonll(uint64_t host_value) {
 }
 
 // Network to Host для 64-bit
-uint64_t ntohll(uint64_t network_value) {
+uint64_t _ntohll(uint64_t network_value) {
     // Обратное преобразование идентично прямому
     return htonll(network_value);
 }
