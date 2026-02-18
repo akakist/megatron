@@ -4,9 +4,9 @@ mainTest.cpp
 )
 include_directories(../../main)
 IF(FreeBSD)
-target_link_libraries(mt-test-${PORT}.exe megatron-main zsingle megatron-core  ${OPENSSL_LIBRARIES}  z  pthread sqlitecpp sqlite3 )
+target_link_libraries(mt-test-${PORT}.exe megatron-main zsingle megatron-core  ${OPENSSL_LIBRARIES}  z  pthread   )
 ELSE()
-target_link_libraries(mt-test-${PORT}.exe megatron-main zsingle megatron-core  ${OPENSSL_LIBRARIES}  z  pthread sqlitecpp sqlite3 dl  )
+target_link_libraries(mt-test-${PORT}.exe megatron-main zsingle megatron-core  ${OPENSSL_LIBRARIES}  z  pthread   dl  )
 ENDIF()
 
 

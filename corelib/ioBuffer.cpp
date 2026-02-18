@@ -415,18 +415,18 @@ uint64_t _htonll(uint64_t host_value) {
 // Network to Host для 64-bit
 uint64_t _ntohll(uint64_t network_value) {
     // Обратное преобразование идентично прямому
-    return htonll(network_value);
+    return _htonll(network_value);
 }
 // Преобразование double к сетевому порядку
 uint64_t double_to_network(double value) {
     uint64_t temp;
     std::memcpy(&temp, &value, sizeof(double));
-    return htonll(temp);  // host to network (big-endian)
+    return _htonll(temp);  // host to network (big-endian)
 }
 
 // Преобразование обратно к double
 double network_to_double(uint64_t network_value) {
-    uint64_t host_value = ntohll(network_value);  // network to host
+    uint64_t host_value = _ntohll(network_value);  // network to host
     double result;
     std::memcpy(&result, &host_value, sizeof(double));
     return result;
