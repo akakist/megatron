@@ -463,7 +463,7 @@ int on_message_begin(llhttp_t* p) {
 int on_url(llhttp_t* p, const char* at, size_t length) {
     // logErr2("@@ %s",__func__);
     auto* ctx = (HttpContext*)p->data;
-    ctx->url.append(at, length);
+    // ctx->url.append(at, length);
     return 0;
 }
 
@@ -473,7 +473,7 @@ int on_header_field(llhttp_t* p, const char* at, size_t length) {
 
     // если было предыдущее поле — сохраняем
     if (!ctx->current_value.empty()) {
-        ctx->headers[ctx->current_field] = ctx->current_value;
+        // ctx->headers[ctx->current_field] = ctx->current_value;
         // logErr2("header: %s -> %s",ctx->current_field.c_str(),ctx->current_value.c_str());
         ctx->current_field.clear();
         ctx->current_value.clear();
@@ -486,7 +486,7 @@ int on_header_field(llhttp_t* p, const char* at, size_t length) {
 int on_header_value(llhttp_t* p, const char* at, size_t length) {
     // logErr2("@@ %s",__func__);
     auto* ctx = (HttpContext*)p->data;
-    ctx->current_value.append(at, length);
+    // ctx->current_value.append(at, length);
     return 0;
 }
 
@@ -495,7 +495,7 @@ int on_headers_complete(llhttp_t* p) {
     auto* ctx = (HttpContext*)p->data;
 
     if (!ctx->current_field.empty()) {
-        ctx->headers[ctx->current_field] = ctx->current_value;
+        // ctx->headers[ctx->current_field] = ctx->current_value;
         // logErr2("header: %s -> %s",ctx->current_field.c_str(),ctx->current_value.c_str());
     }
 
