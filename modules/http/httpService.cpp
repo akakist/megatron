@@ -375,6 +375,7 @@ bool HTTP::Service::handleChunkedBuffer(const socketEvent::StreamRead* evt, cons
 
 
 }
+#include "llhttp/llhttp.h"
 bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 {
     MUTEX_INSPECTOR;
@@ -440,12 +441,28 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         buf=std::move(evt->esi->inBuffer_._mx_data);
         evt->esi->inBuffer_._mx_data.clear();
     }
-
+    // logErr2("before llhttp_execute");
     llhttp_errno_t err = llhttp_execute(&W->parser, buf.data(), buf.size());
+    // logErr2("after llhttp_execute");
     if (err != HPE_OK) 
     {
         throw CommonError("Parse error: %s",llhttp_errno_name(err));
     }
+    if(W->parser.method==HTTP_GET)
+    {
+        if(W->ctx.headers_complete)
+        {
+            W->ctx.headers_complete=false;
+            if(!W->sendRequestIncomingIsSent)
+            {
+                W->sendRequestIncomingIsSent=true;
+                passEvent(new httpEvent::RequestIncoming(W,evt->esi,evt->route));
+                clearData(evt->esi.get());
+            }
+
+        }
+    }
+    return true;
 #ifdef KALL
     if(!W->parse_data.done_header)
     {

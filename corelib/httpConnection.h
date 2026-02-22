@@ -22,7 +22,7 @@ typedef int (*__url_close)(long _fd);
 typedef long (*__url_open)(const char* fn, int flags);
 
 struct HttpContext {
-    std::string method;
+    // std::string method;
     std::string url;
 
     std::string current_field;
@@ -31,6 +31,7 @@ struct HttpContext {
 
     // сюда можно подключить multipart-парсер
     // MultipartParser* mp = nullptr;
+    bool headers_complete = false;
 };
 
 
@@ -182,6 +183,8 @@ int main() {
     public:
         llhttp_t parser;
         llhttp_settings_t settings;
+        HttpContext ctx; 
+
 
         void parse(const char* req, int reqsize);
         http_header_parse_data parse_data;

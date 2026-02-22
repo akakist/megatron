@@ -452,6 +452,7 @@ void HTTP::Request::parse(const char *req, int reqsize)
     }
 }
 int on_message_begin(llhttp_t* p) {
+    // logErr2("@@ %s",__func__);
     auto* ctx = (HttpContext*)p->data;
     ctx->headers.clear();
     ctx->current_field.clear();
@@ -460,18 +461,20 @@ int on_message_begin(llhttp_t* p) {
     return 0;
 }
 int on_url(llhttp_t* p, const char* at, size_t length) {
+    // logErr2("@@ %s",__func__);
     auto* ctx = (HttpContext*)p->data;
     ctx->url.append(at, length);
     return 0;
 }
 
 int on_header_field(llhttp_t* p, const char* at, size_t length) {
+    // logErr2("@@ %s",__func__);
     auto* ctx = (HttpContext*)p->data;
 
     // если было предыдущее поле — сохраняем
     if (!ctx->current_value.empty()) {
         ctx->headers[ctx->current_field] = ctx->current_value;
-        logErr2("header: %s -> %s",ctx->current_field.c_str(),ctx->current_value.c_str());
+        // logErr2("header: %s -> %s",ctx->current_field.c_str(),ctx->current_value.c_str());
         ctx->current_field.clear();
         ctx->current_value.clear();
     }
@@ -481,32 +484,36 @@ int on_header_field(llhttp_t* p, const char* at, size_t length) {
 }
 
 int on_header_value(llhttp_t* p, const char* at, size_t length) {
+    // logErr2("@@ %s",__func__);
     auto* ctx = (HttpContext*)p->data;
     ctx->current_value.append(at, length);
     return 0;
 }
 
 int on_headers_complete(llhttp_t* p) {
+    // logErr2("@@ %s",__func__);
     auto* ctx = (HttpContext*)p->data;
 
     if (!ctx->current_field.empty()) {
         ctx->headers[ctx->current_field] = ctx->current_value;
-        logErr2("header: %s -> %s",ctx->current_field.c_str(),ctx->current_value.c_str());
+        // logErr2("header: %s -> %s",ctx->current_field.c_str(),ctx->current_value.c_str());
     }
 
-    ctx->method = llhttp_method_name((llhttp_method_t)p->method);
+    // ctx->method = llhttp_method_name((llhttp_method_t)p->method);
 
-    std::cout << "Method: " << ctx->method << "\n";
-    std::cout << "URL: " << ctx->url << "\n";
+    // std::cout << "Method: " << ctx->method << "\n";
+    // std::cout << "URL: " << ctx->url << "\n";
 
-    for (auto& kv : ctx->headers) {
-        std::cout << kv.first << ": " << kv.second << "\n";
-    }
+    // for (auto& kv : ctx->headers) {
+    //     std::cout << kv.first << ": " << kv.second << "\n";
+    // }
+    ctx->headers_complete = true;
 
     return 0;
 }
 
 int on_body(llhttp_t* p, const char* at, size_t length) {
+    // logErr2("@@ %s",__func__);
     auto* ctx = (HttpContext*)p->data;
 
     // вот тут ты можешь стримить тело куда угодно:
@@ -524,7 +531,8 @@ int on_body(llhttp_t* p, const char* at, size_t length) {
 }
 
 int on_message_complete(llhttp_t* p) {
-    std::cout << "Message complete\n";
+    // logErr2("@@ %s",__func__);
+    // std::cout << "Message complete\n";
     return 0;
 }
 
@@ -546,7 +554,6 @@ HTTP::Request::Request(const REF_getter<epoll_socket_info>& _esi)
     settings.on_headers_complete = on_headers_complete;
     settings.on_body = on_body;
     settings.on_message_complete = on_message_complete;
-    HttpContext ctx; 
     llhttp_init(&parser, HTTP_REQUEST, &settings); 
     parser.data = &ctx;
 
