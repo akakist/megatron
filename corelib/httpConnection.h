@@ -7,7 +7,7 @@
 #include <deque>
 #include "IInstance.h"
 #include "stream.h"
-
+#include "llhttp/llhttp.h"
 // #include "ioStreams.h"
 
 // #include "streamBase.h"
@@ -20,6 +20,18 @@ typedef int (*__url_read)(long _fd, unsigned char *bufferForOutput, int _bufSize
 typedef int64_t (*__url_seek)(long _fd, int64_t pos, int whence);
 typedef int (*__url_close)(long _fd);
 typedef long (*__url_open)(const char* fn, int flags);
+
+struct HttpContext {
+    std::string method;
+    std::string url;
+
+    std::string current_field;
+    std::string current_value;
+    std::map<std::string, std::string> headers;
+
+    // сюда можно подключить multipart-парсер
+    // MultipartParser* mp = nullptr;
+};
 
 
 namespace HTTP
@@ -64,6 +76,7 @@ namespace HTTP
         int CONTENT_LENGTH;
         token COOKIE;
         token REFERER;
+        token ORIGIN;
         token AUTHORIZATION;
         token TRANSFER_ENCODING;
         token RANGE;
@@ -79,8 +92,19 @@ namespace HTTP
         METHOD_NOTSET,METHOD_GET, METHOD_POST, METHOD_PUT, METHOD_DELETE
     };
 
+    enum STATE
+    {
+        STATE_PREAMBLE=0,
+        STATE_HEADERS,
+        STATE_BODY,
+        STATE_MULTIPART,
+        STATE_URLENCODED,
+        STATE_ERROR,
+        STATE_DONE
+    };
     struct http_header_parse_data
     {
+
 
         METHOD method;
         token uri;
@@ -95,13 +119,70 @@ namespace HTTP
         char last_char;
         token line0tk[LINE0TKSIZE];
         size_t line0tk_idx;
+        STATE state;
+        std::string buffer;
+
         void dump(const char* req, int reqsize);
 
     };
+/*
+extern "C" {
+#include "llhttp.h"
+}
+
+#include <iostream>
+#include <string>
+#include <unordered_map>
+
+
+// --- CALLBACKS ---
+
+
+
+// --- MAIN ---
+
+int main() {
+    llhttp_t parser;
+    llhttp_settings_t settings;
+
+    llhttp_settings_init(&settings);
+
+    settings.on_message_begin = on_message_begin;
+    settings.on_url = on_url;
+    settings.on_header_field = on_header_field;
+    settings.on_header_value = on_header_value;
+    settings.on_headers_complete = on_headers_complete;
+    settings.on_body = on_body;
+    settings.on_message_complete = on_message_complete;
+
+    HttpContext ctx;
+
+    llhttp_init(&parser, HTTP_REQUEST, &settings);
+    parser.data = &ctx;
+
+    // имитация recv() — читаем HTTP из stdin
+    char buf[4096];
+    while (true) {
+        ssize_t n = read(0, buf, sizeof(buf));
+        if (n <= 0) break;
+
+        llhttp_errno_t err = llhttp_execute(&parser, buf, n);
+        if (err != HPE_OK) {
+            std::cerr << "Parse error: " << llhttp_errno_name(err) << "\n";
+            break;
+        }
+    }
+
+    return 0;
+}
+*/
     class Request:public Refcountable
     {
 
     public:
+        llhttp_t parser;
+        llhttp_settings_t settings;
+
         void parse(const char* req, int reqsize);
         http_header_parse_data parse_data;
 

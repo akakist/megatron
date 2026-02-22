@@ -161,6 +161,7 @@ typedef enum {
     EXPECT,
     Upgrade_Insecure_Requests,
     Cache_Control,
+    ORIGIN,
     UNKNOWN_HEADER
 } common_header_t;
 
@@ -175,6 +176,7 @@ constexpr std::string_view _CONTENT_TYPE="Content-Type";
 constexpr std::string_view _CONTENT_LENGTH="Content-Length";
 constexpr std::string_view _COOKIE="Cookie";
 constexpr std::string_view _Cache_Control="Cache-Control";
+constexpr std::string_view _ORIGIN="Origin";
 
 constexpr std::string_view _REFERER="Referer";
 constexpr std::string_view _AUTHORIZATION="Authorization";
@@ -199,6 +201,9 @@ common_header_t get_common_header_type(const std::string_view &t) {
         break;
     case 'H':
         if (t==_HOST) return HOST;
+        break;
+    case 'O':
+        if (t==_ORIGIN) return ORIGIN;
         break;
     case 'U':
         if (t==_USER_AGENT) return USER_AGENT;
@@ -257,6 +262,8 @@ void print_token(const char* p, const HTTP::token& t)
 #include "sv.h"
 void HTTP::Request::parse(const char *req, int reqsize)
 {
+    // if()
+    logErr2("parse_data.done_header %d parse_data.cur_pos %d",parse_data.done_header,parse_data.cur_pos);
     while(parse_data.cur_pos<reqsize && ! parse_data.done_header)
     {
         if(parse_data.cur_line==0)
@@ -264,8 +271,9 @@ void HTTP::Request::parse(const char *req, int reqsize)
             if(isspace(parse_data.last_char) && !isspace(req[parse_data.cur_pos]))
             {
                 if(parse_data.line0tk_idx>=LINE0TKSIZE)
-                    throw CommonError("if(line0tk_idx>=LINE0TKSIZE)");
+                    throw CommonError("if(line0tk_idx>=LINE0TKSIZE) %d %d",parse_data.line0tk_idx,LINE0TKSIZE);
                 parse_data.line0tk[parse_data.line0tk_idx++].pz=parse_data.cur_pos;
+                logErr2("tok %s",std::string(req+parse_data.cur_pos,10).c_str());
             }
             if(!isspace(parse_data.last_char) && isspace(req[parse_data.cur_pos]))
             {
@@ -281,7 +289,7 @@ void HTTP::Request::parse(const char *req, int reqsize)
                 else if(!memcmp(m,"POST",4)) parse_data.method=HTTP::METHOD_POST;
                 else if(!memcmp(m,"PUT",3)) parse_data.method=HTTP::METHOD_PUT;
                 else if(!memcmp(m,"DELETE",6)) parse_data.method=HTTP::METHOD_DELETE;
-                else throw CommonError("wrong method");
+                else throw CommonError("wrong method %s",std::string(req[parse_data.line0tk[0].pz],parse_data.line0tk[0].len).c_str());
                 parse_data.uri=parse_data.line0tk[1];
                 auto p=tosv_h(parse_data.uri);
                 parse_data.http_version=parse_data.line0tk[2];
@@ -345,6 +353,9 @@ void HTTP::Request::parse(const char *req, int reqsize)
                         break;
                     case ACCEPT_ENCODING:
                         parse_data.header_params.ACCEPT_ENCODING=value;
+                        break;
+                    case ORIGIN:
+                        parse_data.header_params.ORIGIN=value;
                         break;
                     case CONNECTION:
                     {
@@ -440,6 +451,83 @@ void HTTP::Request::parse(const char *req, int reqsize)
 
     }
 }
+int on_message_begin(llhttp_t* p) {
+    auto* ctx = (HttpContext*)p->data;
+    ctx->headers.clear();
+    ctx->current_field.clear();
+    ctx->current_value.clear();
+    ctx->url.clear();
+    return 0;
+}
+int on_url(llhttp_t* p, const char* at, size_t length) {
+    auto* ctx = (HttpContext*)p->data;
+    ctx->url.append(at, length);
+    return 0;
+}
+
+int on_header_field(llhttp_t* p, const char* at, size_t length) {
+    auto* ctx = (HttpContext*)p->data;
+
+    // если было предыдущее поле — сохраняем
+    if (!ctx->current_value.empty()) {
+        ctx->headers[ctx->current_field] = ctx->current_value;
+        logErr2("header: %s -> %s",ctx->current_field.c_str(),ctx->current_value.c_str());
+        ctx->current_field.clear();
+        ctx->current_value.clear();
+    }
+
+    ctx->current_field.append(at, length);
+    return 0;
+}
+
+int on_header_value(llhttp_t* p, const char* at, size_t length) {
+    auto* ctx = (HttpContext*)p->data;
+    ctx->current_value.append(at, length);
+    return 0;
+}
+
+int on_headers_complete(llhttp_t* p) {
+    auto* ctx = (HttpContext*)p->data;
+
+    if (!ctx->current_field.empty()) {
+        ctx->headers[ctx->current_field] = ctx->current_value;
+        logErr2("header: %s -> %s",ctx->current_field.c_str(),ctx->current_value.c_str());
+    }
+
+    ctx->method = llhttp_method_name((llhttp_method_t)p->method);
+
+    std::cout << "Method: " << ctx->method << "\n";
+    std::cout << "URL: " << ctx->url << "\n";
+
+    for (auto& kv : ctx->headers) {
+        std::cout << kv.first << ": " << kv.second << "\n";
+    }
+
+    return 0;
+}
+
+int on_body(llhttp_t* p, const char* at, size_t length) {
+    auto* ctx = (HttpContext*)p->data;
+
+    // вот тут ты можешь стримить тело куда угодно:
+    // - в multipart-парсер
+    // - на диск
+    // - в pipe
+    // - в обработчик JSON
+
+    std::cout << "Body chunk: " << length << " bytes\n";
+
+    // пример: передать в multipart
+    // if (ctx->mp) ctx->mp->feed(at, length);
+
+    return 0;
+}
+
+int on_message_complete(llhttp_t* p) {
+    std::cout << "Message complete\n";
+    return 0;
+}
+
 HTTP::Request::Request(const REF_getter<epoll_socket_info>& _esi)
     :
     m_last_io_time(time(NULL)),
@@ -450,6 +538,18 @@ HTTP::Request::Request(const REF_getter<epoll_socket_info>& _esi)
 {
     memset(& parse_data,0,sizeof(parse_data));
     parse_data.last_char=' ';
+    llhttp_settings_init(&settings);
+    settings.on_message_begin = on_message_begin;
+    settings.on_url = on_url;
+    settings.on_header_field = on_header_field;
+    settings.on_header_value = on_header_value;
+    settings.on_headers_complete = on_headers_complete;
+    settings.on_body = on_body;
+    settings.on_message_complete = on_message_complete;
+    HttpContext ctx; 
+    llhttp_init(&parser, HTTP_REQUEST, &settings); 
+    parser.data = &ctx;
+
 }
 void HTTP::Response::make_response(const std::string& str)
 {

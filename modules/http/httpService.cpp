@@ -434,40 +434,49 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 
 
     W->m_last_io_time=time(NULL);
+    std::string buf;
     {
+        W_LOCK(evt->esi->inBuffer_.lk);
+        buf=std::move(evt->esi->inBuffer_._mx_data);
+        evt->esi->inBuffer_._mx_data.clear();
+    }
+
+    llhttp_errno_t err = llhttp_execute(&W->parser, buf.data(), buf.size());
+    if (err != HPE_OK) 
+    {
+        throw CommonError("Parse error: %s",llhttp_errno_name(err));
+    }
+#ifdef KALL
+    if(!W->parse_data.done_header)
+    {
+        if(W->header_content.empty())
         {
-            W_LOCK(evt->esi->inBuffer_.lk);
-            if(!W->parse_data.done_header)
-            {
-                if(W->header_content.empty())
-                {
-                    W->header_content=std::move(evt->esi->inBuffer_._mx_data);
-                    evt->esi->inBuffer_._mx_data.clear();
-                }
-                else
-                {
-                    W->header_content.append(evt->esi->inBuffer_._mx_data);
-                    evt->esi->inBuffer_._mx_data.clear();
-                }
-            }
-            else
-            {
-                if(W->post_content.empty())
-                {
-                    W->post_content=std::move(evt->esi->inBuffer_._mx_data);
-                    evt->esi->inBuffer_._mx_data.clear();
-                }
-                else
-                {
-                    W->post_content.append(evt->esi->inBuffer_._mx_data);
-                    evt->esi->inBuffer_._mx_data.clear();
-                }
-            }
+            W->header_content=std::move(evt->esi->inBuffer_._mx_data);
+            evt->esi->inBuffer_._mx_data.clear();
         }
+        else
+        {
+            W->header_content.append(evt->esi->inBuffer_._mx_data);
+            evt->esi->inBuffer_._mx_data.clear();
+        }
+    }
+    else
+    {
+        if(W->post_content.empty())
+        {
+            W->post_content=std::move(evt->esi->inBuffer_._mx_data);
+            evt->esi->inBuffer_._mx_data.clear();
+        }
+        else
+        {
+            W->post_content.append(evt->esi->inBuffer_._mx_data);
+            evt->esi->inBuffer_._mx_data.clear();
+        }
+    }
+#endif
 
 
-
-
+#ifdef KALL
         if(!W->parse_data.done_header)
             W->parse(W->header_content.data(),W->header_content.size());
         if(!W->parse_data.done_header)
@@ -489,6 +498,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
             }
 
         }
+#endif
 
         if(W->parse_data.header_params.CONNECTION==HTTP::CONN_UPGRADE)
         {
@@ -518,7 +528,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 
 
 
-    }
+    
     if(W->chunked || W->isWebSocket)
     {
         if(!W->sendRequestIncomingIsSent)
@@ -553,9 +563,9 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
                     return true;
                 }
             }
-            else if (W->parse_data.header_params.CONTENT_TYPE.pz)
+            else if (W->parse_data.header_params.CONTENT_TYPE.pz && false)
             {
-
+                logErr2("//Multipart form");
 
                 //Multipart form
                 const std::string_view t= W->tosv_h(W->parse_data.header_params.CONTENT_TYPE);

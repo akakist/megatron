@@ -143,5 +143,8 @@ listenerBufferedNThread.h
 #malloc_debug.h
 obuf.cpp
 get_symbol_name.cpp
+llhttp/api.c
+llhttp/http.c
+llhttp/llhttp.c
            )
 
