@@ -144,7 +144,7 @@ int on_headers_complete(llhttp_t* p) {
         r->ctx.is_chunked=true;
         // service->passEvent(new httpEvent::RequestStartChunking(r,r->esi,r->currentEvent->route));
         service->passEvent(new httpEvent::RequestIncoming(r,r->esi,r->currentEvent->route));
-        logErr2("chunked request started");
+        // logErr2("chunked request started");
         return 0;
 
     }
@@ -294,11 +294,17 @@ int on_chunk_header(llhttp_t* p) {
     // auto* ctx = (HttpContext*)p->data;
     r->ctx.chunk.clear();
     r->ctx.chunk_size=p->content_length;
-    logErr2("@@ chunk_size %d  ",p->content_length);
+    // logErr2("@@ chunk_size %d  ",p->content_length);
     // std::cout << "Message complete\n";
     return 0;
 }
-
+int on_chunk_complete(llhttp_t* p) {
+    auto* r = (HTTP::Request*)p->data;
+    // auto* ctx = (HttpContext*)p->data;
+    // logErr2("@@ chunk complete");
+    // std::cout << "Message complete\n";
+    return 0;
+}
 
 HTTP::Service::Service(const SERVICE_id& id, const std::string&nm, IInstance* _if):
     UnknownBase(nm),Broadcaster(_if),
@@ -314,6 +320,7 @@ HTTP::Service::Service(const SERVICE_id& id, const std::string&nm, IInstance* _i
     settings.on_body = on_body;
     settings.on_message_complete = on_message_complete;
     settings.on_chunk_header = on_chunk_header;
+    settings.on_chunk_complete = on_chunk_complete;
 
     m_maxPost= static_cast<size_t>(_if->getConfig()->get_int64_t("max_post", 1000000, ""));
     {
@@ -697,7 +704,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
     }
 
 
-    W->m_last_io_time=time(NULL);
+    // W->m_last_io_time=time(NULL);
     std::string buf;
     {
         W_LOCK(evt->esi->inBuffer_.lk);
@@ -982,12 +989,12 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 
 
 
-    if(!W->sendRequestIncomingIsSent)
-    {
-        W->sendRequestIncomingIsSent=true;
-        passEvent(new httpEvent::RequestIncoming(W,evt->esi,evt->route));
-        clearData(evt->esi.get());
-    }
+    // if(!W->sendRequestIncomingIsSent)
+    // {
+    //     W->sendRequestIncomingIsSent=true;
+    //     passEvent(new httpEvent::RequestIncoming(W,evt->esi,evt->route));
+    //     clearData(evt->esi.get());
+    // }
     return  true;
 }
 
@@ -1380,7 +1387,7 @@ void HTTP::Service::setData(epoll_socket_info* esi, const REF_getter<HTTP::Reque
 void HTTP::Service::clearData(epoll_socket_info* esi)
 {
     W_LOCK (esi->additions_lk);
-    logErr2("HTTP::Service::clearData for esi %p",esi);
+    // logErr2("HTTP::Service::clearData for esi %p",esi);
     esi->additions_.erase(ServiceEnum::HTTP);
 
 }

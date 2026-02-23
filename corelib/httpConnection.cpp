@@ -148,7 +148,7 @@ inline int ascii_tolower(int c) {
 
 HTTP::Request::Request(const REF_getter<epoll_socket_info>& _esi, llhttp_settings_t& settings, void* server)
     :
-    m_last_io_time(time(NULL)),
+    // m_last_io_time(time(NULL)),
     fileresponse(NULL)
     ,
     sendRequestIncomingIsSent(false),

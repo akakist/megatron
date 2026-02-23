@@ -247,7 +247,7 @@ int main() {
         Request(const REF_getter<epoll_socket_info>& _esi, llhttp_settings_t& settings, void* server);
 
 
-        time_t m_last_io_time;
+        // time_t m_last_io_time;
         // bool websocket_established=false;
 
         private:
@@ -255,7 +255,7 @@ int main() {
         public:
         void setReader(const REF_getter<Stream>& r)
         {
-            logErr2("@@ setReader %p",r.get());
+            // logErr2("@@ setReader %p",r.get());
             reader=r;
         }
         REF_getter<Stream> getReader()
