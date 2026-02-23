@@ -186,6 +186,9 @@ bool HTTP::Service::handleEvent(const REF_getter<Event::Base>& evt)
 bool HTTP::Service::on_Accepted(const socketEvent::Accepted* evt)
 {
     MUTEX_INSPECTOR;
+    REF_getter<Refcountable> p=new HTTP::Request(evt->esi);
+    evt->esi->additions_.insert(std::make_pair(ServiceEnum::HTTP,p));
+
     return true;
 }
 // #include "sha1.hpp"
@@ -376,6 +379,26 @@ bool HTTP::Service::handleChunkedBuffer(const socketEvent::StreamRead* evt, cons
 
 }
 #include "llhttp/llhttp.h"
+inline bool equals_case_insensitive(std::string_view a, std::string_view b)
+{
+    if (a.size() != b.size())
+        return false;
+
+    for (size_t i = 0; i < a.size(); i++)
+    {
+        unsigned char ca = a[i];
+        unsigned char cb = b[i];
+
+        // Приводим к нижнему регистру вручную (ASCII)
+        if (ca >= 'A' && ca <= 'Z') ca += 'a' - 'A';
+        if (cb >= 'A' && cb <= 'Z') cb += 'a' - 'A';
+
+        if (ca != cb)
+            return false;
+    }
+    return true;
+}
+
 bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 {
     MUTEX_INSPECTOR;
@@ -441,6 +464,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         buf=std::move(evt->esi->inBuffer_._mx_data);
         evt->esi->inBuffer_._mx_data.clear();
     }
+    // logErr2("on_StreamRead %s bytes",buf.c_str());
     // logErr2("before llhttp_execute");
     llhttp_errno_t err = llhttp_execute(&W->parser, buf.data(), buf.size());
     // logErr2("after llhttp_execute");
@@ -452,6 +476,14 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
     {
         if(W->ctx.headers_complete)
         {
+            // int keepalive = llhttp_should_keep_alive(&W->parser);
+            // logErr2("keepalive %d",keepalive);
+            if(W->ctx.keepalive)
+            {
+                // logErr2("CONNECTION: keep-alive");
+                // W->parse_data.header_params.CONNECTION=HTTP::CONN_KEEP_ALIVE;
+            }
+
             W->ctx.headers_complete=false;
             if(!W->sendRequestIncomingIsSent)
             {
@@ -517,19 +549,19 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         }
 #endif
 
-        if(W->parse_data.header_params.CONNECTION==HTTP::CONN_UPGRADE)
+        if(W->ctx.upgrade)
         {
             {
-                auto ug=W->tosv_h(W->parse_data.header_params.UPGRADE);
-                if(ug=="websocket")
+                auto ug=W->ctx.headers["Upgrade"];
+                if(equals_case_insensitive(ug,"websocket"))                
                 {
-                    auto vs=W->tosv_h(W->parse_data.header_params.Sec_WebSocket_Version);
+                    auto vs=W->ctx.headers["Sec-WebSocket-Version"];
                     if(vs!="13")
                     {
                         /// do smth for version
                     }
 
-                    auto key=W->tosv_h(W->parse_data.header_params.Sec_WebSocket_Key);
+                    auto key=W->ctx.headers["Sec-WebSocket-Key"]    ;
                     std::stringstream o;
                     o <<  "HTTP/1.1 101 Switching Protocols\r\n"
                       << "Upgrade: websocket\r\n"
@@ -544,7 +576,15 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         }
 
 
+    if(W->ctx.chunk_size && W->ctx.chunk.size()==W->ctx.chunk_size)
+    {
+        W->chunked=true;
+        passEvent(new httpEvent::RequestChunkReceived(W,W->esi,W->chunkId++, W->ctx.chunk, evt->route));
+        W->ctx.chunk.clear();
+        W->ctx.chunk_size=0;
+        return true;
 
+    }
     
     if(W->chunked || W->isWebSocket)
     {
@@ -562,8 +602,9 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         return  true;
 
     }
-
+#ifdef KALL
     {
+
         if (W->parse_data.method == HTTP::METHOD_POST)
         {
             if(W->chunked)
@@ -719,7 +760,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         }
         // W->parse_state.insert(2);
     }
-
+#endif
 
 
 
@@ -853,7 +894,7 @@ std::string datef(const time_t &__t)
              wkday[tt.tm_wday%7],tt.tm_mday,month[tt.tm_mon%12],tt.tm_year+1900,tt.tm_hour,tt.tm_min,tt.tm_sec);
     return outstr;
 }
-
+#ifdef KALL
 /** -1 error*/ int HTTP::Service::send_other_from_disk_ext(const REF_getter<epoll_socket_info>&esi,const REF_getter<HTTP::Request>&W,const std::string & fn,const std::string& exten)
 {
 
@@ -1011,7 +1052,7 @@ std::string datef(const time_t &__t)
 
     out.push_back("Last-Modified: "+datef(last_modified)+"\r\n");
 
-    if(W->parse_data.header_params.CONNECTION==HTTP::CONN_KEEP_ALIVE)
+    if(W->ctx.keepalive)
         out.push_back("Connection: Keep-Alive\r\n");
     else
         out.push_back("Connection: Close\r\n");
@@ -1058,7 +1099,7 @@ std::string datef(const time_t &__t)
 
     return 0;
 }
-
+#endif
 
 
 bool HTTP::Service::on_Disaccepted( socketEvent::Disaccepted*e)
@@ -1100,6 +1141,8 @@ REF_getter<HTTP::Request> HTTP::Service::getData(epoll_socket_info* esi)
     auto it=esi->additions_.find(ServiceEnum::HTTP);
     if(it==esi->additions_.end())
     {
+        // throw CommonError("HTTP::Service::getData: HTTP::Request not found for esi %p",esi);
+        // logErr2("HTTP::Service::getData: create new HTTP::Request for esi %p",esi);
         REF_getter<Refcountable> p=new HTTP::Request(esi);
         esi->additions_.insert(std::make_pair(ServiceEnum::HTTP,p));
         it=esi->additions_.find(ServiceEnum::HTTP);

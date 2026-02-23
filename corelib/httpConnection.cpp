@@ -104,7 +104,7 @@ std::string HTTP::Response::build_html_response()
     if(!is_chunked && content.size())
 
         ret<< "Content-Length: " << content.size() << "\r\n";
-    if(request->parse_data.header_params.CONNECTION==HTTP::CONN_KEEP_ALIVE && !is_chunked)
+    if(request->ctx.keepalive && !is_chunked)
     {
         ret << "Connection: Keep-Alive\r\n"
             "Keep-Alive: timeout=7200, max=1000000000\r\n";
@@ -134,6 +134,7 @@ std::string HTTP::Response::build_html_response()
     {
         ret << content;
     }
+    // logErr2("ret %s",ret.str().c_str());
     return ret.str();
 }
 
@@ -141,6 +142,7 @@ inline int ascii_tolower(int c) {
     return (c >= 'A' && c <= 'Z') ? (c + 32) : c;
 }
 // Самые частые заголовки для оптимизации сравнения
+#ifdef KALL
 typedef enum {
     HOST,
     USER_AGENT,
@@ -164,7 +166,8 @@ typedef enum {
     ORIGIN,
     UNKNOWN_HEADER
 } common_header_t;
-
+#endif
+#ifdef KALL
 constexpr std::string_view _HOST="Host";
 constexpr std::string_view _USER_AGENT="User-Agent";
 
@@ -191,8 +194,8 @@ constexpr std::string_view _Close="Close";
 constexpr std::string_view _close="close";
 constexpr std::string_view _Expect="Expect";
 constexpr std::string_view _Upgrade_Insecure_Requests="Upgrade-Insecure-Requests";
-
-
+#endif
+#ifdef KALL
 common_header_t get_common_header_type(const std::string_view &t) {
     // Быстрая проверка самых частых заголовков
     switch (t[0]) {
@@ -238,28 +241,31 @@ common_header_t get_common_header_type(const std::string_view &t) {
     }
     return UNKNOWN_HEADER;
 }
-void HTTP::http_header_parse_data::dump(const char* req, int reqsize)
-{
-    logErr2("1st line: %d",line0tk_idx);
-    for(int i=0; i< line0tk_idx; i++)
-    {
-        for(int j=0; j<line0tk[i].len; j++)
-        {
-            putchar(req[line0tk[i].pz+j]);
-        }
-        printf("\n");
-    }
-}
+#endif
 
-void print_token(const char* p, const HTTP::token& t)
-{
-    for(int i=0; i<t.len; i++)
-    {
-        putchar(p[t.pz+i]);
-    }
-}
+// void HTTP::http_header_parse_data::dump(const char* req, int reqsize)
+// {
+//     logErr2("1st line: %d",line0tk_idx);
+//     for(int i=0; i< line0tk_idx; i++)
+//     {
+//         for(int j=0; j<line0tk[i].len; j++)
+//         {
+//             putchar(req[line0tk[i].pz+j]);
+//         }
+//         printf("\n");
+//     }
+// }
+
+// void print_token(const char* p, const HTTP::token& t)
+// {
+//     for(int i=0; i<t.len; i++)
+//     {
+//         putchar(p[t.pz+i]);
+//     }
+// }
 #include <iostream>
 #include "sv.h"
+#ifdef KALL
 void HTTP::Request::parse(const char *req, int reqsize)
 {
     // if()
@@ -451,6 +457,7 @@ void HTTP::Request::parse(const char *req, int reqsize)
 
     }
 }
+#endif
 int on_message_begin(llhttp_t* p) {
     // logErr2("@@ %s",__func__);
     auto* ctx = (HttpContext*)p->data;
@@ -463,7 +470,7 @@ int on_message_begin(llhttp_t* p) {
 int on_url(llhttp_t* p, const char* at, size_t length) {
     // logErr2("@@ %s",__func__);
     auto* ctx = (HttpContext*)p->data;
-    // ctx->url.append(at, length);
+    ctx->url.append(at, length);
     return 0;
 }
 
@@ -473,7 +480,7 @@ int on_header_field(llhttp_t* p, const char* at, size_t length) {
 
     // если было предыдущее поле — сохраняем
     if (!ctx->current_value.empty()) {
-        // ctx->headers[ctx->current_field] = ctx->current_value;
+        ctx->headers[ctx->current_field] = ctx->current_value;
         // logErr2("header: %s -> %s",ctx->current_field.c_str(),ctx->current_value.c_str());
         ctx->current_field.clear();
         ctx->current_value.clear();
@@ -486,7 +493,7 @@ int on_header_field(llhttp_t* p, const char* at, size_t length) {
 int on_header_value(llhttp_t* p, const char* at, size_t length) {
     // logErr2("@@ %s",__func__);
     auto* ctx = (HttpContext*)p->data;
-    // ctx->current_value.append(at, length);
+    ctx->current_value.append(at, length);
     return 0;
 }
 
@@ -494,12 +501,17 @@ int on_headers_complete(llhttp_t* p) {
     // logErr2("@@ %s",__func__);
     auto* ctx = (HttpContext*)p->data;
 
+    ctx->keepalive = llhttp_should_keep_alive(p);
+
+    
+    ctx->upgrade = p->upgrade;
+
     if (!ctx->current_field.empty()) {
-        // ctx->headers[ctx->current_field] = ctx->current_value;
+        ctx->headers[ctx->current_field] = ctx->current_value;
         // logErr2("header: %s -> %s",ctx->current_field.c_str(),ctx->current_value.c_str());
     }
 
-    // ctx->method = llhttp_method_name((llhttp_method_t)p->method);
+    ctx->method = llhttp_method_name((llhttp_method_t)p->method);
 
     // std::cout << "Method: " << ctx->method << "\n";
     // std::cout << "URL: " << ctx->url << "\n";
@@ -508,6 +520,9 @@ int on_headers_complete(llhttp_t* p) {
     //     std::cout << kv.first << ": " << kv.second << "\n";
     // }
     ctx->headers_complete = true;
+
+    if(p->upgrade)
+        return 1;
 
     return 0;
 }
@@ -522,7 +537,18 @@ int on_body(llhttp_t* p, const char* at, size_t length) {
     // - в pipe
     // - в обработчик JSON
 
-    std::cout << "Body chunk: " << length << " bytes\n";
+    // std::cout << "Body chunk: " << length << " bytes\n";
+
+    if(ctx->chunk_size)
+    {
+        ctx->chunk.append(at,length);
+        // if(ctx->chunk.size()>=ctx->chunk_size)
+        // {
+        //     // logErr2("chunk complete %d",ctx->chunk.size());
+        //     ctx->chunk.clear();
+        //     ctx->chunk_size=0;
+        // }
+    }
 
     // пример: передать в multipart
     // if (ctx->mp) ctx->mp->feed(at, length);
@@ -531,6 +557,14 @@ int on_body(llhttp_t* p, const char* at, size_t length) {
 }
 
 int on_message_complete(llhttp_t* p) {
+    // logErr2("@@ %s",__func__);
+    // std::cout << "Message complete\n";
+    return 0;
+}
+int on_chunk_header(llhttp_t* p) {
+    auto* ctx = (HttpContext*)p->data;
+    ctx->chunk.clear();
+    ctx->chunk_size=p->content_length;
     // logErr2("@@ %s",__func__);
     // std::cout << "Message complete\n";
     return 0;
@@ -544,8 +578,8 @@ HTTP::Request::Request(const REF_getter<epoll_socket_info>& _esi)
     sendRequestIncomingIsSent(false),
     esi(_esi)
 {
-    memset(& parse_data,0,sizeof(parse_data));
-    parse_data.last_char=' ';
+    // memset(& parse_data,0,sizeof(parse_data));
+    // parse_data.last_char=' ';
     llhttp_settings_init(&settings);
     settings.on_message_begin = on_message_begin;
     settings.on_url = on_url;
@@ -554,6 +588,7 @@ HTTP::Request::Request(const REF_getter<epoll_socket_info>& _esi)
     settings.on_headers_complete = on_headers_complete;
     settings.on_body = on_body;
     settings.on_message_complete = on_message_complete;
+    settings.on_chunk_header = on_chunk_header;
     llhttp_init(&parser, HTTP_REQUEST, &settings); 
     parser.data = &ctx;
 
@@ -568,7 +603,7 @@ void HTTP::Response::make_response(const std::string& str)
 
     content=str;
     auto s=build_html_response();
-    if( request->parse_data.header_params.CONNECTION==HTTP::CONN_KEEP_ALIVE)
+    if( request->ctx.keepalive)
     {
         request->esi->write_(s);
     }
@@ -615,7 +650,7 @@ void HTTP::Response::end_chunked()
         {
 
             std::string buf="0\r\n\r\n";
-            if( request->parse_data.header_params.CONNECTION==HTTP::CONN_KEEP_ALIVE)
+            if( request->ctx.keepalive)
             {
                 request->esi->write_(buf);
             }

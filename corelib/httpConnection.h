@@ -22,7 +22,7 @@ typedef int (*__url_close)(long _fd);
 typedef long (*__url_open)(const char* fn, int flags);
 
 struct HttpContext {
-    // std::string method;
+    std::string method;
     std::string url;
 
     std::string current_field;
@@ -32,6 +32,23 @@ struct HttpContext {
     // сюда можно подключить multipart-парсер
     // MultipartParser* mp = nullptr;
     bool headers_complete = false;
+    bool keepalive = false;
+    bool upgrade = false;
+    std::string chunk;
+    size_t chunk_size = 0;
+
+    void clear() {
+        method.clear();
+        url.clear();
+        current_field.clear();
+        current_value.clear();
+        headers.clear();
+        headers_complete = false;
+        keepalive = false;
+        upgrade = false;
+        chunk.clear();
+        chunk_size = 0;
+    }
 };
 
 
@@ -53,17 +70,17 @@ namespace HTTP
         }
 
     };
-
+    enum CONN_TYPE
+    {
+        CONN_CLOSE, CONN_KEEP_ALIVE, CONN_UPGRADE,CONN_UNKNOWN
+    };
+#ifdef KALL
     struct token
     {
         size_t pz;
         size_t len;
     };
 #define LINE0TKSIZE 10
-    enum CONN_TYPE
-    {
-        CONN_CLOSE, CONN_KEEP_ALIVE, CONN_UPGRADE,CONN_UNKNOWN
-    };
     struct header_params_
     {
         token HOST;
@@ -88,11 +105,12 @@ namespace HTTP
         token Cache_Control;
 
     };
+#endif
+#ifdef KALL
     enum METHOD
     {
         METHOD_NOTSET,METHOD_GET, METHOD_POST, METHOD_PUT, METHOD_DELETE
     };
-
     enum STATE
     {
         STATE_PREAMBLE=0,
@@ -120,13 +138,16 @@ namespace HTTP
         char last_char;
         token line0tk[LINE0TKSIZE];
         size_t line0tk_idx;
-        STATE state;
+        // STATE state;
         std::string buffer;
 
         void dump(const char* req, int reqsize);
 
     };
-/*
+#endif
+
+
+    /*
 extern "C" {
 #include "llhttp.h"
 }
@@ -187,6 +208,8 @@ int main() {
 
 
         void parse(const char* req, int reqsize);
+        
+        #ifdef KALL
         http_header_parse_data parse_data;
 
         std::string_view uri()
@@ -209,6 +232,7 @@ int main() {
         {
             return {&post_content[t.pz],t.len};
         }
+        #endif
         // std::string_view postContent;
         bool chunked=false;
 
