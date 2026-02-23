@@ -71,6 +71,7 @@ namespace HTTP
 
         REF_getter<HTTP::Request> getData(epoll_socket_info* esi);
         void setData(epoll_socket_info* esi, const REF_getter<HTTP::Request> & p);
+        void clearRequest(const REF_getter<HTTP::Request> & p);
         void clearData(epoll_socket_info* esi);
         // bool handleChunkedBuffer(const socketEvent::StreamRead* evt, const REF_getter<HTTP::Request>& W);
 

@@ -151,7 +151,7 @@ HTTP::Request::Request(const REF_getter<epoll_socket_info>& _esi, llhttp_setting
     // m_last_io_time(time(NULL)),
     fileresponse(NULL)
     ,
-    sendRequestIncomingIsSent(false),
+    // sendRequestIncomingIsSent(false),
     esi(_esi)
 {
     // memset(& parse_data,0,sizeof(parse_data));

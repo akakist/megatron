@@ -40,6 +40,8 @@ struct HttpContext {
     bool is_chunked=false;
     int chunkId=0;
     void *server;
+    bool isWebSocket=false;
+    std::string websocket_buffer;
 
     void clear() {
         method.clear();
@@ -54,6 +56,8 @@ struct HttpContext {
         chunk_size = 0;
         is_chunked=false;
         chunkId=0;
+        isWebSocket=false;
+        websocket_buffer.clear();
     }
 };
 
@@ -247,15 +251,12 @@ int main() {
         Request(const REF_getter<epoll_socket_info>& _esi, llhttp_settings_t& settings, void* server);
 
 
-        // time_t m_last_io_time;
-        // bool websocket_established=false;
 
         private:
         REF_getter<Stream> reader=nullptr;
         public:
         void setReader(const REF_getter<Stream>& r)
         {
-            // logErr2("@@ setReader %p",r.get());
             reader=r;
         }
         REF_getter<Stream> getReader()
@@ -263,10 +264,6 @@ int main() {
             return reader;
         }   
 
-        // struct _mx_buffer
-        // {
-        // };
-        // _mx_buffer mx_chunked;
 
         REF_getter<socketEvent::StreamRead> currentEvent=nullptr;
 
@@ -312,12 +309,10 @@ int main() {
         //     CLOSE,KEEPALIVE,UPGRADE
         // };
         // CONN connection=CLOSE;
-        bool sendRequestIncomingIsSent;
+        // bool sendRequestIncomingIsSent;
         REF_getter<epoll_socket_info> esi;
 
         ///   websocket data
-        bool isWebSocket=false;
-        std::string websocket_buffer;
 
 
     private:

@@ -168,7 +168,7 @@ int on_headers_complete(llhttp_t* p) {
                 auto ka=calc_key_answer(std::string(key));
                 o << "Sec-WebSocket-Accept: " << ka  << "\r\n";
                 o << "\r\n";
-                r->isWebSocket=true;
+                r->ctx.isWebSocket=true;
                 r->esi->write_(o.str());
             }
         }
@@ -284,23 +284,16 @@ int on_message_complete(llhttp_t* p) {
 }
 int on_chunk_header(llhttp_t* p) {
     auto* r = (HTTP::Request*)p->data;
-    // auto* ctx = (HttpContext*)p->data;
     r->ctx.chunk.clear();
     r->ctx.chunk_size=p->content_length;
-    // logErr2("@@ chunk_size %d  ",p->content_length);
-    // std::cout << "Message complete\n";
     return 0;
 }
 int on_chunk_complete(llhttp_t* p) {
 
     auto* r = (HTTP::Request*)p->data;
     HTTP::Service* service=(HTTP::Service*)r->ctx.server;
-    // auto* ctx = (HttpContext*)p->data;
-    // logErr2("@@ chunk complete");
-    // std::cout << "Message complete\n";
     if(r->ctx.chunk.size()!=r->ctx.chunk_size)
         throw CommonError("chunk size mismatch");
-        // logErr2("RequestChunkReceived chunk size %d",r->ctx.chunk.size());
     service->passEvent(new httpEvent::RequestChunkReceived(r,r->esi,r->ctx.chunkId++, r->ctx.chunk, r->currentEvent->route));
     r->ctx.chunk.clear();
     r->ctx.chunk_size=0;
@@ -653,16 +646,16 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
     MUTEX_INSPECTOR;
 
     REF_getter<HTTP::Request> W=getData(evt->esi.get());
-    if(W->isWebSocket)
+    if(W->ctx.isWebSocket)
     {
         {
             W_LOCK(evt->esi->inBuffer_.lk);
             auto &data=evt->esi->inBuffer_._mx_data;
-            W->websocket_buffer+=data;
+            W->ctx.websocket_buffer+=data;
             data.clear();
         }
         std::string o;
-        auto res=WebSocket_getFrame((uint8_t*)W->websocket_buffer.data(),W->websocket_buffer.size(),/*out,sizeof(out),&outl,*/o);
+        auto res=WebSocket_getFrame((uint8_t*)W->ctx.websocket_buffer.data(),W->ctx.websocket_buffer.size(),/*out,sizeof(out),&outl,*/o);
         switch(res)
         {
         case ERROR_FRAME:
@@ -686,7 +679,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
             logErr2("INCOMPLETE_BINARY_FRAME");
             break;
         case TEXT_FRAME:
-            W->websocket_buffer.clear();
+            W->ctx.websocket_buffer.clear();
             // logErr2("TEXT_FRAME");
             break;
         case BINARY_FRAME:
@@ -1335,7 +1328,7 @@ bool HTTP::Service::on_Disaccepted( socketEvent::Disaccepted*e)
     REF_getter<HTTP::Request> rq=getData(e->esi.get());
     if(rq.valid())
     {
-        if(rq->isWebSocket)
+        if(rq->ctx.isWebSocket)
         {
             passEvent(new httpEvent::WSDisaccepted(rq,e->route));
         }
@@ -1349,7 +1342,7 @@ bool HTTP::Service::on_Disconnected( socketEvent::Disconnected*e)
     REF_getter<HTTP::Request> rq=getData(e->esi.get());
     if(rq.valid())
     {
-        if(rq->isWebSocket)
+        if(rq->ctx.isWebSocket)
         {
             passEvent(new httpEvent::WSDisconnected(rq,e->route));
         }
