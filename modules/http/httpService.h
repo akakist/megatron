@@ -45,10 +45,7 @@ namespace HTTP
         struct _mx
         {
             RWLock lk;
-            // std::set<std::string> docUrls;
-            // std::string documentRoot;
             std::map<std::string,std::string>mime_types;
-            // std::map<std::string,HTTP::IoProtocol> protocols;
             std::set<msockaddr_in> bind_addrs;
         };
         _mx mx;
@@ -71,9 +68,6 @@ namespace HTTP
 
         REF_getter<HTTP::Request> getData(epoll_socket_info* esi);
         void setData(epoll_socket_info* esi, const REF_getter<HTTP::Request> & p);
-        void clearRequest(const REF_getter<HTTP::Request> & p);
-        void clearData(epoll_socket_info* esi);
-        // bool handleChunkedBuffer(const socketEvent::StreamRead* evt, const REF_getter<HTTP::Request>& W);
 
 
         static HTTP::WebSocketFrameType WebSocket_getFrame(unsigned char* in_buffer, int in_length, /*unsigned char* out_buffer, int out_size, int* out_length,*/ std::string &o);
@@ -110,3 +104,4 @@ namespace HTTP
 
     };
 };
+

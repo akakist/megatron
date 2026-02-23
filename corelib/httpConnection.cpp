@@ -248,3 +248,20 @@ HTTP::Request::_fileresponse::~_fileresponse()
         m_fd=-1;
     }
 }
+void HttpContext::clear() 
+{
+    method.clear();
+    url.clear();
+    current_field.clear();
+    current_value.clear();
+    headers.clear();
+    keepalive = true;
+    upgrade = false;
+    chunk.clear();
+    chunk_size = 0;
+    is_chunked=false;
+    chunkId=0;
+    isWebSocket=false;
+    websocket_buffer.clear();
+
+}

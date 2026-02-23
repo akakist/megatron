@@ -9,9 +9,6 @@
 #include "stream.h"
 #include "llhttp/llhttp.h"
 #include "Events/System/Net/socketEvent.h"
-// #include "ioStreams.h"
-
-// #include "streamBase.h"
 /**
     HTTP::Request, HTTP::Response is used in http service
 */
@@ -24,16 +21,14 @@ typedef long (*__url_open)(const char* fn, int flags);
 
 struct HttpContext {
     std::string method;
+    int method_int=HTTP_GET;
     std::string url;
 
     std::string current_field;
     std::string current_value;
     std::map<std::string, std::string> headers;
 
-    // сюда можно подключить multipart-парсер
-    // MultipartParser* mp = nullptr;
-    bool headers_complete = false;
-    bool keepalive = false;
+    bool keepalive = true;
     bool upgrade = false;
     std::string chunk;
     size_t chunk_size = 0;
@@ -43,22 +38,7 @@ struct HttpContext {
     bool isWebSocket=false;
     std::string websocket_buffer;
 
-    void clear() {
-        method.clear();
-        url.clear();
-        current_field.clear();
-        current_value.clear();
-        headers.clear();
-        headers_complete = false;
-        keepalive = false;
-        upgrade = false;
-        chunk.clear();
-        chunk_size = 0;
-        is_chunked=false;
-        chunkId=0;
-        isWebSocket=false;
-        websocket_buffer.clear();
-    }
+    void clear() ;
 };
 
 
@@ -84,130 +64,8 @@ namespace HTTP
     {
         CONN_CLOSE, CONN_KEEP_ALIVE, CONN_UPGRADE,CONN_UNKNOWN
     };
-#ifdef KALL
-    struct token
-    {
-        size_t pz;
-        size_t len;
-    };
-#define LINE0TKSIZE 10
-    struct header_params_
-    {
-        token HOST;
-        token USER_AGENT;
-        token ACCEPT;
-        token ACCEPT_LANGUAGE;
-        token ACCEPT_ENCODING;
-        CONN_TYPE CONNECTION=HTTP::CONN_CLOSE;
-        token CONTENT_TYPE;
-        token UPGRADE;
-        int CONTENT_LENGTH;
-        token COOKIE;
-        token REFERER;
-        token ORIGIN;
-        token AUTHORIZATION;
-        token TRANSFER_ENCODING;
-        token RANGE;
-        token Sec_WebSocket_Key;
-        token Sec_WebSocket_Version;
-        token EXPECT;
-        token Upgrade_Insecure_Requests;
-        token Cache_Control;
-
-    };
-#endif
-#ifdef KALL
-    enum METHOD
-    {
-        METHOD_NOTSET,METHOD_GET, METHOD_POST, METHOD_PUT, METHOD_DELETE
-    };
-    enum STATE
-    {
-        STATE_PREAMBLE=0,
-        STATE_HEADERS,
-        STATE_BODY,
-        STATE_MULTIPART,
-        STATE_URLENCODED,
-        STATE_ERROR,
-        STATE_DONE
-    };
-    struct http_header_parse_data
-    {
 
 
-        METHOD method;
-        token uri;
-        token http_version;
-        header_params_ header_params;
-        size_t cur_pos;
-        size_t cur_line;
-        size_t cur_line_size;
-        size_t cur_line_start;
-        size_t post_start;
-        bool done_header;
-        char last_char;
-        token line0tk[LINE0TKSIZE];
-        size_t line0tk_idx;
-        // STATE state;
-        std::string buffer;
-
-        void dump(const char* req, int reqsize);
-
-    };
-#endif
-
-
-    /*
-extern "C" {
-#include "llhttp.h"
-}
-
-#include <iostream>
-#include <string>
-#include <unordered_map>
-
-
-// --- CALLBACKS ---
-
-
-
-// --- MAIN ---
-
-int main() {
-    llhttp_t parser;
-    llhttp_settings_t settings;
-
-    llhttp_settings_init(&settings);
-
-    settings.on_message_begin = on_message_begin;
-    settings.on_url = on_url;
-    settings.on_header_field = on_header_field;
-    settings.on_header_value = on_header_value;
-    settings.on_headers_complete = on_headers_complete;
-    settings.on_body = on_body;
-    settings.on_message_complete = on_message_complete;
-
-    HttpContext ctx;
-
-    llhttp_init(&parser, HTTP_REQUEST, &settings);
-    parser.data = &ctx;
-
-    // имитация recv() — читаем HTTP из stdin
-    char buf[4096];
-    while (true) {
-        ssize_t n = read(0, buf, sizeof(buf));
-        if (n <= 0) break;
-
-        llhttp_errno_t err = llhttp_execute(&parser, buf, n);
-        if (err != HPE_OK) {
-            std::cerr << "Parse error: " << llhttp_errno_name(err) << "\n";
-            break;
-        }
-    }
-
-    return 0;
-}
-*/
     class Request:public Refcountable
     {
 
@@ -216,36 +74,7 @@ int main() {
         HttpContext ctx; 
 
 
-        void parse(const char* req, int reqsize);
         
-        #ifdef KALL
-        http_header_parse_data parse_data;
-
-        std::string_view uri()
-        {
-            return  tosv_h(parse_data.uri);
-        }
-        std::string_view cookie()
-        {
-            return  tosv_h(parse_data.header_params.COOKIE);
-        }
-        std::string_view headers()
-        {
-            return  header_content;
-        }
-        std::string_view tosv_h(const token& t)
-        {
-            return {&header_content[t.pz],t.len};
-        }
-        std::string_view tosv_c(const token& t)
-        {
-            return {&post_content[t.pz],t.len};
-        }
-        #endif
-        // std::string_view postContent;
-        // bool chunked=false;
-
-        // std::string header_content;
         std::string post_content;
 
         Request(const REF_getter<epoll_socket_info>& _esi, llhttp_settings_t& settings, void* server);

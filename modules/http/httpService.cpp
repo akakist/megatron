@@ -121,7 +121,7 @@ int on_headers_complete(llhttp_t* p) {
 
     r->ctx.keepalive = llhttp_should_keep_alive(p);
 
-    
+    // logErr2("keepalive %d",r->ctx.keepalive);    
     r->ctx.upgrade = p->upgrade;
 
     if (!r->ctx.current_field.empty()) {
@@ -130,6 +130,7 @@ int on_headers_complete(llhttp_t* p) {
     }
 
     r->ctx.method = llhttp_method_name((llhttp_method_t)p->method);
+    r->ctx.method_int=p->method;
 
     // std::cout << "Method: " << ctx->method << "\n";
     // std::cout << "URL: " << ctx->url << "\n";
@@ -137,7 +138,7 @@ int on_headers_complete(llhttp_t* p) {
     // for (auto& kv : ctx->headers) {
     //     std::cout << kv.first << ": " << kv.second << "\n";
     // }
-    r->ctx.headers_complete = true;
+    // r->ctx.headers_complete = true;
 
     if(p->flags & F_CHUNKED)
     {
@@ -190,8 +191,8 @@ int on_headers_complete(llhttp_t* p) {
             // if(!W->sendRequestIncomingIsSent)
             {
                 // W->sendRequestIncomingIsSent=true;
-                service->passEvent(new httpEvent::RequestIncoming(r,r->currentEvent->esi,r->currentEvent->route));
-                service->clearData(r->currentEvent->esi.get());
+                // service->passEvent(new httpEvent::RequestIncoming(r,r->currentEvent->esi,r->currentEvent->route));
+                // service->clearData(r->currentEvent->esi.get());
             }
 
         }
@@ -206,36 +207,21 @@ int on_body(llhttp_t* p, const char* at, size_t length) {
     auto* r = (HTTP::Request*)p->data;
     HTTP::Service* service=(HTTP::Service*)r->ctx.server;
 
-    // auto* ctx = (HttpContext*)p->data;
-
-    // вот тут ты можешь стримить тело куда угодно:
-    // - в multipart-парсер
-    // - на диск
-    // - в pipe
-    // - в обработчик JSON
-
-    // std::cout << "Body chunk: " << length << " bytes\n";
     if(r->ctx.is_chunked)
     {
-        // if(r->ctx.chunk.size()+length < r->ctx.chunk_size)
-        {
-            r->ctx.chunk.append(at,length);
-            // logErr2("appending chunked body data %d bytes total %d",length,r->ctx.chunk.size());
-        }
-        return 0;
-
-        // return service->handleChunkedBuffer(r->currentEvent.get(), r);
-    }
-    if(r->ctx.chunk_size)
-    {
         r->ctx.chunk.append(at,length);
-        // if(ctx->chunk.size()>=ctx->chunk_size)
-        // {
-        //     // logErr2("chunk complete %d",ctx->chunk.size());
-        //     ctx->chunk.clear();
-        //     ctx->chunk_size=0;
-        // }
+        return 0;
     }
+    // if(r->ctx.chunk_size)
+    // {
+    //     r->ctx.chunk.append(at,length);
+    //     // if(ctx->chunk.size()>=ctx->chunk_size)
+    //     // {
+    //     //     // logErr2("chunk complete %d",ctx->chunk.size());
+    //     //     ctx->chunk.clear();
+    //     //     ctx->chunk_size=0;
+    //     // }
+    // }
 
     // пример: передать в multipart
     // if (ctx->mp) ctx->mp->feed(at, length);
@@ -248,8 +234,6 @@ int on_message_complete(llhttp_t* p) {
 
     // logErr2("@@ %s",__func__);
     HTTP::Service* service=(HTTP::Service*)r->ctx.server;
-    // logErr2("@@ %s",__func__);
-    // std::cout << "Message complete\n";
 
     if(r->ctx.is_chunked)
     {
@@ -257,9 +241,8 @@ int on_message_complete(llhttp_t* p) {
         service->passEvent(new httpEvent::RequestChunkingCompleted(r,r->esi,r->ctx.chunkId, r->currentEvent->route));
         return 0;
     }
-    if(p->method==HTTP_GET)
+    if(r->ctx.method_int==HTTP_GET)
     {
-        // if(W->ctx.headers_complete)
         {
             // int keepalive = llhttp_should_keep_alive(&W->parser);
             // logErr2("keepalive %d",keepalive);
@@ -274,6 +257,7 @@ int on_message_complete(llhttp_t* p) {
             {
                 // W->sendRequestIncomingIsSent=true;
                 service->passEvent(new httpEvent::RequestIncoming(r,r->esi,r->currentEvent->route));
+                r->ctx.clear(); // clear context for next request on the same connection
                 // serclearData(evt->esi.get());
             }
 
@@ -583,62 +567,6 @@ std::string HTTP::Service::WebSocket_makeFrame(WebSocketFrameType frame_type, un
 
     // return (size+pos);
 }
-#ifdef KALL
-bool HTTP::Service::handleChunkedBuffer(const socketEvent::StreamRead* evt, const REF_getter<HTTP::Request>& W)
-{
-    auto& data=W->post_content;
-
-    int i=0;
-    while(1)
-    {
-        XTRY;
-        auto pz=data.find("\r\n",0);
-
-
-        if(pz==std::string::npos)
-        {
-            return true;
-        }
-        if(pz==0)
-        {
-            XTRY;
-            passEvent(new httpEvent::RequestChunkingCompleted(W,W->esi,W->ctx.chunkId,evt->route));
-            return true;
-            XPASS;
-        }
-
-
-        std::string len_buf=data.substr(0,pz);
-        auto chunk_size = std::stoul(len_buf, NULL, 16);
-        if(chunk_size==0)
-        {
-            passEvent(new httpEvent::RequestChunkingCompleted(W,W->esi,W->ctx.chunkId,evt->route));
-            return true;
-        }
-
-        pz=pz+2; /// + crtlf after number
-
-        size_t payload_size=chunk_size+pz+2;
-        if(data.size()>=payload_size)
-        {
-            auto chunk=data.substr(pz,chunk_size);
-            if(data.size()==payload_size)
-                data.clear();
-            else
-                data=data.substr(payload_size, data.size()- payload_size);
-            passEvent(new httpEvent::RequestChunkReceived(W,W->esi,W->ctx.chunkId++, chunk, evt->route));
-        }
-        else
-        {
-            return true;
-        }
-
-        XPASS;
-    }
-
-
-}
-#endif
 #include "llhttp/llhttp.h"
 
 bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
@@ -715,282 +643,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
     {
         throw CommonError("Parse error: %s",llhttp_errno_name(err));
     }
-#ifdef KALL
-    if(W->parser.method==HTTP_GET && 0)
-    {
-        if(W->ctx.headers_complete)
-        {
-            // int keepalive = llhttp_should_keep_alive(&W->parser);
-            // logErr2("keepalive %d",keepalive);
-            if(W->ctx.keepalive)
-            {
-                // logErr2("CONNECTION: keep-alive");
-                // W->parse_data.header_params.CONNECTION=HTTP::CONN_KEEP_ALIVE;
-            }
-
-            W->ctx.headers_complete=false;
-            if(!W->sendRequestIncomingIsSent)
-            {
-                W->sendRequestIncomingIsSent=true;
-                passEvent(new httpEvent::RequestIncoming(W,evt->esi,evt->route));
-                clearData(evt->esi.get());
-            }
-
-        }
-    }
-#endif
     return true;
-#ifdef KALL
-    if(!W->parse_data.done_header)
-    {
-        if(W->header_content.empty())
-        {
-            W->header_content=std::move(evt->esi->inBuffer_._mx_data);
-            evt->esi->inBuffer_._mx_data.clear();
-        }
-        else
-        {
-            W->header_content.append(evt->esi->inBuffer_._mx_data);
-            evt->esi->inBuffer_._mx_data.clear();
-        }
-    }
-    else
-    {
-        if(W->post_content.empty())
-        {
-            W->post_content=std::move(evt->esi->inBuffer_._mx_data);
-            evt->esi->inBuffer_._mx_data.clear();
-        }
-        else
-        {
-            W->post_content.append(evt->esi->inBuffer_._mx_data);
-            evt->esi->inBuffer_._mx_data.clear();
-        }
-    }
-#endif
-
-
-#ifdef KALL
-        if(!W->parse_data.done_header)
-            W->parse(W->header_content.data(),W->header_content.size());
-        if(!W->parse_data.done_header)
-            return true;
-
-        if (W->parse_data.method == HTTP::METHOD_POST && W->parse_data.post_start)
-        {
-            if(!W->chunked)
-            {
-                if(W->parse_data.header_params.TRANSFER_ENCODING.pz)
-                {
-                    std::string_view t=W->tosv_h(W->parse_data.header_params.TRANSFER_ENCODING);
-                    if (t=="chunked")
-                    {
-                        logErr2("chunked");
-                        W->chunked=true;
-                    }
-                }
-            }
-
-        }
-#endif
-
-
-
-    // if(W->ctx.chunk_size && W->ctx.chunk.size()==W->ctx.chunk_size)
-    // {
-    //     W->chunked=true;
-    //     passEvent(new httpEvent::RequestChunkReceived(W,W->esi,W->chunkId++, W->ctx.chunk, evt->route));
-    //     W->ctx.chunk.clear();
-    //     W->ctx.chunk_size=0;
-    //     return true;
-
-    // }
-    
-    // if(W->chunked || W->isWebSocket)
-    {
-        // if(!W->sendRequestIncomingIsSent)
-        // {
-        //     W->sendRequestIncomingIsSent=true;
-        //     passEvent(new httpEvent::RequestIncoming(W,evt->esi,evt->route));
-
-        // }
-        // if(W->chunked)
-        // {
-        //     // logErr2("if(W->chunked)");
-        //     handleChunkedBuffer(evt,W);
-        // }
-        return  true;
-
-    }
-#ifdef KALL
-    {
-
-        if (W->parse_data.method == HTTP::METHOD_POST)
-        {
-            if(W->chunked)
-            {
-                handleChunkedBuffer(evt,W);
-            }
-            std::string_view ct(W->tosv_h(W->parse_data.header_params.CONTENT_TYPE));
-            if (ct.find("application/x-www-form-urlencoded", 0) != std::string_view::npos)
-            {
-
-                size_t clen = W->parse_data.header_params.CONTENT_LENGTH;
-                if (clen <= 0 || clen > m_maxPost)
-                {
-                    return true;
-                }
-            }
-            else if (W->parse_data.header_params.CONTENT_TYPE.pz && false)
-            {
-                logErr2("//Multipart form");
-
-                //Multipart form
-                const std::string_view t= W->tosv_h(W->parse_data.header_params.CONTENT_TYPE);
-                auto pz = t.find("boundary=", 0);
-                if (pz == std::string::npos)
-                {
-
-                    return true;
-                }
-                std::string bound = "--" + std::string(t.substr(pz + 9, t.length() - pz - 9));
-                std::string ebound = bound + "--";
-                std::string sbuf;
-                {
-
-                    {
-                        W_LOCK(evt->esi->inBuffer_.lk);
-                        auto &data=evt->esi->inBuffer_._mx_data;
-                        auto pz=data.find(ebound);
-                        if(pz!=std::string::npos)
-                        {
-                            sbuf=data.substr(0,pz);
-                            data=data.substr(pz+ebound.size());
-                        }
-                        else
-                            return true;
-                    }
-
-                    while (sbuf.size())
-                    {
-
-
-                        std::string s;
-                        std::string::size_type pos=sbuf.find(bound);
-                        if (pos==std::string::npos)
-                        {
-                            s=sbuf;
-                            sbuf.clear();
-                        }
-                        else
-                        {
-                            s=sbuf.substr(0,pos);
-                            sbuf=sbuf.substr(pos+bound.size(),sbuf.size()-pos-bound.size());
-                        }
-                        if (s.size()>1)
-                        {
-                            if (s[0]=='\r'&&s[1]=='\n') s=s.substr(2,s.size()-2);
-                        }
-                        if (s.size())
-                        {
-
-                            std::map<std::string,std::string> lparams;
-                            std::string content;
-                            while (1)
-                            {
-
-                                std::string sloc;
-                                std::string::size_type pp=s.find("\r\n");
-                                if (pp==std::string::npos)
-                                {
-                                    logErr2("bad multipart");
-                                    return true;
-                                }
-                                sloc=s.substr(0,pp);
-                                s=s.substr(pp+2,s.size()-pp-2);
-                                if (!sloc.size())
-                                {
-                                    content=s.substr(0,s.size()-2);
-                                    break;
-                                }
-                                std::string::size_type pz=sloc.find(": ");
-                                if (pz==std::string::npos)
-                                {
-                                    logErr2("bad multipart");
-                                    return  true;
-                                }
-                                std::string key=sloc.substr(0,pz);
-                                std::string val=sloc.substr(pz+2,sloc.size()-pz-2);
-                                lparams[key]=val;
-                            }
-                            if (lparams.count("Content-Disposition"))
-                            {
-
-                                std::string cd=lparams["Content-Disposition"];
-                                std::vector<std::string> flds;
-                                while (cd.size())
-                                {
-                                    std::string::size_type ps=cd.find("; ");
-                                    if (ps==std::string::npos)
-                                    {
-                                        flds.push_back(cd);
-                                        cd="";
-                                    }
-                                    else
-                                    {
-                                        flds.push_back(cd.substr(0,ps));
-                                        cd=cd.substr(ps+2,cd.size()-2);
-                                    }
-                                }
-                                std::string name;
-                                std::string filename;
-                                for (unsigned i=0; i<flds.size(); i++)
-                                {
-                                    std::string::size_type pzz=flds[i].find("=");
-                                    if (pzz!=std::string::npos)
-                                    {
-                                        std::string key=flds[i].substr(0,pzz);
-                                        std::string val=flds[i].substr(pzz+1,flds[i].size()-1);
-                                        if (val.size()>2)
-                                        {
-                                            if (val[0]=='\"' && val[val.size()-1]=='\"') val=val.substr(1,val.size()-2);
-                                        }
-                                        if (val=="\"\"") val="";
-                                        if (key=="name") name=val;
-                                        if (key=="filename") filename=val;
-                                    }
-                                }
-#ifdef PARAMS
-                                W->params[name]=content;
-                                if (filename.size())
-                                    W->params[name+"_FILENAME"]=filename;
-                                for (auto& i:lparams)
-                                {
-                                    std::string q = iUtils->strupper(i.first);
-                                    std::string k=name + "_" + q;
-
-                                    W->params[k] = i.second;
-                                }
-#endif
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        // W->parse_state.insert(2);
-    }
-#endif
-
-
-
-    // if(!W->sendRequestIncomingIsSent)
-    // {
-    //     W->sendRequestIncomingIsSent=true;
-    //     passEvent(new httpEvent::RequestIncoming(W,evt->esi,evt->route));
-    //     clearData(evt->esi.get());
-    // }
-    return  true;
 }
 
 std::string HTTP::Service::get_mime_type(const std::string& mime) const
@@ -1114,212 +767,6 @@ std::string datef(const time_t &__t)
              wkday[tt.tm_wday%7],tt.tm_mday,month[tt.tm_mon%12],tt.tm_year+1900,tt.tm_hour,tt.tm_min,tt.tm_sec);
     return outstr;
 }
-#ifdef KALL
-/** -1 error*/ int HTTP::Service::send_other_from_disk_ext(const REF_getter<epoll_socket_info>&esi,const REF_getter<HTTP::Request>&W,const std::string & fn,const std::string& exten)
-{
-
-    MUTEX_INSPECTOR;
-
-    W->m_last_io_time=time(NULL);
-
-    REF_getter<HTTP::Request::_fileresponse> F=W->fileresponse;
-    if(F.valid())
-    {
-        W->fileresponse=new HTTP::Request::_fileresponse;
-        F=W->fileresponse;
-    }
-    F->fileName=fn;
-    F->extension=exten;
-
-    {
-        if(F->io_protocol.m_open)
-        {
-            F->set_fd(F->io_protocol.m_open(fn.c_str(),O_RDONLY));
-        }
-        else
-        {
-            F->set_fd(::open(fn.c_str(),O_RDONLY));
-        }
-        if(F->get_fd()==-1)
-        {
-            std::string a("HTTP/1.1 404 Not Found\r\n");
-            a.append("Server: nginx/1.2.6 (Ubuntu)\r\n");
-            a.append("Connection: close\r\n");
-            a.append("\r\n");
-            esi->write_(a);
-            return -1;
-        }
-
-        if(F->io_protocol.m_seek)
-        {
-
-            F->fileSize=F->io_protocol.m_seek(F->get_fd(),0,SEEK_END);
-
-        }
-        else
-        {
-#if defined __MACH__ || defined __FreeBSD__
-            F->fileSize=lseek(F->get_fd(),0,SEEK_END);
-#else
-            F->fileSize=lseek64(F->get_fd(),0,SEEK_END);
-#endif
-
-        }
-        if(F->fileSize==-1)
-        {
-
-            std::string a("HTTP/1.1 500 Internal Server Error\r\n");
-            a.append("Server: nginx/1.2.6 (Ubuntu)\r\n");
-            a.append("Connection: close\r\n");
-            a.append("\r\n");
-            esi->write_(a);
-
-            return -1;
-        }
-    }
-
-    F->contentLength=0;
-    if (W->parse_data.header_params.RANGE.pz==0)
-    {
-
-        F->startb=0;
-        F->endb=W->fileresponse->fileSize-1;
-        F->written_bytes=0;
-        F->hasRange=false;
-
-    }
-    else
-    {
-
-        F->startb=0;
-        F->endb=F->fileSize-1;
-        F->hasRange=true;
-        std::string s(W->tosv_h(W->parse_data.header_params.RANGE));
-        size_t n = s.find("=", 0);
-        if (n != std::string::npos)
-        {
-            F->hasRange= true;
-            std::vector <std::string> v = iUtils->splitString("-=", s.substr(n, s.size() - n));
-            if (v.size() >= 1)
-            {
-                F->startb = atoll(v[0].c_str());
-            }
-            if (v.size() == 2)
-            {
-                F->endb  = atoll(v[1].c_str());
-            }
-            else
-            {
-                F->endb=F->fileSize-1;
-            }
-        }
-    }
-
-    if (F->startb > F->fileSize || F->startb < 0)
-        F->startb = 0;
-
-
-    if (F->endb > F->fileSize || F->endb < 0)
-        F->endb = F->fileSize-1;
-
-
-    if (F->endb < F->startb)
-    {
-        F->endb = F->fileSize-1;
-        F->startb = 0;
-    }
-
-    if(F->endb==0)
-        F->endb=F->fileSize-1;
-
-    F->contentLength=F->endb-F->startb+1;
-
-
-    time_t last_modified;
-    {
-        M_LOCK(lastModified);
-        auto url=W->uri();
-        if(lastModified.container.count(url))
-            last_modified=lastModified.container[url];
-        else
-        {
-            last_modified=time(NULL);
-            lastModified.container[url]=last_modified;
-        }
-
-    }
-
-    std::vector<std::string> out;
-    if(F->hasRange)
-        out.push_back("HTTP/1.1 206 Partial Content\r\n");
-    else
-        out.push_back("HTTP/1.1 200 OK\r\n");
-    out.push_back("Server: nginx/1.2.6 (Ubuntu)\r\n");
-
-    out.push_back("Date: "+datef(time(NULL))+"\r\n");
-
-    {
-        R_LOCK(mx.lk);
-        auto i=mx.mime_types.find(exten);
-        if(i!=mx.mime_types.end())
-            out.push_back("Content-Type: "+i->second+"\r\n");
-        else
-            out.push_back("Content-Type: text/plain\r\n");
-    }
-
-
-    out.push_back("Content-length: "+std::to_string(int64_t(F->contentLength))+"\r\n");
-
-    out.push_back("Last-Modified: "+datef(last_modified)+"\r\n");
-
-    if(W->ctx.keepalive)
-        out.push_back("Connection: Keep-Alive\r\n");
-    else
-        out.push_back("Connection: Close\r\n");
-
-
-    if(F->hasRange)
-    {
-        out.push_back("Content-Range: bytes "
-                      +  std::to_string((int64_t)F->startb) + "-"
-                      +  std::to_string((int64_t)F->endb) + "/"
-                      +  std::to_string((int64_t)F->fileSize)+"\r\n");
-    }
-    else
-    {
-        out.push_back("Accept-Ranges: bytes\r\n");
-    }
-
-
-    out.push_back("\r\n");
-
-    for(size_t i=0; i<out.size(); i++)
-    {
-        esi->write_(out[i]);
-    }
-
-
-    F->headerSent=true;
-
-    if(F->io_protocol.m_seek)
-    {
-
-        F->io_protocol.m_seek(F->get_fd(),F->startb,SEEK_SET);
-
-    }
-    else
-    {
-#if defined __MACH__ || defined __FreeBSD__
-        lseek(F->get_fd(),F->startb,SEEK_SET);
-#else
-        lseek64(F->get_fd(),F->startb,SEEK_SET);
-#endif
-
-    }
-
-    return 0;
-}
-#endif
 
 
 bool HTTP::Service::on_Disaccepted( socketEvent::Disaccepted*e)
@@ -1333,7 +780,7 @@ bool HTTP::Service::on_Disaccepted( socketEvent::Disaccepted*e)
             passEvent(new httpEvent::WSDisaccepted(rq,e->route));
         }
     }
-    clearData(e->esi.get());
+    // clearData(e->esi.get());
     return true;
 }
 bool HTTP::Service::on_Disconnected( socketEvent::Disconnected*e)
@@ -1349,7 +796,7 @@ bool HTTP::Service::on_Disconnected( socketEvent::Disconnected*e)
     }
 
 
-    clearData(e->esi.get());
+    // clearData(e->esi.get());
 
     return true;
 }
@@ -1379,14 +826,6 @@ void HTTP::Service::setData(epoll_socket_info* esi, const REF_getter<HTTP::Reque
     esi->additions_.insert(std::make_pair(ServiceEnum::HTTP,p.get()));
 
 }
-void HTTP::Service::clearData(epoll_socket_info* esi)
-{
-    W_LOCK (esi->additions_lk);
-    // logErr2("HTTP::Service::clearData for esi %p",esi);
-    esi->additions_.erase(ServiceEnum::HTTP);
-
-}
-
 
 bool HTTP::Service::on_WSWrite(const httpEvent::WSWrite* e)
 {
