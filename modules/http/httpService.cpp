@@ -222,13 +222,6 @@ int on_body(llhttp_t* p, const char* at, size_t length) {
             r->ctx.chunk.append(at,length);
             // logErr2("appending chunked body data %d bytes total %d",length,r->ctx.chunk.size());
         }
-        if(r->ctx.chunk.size()==r->ctx.chunk_size)
-        {
-            // logErr2("RequestChunkReceived chunk size %d",r->ctx.chunk.size());
-            service->passEvent(new httpEvent::RequestChunkReceived(r,r->esi,r->ctx.chunkId++, r->ctx.chunk, r->currentEvent->route));
-            r->ctx.chunk.clear();
-            r->ctx.chunk_size=0;
-        }
         return 0;
 
         // return service->handleChunkedBuffer(r->currentEvent.get(), r);
@@ -299,10 +292,19 @@ int on_chunk_header(llhttp_t* p) {
     return 0;
 }
 int on_chunk_complete(llhttp_t* p) {
+
     auto* r = (HTTP::Request*)p->data;
+    HTTP::Service* service=(HTTP::Service*)r->ctx.server;
     // auto* ctx = (HttpContext*)p->data;
     // logErr2("@@ chunk complete");
     // std::cout << "Message complete\n";
+    if(r->ctx.chunk.size()!=r->ctx.chunk_size)
+        throw CommonError("chunk size mismatch");
+        // logErr2("RequestChunkReceived chunk size %d",r->ctx.chunk.size());
+    service->passEvent(new httpEvent::RequestChunkReceived(r,r->esi,r->ctx.chunkId++, r->ctx.chunk, r->currentEvent->route));
+    r->ctx.chunk.clear();
+    r->ctx.chunk_size=0;
+
     return 0;
 }
 
