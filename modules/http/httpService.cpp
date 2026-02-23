@@ -27,6 +27,41 @@ extern char mime_types[];
 extern int mime_types_sz;
 std::string datef(const time_t &__t);
 
+#include "sha1_1.hpp"
+#include "base64.hpp"
+std::string calc_key_answer(const std::string& key_ws)
+{
+    std::string rfc=         "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+    std::string k=key_ws+"258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+    unsigned char message_digest[20];
+
+
+    websocketpp::sha1::calc(k.data(),k.size(),message_digest);
+    auto key = websocketpp::base64_encode(message_digest,20);
+
+
+    return key;
+
+}
+inline bool equals_case_insensitive(std::string_view a, std::string_view b)
+{
+    if (a.size() != b.size())
+        return false;
+
+    for (size_t i = 0; i < a.size(); i++)
+    {
+        unsigned char ca = a[i];
+        unsigned char cb = b[i];
+
+        // Приводим к нижнему регистру вручную (ASCII)
+        if (ca >= 'A' && ca <= 'Z') ca += 'a' - 'A';
+        if (cb >= 'A' && cb <= 'Z') cb += 'a' - 'A';
+
+        if (ca != cb)
+            return false;
+    }
+    return true;
+}
 
 
 UnknownBase* HTTP::Service::construct(const SERVICE_id &id, const std::string& nm,IInstance* _if)
@@ -35,6 +70,234 @@ UnknownBase* HTTP::Service::construct(const SERVICE_id &id, const std::string& n
     return new Service(id,nm,_if);
     XPASS;
 }
+int on_message_begin(llhttp_t* p) {
+    auto* r = (HTTP::Request*)p->data;
+    // logErr2("@@ %s",__func__);
+    // auto* ctx = (HttpContext*)p->data;
+    r->ctx.headers.clear();
+    r->ctx.current_field.clear();
+    r->ctx.current_value.clear();
+    r->ctx.url.clear();
+    return 0;
+
+}
+int on_url(llhttp_t* p, const char* at, size_t length) {
+    // logErr2("@@ %s",__func__);
+        auto* r = (HTTP::Request*)p->data;
+
+    // auto* ctx = (HttpContext*)p->data;
+    r->ctx.url.append(at, length);
+    return 0;
+}
+
+int on_header_field(llhttp_t* p, const char* at, size_t length) {
+    // logErr2("@@ %s",__func__);
+    auto* r = (HTTP::Request*)p->data;
+    // auto* ctx = (HttpContext*)p->data;
+
+    // если было предыдущее поле — сохраняем
+    if (!r->ctx.current_value.empty()) {
+        r->ctx.headers[r->ctx.current_field] = r->ctx.current_value;
+        // logErr2("header: %s -> %s",r->ctx.current_field.c_str(),r->ctx.current_value.c_str());
+        r->ctx.current_field.clear();
+        r->ctx.current_value.clear();
+    }
+
+    r->ctx.current_field.append(at, length);
+    return 0;
+}
+
+int on_header_value(llhttp_t* p, const char* at, size_t length) {
+    // logErr2("@@ %s",__func__);
+    auto* r = (HTTP::Request*)p->data;
+    r->ctx.current_value.append(at, length);
+    return 0;
+}
+
+int on_headers_complete(llhttp_t* p) {
+    // logErr2("@@ %s",__func__);
+    auto* r = (HTTP::Request*)p->data;
+    HTTP::Service* service=(HTTP::Service*)r->ctx.server;
+
+    r->ctx.keepalive = llhttp_should_keep_alive(p);
+
+    
+    r->ctx.upgrade = p->upgrade;
+
+    if (!r->ctx.current_field.empty()) {
+        r->ctx.headers[r->ctx.current_field] = r->ctx.current_value;
+        // logErr2("header: %s -> %s",r->ctx.current_field.c_str(),r->ctx.current_value.c_str());
+    }
+
+    r->ctx.method = llhttp_method_name((llhttp_method_t)p->method);
+
+    // std::cout << "Method: " << ctx->method << "\n";
+    // std::cout << "URL: " << ctx->url << "\n";
+
+    // for (auto& kv : ctx->headers) {
+    //     std::cout << kv.first << ": " << kv.second << "\n";
+    // }
+    r->ctx.headers_complete = true;
+
+    if(p->flags & F_CHUNKED)
+    {
+        r->ctx.is_chunked=true;
+        // service->passEvent(new httpEvent::RequestStartChunking(r,r->esi,r->currentEvent->route));
+        service->passEvent(new httpEvent::RequestIncoming(r,r->esi,r->currentEvent->route));
+        logErr2("chunked request started");
+        return 0;
+
+    }
+    if(p->upgrade)
+    {
+        {
+            auto ug=r->ctx.headers["Upgrade"];
+            if(equals_case_insensitive(ug,"websocket"))                
+            {
+                auto vs=r->ctx.headers["Sec-WebSocket-Version"];
+                if(vs!="13")
+                {
+                    /// do smth for version
+                }
+
+                auto key=r->ctx.headers["Sec-WebSocket-Key"]    ;
+                std::stringstream o;
+                o <<  "HTTP/1.1 101 Switching Protocols\r\n"
+                    << "Upgrade: websocket\r\n"
+                    << "Connection: Upgrade\r\n";
+                auto ka=calc_key_answer(std::string(key));
+                o << "Sec-WebSocket-Accept: " << ka  << "\r\n";
+                o << "\r\n";
+                r->isWebSocket=true;
+                r->esi->write_(o.str());
+            }
+        }
+        return 1;
+    }
+    if(p->method==HTTP_GET)
+    {
+        // if(W->ctx.headers_complete)
+        {
+            // int keepalive = llhttp_should_keep_alive(&W->parser);
+            // logErr2("keepalive %d",keepalive);
+            // if(W->ctx.keepalive)
+            {
+                // logErr2("CONNECTION: keep-alive");
+                // W->parse_data.header_params.CONNECTION=HTTP::CONN_KEEP_ALIVE;
+            }
+
+            // W->ctx.headers_complete=false;
+            // if(!W->sendRequestIncomingIsSent)
+            {
+                // W->sendRequestIncomingIsSent=true;
+                service->passEvent(new httpEvent::RequestIncoming(r,r->currentEvent->esi,r->currentEvent->route));
+                service->clearData(r->currentEvent->esi.get());
+            }
+
+        }
+    }
+
+
+    return 0;
+}
+
+int on_body(llhttp_t* p, const char* at, size_t length) {
+    // logErr2("@@ %s",__func__);
+    auto* r = (HTTP::Request*)p->data;
+    HTTP::Service* service=(HTTP::Service*)r->ctx.server;
+
+    // auto* ctx = (HttpContext*)p->data;
+
+    // вот тут ты можешь стримить тело куда угодно:
+    // - в multipart-парсер
+    // - на диск
+    // - в pipe
+    // - в обработчик JSON
+
+    // std::cout << "Body chunk: " << length << " bytes\n";
+    if(r->ctx.is_chunked)
+    {
+        // if(r->ctx.chunk.size()+length < r->ctx.chunk_size)
+        {
+            r->ctx.chunk.append(at,length);
+            // logErr2("appending chunked body data %d bytes total %d",length,r->ctx.chunk.size());
+        }
+        if(r->ctx.chunk.size()==r->ctx.chunk_size)
+        {
+            // logErr2("RequestChunkReceived chunk size %d",r->ctx.chunk.size());
+            service->passEvent(new httpEvent::RequestChunkReceived(r,r->esi,r->ctx.chunkId++, r->ctx.chunk, r->currentEvent->route));
+            r->ctx.chunk.clear();
+            r->ctx.chunk_size=0;
+        }
+        return 0;
+
+        // return service->handleChunkedBuffer(r->currentEvent.get(), r);
+    }
+    if(r->ctx.chunk_size)
+    {
+        r->ctx.chunk.append(at,length);
+        // if(ctx->chunk.size()>=ctx->chunk_size)
+        // {
+        //     // logErr2("chunk complete %d",ctx->chunk.size());
+        //     ctx->chunk.clear();
+        //     ctx->chunk_size=0;
+        // }
+    }
+
+    // пример: передать в multipart
+    // if (ctx->mp) ctx->mp->feed(at, length);
+
+    return 0;
+}
+
+int on_message_complete(llhttp_t* p) {
+    auto* r = (HTTP::Request*)p->data;
+
+    // logErr2("@@ %s",__func__);
+    HTTP::Service* service=(HTTP::Service*)r->ctx.server;
+    // logErr2("@@ %s",__func__);
+    // std::cout << "Message complete\n";
+
+    if(r->ctx.is_chunked)
+    {
+        // logErr2("chunked request complete");
+        service->passEvent(new httpEvent::RequestChunkingCompleted(r,r->esi,r->ctx.chunkId, r->currentEvent->route));
+        return 0;
+    }
+    if(p->method==HTTP_GET)
+    {
+        // if(W->ctx.headers_complete)
+        {
+            // int keepalive = llhttp_should_keep_alive(&W->parser);
+            // logErr2("keepalive %d",keepalive);
+            // if(W->ctx.keepalive)
+            {
+                // logErr2("CONNECTION: keep-alive");
+                // W->parse_data.header_params.CONNECTION=HTTP::CONN_KEEP_ALIVE;
+            }
+
+            // W->ctx.headers_complete=false;
+            // if(!W->sendRequestIncomingIsSent)
+            {
+                // W->sendRequestIncomingIsSent=true;
+                service->passEvent(new httpEvent::RequestIncoming(r,r->esi,r->currentEvent->route));
+                // serclearData(evt->esi.get());
+            }
+
+        }
+    }
+
+    return 0;
+}
+int on_chunk_header(llhttp_t* p) {
+    auto* r = (HTTP::Request*)p->data;
+    // auto* ctx = (HttpContext*)p->data;
+    r->ctx.chunk.clear();
+    r->ctx.chunk_size=p->content_length;
+    logErr2("@@ chunk_size %d  ",p->content_length);
+    // std::cout << "Message complete\n";
+    return 0;
+}
 
 
 HTTP::Service::Service(const SERVICE_id& id, const std::string&nm, IInstance* _if):
@@ -42,6 +305,16 @@ HTTP::Service::Service(const SERVICE_id& id, const std::string&nm, IInstance* _i
     ListenerSimple(nm,id),
     iInstance(_if)
 {
+    llhttp_settings_init(&settings);
+    settings.on_message_begin = on_message_begin;
+    settings.on_url = on_url;
+    settings.on_header_field = on_header_field;
+    settings.on_header_value = on_header_value;
+    settings.on_headers_complete = on_headers_complete;
+    settings.on_body = on_body;
+    settings.on_message_complete = on_message_complete;
+    settings.on_chunk_header = on_chunk_header;
+
     m_maxPost= static_cast<size_t>(_if->getConfig()->get_int64_t("max_post", 1000000, ""));
     {
         {
@@ -186,28 +459,12 @@ bool HTTP::Service::handleEvent(const REF_getter<Event::Base>& evt)
 bool HTTP::Service::on_Accepted(const socketEvent::Accepted* evt)
 {
     MUTEX_INSPECTOR;
-    REF_getter<Refcountable> p=new HTTP::Request(evt->esi);
+    REF_getter<Refcountable> p=new HTTP::Request(evt->esi, settings,this);
     evt->esi->additions_.insert(std::make_pair(ServiceEnum::HTTP,p));
 
     return true;
 }
 // #include "sha1.hpp"
-#include "sha1_1.hpp"
-#include "base64.hpp"
-std::string calc_key_answer(const std::string& key_ws)
-{
-    std::string rfc=         "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-    std::string k=key_ws+"258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-    unsigned char message_digest[20];
-
-
-    websocketpp::sha1::calc(k.data(),k.size(),message_digest);
-    auto key = websocketpp::base64_encode(message_digest,20);
-
-
-    return key;
-
-}
 HTTP::WebSocketFrameType HTTP::Service::WebSocket_getFrame(unsigned char* in_buffer, int in_length, /*unsigned char* out_buffer, int out_size, int* out_length,*/ std::string &o)
 {
     if(in_length < 2) return INCOMPLETE_FRAME;
@@ -324,6 +581,7 @@ std::string HTTP::Service::WebSocket_makeFrame(WebSocketFrameType frame_type, un
 
     // return (size+pos);
 }
+#ifdef KALL
 bool HTTP::Service::handleChunkedBuffer(const socketEvent::StreamRead* evt, const REF_getter<HTTP::Request>& W)
 {
     auto& data=W->post_content;
@@ -342,7 +600,7 @@ bool HTTP::Service::handleChunkedBuffer(const socketEvent::StreamRead* evt, cons
         if(pz==0)
         {
             XTRY;
-            passEvent(new httpEvent::RequestChunkingCompleted(W,W->esi,W->chunkId,evt->route));
+            passEvent(new httpEvent::RequestChunkingCompleted(W,W->esi,W->ctx.chunkId,evt->route));
             return true;
             XPASS;
         }
@@ -352,7 +610,7 @@ bool HTTP::Service::handleChunkedBuffer(const socketEvent::StreamRead* evt, cons
         auto chunk_size = std::stoul(len_buf, NULL, 16);
         if(chunk_size==0)
         {
-            passEvent(new httpEvent::RequestChunkingCompleted(W,W->esi,W->chunkId,evt->route));
+            passEvent(new httpEvent::RequestChunkingCompleted(W,W->esi,W->ctx.chunkId,evt->route));
             return true;
         }
 
@@ -366,7 +624,7 @@ bool HTTP::Service::handleChunkedBuffer(const socketEvent::StreamRead* evt, cons
                 data.clear();
             else
                 data=data.substr(payload_size, data.size()- payload_size);
-            passEvent(new httpEvent::RequestChunkReceived(W,W->esi,W->chunkId++, chunk, evt->route));
+            passEvent(new httpEvent::RequestChunkReceived(W,W->esi,W->ctx.chunkId++, chunk, evt->route));
         }
         else
         {
@@ -378,26 +636,8 @@ bool HTTP::Service::handleChunkedBuffer(const socketEvent::StreamRead* evt, cons
 
 
 }
+#endif
 #include "llhttp/llhttp.h"
-inline bool equals_case_insensitive(std::string_view a, std::string_view b)
-{
-    if (a.size() != b.size())
-        return false;
-
-    for (size_t i = 0; i < a.size(); i++)
-    {
-        unsigned char ca = a[i];
-        unsigned char cb = b[i];
-
-        // Приводим к нижнему регистру вручную (ASCII)
-        if (ca >= 'A' && ca <= 'Z') ca += 'a' - 'A';
-        if (cb >= 'A' && cb <= 'Z') cb += 'a' - 'A';
-
-        if (ca != cb)
-            return false;
-    }
-    return true;
-}
 
 bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 {
@@ -466,13 +706,15 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
     }
     // logErr2("on_StreamRead %s bytes",buf.c_str());
     // logErr2("before llhttp_execute");
+    W->currentEvent=evt;
     llhttp_errno_t err = llhttp_execute(&W->parser, buf.data(), buf.size());
     // logErr2("after llhttp_execute");
     if (err != HPE_OK) 
     {
         throw CommonError("Parse error: %s",llhttp_errno_name(err));
     }
-    if(W->parser.method==HTTP_GET)
+#ifdef KALL
+    if(W->parser.method==HTTP_GET && 0)
     {
         if(W->ctx.headers_complete)
         {
@@ -494,6 +736,7 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
 
         }
     }
+#endif
     return true;
 #ifdef KALL
     if(!W->parse_data.done_header)
@@ -549,56 +792,31 @@ bool HTTP::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         }
 #endif
 
-        if(W->ctx.upgrade)
-        {
-            {
-                auto ug=W->ctx.headers["Upgrade"];
-                if(equals_case_insensitive(ug,"websocket"))                
-                {
-                    auto vs=W->ctx.headers["Sec-WebSocket-Version"];
-                    if(vs!="13")
-                    {
-                        /// do smth for version
-                    }
-
-                    auto key=W->ctx.headers["Sec-WebSocket-Key"]    ;
-                    std::stringstream o;
-                    o <<  "HTTP/1.1 101 Switching Protocols\r\n"
-                      << "Upgrade: websocket\r\n"
-                      << "Connection: Upgrade\r\n";
-                    auto ka=calc_key_answer(std::string(key));
-                    o << "Sec-WebSocket-Accept: " << ka  << "\r\n";
-                    o << "\r\n";
-                    W->isWebSocket=true;
-                    evt->esi->write_(o.str());
-                }
-            }
-        }
 
 
-    if(W->ctx.chunk_size && W->ctx.chunk.size()==W->ctx.chunk_size)
-    {
-        W->chunked=true;
-        passEvent(new httpEvent::RequestChunkReceived(W,W->esi,W->chunkId++, W->ctx.chunk, evt->route));
-        W->ctx.chunk.clear();
-        W->ctx.chunk_size=0;
-        return true;
+    // if(W->ctx.chunk_size && W->ctx.chunk.size()==W->ctx.chunk_size)
+    // {
+    //     W->chunked=true;
+    //     passEvent(new httpEvent::RequestChunkReceived(W,W->esi,W->chunkId++, W->ctx.chunk, evt->route));
+    //     W->ctx.chunk.clear();
+    //     W->ctx.chunk_size=0;
+    //     return true;
 
-    }
+    // }
     
-    if(W->chunked || W->isWebSocket)
+    // if(W->chunked || W->isWebSocket)
     {
-        if(!W->sendRequestIncomingIsSent)
-        {
-            W->sendRequestIncomingIsSent=true;
-            passEvent(new httpEvent::RequestIncoming(W,evt->esi,evt->route));
+        // if(!W->sendRequestIncomingIsSent)
+        // {
+        //     W->sendRequestIncomingIsSent=true;
+        //     passEvent(new httpEvent::RequestIncoming(W,evt->esi,evt->route));
 
-        }
-        if(W->chunked)
-        {
-            // logErr2("if(W->chunked)");
-            handleChunkedBuffer(evt,W);
-        }
+        // }
+        // if(W->chunked)
+        // {
+        //     // logErr2("if(W->chunked)");
+        //     handleChunkedBuffer(evt,W);
+        // }
         return  true;
 
     }
@@ -1143,7 +1361,7 @@ REF_getter<HTTP::Request> HTTP::Service::getData(epoll_socket_info* esi)
     {
         // throw CommonError("HTTP::Service::getData: HTTP::Request not found for esi %p",esi);
         // logErr2("HTTP::Service::getData: create new HTTP::Request for esi %p",esi);
-        REF_getter<Refcountable> p=new HTTP::Request(esi);
+        REF_getter<Refcountable> p=new HTTP::Request(esi, settings,this);
         esi->additions_.insert(std::make_pair(ServiceEnum::HTTP,p));
         it=esi->additions_.find(ServiceEnum::HTTP);
     }
@@ -1162,6 +1380,7 @@ void HTTP::Service::setData(epoll_socket_info* esi, const REF_getter<HTTP::Reque
 void HTTP::Service::clearData(epoll_socket_info* esi)
 {
     W_LOCK (esi->additions_lk);
+    logErr2("HTTP::Service::clearData for esi %p",esi);
     esi->additions_.erase(ServiceEnum::HTTP);
 
 }

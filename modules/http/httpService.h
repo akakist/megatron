@@ -39,7 +39,7 @@ namespace HTTP
         public Broadcaster,
         public ListenerSimple
     {
-
+        public:
         // config
         size_t m_maxPost;
         struct _mx
@@ -72,7 +72,7 @@ namespace HTTP
         REF_getter<HTTP::Request> getData(epoll_socket_info* esi);
         void setData(epoll_socket_info* esi, const REF_getter<HTTP::Request> & p);
         void clearData(epoll_socket_info* esi);
-        bool handleChunkedBuffer(const socketEvent::StreamRead* evt, const REF_getter<HTTP::Request>& W);
+        // bool handleChunkedBuffer(const socketEvent::StreamRead* evt, const REF_getter<HTTP::Request>& W);
 
 
         static HTTP::WebSocketFrameType WebSocket_getFrame(unsigned char* in_buffer, int in_length, /*unsigned char* out_buffer, int out_size, int* out_length,*/ std::string &o);
@@ -105,5 +105,7 @@ namespace HTTP
 
 
         IInstance *iInstance;
+        llhttp_settings_t settings;
+
     };
 };

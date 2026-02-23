@@ -8,6 +8,7 @@
 #include "IInstance.h"
 #include "stream.h"
 #include "llhttp/llhttp.h"
+#include "Events/System/Net/socketEvent.h"
 // #include "ioStreams.h"
 
 // #include "streamBase.h"
@@ -36,6 +37,9 @@ struct HttpContext {
     bool upgrade = false;
     std::string chunk;
     size_t chunk_size = 0;
+    bool is_chunked=false;
+    int chunkId=0;
+    void *server;
 
     void clear() {
         method.clear();
@@ -48,6 +52,8 @@ struct HttpContext {
         upgrade = false;
         chunk.clear();
         chunk_size = 0;
+        is_chunked=false;
+        chunkId=0;
     }
 };
 
@@ -203,7 +209,6 @@ int main() {
 
     public:
         llhttp_t parser;
-        llhttp_settings_t settings;
         HttpContext ctx; 
 
 
@@ -234,23 +239,36 @@ int main() {
         }
         #endif
         // std::string_view postContent;
-        bool chunked=false;
+        // bool chunked=false;
 
-        std::string header_content;
+        // std::string header_content;
         std::string post_content;
 
-        Request(const REF_getter<epoll_socket_info>& _esi);
+        Request(const REF_getter<epoll_socket_info>& _esi, llhttp_settings_t& settings, void* server);
 
 
         time_t m_last_io_time;
-        bool websocket_established=false;
+        // bool websocket_established=false;
 
+        private:
         REF_getter<Stream> reader=nullptr;
-        struct _mx_buffer
+        public:
+        void setReader(const REF_getter<Stream>& r)
         {
-        };
-        _mx_buffer mx_chunked;
-        int chunkId=0;
+            logErr2("@@ setReader %p",r.get());
+            reader=r;
+        }
+        REF_getter<Stream> getReader()
+        {
+            return reader;
+        }   
+
+        // struct _mx_buffer
+        // {
+        // };
+        // _mx_buffer mx_chunked;
+
+        REF_getter<socketEvent::StreamRead> currentEvent=nullptr;
 
 
         struct _fileresponse: public Refcountable
