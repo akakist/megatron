@@ -52,7 +52,7 @@ struct HttpContext: public Refcountable
     {
         return reader;
     }   
-    std::string post_content;
+    // std::string post_content;
 
 
     void clear() ;
