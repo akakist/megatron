@@ -261,7 +261,7 @@ void HttpContext::clear()
     headers.clear();
     keepalive = true;
     upgrade = false;
-    chunk.clear();
+    body=nullptr;
     chunk_size = 0;
     is_chunked=false;
     chunkId=0;

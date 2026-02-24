@@ -168,7 +168,20 @@ int on_body(llhttp_t* p, const char* at, size_t length) {
 
     if(r->ctx->is_chunked)
     {
-        r->ctx->chunk.append(at,length);
+        if(!r->ctx->body.valid())
+        {
+            r->ctx->body=new refbuffer();
+        }   
+        r->ctx->body->container.append(at,length);
+        return 0;
+    }
+    else
+    {
+        if(!r->ctx->body.valid())
+        {
+            r->ctx->body=new refbuffer();
+        }   
+        r->ctx->body->container.append(at,length);
         return 0;
     }
 
@@ -205,7 +218,7 @@ int on_message_complete(llhttp_t* p) {
 }
 int on_chunk_header(llhttp_t* p) {
     auto* r = (HTTP::Request*)p->data;
-    r->ctx->chunk.clear();
+    r->ctx->body=nullptr;
     r->ctx->chunk_size=p->content_length;
     return 0;
 }
@@ -213,10 +226,15 @@ int on_chunk_complete(llhttp_t* p) {
 
     auto* r = (HTTP::Request*)p->data;
     HTTP::Service* service=(HTTP::Service*)r->ctx->server;
-    if(r->ctx->chunk.size()!=r->ctx->chunk_size)
+    if(!r->ctx->body.valid())
+    {
+        // logErr2("chunk body is not valid %d",r->ctx->chunk_size);
+        return 0;
+    }
+    if(r->ctx->body->container.size()!=r->ctx->chunk_size)
         throw CommonError("chunk size mismatch");
-    service->passEvent(new httpEvent::RequestChunkReceived(r->ctx,r->esi,r->ctx->chunkId++, r->ctx->chunk, r->currentEvent->route));
-    r->ctx->chunk.clear();
+    service->passEvent(new httpEvent::RequestChunkReceived(r->ctx,r->esi,r->ctx->chunkId++, r->ctx->body, r->currentEvent->route));
+    r->ctx->body=nullptr;
     r->ctx->chunk_size=0;
 
     return 0;

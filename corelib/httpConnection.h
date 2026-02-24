@@ -31,7 +31,7 @@ struct HttpContext: public Refcountable
 
     bool keepalive = true;
     bool upgrade = false;
-    std::string chunk;
+    REF_getter<refbuffer> body=nullptr;
     size_t chunk_size = 0;
     bool is_chunked=false;
     int chunkId=0;

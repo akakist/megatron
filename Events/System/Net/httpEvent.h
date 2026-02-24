@@ -211,13 +211,13 @@ namespace httpEvent
         {
             return NULL;
         }
-        RequestChunkReceived(const REF_getter<HttpContext>& __R, const REF_getter<epoll_socket_info>& __esi, uint64_t _chunkId, const std::string& _buf, const route_t & r)
+        RequestChunkReceived(const REF_getter<HttpContext>& __R, const REF_getter<epoll_socket_info>& __esi, uint64_t _chunkId, const REF_getter<refbuffer>& _buf, const route_t & r)
             :NoPacked(httpEventEnum::RequestChunkReceived,r),
              req(__R),esi(__esi),chunkId(_chunkId),buf(_buf){}
         const REF_getter<HttpContext> req;
         const REF_getter<epoll_socket_info> esi;
         uint64_t chunkId=0;
-        std::string buf;
+        REF_getter<refbuffer> buf;
 
     };
 
