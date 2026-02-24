@@ -54,10 +54,10 @@ namespace httpEvent
         {
             return NULL;
         }
-        WSWrite(const REF_getter<HTTP::Request>& _r, const std::string & _msg, const route_t & r)
+        WSWrite(const REF_getter<HttpContext>& _r, const std::string & _msg, const route_t & r)
             :NoPacked(httpEventEnum::WSWrite,r),
              r(_r),msg(_msg){}
-        REF_getter<HTTP::Request> r=nullptr;
+        REF_getter<HttpContext> r=nullptr;
         std::string msg;
 
     };
@@ -71,10 +71,10 @@ namespace httpEvent
         {
             return NULL;
         }
-        WSDisconnected(const REF_getter<HTTP::Request> & _rq, const route_t & r)
+        WSDisconnected(const REF_getter<HttpContext> & _rq, const route_t & r)
             :NoPacked(httpEventEnum::WSDisconnected,r),
              req(_rq){}
-        const REF_getter<HTTP::Request> req;
+        const REF_getter<HttpContext> req;
 
     };
     class WSTextMessage: public Event::NoPacked
@@ -87,10 +87,10 @@ namespace httpEvent
         {
             return NULL;
         }
-        WSTextMessage(const REF_getter<HTTP::Request>& __R, const std::string& _msg, const route_t & r)
+        WSTextMessage(const REF_getter<HttpContext>& __R, const std::string& _msg, const route_t & r)
             :NoPacked(httpEventEnum::WSTextMessage,r),
              req(__R), msg(_msg){}
-        const REF_getter<HTTP::Request> req;
+        const REF_getter<HttpContext> req;
         std::string msg;
 
     };
@@ -104,10 +104,10 @@ namespace httpEvent
         {
             return NULL;
         }
-        RequestIncoming(const REF_getter<HTTP::Request>& __R, const REF_getter<epoll_socket_info>& __esi, const route_t & r)
+        RequestIncoming(const REF_getter<HttpContext>& __R, const REF_getter<epoll_socket_info>& __esi, const route_t & r)
             :NoPacked(httpEventEnum::RequestIncoming,r),
              req(__R),esi(__esi) {}
-        const REF_getter<HTTP::Request> req;
+        const REF_getter<HttpContext> req;
         const REF_getter<epoll_socket_info> esi;
 
     };
@@ -211,10 +211,10 @@ namespace httpEvent
         {
             return NULL;
         }
-        RequestChunkReceived(const REF_getter<HTTP::Request>& __R, const REF_getter<epoll_socket_info>& __esi, uint64_t _chunkId, const std::string& _buf, const route_t & r)
+        RequestChunkReceived(const REF_getter<HttpContext>& __R, const REF_getter<epoll_socket_info>& __esi, uint64_t _chunkId, const std::string& _buf, const route_t & r)
             :NoPacked(httpEventEnum::RequestChunkReceived,r),
              req(__R),esi(__esi),chunkId(_chunkId),buf(_buf){}
-        const REF_getter<HTTP::Request> req;
+        const REF_getter<HttpContext> req;
         const REF_getter<epoll_socket_info> esi;
         uint64_t chunkId=0;
         std::string buf;
@@ -231,10 +231,10 @@ namespace httpEvent
         {
             return NULL;
         }
-        RequestChunkingCompleted(const REF_getter<HTTP::Request>& __R, const REF_getter<epoll_socket_info>& __esi, uint64_t _totalChunks, const route_t & r)
+        RequestChunkingCompleted(const REF_getter<HttpContext>& __R, const REF_getter<epoll_socket_info>& __esi, uint64_t _totalChunks, const route_t & r)
             :NoPacked(httpEventEnum::RequestChunkingCompleted,r),
              req(__R),esi(__esi),totalChunks(_totalChunks) {}
-        const REF_getter<HTTP::Request> req;
+        const REF_getter<HttpContext> req;
         const REF_getter<epoll_socket_info> esi;
         uint64_t totalChunks=0;
 

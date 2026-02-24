@@ -153,7 +153,7 @@ bool prodtestWebServer::Service::on_RequestIncoming(const httpEvent::RequestInco
     return true;
 }
 
-REF_getter<prodtestWebServer::Session> prodtestWebServer::Service::create_session( const REF_getter<HTTP::Request>& req, HTTP::Response& resp, const REF_getter<epoll_socket_info>& esi)
+REF_getter<prodtestWebServer::Session> prodtestWebServer::Service::create_session( const REF_getter<HttpContext>& req, HTTP::Response& resp, const REF_getter<epoll_socket_info>& esi)
 {
 
     auto session_id=cnt2++;

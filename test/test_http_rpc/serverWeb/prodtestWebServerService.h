@@ -26,10 +26,10 @@ namespace prodtestWebServer
     public:
         int sessionId;
         REF_getter<epoll_socket_info> esi;
-        REF_getter<HTTP::Request> req;
+        REF_getter<HttpContext> req;
 
 
-        Session(int sid, const REF_getter<HTTP::Request> &_req,const REF_getter<epoll_socket_info> &_esi): sessionId(sid),
+        Session(int sid, const REF_getter<HttpContext> &_req,const REF_getter<epoll_socket_info> &_esi): sessionId(sid),
             req(_req),
             esi(_esi)
         {
@@ -71,7 +71,7 @@ namespace prodtestWebServer
             return new Service(id,nm,obj);
         }
 
-        REF_getter<prodtestWebServer::Session> create_session(const REF_getter<HTTP::Request>& req, HTTP::Response& resp, const REF_getter<epoll_socket_info> &_esi);
+        REF_getter<prodtestWebServer::Session> create_session(const REF_getter<HttpContext>& req, HTTP::Response& resp, const REF_getter<epoll_socket_info> &_esi);
         REF_getter<prodtestWebServer::Session> get_session(int session_id);
         void remove_session(int session_id);
 

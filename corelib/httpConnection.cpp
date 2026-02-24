@@ -104,7 +104,7 @@ std::string HTTP::Response::build_html_response()
     if(!is_chunked && content.size())
 
         ret<< "Content-Length: " << content.size() << "\r\n";
-    if(request->ctx.keepalive && !is_chunked)
+    if(request->keepalive && !is_chunked)
     {
         ret << "Connection: Keep-Alive\r\n"
             "Keep-Alive: timeout=7200, max=1000000000\r\n";
@@ -149,8 +149,7 @@ inline int ascii_tolower(int c) {
 HTTP::Request::Request(const REF_getter<epoll_socket_info>& _esi, llhttp_settings_t& settings, void* server)
     :
     // m_last_io_time(time(NULL)),
-    fileresponse(NULL)
-    ,
+    // fileresponse(NULL),
     // sendRequestIncomingIsSent(false),
     esi(_esi)
 {
@@ -158,7 +157,8 @@ HTTP::Request::Request(const REF_getter<epoll_socket_info>& _esi, llhttp_setting
     // parse_data.last_char=' ';
     llhttp_init(&parser, HTTP_REQUEST, &settings); 
     parser.data = this;
-    ctx.server=server;
+    ctx = new HttpContext(server, _esi);
+    // ctx-.server=server;
 
 }
 void HTTP::Response::make_response(const std::string& str)
@@ -167,11 +167,11 @@ void HTTP::Response::make_response(const std::string& str)
     if(is_chunked)
         throw CommonError("if(is_chunked)");
 
-
+    // if()
 
     content=str;
     auto s=build_html_response();
-    if( request->ctx.keepalive)
+    if( request->keepalive)
     {
         request->esi->write_(s);
     }
@@ -214,11 +214,14 @@ void HTTP::Response::end_chunked()
         throw CommonError("if(!is_chunked)");
     if(content.size())
         throw CommonError("if(content.size())");
+    if(!request.valid())
+        throw CommonError("if(!request->ctx.valid())");
+
     {
         {
 
             std::string buf="0\r\n\r\n";
-            if( request->ctx.keepalive)
+            if( request->keepalive)
             {
                 request->esi->write_(buf);
             }
@@ -232,7 +235,7 @@ void HTTP::Response::end_chunked()
 }
 
 
-
+#ifdef KALL
 HTTP::Request::_fileresponse::~_fileresponse()
 {
     if(m_fd!=-1)
@@ -248,6 +251,7 @@ HTTP::Request::_fileresponse::~_fileresponse()
         m_fd=-1;
     }
 }
+#endif
 void HttpContext::clear() 
 {
     method.clear();
@@ -263,5 +267,6 @@ void HttpContext::clear()
     chunkId=0;
     isWebSocket=false;
     websocket_buffer.clear();
+    content_length=0;
 
 }

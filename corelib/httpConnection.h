@@ -19,7 +19,8 @@ typedef int64_t (*__url_seek)(long _fd, int64_t pos, int whence);
 typedef int (*__url_close)(long _fd);
 typedef long (*__url_open)(const char* fn, int flags);
 
-struct HttpContext {
+struct HttpContext: public Refcountable
+{
     std::string method;
     int method_int=HTTP_GET;
     std::string url;
@@ -37,8 +38,25 @@ struct HttpContext {
     void *server;
     bool isWebSocket=false;
     std::string websocket_buffer;
+    size_t content_length=0;
+    REF_getter<epoll_socket_info> esi;
+
+    private:
+    REF_getter<Stream> reader=nullptr;
+    public:
+    void setReader(const REF_getter<Stream>& r)
+    {
+        reader=r;
+    }
+    REF_getter<Stream> getReader()
+    {
+        return reader;
+    }   
+    std::string post_content;
+
 
     void clear() ;
+    HttpContext(void *_server, const REF_getter<epoll_socket_info>& _esi):server(_server),esi(_esi) {}
 };
 
 
@@ -71,32 +89,20 @@ namespace HTTP
 
     public:
         llhttp_t parser;
-        HttpContext ctx; 
+        REF_getter< HttpContext>  ctx=nullptr; 
 
 
         
-        std::string post_content;
 
         Request(const REF_getter<epoll_socket_info>& _esi, llhttp_settings_t& settings, void* server);
 
 
 
-        private:
-        REF_getter<Stream> reader=nullptr;
-        public:
-        void setReader(const REF_getter<Stream>& r)
-        {
-            reader=r;
-        }
-        REF_getter<Stream> getReader()
-        {
-            return reader;
-        }   
 
 
         REF_getter<socketEvent::StreamRead> currentEvent=nullptr;
 
-
+#ifdef KALL
         struct _fileresponse: public Refcountable
         {
             bool hasRange;
@@ -134,6 +140,7 @@ namespace HTTP
             ~_fileresponse();
         };
         REF_getter<_fileresponse> fileresponse;
+#endif
         // enum CONN {
         //     CLOSE,KEEPALIVE,UPGRADE
         // };
@@ -149,13 +156,13 @@ namespace HTTP
     class Response
     {
     public:
-        Response(const REF_getter<HTTP::Request> &rq):
+        Response(const REF_getter<HttpContext> &rq):
             request(rq),http_code(200),http_content_type("text/html"),is_chunked(false),chunked_http_header_sent(false)
         {
 
         }
     public:
-        REF_getter<Request> request=nullptr;
+        REF_getter<HttpContext> request=nullptr;
     private:
         int http_code;
         std::string http_content_type;

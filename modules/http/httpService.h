@@ -45,7 +45,7 @@ namespace HTTP
         struct _mx
         {
             RWLock lk;
-            std::map<std::string,std::string>mime_types;
+            // std::map<std::string,std::string>mime_types;
             std::set<msockaddr_in> bind_addrs;
         };
         _mx mx;
@@ -89,14 +89,14 @@ namespace HTTP
     protected:
         bool handleEvent(const REF_getter<Event::Base>& evt);
         /** -1 error*/
-        int send_other_from_disk_ext(const REF_getter<epoll_socket_info>&esi, const REF_getter<HTTP::Request>&req,const std::string & fn,const std::string& exten);
+        // int send_other_from_disk_ext(const REF_getter<epoll_socket_info>&esi, const REF_getter<HTTP::Request>&req,const std::string & fn,const std::string& exten);
 
     private:
-        struct _lastModified: public Mutexable
-        {
-            std::map<std::string_view,time_t> container;
-        };
-        _lastModified lastModified;
+        // struct _lastModified: public Mutexable
+        // {
+        //     std::map<std::string_view,time_t> container;
+        // };
+        // _lastModified lastModified;
 
 
         IInstance *iInstance;
