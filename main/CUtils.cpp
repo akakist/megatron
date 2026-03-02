@@ -353,199 +353,77 @@ std::string CUtils::strlower(const std::string & s)
     return a;
 
 }
-static char    six2pr[64] =
-{
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-    'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'
-};
-
-static unsigned char pr2six[256];
 
 
-/** --- function HTUU_encode -----------------------------------------------
- *
- *   Encode a single line of binary data to a standard format that
- *   uses only printing ASCII characters (but takes up 33% more bytes).
- *
- *    Entry    bufin    points to a buffer of bytes.  If nbytes is not
- *                      a multiple of three, then the byte just beyond
- *                      the last byte in the buffer must be 0.
- *             nbytes   is the number of bytes in that buffer.
- *                      This cannot be more than 48.
- *             bufcoded points to an output buffer.  Be sure that this
- *                      can hold at least 1 + (4*nbytes)/3 characters.
- *
- *    Exit     bufcoded contains the coded line.  The first 4*nbytes/3 bytes
- *                      contain printing ASCII characters representing
- *                      those binary bytes. This may include one or
- *                      two '=' characters used as padding at the end.
- *                      The last byte is a zero byte.
- *             Returns the number of ASCII characters in "bufcoded".
- */
-static int
-Ns_HtuuEncode(unsigned char *bufin, unsigned int nbytes, char * bufcoded)
-{
 
-    /** ENC is the basic 1 character encoding function to make a char printing */
-#define ENC(c) six2pr[c]
-
-    char  *outptr = bufcoded;
-    unsigned int    i;
-
-    for (i = 0; i < nbytes; i += 3)
-    {
-        /** c1 */
-        *(outptr++) = ENC(*bufin >> 2);
-        /** c2 */
-        *(outptr++) = ENC(((*bufin << 4) & 060) | ((bufin[1] >> 4) & 017));
-        /** c3 */
-        *(outptr++) = ENC(((bufin[1] << 2) & 074) | ((bufin[2] >> 6) & 03));
-        /** c4 */
-        *(outptr++) = ENC(bufin[2] & 077);
-
-        bufin += 3;
-    }
-
-    /**
-     * If nbytes was not a multiple of 3, then we have encoded too many
-     * characters.  Adjust appropriately.
-     */
-    if (i == nbytes + 1)
-    {
-        /** There were only 2 bytes in that last group */
-        outptr[-1] = '=';
-    }
-    else if (i == nbytes + 2)
-    {
-        /** There was only 1 byte in that last group */
-        outptr[-1] = '=';
-        outptr[-2] = '=';
-    }
-    *outptr = '\0';
-    return (outptr - bufcoded);
-}
-
-/** --- function HTUU_decode ------------------------------------------------
- *
- *  Decode an ASCII-encoded buffer back to its original binary form.
- *
- *    Entry    bufcoded    points to a uuencoded string.  It is
- *                         terminated by any character not in
- *                         the printable character table six2pr, but
- *                         leading whitespace is stripped.
- *             bufplain    points to the output buffer; must be big
- *                         enough to hold the decoded std::string (generally
- *                         shorter than the encoded string) plus
- *                         as many as two extra bytes used during
- *                         the decoding process.
- *             outbufsize  is the maximum number of bytes that
- *                         can fit in bufplain.
- *
- *    Exit     Returns the number of binary bytes decoded.
- *             bufplain    contains these bytes.
- */
-static int
-Ns_HtuuDecode(char * bufcoded, unsigned char * bufplain, int outbufsize)
-{
-
-    /** single character decode */
-#define DEC(c) pr2six[(int)c]
-#define MAXVAL 63
-
-    static int      first = 1;
-
-    int             nbytesdecoded, j;
-    char  *bufin = bufcoded;
-    unsigned char *bufout = bufplain;
-    int    nprbytes;
-
-    /**
-     * If this is the first call, initialize the mapping table. This code
-     * should work even on non-ASCII machines.
-     */
-    if (first)
-    {
-        first = 0;
-        for (j = 0; j < 256; j++)
-            pr2six[j] = MAXVAL + 1;
-
-        for (j = 0; j < 64; j++)
-            pr2six[(int) six2pr[j]] = (unsigned char) j;
-    }
-
-    /** Strip leading whitespace. */
-
-    while (*bufcoded == ' ' || *bufcoded == '\t')
-        bufcoded++;
-
-    /**
-     * Figure out how many characters are in the input buffer. If this would
-     * decode into more bytes than would fit into the output buffer, adjust
-     * the number of input bytes downwards.
-     */
-    bufin = bufcoded;
-    while (pr2six[(int) *(bufin++)] <= MAXVAL) {};
-    nprbytes = bufin - bufcoded - 1;
-    nbytesdecoded = ((nprbytes + 3) / 4) * 3;
-    if (nbytesdecoded > outbufsize)
-    {
-        nprbytes = (outbufsize * 4) / 3;
-    }
-    bufin = bufcoded;
-
-    while (nprbytes > 0)
-    {
-        *(bufout++) = (unsigned char) (DEC(*bufin) << 2 | DEC(bufin[1]) >> 4);
-        *(bufout++) = (unsigned char) (DEC(bufin[1]) << 4 |
-                                       DEC(bufin[2]) >> 2);
-        *(bufout++) = (unsigned char) (DEC(bufin[2]) << 6 | DEC(bufin[3]));
-        bufin += 4;
-        nprbytes -= 4;
-    }
-
-    if (nprbytes & 03)
-    {
-        if (pr2six[(int) bufin[-2]] > MAXVAL)
-        {
-            nbytesdecoded -= 2;
-        }
-        else
-        {
-            nbytesdecoded -= 1;
-        }
-    }
-    return (nbytesdecoded);
-}
-
+static const char B64chars[] =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 std::string CUtils::Base64Encode(const std::string &str)
 {
-    size_t len=str.size()*2;
-    char *out=(char*)malloc(len+10);
-    if(!out)
-        throw std::runtime_error("alloc error");
-    ::memset(out,0,len+2);
-    int outlen=Ns_HtuuEncode((unsigned char*)str.data(),str.size(),out);
-    std::string ret(out,outlen);
-    free(out);
-    return ret;
-}
-std::string CUtils::Base64Decode(const std::string &str)
-{
 
-    if(str.size()==0) return "";
-    size_t len=str.size();
-    char *out=(char*)malloc(len+10);
-    if(!out)
-        throw CommonError("!out size %d",str.size());
-    ::memset(out,0,len+2);
-    int outlen=Ns_HtuuDecode((char*)str.data(),(unsigned char*)out,len);
-    std::string ret(out,outlen);
-    free(out);
-    return ret;
+    std::string out;
+    out.reserve((str.size() + 2) / 3 * 4);
+
+    int val = 0;
+    int valb = -6;
+
+    for (size_t i = 0; i < str.size(); i++) {
+        val = (val << 8) + (unsigned char)str[i];
+        valb += 8;
+
+        while (valb >= 0) {
+            out.push_back(B64chars[(val >> valb) & 0x3F]);
+            valb -= 6;
+        }
+    }
+
+    if (valb > -6) {
+        out.push_back(B64chars[((val << 8) >> (valb + 8)) & 0x3F]);
+    }
+
+    while (out.size() % 4) {
+        out.push_back('=');
+    }
+
+    return out;
+}
+static const int B64index[256] = {
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,62,0,0,0,63,52,53,54,55,56,57,58,59,60,61,
+    0,0,0, 0, 0,0,0, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,
+    20,21,22,23,24,25,0,0,0,0,0,0,26,27,28,29,30,31,32,33,34,35,36,37,
+    38,39,40,41,42,43,44,45,46,47,48,49,50,51
+};
+
+std::string CUtils::Base64Decode(const std::string &src)
+{
+    std::string out;
+    out.reserve(src.size() * 3 / 4);
+
+    int val = 0, valb = -8;
+
+    for (unsigned char c : src) {
+        if (c == '=')
+            break;
+
+        // пропускаем переносы строк и пробелы
+        if (c == '\n' || c == '\r' || c == ' ' || c == '\t')
+            continue;
+
+        if (c > 127 || B64index[c] == 0 && c != 'A')  
+            continue; // игнорируем мусор
+
+        val = (val << 6) + B64index[c];
+        valb += 6;
+
+        if (valb >= 0) {
+            out.push_back(char((val >> valb) & 0xFF));
+            valb -= 8;
+        }
+    }
+
+    return out;
 }
 
 std::string CUtils::hex2bin(const std::string &s)
