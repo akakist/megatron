@@ -464,7 +464,11 @@ void msockaddr_in::init(const std::string& s)
             auto port=atoi(s.substr(pz+1,s.size()-(pz+1)).c_str());
             init(host.c_str(),port);
         }
-        else throw CommonError("invalid case");
+        else
+        {
+            logErr2("invalid case %s",s.c_str());
+            throw CommonError("invalid case %s",s.c_str());
+        } 
     }
 }
 
