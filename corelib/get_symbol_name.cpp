@@ -1,163 +1,141 @@
 /*
-Found 158 symbols starting with @g_
-  @g_AV -> 0xa211021e at ./src/megatron/corelib/ifacesEvent.h:9
-  @g_ClientTxSubscribeREQ -> 0x41eba206 at ./src/bc/Event/bcEvent.h:16
-  @g_ClientTxSubscribeRSP -> 0x722f21f at ./src/bc/Event/bcEvent.h:17
-  @g_DFSCaps -> 0x347aaa85 at ./src/megatron/Events/DFS/capsEvent.h:12
-  @g_DFSCaps_GetCloudRootsREQ -> 0x70568b38 at ./src/megatron/Events/DFS/capsEvent.h:21
-  @g_DFSCaps_GetCloudRootsRSP -> 0x3d835a8d at ./src/megatron/Events/DFS/capsEvent.h:22
-  @g_DFSCaps_GetReferrersREQ -> 0x254e2afe at ./src/megatron/Events/DFS/capsEvent.h:19
-  @g_DFSCaps_GetReferrersRSP -> 0x2a349af7 at ./src/megatron/Events/DFS/capsEvent.h:20
-  @g_DFSCaps_RegisterCloudRoot -> 0xfe5aade4 at ./src/megatron/Events/DFS/capsEvent.h:18
-  @g_DFSCaps_RegisterMyRefferrerNodeREQ -> 0xd778340c at ./src/megatron/Events/DFS/capsEvent.h:17
-  @g_DFSReferrer -> 0xe46c9617 at ./src/megatron/Events/DFS/referrerEvent.h:12
-  @g_DFSReferrerInitClient -> 0xf8c3c2ea at ./src/megatron/Events/DFS/referrerEvent.h:33
-  @g_DFSReferrerNotifyReferrerDownlinkDisconnected -> 0xfc5b6eb2 at ./src/megatron/Events/DFS/referrerEvent.h:32
-  @g_DFSReferrerNotifyReferrerUplinkIsConnected -> 0x76340fdb at ./src/megatron/Events/DFS/referrerEvent.h:30
-  @g_DFSReferrerNotifyReferrerUplinkIsDisconnected -> 0x139014af at ./src/megatron/Events/DFS/referrerEvent.h:31
-  @g_DFSReferrerUpdateConfigREQ -> 0x1a3f2508 at ./src/megatron/Events/DFS/referrerEvent.h:35
-  @g_DFSReferrerUpdateConfigRSP -> 0x671b78fd at ./src/megatron/Events/DFS/referrerEvent.h:36
-  @g_DFSReferrer_Hello -> 0x5a1bda40 at ./src/megatron/Events/DFS/referrerEvent.h:20
-  @g_DFSReferrer_Noop -> 0x1106c3e8 at ./src/megatron/Events/DFS/referrerEvent.h:22
-  @g_DFSReferrer_Ping -> 0x79e74f30 at ./src/megatron/Events/DFS/referrerEvent.h:19
-  @g_DFSReferrer_Pong -> 0xe7e44672 at ./src/megatron/Events/DFS/referrerEvent.h:29
-  @g_DFSReferrer_SubscribeNotifications -> 0x8f7f1f24 at ./src/megatron/Events/DFS/referrerEvent.h:21
-  @g_DFSReferrer_ToplinkDeliverREQ -> 0x406c473c at ./src/megatron/Events/DFS/referrerEvent.h:24
-  @g_DFSReferrer_ToplinkDeliverRSP -> 0x3d844769 at ./src/megatron/Events/DFS/referrerEvent.h:25
-  @g_EmitterData -> 0x2a113c9d at ./src/bc/common/bcjsEvent.h:30
-  @g_ErrorDispatcher -> 0xa7258eac at ./src/megatron/Events/Tools/errorDispatcherEvent.h:15
-  @g_ErrorRSP -> 0x846c69fa at ./src/megatron/Events/System/Error/ErrorEvent.h:10
-  @g_Execitor -> 0xbed7f518 at ./src/bc/Event/bcEvent.h:8
-  @g_GEOIP -> 0x5ecb0003 at ./src/megatron/corelib/ifacesEvent.h:11
-  @g_GetBindPortsREQ -> 0x133ead50 at ./src/megatron/Events/System/Net/httpEvent.h:15
-  @g_GetBindPortsRSP -> 0xe01bcac5 at ./src/megatron/Events/System/Net/httpEvent.h:16
-  @g_HTTP -> 0xf8f8e915 at ./src/megatron/Events/System/Net/httpEvent.h:10
-  @g_JsonREQ -> 0x689b16c9 at ./src/megatron/Events/System/Net/jsonRefEvent.h:11
-  @g_JsonRSP -> 0x23649030 at ./src/megatron/Events/System/Net/jsonRefEvent.h:13
-  @g_Logger -> 0x58fe27c5 at ./src/megatron/Events/Tools/loggerEvent.h:16
-  @g_Mysql -> 0x1eb55b6d at ./src/megatron/corelib/DBHEvent.h:6
-  @g_Node -> 0x68e6b4fd at ./src/bc/Event/bcEvent.h:6
-  @g_ObjectProxyPolled -> 0x30489b56 at ./src/megatron/Events/System/Net/rpcEvent.h:13
-  @g_ObjectProxyThreaded -> 0x835c46b3 at ./src/megatron/Events/System/Net/rpcEvent.h:14
-  @g_Oscar -> 0x5795b27f at ./src/megatron/Events/System/Net/oscarEvent.h:12
-  @g_OscarSecure -> 0x86d21df6 at ./src/megatron/Events/System/Net/oscarEvent.h:13
-  @g_Postgres -> 0xaf73ca5e at ./src/megatron/corelib/DBHEvent.h:7
-  @g_RPC -> 0xd7a04764 at ./src/megatron/Events/System/Net/rpcEvent.h:12
-  @g_Reader -> 0x67d62d06 at ./src/bc/Event/bcEvent.h:7
-  @g_RefferrerClient -> 0xec5a94b7 at ./src/megatron/Events/DFS/referrerEvent.h:13
-  @g_SSL -> 0xc02aafad at ./src/megatron/corelib/ifacesEvent.h:10
-  @g_Socket -> 0x766cd5dc at ./src/megatron/Events/System/Net/socketEvent.h:13
-  @g_Socks5 -> 0xbba35c75 at ./src/megatron/Events/System/Net/socketEvent.h:14
-  @g_Telnet -> 0xd7fc786d at ./src/megatron/Events/Tools/telnetEvent.h:10
-  @g_Timer -> 0x624ad572 at ./src/megatron/Events/System/timerEvent.h:9
-  @g_WSDisaccepted -> 0xae69496c at ./src/megatron/Events/System/Net/httpEvent.h:18
-  @g_WSDisconnected -> 0xa435c09c at ./src/megatron/Events/System/Net/httpEvent.h:19
-  @g_WSTextMessage -> 0x8cc926af at ./src/megatron/Events/System/Net/httpEvent.h:17
-  @g_WSWrite -> 0xd99e86f2 at ./src/megatron/Events/System/Net/httpEvent.h:20
-  @g_WebHandler -> 0xf8eb4187 at ./src/megatron/Events/Tools/webHandlerEvent.h:14
-  @g_WebSocketClient -> 0xe043d1cf at ./src/megatron/Events/System/Net/webSocketClientEvent.h:6
-  @g_bcClientMsg -> 0x66eb46e6 at ./src/bc/Event/bcEvent.h:14
-  @g_bcClientMsgReply -> 0xf5a8f29a at ./src/bc/Event/bcEvent.h:15
-  @g_bcMsg -> 0xe40cbbb7 at ./src/bc/Event/bcEvent.h:12
-  @g_bcMsgReply -> 0x5eaad01 at ./src/bc/Event/bcEvent.h:13
-  @g_bcjs -> 0xb4530cd1 at ./src/bc/common/bcjsEvent.h:20
-  @g_bcjsRpcREQ -> 0x30195710 at ./src/bc/common/bcjsEvent.h:31
-  @g_bcjsRpcRSP -> 0xfcf67485 at ./src/bc/common/bcjsEvent.h:32
-  @g_bcjs_Eval -> 0x18a3b94 at ./src/bc/common/bcjsEvent.h:29
-  @g_bcjs_async_executed -> 0x42ca0e26 at ./src/bc/common/bcjsEvent.h:28
-  @g_errorDispatcherNotifySubscriber -> 0x4f809243 at ./src/megatron/Events/Tools/errorDispatcherEvent.h:23
-  @g_errorDispatcherSendMessage -> 0xf855f5d9 at ./src/megatron/Events/Tools/errorDispatcherEvent.h:20
-  @g_errorDispatcherSubscribe -> 0xc556104c at ./src/megatron/Events/Tools/errorDispatcherEvent.h:21
-  @g_errorDispatcherUnsubscribe -> 0xbf4a16f1 at ./src/megatron/Events/Tools/errorDispatcherEvent.h:22
-  @g_httpDoListen -> 0x3d92a37f at ./src/megatron/Events/System/Net/httpEvent.h:14
-  @g_httpRequestChunkReceived -> 0x8bdf4988 at ./src/megatron/Events/System/Net/httpEvent.h:24
-  @g_httpRequestChunkingCompleted -> 0x298b445e at ./src/megatron/Events/System/Net/httpEvent.h:25
-  @g_httpRequestIncoming -> 0x3d15919a at ./src/megatron/Events/System/Net/httpEvent.h:22
-  @g_httpRequestStartChunking -> 0x3d17e099 at ./src/megatron/Events/System/Net/httpEvent.h:23
-  @g_loggerLogMessage -> 0x78ff5a08 at ./src/megatron/Events/Tools/loggerEvent.h:21
-  @g_mtjs -> 0x49fcd94b at ./src/js/common/mtjsEvent.h:20
-  @g_mtjsRpcREQ -> 0xdf150a4e at ./src/js/common/mtjsEvent.h:31
-  @g_mtjsRpcRSP -> 0xa44c5a67 at ./src/js/common/mtjsEvent.h:32
-  @g_mtjs_Eval -> 0x46ca4e8a at ./src/js/common/mtjsEvent.h:29
-  @g_mtjs_async_executed -> 0xe8f5f20c at ./src/js/common/mtjsEvent.h:28
-  @g_oscar_Accepted -> 0x3e0c01b9 at ./src/megatron/Events/System/Net/oscarEvent.h:26
-  @g_oscar_AddToListenTCP -> 0x54613024 at ./src/megatron/Events/System/Net/oscarEvent.h:20
-  @g_oscar_Connect -> 0xa5e6d3b6 at ./src/megatron/Events/System/Net/oscarEvent.h:21
-  @g_oscar_ConnectFailed -> 0x83821357 at ./src/megatron/Events/System/Net/oscarEvent.h:30
-  @g_oscar_Connected -> 0x2a45a837 at ./src/megatron/Events/System/Net/oscarEvent.h:24
-  @g_oscar_Disaccepted -> 0xb934e4cd at ./src/megatron/Events/System/Net/oscarEvent.h:27
-  @g_oscar_Disconnected -> 0x938c352b at ./src/megatron/Events/System/Net/oscarEvent.h:25
-  @g_oscar_NotifyBindAddress -> 0x81c4836a at ./src/megatron/Events/System/Net/oscarEvent.h:28
-  @g_oscar_NotifyOutBufferEmpty -> 0xf774d3b2 at ./src/megatron/Events/System/Net/oscarEvent.h:29
-  @g_oscar_PacketOnAcceptor -> 0xb9821244 at ./src/megatron/Events/System/Net/oscarEvent.h:22
-  @g_oscar_PacketOnConnector -> 0x78cd6494 at ./src/megatron/Events/System/Net/oscarEvent.h:23
-  @g_oscar_SendPacket -> 0x604e1706 at ./src/megatron/Events/System/Net/oscarEvent.h:19
-  @g_prodtestServer -> 0x1ce123eb at ./src/megatron/test/test_http_rpc/Events/___prodtestEvent.h:8
-  @g_prodtestServerWeb -> 0xafe45ff3 at ./src/megatron/test/test_http_rpc/Events/___prodtestEvent.h:9
-  @g_pt_AddTaskREQ -> 0x69952388 at ./src/megatron/test/test_http_rpc/Events/___prodtestEvent.h:15
-  @g_pt_AddTaskRSP -> 0xb671777d at ./src/megatron/test/test_http_rpc/Events/___prodtestEvent.h:16
-  @g_rpcAccepted -> 0x4fe5930d at ./src/megatron/Events/System/Net/rpcEvent.h:29
-  @g_rpcBinded -> 0x4504665a at ./src/megatron/Events/System/Net/rpcEvent.h:30
-  @g_rpcConnectFailed -> 0x841e7a0b at ./src/megatron/Events/System/Net/rpcEvent.h:27
-  @g_rpcConnected -> 0xe890e6b at ./src/megatron/Events/System/Net/rpcEvent.h:28
-  @g_rpcDisaccepted -> 0x1848be01 at ./src/megatron/Events/System/Net/rpcEvent.h:26
-  @g_rpcDisconnected -> 0x16d10dff at ./src/megatron/Events/System/Net/rpcEvent.h:25
-  @g_rpcIncomingOnAcceptor -> 0xff36ca0c at ./src/megatron/Events/System/Net/rpcEvent.h:31
-  @g_rpcIncomingOnConnector -> 0x7dfa185c at ./src/megatron/Events/System/Net/rpcEvent.h:32
-  @g_rpcPassPacket -> 0xf683c539 at ./src/megatron/Events/System/Net/rpcEvent.h:21
-  @g_rpcSendPacket -> 0x2dbb6362 at ./src/megatron/Events/System/Net/rpcEvent.h:22
-  @g_rpcSubscribeNotifications -> 0xfa923d98 at ./src/megatron/Events/System/Net/rpcEvent.h:23
-  @g_rpcTest -> 0xf2130640 at ./src/megatron/test/rpc/testRpcEvent.h:11
-  @g_rpcTestService1 -> 0x36d02066 at ./src/megatron/test/rpc/testRpcEvent.h:12
-  @g_rpcTestService2 -> 0x35d01ed3 at ./src/megatron/test/rpc/testRpcEvent.h:13
-  @g_rpcUnsubscribeNotifications -> 0x4bdcaeb3 at ./src/megatron/Events/System/Net/rpcEvent.h:24
-  @g_rpc_DoListen -> 0xc40566ab at ./src/megatron/Events/System/Net/rpcEvent.h:34
-  @g_rpc_NotifyOutBufferEmpty -> 0xba31a8cb at ./src/megatron/Events/System/Net/rpcEvent.h:33
-  @g_socket_Accepted -> 0xb78286e4 at ./src/megatron/Events/System/Net/socketEvent.h:22
-  @g_socket_AddToConnectTCP -> 0x8d1480d8 at ./src/megatron/Events/System/Net/socketEvent.h:21
-  @g_socket_AddToListenTCP -> 0xd67c2f01 at ./src/megatron/Events/System/Net/socketEvent.h:20
-  @g_socket_ConnectFailed -> 0x3f06d37c at ./src/megatron/Events/System/Net/socketEvent.h:29
-  @g_socket_Connected -> 0x4137de94 at ./src/megatron/Events/System/Net/socketEvent.h:24
-  @g_socket_Disaccepted -> 0x68a6459e at ./src/megatron/Events/System/Net/socketEvent.h:26
-  @g_socket_Disconnected -> 0x136d460e at ./src/megatron/Events/System/Net/socketEvent.h:25
-  @g_socket_NotifyBindAddress -> 0x70f58e5 at ./src/megatron/Events/System/Net/socketEvent.h:27
-  @g_socket_NotifyOutBufferEmpty -> 0x8e284013 at ./src/megatron/Events/System/Net/socketEvent.h:28
-  @g_socket_StreamRead -> 0x91827a21 at ./src/megatron/Events/System/Net/socketEvent.h:23
-  @g_socket_UdpAssoc -> 0x912178b3 at ./src/megatron/Events/System/Net/socketEvent.h:30
-  @g_socket_UdpAssocRSP -> 0x2e9bf50 at ./src/megatron/Events/System/Net/socketEvent.h:31
-  @g_socket_UdpPacketIncoming -> 0x3c84a0bc at ./src/megatron/Events/System/Net/socketEvent.h:32
-  @g_socket_Write -> 0xf12fb6c0 at ./src/megatron/Events/System/Net/socketEvent.h:33
-  @g_startService -> 0xeb05e092 at ./src/megatron/Events/System/Run/startServiceEvent.h:9
-  @g_teldemo1 -> 0xb8351714 at ./src/megatron/test/telnet/Events/___teldemoEvent.h:8
-  @g_teldemo2 -> 0xbb351bcd at ./src/megatron/test/telnet/Events/___teldemoEvent.h:9
-  @g_telnetCommandEntered -> 0x849d764d at ./src/megatron/Events/Tools/telnetEvent.h:25
-  @g_telnetDoListen -> 0x625d9177 at ./src/megatron/Events/Tools/telnetEvent.h:24
-  @g_telnetRegisterCommand -> 0x86bc4951 at ./src/megatron/Events/Tools/telnetEvent.h:22
-  @g_telnetReply -> 0xfc078aff at ./src/megatron/Events/Tools/telnetEvent.h:23
-  @g_testREQ -> 0x46cb0bc3 at ./src/megatron/test/rpc/testRpcEvent.h:16
-  @g_testRSP -> 0x8a018f36 at ./src/megatron/test/rpc/testRpcEvent.h:17
-  @g_testTimer -> 0xa8c3d0f2 at ./src/megatron/test/timer/___testEvent.h:10
-  @g_testWSC -> 0x707bc584 at ./src/megatron/test/test_ws/___testEvent2.h:8
-  @g_testWebServer -> 0xf971d8e6 at ./src/megatron/test/test_http/___testEvent.h:7
-  @g_testWebServer2 -> 0x823855bc at ./src/megatron/test/test_ws/___testEvent2.h:7
-  @g_timerResetAlarm -> 0x684f5e1a at ./src/megatron/Events/System/timerEvent.h:16
-  @g_timerSetAlarm -> 0x6922dbff at ./src/megatron/Events/System/timerEvent.h:15
-  @g_timerSetTimer -> 0x42db2123 at ./src/megatron/Events/System/timerEvent.h:14
-  @g_timerStopAlarm -> 0x398e5577 at ./src/megatron/Events/System/timerEvent.h:18
-  @g_timerStopTimer -> 0xa95f69fb at ./src/megatron/Events/System/timerEvent.h:17
-  @g_timerTickAlarm -> 0x1d9c387c at ./src/megatron/Events/System/timerEvent.h:20
-  @g_timerTickTimer -> 0xedcab8fc at ./src/megatron/Events/System/timerEvent.h:19
-  @g_webHandlerRegisterDirectory -> 0xf474cb49 at ./src/megatron/Events/Tools/webHandlerEvent.h:21
-  @g_webHandlerRegisterHandler -> 0x32b92c72 at ./src/megatron/Events/Tools/webHandlerEvent.h:20
-  @g_webHandlerRequestIncoming -> 0x7562f28c at ./src/megatron/Events/Tools/webHandlerEvent.h:22
-  @g_wscConnect -> 0x5f2db73a at ./src/megatron/Events/System/Net/webSocketClientEvent.h:13
-  @g_wscConnectFailed -> 0xa119ee2b at ./src/megatron/Events/System/Net/webSocketClientEvent.h:19
-  @g_wscConnected -> 0xb7e20ccb at ./src/megatron/Events/System/Net/webSocketClientEvent.h:14
-  @g_wscDisconnected -> 0x3e4d18df at ./src/megatron/Events/System/Net/webSocketClientEvent.h:15
-  @g_wscReceived -> 0x72d44007 at ./src/megatron/Events/System/Net/webSocketClientEvent.h:17
-  @g_wscSend -> 0xfa9c0e1a at ./src/megatron/Events/System/Net/webSocketClientEvent.h:16
-  @g_xpp -> 0x1fa19b8f at ./src/xpp/Event/xpp/xppEvent.h:15
-  @g_xppLogMessage -> 0x2c56803e at ./src/xpp/Event/xpp/xppEvent.h:20
+Found 136 symbols starting with @g_
+  @g_AV -> 0xa211021e at ./corelib/ifacesEvent.h:9
+  @g_DFSCaps -> 0x347aaa85 at ./Events/DFS/capsEvent.h:12
+  @g_DFSCaps_GetCloudRootsREQ -> 0x70568b38 at ./Events/DFS/capsEvent.h:21
+  @g_DFSCaps_GetCloudRootsRSP -> 0x3d835a8d at ./Events/DFS/capsEvent.h:22
+  @g_DFSCaps_GetReferrersREQ -> 0x254e2afe at ./Events/DFS/capsEvent.h:19
+  @g_DFSCaps_GetReferrersRSP -> 0x2a349af7 at ./Events/DFS/capsEvent.h:20
+  @g_DFSCaps_RegisterCloudRoot -> 0xfe5aade4 at ./Events/DFS/capsEvent.h:18
+  @g_DFSCaps_RegisterMyRefferrerNodeREQ -> 0xd778340c at ./Events/DFS/capsEvent.h:17
+  @g_DFSReferrer -> 0xe46c9617 at ./Events/DFS/referrerEvent.h:12
+  @g_DFSReferrerInitClient -> 0xf8c3c2ea at ./Events/DFS/referrerEvent.h:33
+  @g_DFSReferrerNotifyReferrerDownlinkDisconnected -> 0xfc5b6eb2 at ./Events/DFS/referrerEvent.h:32
+  @g_DFSReferrerNotifyReferrerUplinkIsConnected -> 0x76340fdb at ./Events/DFS/referrerEvent.h:30
+  @g_DFSReferrerNotifyReferrerUplinkIsDisconnected -> 0x139014af at ./Events/DFS/referrerEvent.h:31
+  @g_DFSReferrerUpdateConfigREQ -> 0x1a3f2508 at ./Events/DFS/referrerEvent.h:35
+  @g_DFSReferrerUpdateConfigRSP -> 0x671b78fd at ./Events/DFS/referrerEvent.h:36
+  @g_DFSReferrer_Hello -> 0x5a1bda40 at ./Events/DFS/referrerEvent.h:20
+  @g_DFSReferrer_Noop -> 0x1106c3e8 at ./Events/DFS/referrerEvent.h:22
+  @g_DFSReferrer_Ping -> 0x79e74f30 at ./Events/DFS/referrerEvent.h:19
+  @g_DFSReferrer_Pong -> 0xe7e44672 at ./Events/DFS/referrerEvent.h:29
+  @g_DFSReferrer_SubscribeNotifications -> 0x8f7f1f24 at ./Events/DFS/referrerEvent.h:21
+  @g_DFSReferrer_ToplinkDeliverREQ -> 0x406c473c at ./Events/DFS/referrerEvent.h:24
+  @g_DFSReferrer_ToplinkDeliverRSP -> 0x3d844769 at ./Events/DFS/referrerEvent.h:25
+  @g_ErrorDispatcher -> 0xa7258eac at ./Events/Tools/errorDispatcherEvent.h:15
+  @g_ErrorRSP -> 0x846c69fa at ./Events/System/Error/ErrorEvent.h:10
+  @g_GEOIP -> 0x5ecb0003 at ./corelib/ifacesEvent.h:11
+  @g_GetBindPortsREQ -> 0x133ead50 at ./Events/System/Net/httpEvent.h:15
+  @g_GetBindPortsRSP -> 0xe01bcac5 at ./Events/System/Net/httpEvent.h:16
+  @g_HTTP -> 0xf8f8e915 at ./Events/System/Net/httpEvent.h:10
+  @g_JsonREQ -> 0x689b16c9 at ./Events/System/Net/jsonRefEvent.h:11
+  @g_JsonRSP -> 0x23649030 at ./Events/System/Net/jsonRefEvent.h:13
+  @g_Logger -> 0x58fe27c5 at ./Events/Tools/loggerEvent.h:16
+  @g_Mysql -> 0x1eb55b6d at ./corelib/DBHEvent.h:6
+  @g_ObjectProxyPolled -> 0x30489b56 at ./Events/System/Net/rpcEvent.h:13
+  @g_ObjectProxyThreaded -> 0x835c46b3 at ./Events/System/Net/rpcEvent.h:14
+  @g_Oscar -> 0x5795b27f at ./Events/System/Net/oscarEvent.h:12
+  @g_OscarSecure -> 0x86d21df6 at ./Events/System/Net/oscarEvent.h:13
+  @g_Postgres -> 0xaf73ca5e at ./corelib/DBHEvent.h:7
+  @g_RPC -> 0xd7a04764 at ./Events/System/Net/rpcEvent.h:12
+  @g_RefferrerClient -> 0xec5a94b7 at ./Events/DFS/referrerEvent.h:13
+  @g_SSL -> 0xc02aafad at ./corelib/ifacesEvent.h:10
+  @g_Socket -> 0x766cd5dc at ./Events/System/Net/socketEvent.h:13
+  @g_Socks5 -> 0xbba35c75 at ./Events/System/Net/socketEvent.h:14
+  @g_Telnet -> 0xd7fc786d at ./Events/Tools/telnetEvent.h:10
+  @g_Timer -> 0x624ad572 at ./Events/System/timerEvent.h:9
+  @g_WSDisaccepted -> 0xae69496c at ./Events/System/Net/httpEvent.h:18
+  @g_WSDisconnected -> 0xa435c09c at ./Events/System/Net/httpEvent.h:19
+  @g_WSTextMessage -> 0x8cc926af at ./Events/System/Net/httpEvent.h:17
+  @g_WSWrite -> 0xd99e86f2 at ./Events/System/Net/httpEvent.h:20
+  @g_WebHandler -> 0xf8eb4187 at ./Events/Tools/webHandlerEvent.h:14
+  @g_WebSocketClient -> 0xe043d1cf at ./Events/System/Net/webSocketClientEvent.h:6
+  @g_errorDispatcherNotifySubscriber -> 0x4f809243 at ./Events/Tools/errorDispatcherEvent.h:23
+  @g_errorDispatcherSendMessage -> 0xf855f5d9 at ./Events/Tools/errorDispatcherEvent.h:20
+  @g_errorDispatcherSubscribe -> 0xc556104c at ./Events/Tools/errorDispatcherEvent.h:21
+  @g_errorDispatcherUnsubscribe -> 0xbf4a16f1 at ./Events/Tools/errorDispatcherEvent.h:22
+  @g_httpDoListen -> 0x3d92a37f at ./Events/System/Net/httpEvent.h:14
+  @g_httpRequestChunkReceived -> 0x8bdf4988 at ./Events/System/Net/httpEvent.h:24
+  @g_httpRequestChunkingCompleted -> 0x298b445e at ./Events/System/Net/httpEvent.h:25
+  @g_httpRequestIncoming -> 0x3d15919a at ./Events/System/Net/httpEvent.h:22
+  @g_httpRequestStartChunking -> 0x3d17e099 at ./Events/System/Net/httpEvent.h:23
+  @g_loggerLogMessage -> 0x78ff5a08 at ./Events/Tools/loggerEvent.h:21
+  @g_oscar_Accepted -> 0x3e0c01b9 at ./Events/System/Net/oscarEvent.h:26
+  @g_oscar_AddToListenTCP -> 0x54613024 at ./Events/System/Net/oscarEvent.h:20
+  @g_oscar_Connect -> 0xa5e6d3b6 at ./Events/System/Net/oscarEvent.h:21
+  @g_oscar_ConnectFailed -> 0x83821357 at ./Events/System/Net/oscarEvent.h:30
+  @g_oscar_Connected -> 0x2a45a837 at ./Events/System/Net/oscarEvent.h:24
+  @g_oscar_Disaccepted -> 0xb934e4cd at ./Events/System/Net/oscarEvent.h:27
+  @g_oscar_Disconnected -> 0x938c352b at ./Events/System/Net/oscarEvent.h:25
+  @g_oscar_NotifyBindAddress -> 0x81c4836a at ./Events/System/Net/oscarEvent.h:28
+  @g_oscar_NotifyOutBufferEmpty -> 0xf774d3b2 at ./Events/System/Net/oscarEvent.h:29
+  @g_oscar_PacketOnAcceptor -> 0xb9821244 at ./Events/System/Net/oscarEvent.h:22
+  @g_oscar_PacketOnConnector -> 0x78cd6494 at ./Events/System/Net/oscarEvent.h:23
+  @g_oscar_SendPacket -> 0x604e1706 at ./Events/System/Net/oscarEvent.h:19
+  @g_prodtestServer -> 0x1ce123eb at ./test/test_http_rpc/Events/___prodtestEvent.h:8
+  @g_prodtestServerWeb -> 0xafe45ff3 at ./test/test_http_rpc/Events/___prodtestEvent.h:9
+  @g_pt_AddTaskREQ -> 0x69952388 at ./test/test_http_rpc/Events/___prodtestEvent.h:15
+  @g_pt_AddTaskRSP -> 0xb671777d at ./test/test_http_rpc/Events/___prodtestEvent.h:16
+  @g_rpcAccepted -> 0x4fe5930d at ./Events/System/Net/rpcEvent.h:29
+  @g_rpcBinded -> 0x4504665a at ./Events/System/Net/rpcEvent.h:30
+  @g_rpcConnectFailed -> 0x841e7a0b at ./Events/System/Net/rpcEvent.h:27
+  @g_rpcConnected -> 0xe890e6b at ./Events/System/Net/rpcEvent.h:28
+  @g_rpcDisaccepted -> 0x1848be01 at ./Events/System/Net/rpcEvent.h:26
+  @g_rpcDisconnected -> 0x16d10dff at ./Events/System/Net/rpcEvent.h:25
+  @g_rpcIncomingOnAcceptor -> 0xff36ca0c at ./Events/System/Net/rpcEvent.h:31
+  @g_rpcIncomingOnConnector -> 0x7dfa185c at ./Events/System/Net/rpcEvent.h:32
+  @g_rpcPassPacket -> 0xf683c539 at ./Events/System/Net/rpcEvent.h:21
+  @g_rpcSendPacket -> 0x2dbb6362 at ./Events/System/Net/rpcEvent.h:22
+  @g_rpcSubscribeNotifications -> 0xfa923d98 at ./Events/System/Net/rpcEvent.h:23
+  @g_rpcTest -> 0xf2130640 at ./test/rpc/testRpcEvent.h:11
+  @g_rpcTestService1 -> 0x36d02066 at ./test/rpc/testRpcEvent.h:12
+  @g_rpcTestService2 -> 0x35d01ed3 at ./test/rpc/testRpcEvent.h:13
+  @g_rpcUnsubscribeNotifications -> 0x4bdcaeb3 at ./Events/System/Net/rpcEvent.h:24
+  @g_rpc_DoListen -> 0xc40566ab at ./Events/System/Net/rpcEvent.h:34
+  @g_rpc_NotifyOutBufferEmpty -> 0xba31a8cb at ./Events/System/Net/rpcEvent.h:33
+  @g_socket_Accepted -> 0xb78286e4 at ./Events/System/Net/socketEvent.h:22
+  @g_socket_AddToConnectTCP -> 0x8d1480d8 at ./Events/System/Net/socketEvent.h:21
+  @g_socket_AddToListenTCP -> 0xd67c2f01 at ./Events/System/Net/socketEvent.h:20
+  @g_socket_ConnectFailed -> 0x3f06d37c at ./Events/System/Net/socketEvent.h:29
+  @g_socket_Connected -> 0x4137de94 at ./Events/System/Net/socketEvent.h:24
+  @g_socket_Disaccepted -> 0x68a6459e at ./Events/System/Net/socketEvent.h:26
+  @g_socket_Disconnected -> 0x136d460e at ./Events/System/Net/socketEvent.h:25
+  @g_socket_NotifyBindAddress -> 0x70f58e5 at ./Events/System/Net/socketEvent.h:27
+  @g_socket_NotifyOutBufferEmpty -> 0x8e284013 at ./Events/System/Net/socketEvent.h:28
+  @g_socket_StreamRead -> 0x91827a21 at ./Events/System/Net/socketEvent.h:23
+  @g_socket_UdpAssoc -> 0x912178b3 at ./Events/System/Net/socketEvent.h:30
+  @g_socket_UdpAssocRSP -> 0x2e9bf50 at ./Events/System/Net/socketEvent.h:31
+  @g_socket_UdpPacketIncoming -> 0x3c84a0bc at ./Events/System/Net/socketEvent.h:32
+  @g_socket_Write -> 0xf12fb6c0 at ./Events/System/Net/socketEvent.h:33
+  @g_startService -> 0xeb05e092 at ./Events/System/Run/startServiceEvent.h:9
+  @g_teldemo1 -> 0xb8351714 at ./test/telnet/Events/___teldemoEvent.h:8
+  @g_teldemo2 -> 0xbb351bcd at ./test/telnet/Events/___teldemoEvent.h:9
+  @g_telnetCommandEntered -> 0x849d764d at ./Events/Tools/telnetEvent.h:25
+  @g_telnetDoListen -> 0x625d9177 at ./Events/Tools/telnetEvent.h:24
+  @g_telnetRegisterCommand -> 0x86bc4951 at ./Events/Tools/telnetEvent.h:22
+  @g_telnetReply -> 0xfc078aff at ./Events/Tools/telnetEvent.h:23
+  @g_testREQ -> 0x46cb0bc3 at ./test/rpc/testRpcEvent.h:16
+  @g_testRSP -> 0x8a018f36 at ./test/rpc/testRpcEvent.h:17
+  @g_testTimer -> 0xa8c3d0f2 at ./test/timer/___testEvent.h:10
+  @g_testWSC -> 0x707bc584 at ./test/test_ws/___testEvent2.h:8
+  @g_testWebServer -> 0xf971d8e6 at ./test/test_http/___testEvent.h:7
+  @g_testWebServer2 -> 0x823855bc at ./test/test_ws/___testEvent2.h:7
+  @g_timerResetAlarm -> 0x684f5e1a at ./Events/System/timerEvent.h:16
+  @g_timerSetAlarm -> 0x6922dbff at ./Events/System/timerEvent.h:15
+  @g_timerSetTimer -> 0x42db2123 at ./Events/System/timerEvent.h:14
+  @g_timerStopAlarm -> 0x398e5577 at ./Events/System/timerEvent.h:18
+  @g_timerStopTimer -> 0xa95f69fb at ./Events/System/timerEvent.h:17
+  @g_timerTickAlarm -> 0x1d9c387c at ./Events/System/timerEvent.h:20
+  @g_timerTickTimer -> 0xedcab8fc at ./Events/System/timerEvent.h:19
+  @g_webHandlerRegisterDirectory -> 0xf474cb49 at ./Events/Tools/webHandlerEvent.h:21
+  @g_webHandlerRegisterHandler -> 0x32b92c72 at ./Events/Tools/webHandlerEvent.h:20
+  @g_webHandlerRequestIncoming -> 0x7562f28c at ./Events/Tools/webHandlerEvent.h:22
+  @g_wscConnect -> 0x5f2db73a at ./Events/System/Net/webSocketClientEvent.h:13
+  @g_wscConnectFailed -> 0xa119ee2b at ./Events/System/Net/webSocketClientEvent.h:19
+  @g_wscConnected -> 0xb7e20ccb at ./Events/System/Net/webSocketClientEvent.h:14
+  @g_wscDisconnected -> 0x3e4d18df at ./Events/System/Net/webSocketClientEvent.h:15
+  @g_wscReceived -> 0x72d44007 at ./Events/System/Net/webSocketClientEvent.h:17
+  @g_wscSend -> 0xfa9c0e1a at ./Events/System/Net/webSocketClientEvent.h:16
 */
 
 /// === GENERATED CODE ===
@@ -166,8 +144,6 @@ Found 158 symbols starting with @g_
 const char* get_symbol_name(uint32_t hash) {
     switch (hash) {
         case 2719023646: return "AV";
-        case 1105961478: return "ClientTxSubscribeREQ";
-        case 119730719: return "ClientTxSubscribeRSP";
         case 880454277: return "DFSCaps";
         case 1884719928: return "DFSCaps_GetCloudRootsREQ";
         case 1032018573: return "DFSCaps_GetCloudRootsRSP";
@@ -189,10 +165,8 @@ const char* get_symbol_name(uint32_t hash) {
         case 2407472932: return "DFSReferrer_SubscribeNotifications";
         case 1080837948: return "DFSReferrer_ToplinkDeliverREQ";
         case 1032079209: return "DFSReferrer_ToplinkDeliverRSP";
-        case 705772701: return "EmitterData";
         case 2804256428: return "ErrorDispatcher";
         case 2221697530: return "ErrorRSP";
-        case 3201824024: return "Execitor";
         case 1590362115: return "GEOIP";
         case 322874704: return "GetBindPortsREQ";
         case 3759917765: return "GetBindPortsRSP";
@@ -201,14 +175,12 @@ const char* get_symbol_name(uint32_t hash) {
         case 593793072: return "JsonRSP";
         case 1493051333: return "Logger";
         case 515201901: return "Mysql";
-        case 1759950077: return "Node";
         case 810064726: return "ObjectProxyPolled";
         case 2203862707: return "ObjectProxyThreaded";
         case 1469428351: return "Oscar";
         case 2261917174: return "OscarSecure";
         case 2943601246: return "Postgres";
         case 3617605476: return "RPC";
-        case 1742089478: return "Reader";
         case 3965359287: return "RefferrerClient";
         case 3224022957: return "SSL";
         case 1986844124: return "Socket";
@@ -221,15 +193,6 @@ const char* get_symbol_name(uint32_t hash) {
         case 3651045106: return "WSWrite";
         case 4176167303: return "WebHandler";
         case 3762541007: return "WebSocketClient";
-        case 1726695142: return "bcClientMsg";
-        case 4121490074: return "bcClientMsgReply";
-        case 3826039735: return "bcMsg";
-        case 99265793: return "bcMsgReply";
-        case 3025341649: return "bcjs";
-        case 806967056: return "bcjsRpcREQ";
-        case 4244010117: return "bcjsRpcRSP";
-        case 25836436: return "bcjs_Eval";
-        case 1120538150: return "bcjs_async_executed";
         case 1333826115: return "errorDispatcherNotifySubscriber";
         case 4166383065: return "errorDispatcherSendMessage";
         case 3310751820: return "errorDispatcherSubscribe";
@@ -240,11 +203,6 @@ const char* get_symbol_name(uint32_t hash) {
         case 1024823706: return "httpRequestIncoming";
         case 1024975001: return "httpRequestStartChunking";
         case 2030000648: return "loggerLogMessage";
-        case 1241307467: return "mtjs";
-        case 3742698062: return "mtjsRpcREQ";
-        case 2756467303: return "mtjsRpcRSP";
-        case 1187663498: return "mtjs_Eval";
-        case 3908432396: return "mtjs_async_executed";
         case 1040974265: return "oscar_Accepted";
         case 1415655460: return "oscar_AddToListenTCP";
         case 2783368118: return "oscar_Connect";
@@ -321,8 +279,6 @@ const char* get_symbol_name(uint32_t hash) {
         case 1045240031: return "wscDisconnected";
         case 1926512647: return "wscReceived";
         case 4204531226: return "wscSend";
-        case 530684815: return "xpp";
-        case 743866430: return "xppLogMessage";
         default: return "unknown";
     }
 }
