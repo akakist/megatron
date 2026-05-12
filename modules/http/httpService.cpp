@@ -161,8 +161,8 @@ int on_headers_complete(llhttp_t* p)
     return 0;
 }
 
-int on_body(llhttp_t* p, const char* at, size_t length) {
-    // logErr2("@@ %s",__func__);
+int on_body(llhttp_t* p, const char* at, size_t length) 
+{
     auto* r = (HTTP::Request*)p->data;
     HTTP::Service* service=(HTTP::Service*)r->ctx->server;
 
@@ -301,7 +301,6 @@ bool HTTP::Service::on_DoListen(const httpEvent::DoListen* e)
 bool HTTP::Service::on_startService(const systemEvent::startService*)
 {
     MUTEX_INSPECTOR;
-    // printf("@@@ %s\n",__FUNCTION__);
     socketListener=dynamic_cast<ListenerBase*>(iInstance->getServiceOrCreate(ServiceEnum::Socket));
     if(!socketListener)
         throw CommonError("if(!socketListener)");

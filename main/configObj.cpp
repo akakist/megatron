@@ -78,6 +78,7 @@ std::set<msockaddr_in>ConfigObj::get_tcpaddr2(const std::string&_name, const std
     std::set<msockaddr_in>ret;
     XTRY;
     M_LOCK(this);
+
     std::string val;
     std::string name=m_getPath2(_name);
     auto i=m_container.find(name);
