@@ -64,11 +64,11 @@ int mainTestHTTP(int argc, char** argv )
 //        ths.resize(4);
     if(1)
     {
-        for(int i=0;i<2;i++)
+        for(int i=0;i<1;i++)
         {
     	ths.push_back(std::thread([i]{
             logErr2("run thr %d",i);
-            auto r=system("ab -n 10000000  -k -c 100  http://127.0.0.1:8188/");
+            auto r=system("wrk -t100 -c400 -d10s      http://127.0.0.1:8188/");
     	    }));
         }
         for(auto& z: ths)

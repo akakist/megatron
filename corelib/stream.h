@@ -19,9 +19,6 @@ struct Stream: public Refcountable
     // virtual ~Stream()=default;
     Stream(const char* name):classname(name) {
     }
-    ~Stream()
-    {
-    }
 
     REF_getter<Stream> piped=nullptr;
     void pipe(const REF_getter<Stream> &p)
