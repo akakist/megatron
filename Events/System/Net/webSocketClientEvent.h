@@ -15,7 +15,7 @@ namespace webSocketClientEventEnum
     const EVENT_id Disconnected(ghash("@g_wscDisconnected"));
     const EVENT_id Send(ghash("@g_wscSend"));
     const EVENT_id Received(ghash("@g_wscReceived"));
-    
+
     const EVENT_id ConnectFailed(ghash("@g_wscConnectFailed"));
 }
 
@@ -24,6 +24,8 @@ namespace webSocketClientEvent
     class Connect: public Event::NoPacked
     {
     public:
+
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -43,6 +45,7 @@ namespace webSocketClientEvent
     class Send: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -54,13 +57,14 @@ namespace webSocketClientEvent
             NoPacked(webSocketClientEventEnum::Send,r),
             esi(_esi),
             msg(_msg)
-            {}
+        {}
         const REF_getter<epoll_socket_info> esi;
         const std::string msg;
     };
     class Received: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -72,7 +76,7 @@ namespace webSocketClientEvent
             NoPacked(webSocketClientEventEnum::Received,r),
             esi(_esi),
             msg(_msg)
-            {}
+        {}
         const REF_getter<epoll_socket_info> esi;
         const std::string msg;
     };
@@ -80,6 +84,7 @@ namespace webSocketClientEvent
     class Connected: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -89,12 +94,13 @@ namespace webSocketClientEvent
             const route_t & r):
             NoPacked(webSocketClientEventEnum::Connected,r),
             esi(_esi)
-            {}
+        {}
         const REF_getter<epoll_socket_info> esi;
     };
     class ConnectFailed: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -104,13 +110,14 @@ namespace webSocketClientEvent
             const route_t & r):
             NoPacked(webSocketClientEventEnum::ConnectFailed,r),
             esi(_esi)
-            {}
+        {}
         const REF_getter<epoll_socket_info> esi;
     };
 
     class Disconnected: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -120,7 +127,7 @@ namespace webSocketClientEvent
             const route_t & r):
             NoPacked(webSocketClientEventEnum::Disconnected,r),
             esi(_esi)
-            {}
+        {}
         const REF_getter<epoll_socket_info> esi;
     };
 

@@ -14,6 +14,7 @@
 class DBH: public Refcountable
 {
 public:
+    DBH(): Refcountable("DBH") {}
     enum engine {mysql,sqlite,postgres};
 
     virtual void execSimple(const QUERY &query)=0;

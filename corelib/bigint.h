@@ -16,8 +16,8 @@ class BigInt {
     }
 
 public:
-friend outBuffer& operator<<(outBuffer &o,const BigInt& z);
-friend inBuffer& operator>>(inBuffer &o,BigInt& z);
+    friend outBuffer& operator<<(outBuffer &o,const BigInt& z);
+    friend inBuffer& operator>>(inBuffer &o,BigInt& z);
     // Конструкторы
     BigInt() : bn(BN_new()) {
         if (!bn) throw std::runtime_error("BN_new failed");
@@ -33,7 +33,7 @@ friend inBuffer& operator>>(inBuffer &o,BigInt& z);
 
         return *this;
     }
-    
+
     BigInt(const BigInt& other) {
         bn = BN_dup(other.bn);
         if (!bn) throw std::runtime_error("BN_dup failed");
@@ -52,9 +52,9 @@ friend inBuffer& operator>>(inBuffer &o,BigInt& z);
         return *this;
     }
 
-    BigInt(uint64_t val) : BigInt() 
-    { 
-	if (!BN_set_word(bn, static_cast<unsigned long>(val))) throw std::runtime_error("BN_set_word failed"); 
+    BigInt(uint64_t val) : BigInt()
+    {
+        if (!BN_set_word(bn, static_cast<unsigned long>(val))) throw std::runtime_error("BN_set_word failed");
     }
     BigInt& operator=(BigInt&& other) noexcept {
         if (this != &other) {
@@ -83,9 +83,11 @@ friend inBuffer& operator>>(inBuffer &o,BigInt& z);
         BN_add(bn, bn, rhs.bn);
         return *this;
     }
-    BigInt& operator=(uint64_t val) 
-    { 
-	ensureAlloc(); if (!BN_set_word(bn, static_cast<unsigned long>(val))) throw std::runtime_error("BN_set_word failed"); return *this; 
+    BigInt& operator=(uint64_t val)
+    {
+        ensureAlloc();
+        if (!BN_set_word(bn, static_cast<unsigned long>(val))) throw std::runtime_error("BN_set_word failed");
+        return *this;
     }
     BigInt& operator-=(const BigInt& rhs) {
         BN_sub(bn, bn, rhs.bn);
@@ -134,20 +136,25 @@ friend inBuffer& operator>>(inBuffer &o,BigInt& z);
     }
 
     // Доступ к внутреннему BIGNUM (для низкоуровневых операций)
-    BIGNUM* raw() { return bn; }
-    const BIGNUM* raw() const { return bn; }
+    BIGNUM* raw() {
+        return bn;
+    }
+    const BIGNUM* raw() const {
+        return bn;
+    }
 
-    double toDouble() const 
-    { 
-        if (BN_is_zero(bn)) return 0.0; 
-        int numBytes = BN_num_bytes(bn); 
-        std::vector<unsigned char> buf(numBytes); 
-        BN_bn2bin(bn, buf.data()); 
-        long double result = 0.0; 
-        for (int i = 0; i < numBytes; ++i) { 
-            result = result * 256.0 + buf[i]; 
-        } 
-        if (BN_is_negative(bn)) result = -result; return static_cast<double>(result); 
+    double toDouble() const
+    {
+        if (BN_is_zero(bn)) return 0.0;
+        int numBytes = BN_num_bytes(bn);
+        std::vector<unsigned char> buf(numBytes);
+        BN_bn2bin(bn, buf.data());
+        long double result = 0.0;
+        for (int i = 0; i < numBytes; ++i) {
+            result = result * 256.0 + buf[i];
+        }
+        if (BN_is_negative(bn)) result = -result;
+        return static_cast<double>(result);
     }
 };
 
@@ -187,8 +194,8 @@ inline BigInt operator/(const BigInt& lhs, const BigInt& rhs) {
 }
 inline outBuffer& operator<<(outBuffer &o,const BigInt& z)
 {
-    int len = BN_num_bytes(z.bn); 
-    unsigned char buf[len]; 
+    int len = BN_num_bytes(z.bn);
+    unsigned char buf[len];
     BN_bn2bin(z.bn, buf);
     o.put_PN(len);
     o.pack(buf,len);

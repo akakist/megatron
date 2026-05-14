@@ -10,12 +10,12 @@ namespace jsonRefEventEnum
 {
     const EVENT_id JsonREQ(ghash("@g_JsonREQ);
 
-    const EVENT_id JsonRSP(ghash("@g_JsonRSP);
+                                 const EVENT_id JsonRSP(ghash("@g_JsonRSP);
 }
 
 
 
-namespace jsonRefEvent
+                                     namespace jsonRefEvent
 {
 
 
@@ -25,6 +25,7 @@ namespace jsonRefEvent
 
 
     public:
+
         static Base* construct(const route_t &r)
         {
             Base* z=new JsonREQ(r);
@@ -55,6 +56,7 @@ namespace jsonRefEvent
 
 
     public:
+
         static Base* construct(const route_t &r)
         {
             return new JsonRSP(r);

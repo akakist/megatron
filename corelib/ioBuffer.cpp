@@ -395,11 +395,11 @@ inBuffer & operator>> (inBuffer& b,  REF_getter<refbuffer> &s)
 // Host to Network для 64-bit
 uint64_t _htonll(uint64_t host_value) {
     // Проверяем endianness системы
-    static const union { 
-        uint32_t i; 
-        uint8_t c[4]; 
+    static const union {
+        uint32_t i;
+        uint8_t c[4];
     } test = {0x01020304};
-    
+
     // Если система big-endian, ничего не меняем
     if (test.c[0] == 0x01) {
         return host_value;

@@ -41,6 +41,7 @@ namespace rpcEvent {
     class UnsubscribeNotifications: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -52,6 +53,7 @@ namespace rpcEvent {
     class SubscribeNotifications: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -72,6 +74,7 @@ namespace rpcEvent {
         SendPacket(const msockaddr_in& _addrTo, const SERVICE_id& dst,const REF_getter<Event::Base>& _ev)
             :NoPacked(rpcEventEnum::SendPacket),
              addressTo(_addrTo),destination(dst), ev(_ev) {}
+
         const msockaddr_in addressTo;
         const SERVICE_id destination;
         const REF_getter<Event::Base> ev;
@@ -140,6 +143,7 @@ namespace rpcEvent {
     class Disconnected: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -229,6 +233,7 @@ namespace rpcEvent {
         line like "INADDR_ANY:8080:128" - ip:port:listenBacklog
         */
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;

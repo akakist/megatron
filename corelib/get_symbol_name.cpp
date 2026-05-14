@@ -176,176 +176,346 @@ Found 169 symbols starting with @g_
 // Auto-generated switch case with hashes
 const char* get_symbol_name(uint32_t hash) {
     switch (hash) {
-        case 2719023646: return "AV";
-        case 1704056280: return "AddTx";
-        case 4162766685: return "BlockStreamer";
-        case 2922350536: return "BlockValidator";
-        case 877729187: return "BroadcastMessage";
-        case 2292444911: return "BroadcasterTree";
-        case 1105961478: return "ClientTxSubscribeREQ";
-        case 119730719: return "ClientTxSubscribeRSP";
-        case 880454277: return "DFSCaps";
-        case 1884719928: return "DFSCaps_GetCloudRootsREQ";
-        case 1032018573: return "DFSCaps_GetCloudRootsRSP";
-        case 625879806: return "DFSCaps_GetReferrersREQ";
-        case 708090615: return "DFSCaps_GetReferrersRSP";
-        case 4267355620: return "DFSCaps_RegisterCloudRoot";
-        case 3614979084: return "DFSCaps_RegisterMyRefferrerNodeREQ";
-        case 3832321559: return "DFSReferrer";
-        case 4173578986: return "DFSReferrerInitClient";
-        case 4233850546: return "DFSReferrerNotifyReferrerDownlinkDisconnected";
-        case 1983123419: return "DFSReferrerNotifyReferrerUplinkIsConnected";
-        case 328209583: return "DFSReferrerNotifyReferrerUplinkIsDisconnected";
-        case 440345864: return "DFSReferrerUpdateConfigREQ";
-        case 1729853693: return "DFSReferrerUpdateConfigRSP";
-        case 1511774784: return "DFSReferrer_Hello";
-        case 285656040: return "DFSReferrer_Noop";
-        case 2045202224: return "DFSReferrer_Ping";
-        case 3890497138: return "DFSReferrer_Pong";
-        case 2407472932: return "DFSReferrer_SubscribeNotifications";
-        case 1080837948: return "DFSReferrer_ToplinkDeliverREQ";
-        case 1032079209: return "DFSReferrer_ToplinkDeliverRSP";
-        case 705772701: return "EmitterData";
-        case 2804256428: return "ErrorDispatcher";
-        case 2221697530: return "ErrorRSP";
-        case 1590362115: return "GEOIP";
-        case 322874704: return "GetBindPortsREQ";
-        case 3759917765: return "GetBindPortsRSP";
-        case 3782958942: return "GetTransactions";
-        case 2299715271: return "GrainReader";
-        case 4177062165: return "HTTP";
-        case 2174118493: return "HeartBeatREQ";
-        case 182492888: return "InvalidateRoot";
-        case 1754994377: return "JsonREQ";
-        case 593793072: return "JsonRSP";
-        case 1459572827: return "LeaderElection";
-        case 1493051333: return "Logger";
-        case 515201901: return "Mysql";
-        case 1759950077: return "Node";
-        case 810064726: return "ObjectProxyPolled";
-        case 2203862707: return "ObjectProxyThreaded";
-        case 1469428351: return "Oscar";
-        case 2261917174: return "OscarSecure";
-        case 2943601246: return "Postgres";
-        case 2407755794: return "PutTransactionREQ";
-        case 3617605476: return "RPC";
-        case 3965359287: return "RefferrerClient";
-        case 3224022957: return "SSL";
-        case 2789810080: return "SendToChild";
-        case 4096000513: return "SendToChildAck";
-        case 1813226134: return "ServiceInit";
-        case 1986844124: return "Socket";
-        case 3148045429: return "Socks5";
-        case 690672082: return "StreamBlock";
-        case 3623647341: return "Telnet";
-        case 1649071474: return "Timer";
-        case 2662985565: return "TxValidator";
-        case 342561703: return "TxValidatorStart";
-        case 1958895821: return "TxValidatorStop";
-        case 2926135660: return "WSDisaccepted";
-        case 2754986140: return "WSDisconnected";
-        case 2361992879: return "WSTextMessage";
-        case 3651045106: return "WSWrite";
-        case 4176167303: return "WebHandler";
-        case 3762541007: return "WebSocketClient";
-        case 1726695142: return "bcClientMsg";
-        case 4121490074: return "bcClientMsgReply";
-        case 3826039735: return "bcMsg";
-        case 2232103519: return "bcMsg2";
-        case 99265793: return "bcMsgReply";
-        case 2205067081: return "bcMsgReply2";
-        case 1333826115: return "errorDispatcherNotifySubscriber";
-        case 4166383065: return "errorDispatcherSendMessage";
-        case 3310751820: return "errorDispatcherSubscribe";
-        case 3209303793: return "errorDispatcherUnsubscribe";
-        case 1033020287: return "httpDoListen";
-        case 2346666376: return "httpRequestChunkReceived";
-        case 696992862: return "httpRequestChunkingCompleted";
-        case 1024823706: return "httpRequestIncoming";
-        case 1024975001: return "httpRequestStartChunking";
-        case 2030000648: return "loggerLogMessage";
-        case 1241307467: return "mtjs";
-        case 3742698062: return "mtjsRpcREQ";
-        case 2756467303: return "mtjsRpcRSP";
-        case 1187663498: return "mtjs_Eval";
-        case 3908432396: return "mtjs_async_executed";
-        case 1040974265: return "oscar_Accepted";
-        case 1415655460: return "oscar_AddToListenTCP";
-        case 2783368118: return "oscar_Connect";
-        case 2206339927: return "oscar_ConnectFailed";
-        case 709208119: return "oscar_Connected";
-        case 3107251405: return "oscar_Disaccepted";
-        case 2475439403: return "oscar_Disconnected";
-        case 2177139562: return "oscar_NotifyBindAddress";
-        case 4151628722: return "oscar_NotifyOutBufferEmpty";
-        case 3112309316: return "oscar_PacketOnAcceptor";
-        case 2026726548: return "oscar_PacketOnConnector";
-        case 1615730438: return "oscar_SendPacket";
-        case 484516843: return "prodtestServer";
-        case 2950979571: return "prodtestServerWeb";
-        case 1771381640: return "pt_AddTaskREQ";
-        case 3060889469: return "pt_AddTaskRSP";
-        case 1340445453: return "rpcAccepted";
-        case 1157916250: return "rpcBinded";
-        case 2216589835: return "rpcConnectFailed";
-        case 243863147: return "rpcConnected";
-        case 407420417: return "rpcDisaccepted";
-        case 382799359: return "rpcDisconnected";
-        case 4281780748: return "rpcIncomingOnAcceptor";
-        case 2113542236: return "rpcIncomingOnConnector";
-        case 4135830841: return "rpcPassPacket";
-        case 767255394: return "rpcSendPacket";
-        case 4203888024: return "rpcSubscribeNotifications";
-        case 4061333056: return "rpcTest";
-        case 919609446: return "rpcTestService1";
-        case 902831827: return "rpcTestService2";
-        case 1272753843: return "rpcUnsubscribeNotifications";
-        case 3288688299: return "rpc_DoListen";
-        case 3123816651: return "rpc_NotifyOutBufferEmpty";
-        case 3078784740: return "socket_Accepted";
-        case 2366931160: return "socket_AddToConnectTCP";
-        case 3598462721: return "socket_AddToListenTCP";
-        case 1057411964: return "socket_ConnectFailed";
-        case 1094180500: return "socket_Connected";
-        case 1755727262: return "socket_Disaccepted";
-        case 325928462: return "socket_Disconnected";
-        case 118446309: return "socket_NotifyBindAddress";
-        case 2385002515: return "socket_NotifyOutBufferEmpty";
-        case 2441247265: return "socket_StreamRead";
-        case 2434889907: return "socket_UdpAssoc";
-        case 48873296: return "socket_UdpAssocRSP";
-        case 1015324860: return "socket_UdpPacketIncoming";
-        case 4046436032: return "socket_Write";
-        case 3943030930: return "startService";
-        case 3090487060: return "teldemo1";
-        case 3140819917: return "teldemo2";
-        case 2224911949: return "telnetCommandEntered";
-        case 1650299255: return "telnetDoListen";
-        case 2260486481: return "telnetRegisterCommand";
-        case 4228352767: return "telnetReply";
-        case 1187711939: return "testREQ";
-        case 2315358006: return "testRSP";
-        case 2831405298: return "testTimer";
-        case 1887159684: return "testWSC";
-        case 4184987878: return "testWebServer";
-        case 2184730044: return "testWebServer2";
-        case 1750031898: return "timerResetAlarm";
-        case 1763892223: return "timerSetAlarm";
-        case 1121657123: return "timerSetTimer";
-        case 965629303: return "timerStopAlarm";
-        case 2841602555: return "timerStopTimer";
-        case 496777340: return "timerTickAlarm";
-        case 3989485820: return "timerTickTimer";
-        case 4101294921: return "webHandlerRegisterDirectory";
-        case 850996338: return "webHandlerRegisterHandler";
-        case 1969418892: return "webHandlerRequestIncoming";
-        case 1596831546: return "wscConnect";
-        case 2702831147: return "wscConnectFailed";
-        case 3085044939: return "wscConnected";
-        case 1045240031: return "wscDisconnected";
-        case 1926512647: return "wscReceived";
-        case 4204531226: return "wscSend";
-        default: return "unknown";
+    case 2719023646:
+        return "AV";
+    case 1704056280:
+        return "AddTx";
+    case 4162766685:
+        return "BlockStreamer";
+    case 2922350536:
+        return "BlockValidator";
+    case 877729187:
+        return "BroadcastMessage";
+    case 2292444911:
+        return "BroadcasterTree";
+    case 1105961478:
+        return "ClientTxSubscribeREQ";
+    case 119730719:
+        return "ClientTxSubscribeRSP";
+    case 880454277:
+        return "DFSCaps";
+    case 1884719928:
+        return "DFSCaps_GetCloudRootsREQ";
+    case 1032018573:
+        return "DFSCaps_GetCloudRootsRSP";
+    case 625879806:
+        return "DFSCaps_GetReferrersREQ";
+    case 708090615:
+        return "DFSCaps_GetReferrersRSP";
+    case 4267355620:
+        return "DFSCaps_RegisterCloudRoot";
+    case 3614979084:
+        return "DFSCaps_RegisterMyRefferrerNodeREQ";
+    case 3832321559:
+        return "DFSReferrer";
+    case 4173578986:
+        return "DFSReferrerInitClient";
+    case 4233850546:
+        return "DFSReferrerNotifyReferrerDownlinkDisconnected";
+    case 1983123419:
+        return "DFSReferrerNotifyReferrerUplinkIsConnected";
+    case 328209583:
+        return "DFSReferrerNotifyReferrerUplinkIsDisconnected";
+    case 440345864:
+        return "DFSReferrerUpdateConfigREQ";
+    case 1729853693:
+        return "DFSReferrerUpdateConfigRSP";
+    case 1511774784:
+        return "DFSReferrer_Hello";
+    case 285656040:
+        return "DFSReferrer_Noop";
+    case 2045202224:
+        return "DFSReferrer_Ping";
+    case 3890497138:
+        return "DFSReferrer_Pong";
+    case 2407472932:
+        return "DFSReferrer_SubscribeNotifications";
+    case 1080837948:
+        return "DFSReferrer_ToplinkDeliverREQ";
+    case 1032079209:
+        return "DFSReferrer_ToplinkDeliverRSP";
+    case 705772701:
+        return "EmitterData";
+    case 2804256428:
+        return "ErrorDispatcher";
+    case 2221697530:
+        return "ErrorRSP";
+    case 1590362115:
+        return "GEOIP";
+    case 322874704:
+        return "GetBindPortsREQ";
+    case 3759917765:
+        return "GetBindPortsRSP";
+    case 3782958942:
+        return "GetTransactions";
+    case 2299715271:
+        return "GrainReader";
+    case 4177062165:
+        return "HTTP";
+    case 2174118493:
+        return "HeartBeatREQ";
+    case 182492888:
+        return "InvalidateRoot";
+    case 1754994377:
+        return "JsonREQ";
+    case 593793072:
+        return "JsonRSP";
+    case 1459572827:
+        return "LeaderElection";
+    case 1493051333:
+        return "Logger";
+    case 515201901:
+        return "Mysql";
+    case 1759950077:
+        return "Node";
+    case 810064726:
+        return "ObjectProxyPolled";
+    case 2203862707:
+        return "ObjectProxyThreaded";
+    case 1469428351:
+        return "Oscar";
+    case 2261917174:
+        return "OscarSecure";
+    case 2943601246:
+        return "Postgres";
+    case 2407755794:
+        return "PutTransactionREQ";
+    case 3617605476:
+        return "RPC";
+    case 3965359287:
+        return "RefferrerClient";
+    case 3224022957:
+        return "SSL";
+    case 2789810080:
+        return "SendToChild";
+    case 4096000513:
+        return "SendToChildAck";
+    case 1813226134:
+        return "ServiceInit";
+    case 1986844124:
+        return "Socket";
+    case 3148045429:
+        return "Socks5";
+    case 690672082:
+        return "StreamBlock";
+    case 3623647341:
+        return "Telnet";
+    case 1649071474:
+        return "Timer";
+    case 2662985565:
+        return "TxValidator";
+    case 342561703:
+        return "TxValidatorStart";
+    case 1958895821:
+        return "TxValidatorStop";
+    case 2926135660:
+        return "WSDisaccepted";
+    case 2754986140:
+        return "WSDisconnected";
+    case 2361992879:
+        return "WSTextMessage";
+    case 3651045106:
+        return "WSWrite";
+    case 4176167303:
+        return "WebHandler";
+    case 3762541007:
+        return "WebSocketClient";
+    case 1726695142:
+        return "bcClientMsg";
+    case 4121490074:
+        return "bcClientMsgReply";
+    case 3826039735:
+        return "bcMsg";
+    case 2232103519:
+        return "bcMsg2";
+    case 99265793:
+        return "bcMsgReply";
+    case 2205067081:
+        return "bcMsgReply2";
+    case 1333826115:
+        return "errorDispatcherNotifySubscriber";
+    case 4166383065:
+        return "errorDispatcherSendMessage";
+    case 3310751820:
+        return "errorDispatcherSubscribe";
+    case 3209303793:
+        return "errorDispatcherUnsubscribe";
+    case 1033020287:
+        return "httpDoListen";
+    case 2346666376:
+        return "httpRequestChunkReceived";
+    case 696992862:
+        return "httpRequestChunkingCompleted";
+    case 1024823706:
+        return "httpRequestIncoming";
+    case 1024975001:
+        return "httpRequestStartChunking";
+    case 2030000648:
+        return "loggerLogMessage";
+    case 1241307467:
+        return "mtjs";
+    case 3742698062:
+        return "mtjsRpcREQ";
+    case 2756467303:
+        return "mtjsRpcRSP";
+    case 1187663498:
+        return "mtjs_Eval";
+    case 3908432396:
+        return "mtjs_async_executed";
+    case 1040974265:
+        return "oscar_Accepted";
+    case 1415655460:
+        return "oscar_AddToListenTCP";
+    case 2783368118:
+        return "oscar_Connect";
+    case 2206339927:
+        return "oscar_ConnectFailed";
+    case 709208119:
+        return "oscar_Connected";
+    case 3107251405:
+        return "oscar_Disaccepted";
+    case 2475439403:
+        return "oscar_Disconnected";
+    case 2177139562:
+        return "oscar_NotifyBindAddress";
+    case 4151628722:
+        return "oscar_NotifyOutBufferEmpty";
+    case 3112309316:
+        return "oscar_PacketOnAcceptor";
+    case 2026726548:
+        return "oscar_PacketOnConnector";
+    case 1615730438:
+        return "oscar_SendPacket";
+    case 484516843:
+        return "prodtestServer";
+    case 2950979571:
+        return "prodtestServerWeb";
+    case 1771381640:
+        return "pt_AddTaskREQ";
+    case 3060889469:
+        return "pt_AddTaskRSP";
+    case 1340445453:
+        return "rpcAccepted";
+    case 1157916250:
+        return "rpcBinded";
+    case 2216589835:
+        return "rpcConnectFailed";
+    case 243863147:
+        return "rpcConnected";
+    case 407420417:
+        return "rpcDisaccepted";
+    case 382799359:
+        return "rpcDisconnected";
+    case 4281780748:
+        return "rpcIncomingOnAcceptor";
+    case 2113542236:
+        return "rpcIncomingOnConnector";
+    case 4135830841:
+        return "rpcPassPacket";
+    case 767255394:
+        return "rpcSendPacket";
+    case 4203888024:
+        return "rpcSubscribeNotifications";
+    case 4061333056:
+        return "rpcTest";
+    case 919609446:
+        return "rpcTestService1";
+    case 902831827:
+        return "rpcTestService2";
+    case 1272753843:
+        return "rpcUnsubscribeNotifications";
+    case 3288688299:
+        return "rpc_DoListen";
+    case 3123816651:
+        return "rpc_NotifyOutBufferEmpty";
+    case 3078784740:
+        return "socket_Accepted";
+    case 2366931160:
+        return "socket_AddToConnectTCP";
+    case 3598462721:
+        return "socket_AddToListenTCP";
+    case 1057411964:
+        return "socket_ConnectFailed";
+    case 1094180500:
+        return "socket_Connected";
+    case 1755727262:
+        return "socket_Disaccepted";
+    case 325928462:
+        return "socket_Disconnected";
+    case 118446309:
+        return "socket_NotifyBindAddress";
+    case 2385002515:
+        return "socket_NotifyOutBufferEmpty";
+    case 2441247265:
+        return "socket_StreamRead";
+    case 2434889907:
+        return "socket_UdpAssoc";
+    case 48873296:
+        return "socket_UdpAssocRSP";
+    case 1015324860:
+        return "socket_UdpPacketIncoming";
+    case 4046436032:
+        return "socket_Write";
+    case 3943030930:
+        return "startService";
+    case 3090487060:
+        return "teldemo1";
+    case 3140819917:
+        return "teldemo2";
+    case 2224911949:
+        return "telnetCommandEntered";
+    case 1650299255:
+        return "telnetDoListen";
+    case 2260486481:
+        return "telnetRegisterCommand";
+    case 4228352767:
+        return "telnetReply";
+    case 1187711939:
+        return "testREQ";
+    case 2315358006:
+        return "testRSP";
+    case 2831405298:
+        return "testTimer";
+    case 1887159684:
+        return "testWSC";
+    case 4184987878:
+        return "testWebServer";
+    case 2184730044:
+        return "testWebServer2";
+    case 1750031898:
+        return "timerResetAlarm";
+    case 1763892223:
+        return "timerSetAlarm";
+    case 1121657123:
+        return "timerSetTimer";
+    case 965629303:
+        return "timerStopAlarm";
+    case 2841602555:
+        return "timerStopTimer";
+    case 496777340:
+        return "timerTickAlarm";
+    case 3989485820:
+        return "timerTickTimer";
+    case 4101294921:
+        return "webHandlerRegisterDirectory";
+    case 850996338:
+        return "webHandlerRegisterHandler";
+    case 1969418892:
+        return "webHandlerRequestIncoming";
+    case 1596831546:
+        return "wscConnect";
+    case 2702831147:
+        return "wscConnectFailed";
+    case 3085044939:
+        return "wscConnected";
+    case 1045240031:
+        return "wscDisconnected";
+    case 1926512647:
+        return "wscReceived";
+    case 4204531226:
+        return "wscSend";
+    default:
+        return "unknown";
     }
 }
 

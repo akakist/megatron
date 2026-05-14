@@ -24,12 +24,13 @@ namespace prodtestWebServer
         public Refcountable
     {
     public:
+        
         int sessionId;
         REF_getter<epoll_socket_info> esi;
         REF_getter<HttpContext> req;
 
 
-        Session(int sid, const REF_getter<HttpContext> &_req,const REF_getter<epoll_socket_info> &_esi): sessionId(sid),
+        Session(int sid, const REF_getter<HttpContext> &_req,const REF_getter<epoll_socket_info> &_esi): Refcountable("session test prod"), sessionId(sid),
             req(_req),
             esi(_esi)
         {

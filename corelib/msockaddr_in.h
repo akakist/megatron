@@ -35,6 +35,7 @@ struct _addrInfo {
 };
 struct _addrInfos: public Refcountable {
 
+    _addrInfos():Refcountable("_addrInfos") {}
     RWLock lk;
     std::map<std::string,
         _addrInfo

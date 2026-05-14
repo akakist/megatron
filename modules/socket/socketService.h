@@ -22,9 +22,10 @@ namespace SocketIO
     private:
         std::map<SOCKET_id,REF_getter<epoll_socket_info> > container_;
     public:
+        
         REF_getter<NetworkMultiplexor> multiplexor_;
         RWLock lk;
-        SocketsContainerForSocketIO(): multiplexor_(new NetworkMultiplexor)
+        SocketsContainerForSocketIO(): Refcountable("SocketsContainerForSocketIO"), multiplexor_(new NetworkMultiplexor)
         {}
         void remove(const SOCKET_id& sid)
         {

@@ -21,11 +21,12 @@ class epoll_socket_info;
 
 struct NetworkMultiplexor: public Refcountable
 {
+
     int m_handle;
 private:
 
 public:
-    NetworkMultiplexor()
+    NetworkMultiplexor():Refcountable("NetworkMultiplexor")
     {
 #ifdef  HAVE_KQUEUE
         m_handle=kqueue();

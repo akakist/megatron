@@ -6,6 +6,12 @@
 #include <atomic>
 #include <stdio.h>
 /// base class and template of smart pointer with refcount, which can catch pointer many times.
+// #ifdef DEBUG
+void inc_ptr(const char* s);
+void dec_ptr(const char* s);
+
+// #endif
+
 template < class T > class REF_getter;
 class Refcountable
 {
@@ -13,16 +19,20 @@ class Refcountable
     Refcountable (const Refcountable &);	// Not defined  to prevent usage
     Refcountable & operator= (const Refcountable &);	// Not defined  to prevent usage
 
+    const char* ___nm;
 public:
     std::atomic<int> __Ref_Count;
-    Refcountable (): __Ref_Count(0) { }
-
+    Refcountable (const char* nm): __Ref_Count(0),___nm(nm)
+    {
+        inc_ptr(___nm);
+    }
     int get_ref_count () const
     {
         return __Ref_Count;
     };
     virtual ~ Refcountable ()
     {
+        dec_ptr(___nm);
         if(__Ref_Count!=0)
         {
             printf("destructor with __Ref_Count!=0\n");

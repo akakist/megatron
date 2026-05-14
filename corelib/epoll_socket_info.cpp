@@ -238,6 +238,7 @@ bool epoll_socket_info::closed()
 
 epoll_socket_info::epoll_socket_info(const int &_socketType, const STREAMTYPE &_streamtype, const SOCKET_id& _id, const SOCKET_fd& _fd,
                                      const route_t& _route, const char *_socketDescription, const REF_getter<NetworkMultiplexor> &_multiplexor,const REF_getter<SECURE_CONTEXT>& _secure_context):
+    Refcountable("epoll_socket_info"),
     socketType_(_socketType),
     streamType_(_streamtype),
     id_(_id),

@@ -10,7 +10,7 @@ namespace ServiceEnum
 {
 
     constexpr SERVICE_id Oscar(ghash("@g_Oscar"));
-    // const SERVICE_id OscarSecure(ghash("@g_OscarSecure);
+// const SERVICE_id OscarSecure(ghash("@g_OscarSecure);
 }
 
 namespace oscarEventEnum
@@ -38,6 +38,7 @@ namespace oscarEvent
     class SendPacket: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -57,6 +58,7 @@ namespace oscarEvent
     class PacketOnConnector: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -74,6 +76,7 @@ namespace oscarEvent
     class PacketOnAcceptor: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -90,6 +93,7 @@ namespace oscarEvent
     class NotifyOutBufferEmpty: public Event::NoPacked
     {
     public:
+
         NotifyOutBufferEmpty(const REF_getter<epoll_socket_info> &__S, const route_t& r)
             :NoPacked(oscarEventEnum::NotifyOutBufferEmpty,r), esi(__S)
         {
@@ -104,6 +108,7 @@ namespace oscarEvent
     class NotifyBindAddress: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -122,6 +127,7 @@ namespace oscarEvent
     class Disconnected: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -138,6 +144,7 @@ namespace oscarEvent
     class Disaccepted: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -154,6 +161,7 @@ namespace oscarEvent
     class Connected: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -169,6 +177,7 @@ namespace oscarEvent
     class ConnectFailed: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -183,6 +192,7 @@ namespace oscarEvent
     class Connect: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -200,6 +210,7 @@ namespace oscarEvent
     class AddToListenTCP: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -217,6 +228,7 @@ namespace oscarEvent
     class Accepted: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;

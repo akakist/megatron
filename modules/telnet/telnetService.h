@@ -20,6 +20,7 @@ namespace Telnet
 
 
     public:
+        
         Session(const REF_getter<Node> &N,const REF_getter<epoll_socket_info>& _esi);
 
         REF_getter<Node> mx_defaultNode;
@@ -47,22 +48,24 @@ namespace Telnet
     class _Command: public Refcountable
     {
     public:
+        
         const route_t dstService;
         const std::string cmd_re;
         // const std::deque<std::string> params;
         const std::string help;
         _Command(const route_t& _svs, const std::string& _cmd_re,  const std::string& _help)
-            : dstService(_svs), cmd_re(_cmd_re),help(_help)
+            : Refcountable("command telnet"), dstService(_svs), cmd_re(_cmd_re),help(_help)
         {}
 
     };
     class Node: public Refcountable
     {
+        
         std::map<std::string,REF_getter<Node> > m_children;
         std::map<std::string,REF_getter<_Command> > m_commands;
     public:
-        Node(const std::string& _name, Node* _parent, const std::string& _help):name(_name), help(_help),parent(_parent) {}
-        const std::string name;
+        Node(const std::string& name_, Node* _parent, const std::string& _help):Refcountable("telnet node"), _name(name_), help(_help),parent(_parent) {}
+        const std::string _name;
         const std::string help;
         Node* const parent;
         REF_getter<Node> getSubDir(const std::string& dir);
@@ -100,7 +103,8 @@ namespace Telnet
         {
             std::map<SOCKET_id,REF_getter<Telnet::Session> > sessions;
         public:
-            __telnet_stuff()
+            
+            __telnet_stuff(): Refcountable("telnet stuff")
 //                : SocketsContainerBase("__telnet_stuff")
             {}
             void erase(const SOCKET_id& id);

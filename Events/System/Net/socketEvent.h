@@ -39,6 +39,7 @@ namespace socketEvent
     class UdpAssoc: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -64,6 +65,7 @@ namespace socketEvent
     class UdpAssocRSP: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -96,6 +98,7 @@ namespace socketEvent
     class UdpPacketIncoming: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -112,6 +115,7 @@ namespace socketEvent
     class Write: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -128,6 +132,7 @@ namespace socketEvent
     class StreamRead: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -143,6 +148,7 @@ namespace socketEvent
     class NotifyOutBufferEmpty: public Event::NoPacked
     {
     public:
+
         NotifyOutBufferEmpty(const REF_getter<epoll_socket_info> &__S, const route_t& r):
             NoPacked(socketEventEnum::NotifyOutBufferEmpty,r), esi(__S)
         {
@@ -157,6 +163,7 @@ namespace socketEvent
     class NotifyBindAddress: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -174,6 +181,7 @@ namespace socketEvent
     class Disconnected: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -191,6 +199,7 @@ namespace socketEvent
     class Disaccepted: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -208,6 +217,7 @@ namespace socketEvent
     class Connected: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -223,6 +233,7 @@ namespace socketEvent
     class ConnectFailed: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -241,6 +252,7 @@ namespace socketEvent
     {
 
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -257,6 +269,7 @@ namespace socketEvent
     class AddToConnectTCP: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -272,6 +285,7 @@ namespace socketEvent
     class Accepted: public Event::NoPacked
     {
     public:
+
         Accepted(const REF_getter<epoll_socket_info> &__S, const route_t& r):
             NoPacked(socketEventEnum::Accepted,r), esi(__S)
         {

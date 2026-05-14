@@ -24,6 +24,8 @@ struct SECURE
 };
 struct SECURE_CONTEXT: public Refcountable
 {
+
+    SECURE_CONTEXT(): Refcountable("SECURE_CONTEXT") {}
     I_ssl *issl=nullptr;
     SSL_CTX * sslctx=nullptr;
     BIO *errBio=NULL;
@@ -32,7 +34,7 @@ struct P_msockaddr_in: public Refcountable
 {
     msockaddr_in addr;
     P_msockaddr_in(const msockaddr_in& sa)
-        : addr(sa)
+        : Refcountable("P_msockaddr_in"), addr(sa)
     {
 
     }
@@ -70,6 +72,7 @@ class epoll_socket_info:public Refcountable
 {
 
 public:
+
     const int socketType_; /// SOCK_STREAM, SOCK_DGRAM
     enum STREAMTYPE
     {

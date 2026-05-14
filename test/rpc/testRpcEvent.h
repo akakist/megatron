@@ -20,6 +20,7 @@ namespace testEvent {
     class testREQ: public Event::Base
     {
     public:
+        
         static Base* construct(const route_t &r)
         {
             return new testREQ(r);
@@ -50,6 +51,7 @@ namespace testEvent {
     class testRSP: public Event::Base
     {
     public:
+        
         static Base* construct(const route_t &r)
         {
             return new testRSP(r);

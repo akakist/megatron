@@ -18,6 +18,7 @@ namespace webSocketClient
 {
     struct state: public Refcountable
     {
+        state(): Refcountable("websoket state"){}
         bool awaiting_handshake=false;
         Url url;
         std::string url_original;

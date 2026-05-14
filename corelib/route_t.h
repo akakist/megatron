@@ -85,7 +85,7 @@ public:
     void unpack(inBuffer&o);
     std::string dump()const;
 };
-    std::string _DMI_();
+std::string _DMI_();
 
 class route_t
 {

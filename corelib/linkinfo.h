@@ -16,7 +16,8 @@ struct linkInfoDownReferrer: public Refcountable
     time_t lastReplaceByDownlink_;
 
     linkInfoDownReferrer(const REF_getter<epoll_socket_info> &_esi,const msockaddr_in& _externalAddr, const std::set<msockaddr_in> &_internalAddrs, const route_t &_backRoute)
-        :esi_(_esi),externalAddr_mx_(_externalAddr), internalAddrs_mx(_internalAddrs),backRoute_(_backRoute), lastReplaceByDownlink_(time(NULL))
+        :Refcountable("linkInfoDownReferrer"),
+         esi_(_esi),externalAddr_mx_(_externalAddr), internalAddrs_mx(_internalAddrs),backRoute_(_backRoute), lastReplaceByDownlink_(time(NULL))
     {}
     std::string wdump()
     {

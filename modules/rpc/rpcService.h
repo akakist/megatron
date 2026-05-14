@@ -31,7 +31,8 @@ namespace RPC
         };
     }
 
-    struct outCache: public Refcountable
+    struct outCache
+    // : public Refcountable
     {
         RWLock lk;
         std::deque<REF_getter<refbuffer> >  container_lk;
@@ -43,12 +44,14 @@ namespace RPC
         , public WebDumpable
 #endif
     {
+        
 
         SOCKET_id socketId;
         REF_getter<epoll_socket_info> esi;
         outCache outCache_;
 
-        Session(SOCKET_id sockId,const REF_getter<epoll_socket_info>& _esi):socketId(sockId),
+        Session(SOCKET_id sockId,const REF_getter<epoll_socket_info>& _esi):Refcountable("Session"),
+        socketId(sockId),
             esi(_esi) {}
 
         std::string wname()

@@ -30,6 +30,7 @@ namespace webHandlerEvent
         request is ready, sent by HTTP
         */
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -46,6 +47,7 @@ namespace webHandlerEvent
     class RegisterHandler: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -61,6 +63,7 @@ namespace webHandlerEvent
     {
 
     public:
+
         static Base* construct(const route_t &)
         {
             return  NULL;

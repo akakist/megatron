@@ -30,7 +30,7 @@ REF_getter<refbuffer> toRef(const std::vector<uint8_t>& s)
     if(s.size())
     {
         REF_getter<refbuffer> r=new refbuffer;
-        r->container={(char*)s.data(),s.size()};
+        r->container= {(char*)s.data(),s.size()};
         return r;
     }
     REF_getter<refbuffer> r=new refbuffer;

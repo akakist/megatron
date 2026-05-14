@@ -15,8 +15,8 @@ namespace Event
         virtual ~Base() {}
         /// маршрут
         route_t route;
-        Base(const EVENT_id&_id): id(_id) {}
-        Base(const EVENT_id& _id,const route_t &_route):id(_id),route(_route) {}
+        Base(const EVENT_id&_id):   Refcountable("Event::Base"), id(_id) {}
+        Base(const EVENT_id& _id,const route_t &_route):Refcountable("Event::Base"), id(_id),route(_route) {}
 
         /// pack/unpack to outBuffer/inBuffer, used for RPC
         virtual void pack(outBuffer& b)const =0;

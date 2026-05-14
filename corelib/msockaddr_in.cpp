@@ -468,7 +468,7 @@ void msockaddr_in::init(const std::string& s)
         {
             logErr2("invalid case %s",s.c_str());
             throw CommonError("invalid case %s",s.c_str());
-        } 
+        }
     }
 }
 

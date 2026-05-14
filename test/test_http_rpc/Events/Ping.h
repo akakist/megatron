@@ -14,6 +14,7 @@ namespace prodtestEvent {
 
 
     public:
+        
         static Base* construct(const route_t &r)
         {
             return new AddTaskREQ(r);
@@ -46,6 +47,7 @@ namespace prodtestEvent {
 
 
     public:
+        
         static Base* construct(const route_t &r)
         {
             return new AddTaskRSP(r);

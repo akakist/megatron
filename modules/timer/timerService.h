@@ -32,7 +32,7 @@ namespace Timer
         double period_real;
         bool erased;
         task(TYP t,const int& _id, const REF_getter<refbuffer> & _data, const REF_getter<Refcountable> & _cookie, const route_t& dst,const double& timeout)
-            :type(t),id(_id),data(_data),cookie(_cookie),destination(dst),period_real(timeout),erased(false)
+            :Refcountable("TimerTask"), type(t),id(_id),data(_data),cookie(_cookie),destination(dst),period_real(timeout),erased(false)
         {
         }
         ~task()
@@ -47,7 +47,7 @@ namespace Timer
     };
     struct _all: public Refcountable,public Mutexable
     {
-        _all() {}
+        _all():Refcountable("_all") {}
         std::map<_searchKey,std::set<REF_getter<task> > >   timers;
         void clear();
         int exists(const REF_getter<task>& tt);
@@ -62,7 +62,7 @@ namespace Timer
         Condition m_condition;
         std::map<int64_t,std::deque<REF_getter<task> > > mx_nexts;
         _nexts()
-            :m_condition(m_mutex)
+            :Refcountable("Timer::Nexts"), m_condition(m_mutex)
         {
         }
         ~_nexts()

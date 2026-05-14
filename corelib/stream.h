@@ -17,7 +17,8 @@ struct Stream: public Refcountable
     virtual void write(const std::string& cmd,const  char* buf, size_t bufsiz)=0;
 
     // virtual ~Stream()=default;
-    Stream(const char* name):classname(name) {
+    Stream(const char* name): Refcountable(name), classname(name)
+    {
     }
 
     REF_getter<Stream> piped=nullptr;

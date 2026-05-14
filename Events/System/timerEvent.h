@@ -26,6 +26,7 @@ namespace timerEvent
     class TickTimer: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -47,6 +48,7 @@ namespace timerEvent
     class TickAlarm: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -68,6 +70,7 @@ namespace timerEvent
     class StopTimer:public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -85,6 +88,7 @@ namespace timerEvent
     class StopAlarm:public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -102,6 +106,7 @@ namespace timerEvent
     class SetTimer:public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -125,6 +130,7 @@ namespace timerEvent
     class SetAlarm:public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -149,6 +155,7 @@ namespace timerEvent
     class ResetAlarm:public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;

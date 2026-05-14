@@ -18,7 +18,7 @@ namespace httpEventEnum
     const EVENT_id WSDisaccepted(ghash("@g_WSDisaccepted"));
     const EVENT_id WSDisconnected(ghash("@g_WSDisconnected"));
     const EVENT_id WSWrite(ghash("@g_WSWrite"));
-    
+
     const EVENT_id RequestIncoming(ghash("@g_httpRequestIncoming"));
     const EVENT_id RequestStartChunking(ghash("@g_httpRequestStartChunking"));
     const EVENT_id RequestChunkReceived(ghash("@g_httpRequestChunkReceived"));
@@ -34,13 +34,14 @@ namespace httpEvent
         request is ready, sent by HTTP
         */
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
         }
         WSDisaccepted(const REF_getter<HTTP::Request> _rq, const route_t & r)
             :NoPacked(httpEventEnum::WSDisaccepted,r),
-             req(_rq){}
+             req(_rq) {}
         const REF_getter<HTTP::Request> req;
 
     };
@@ -50,13 +51,14 @@ namespace httpEvent
         request is ready, sent by HTTP
         */
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
         }
         WSWrite(const REF_getter<HttpContext>& _r, const std::string & _msg, const route_t & r)
             :NoPacked(httpEventEnum::WSWrite,r),
-             r(_r),msg(_msg){}
+             r(_r),msg(_msg) {}
         REF_getter<HttpContext> r=nullptr;
         std::string msg;
 
@@ -67,13 +69,14 @@ namespace httpEvent
         request is ready, sent by HTTP
         */
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
         }
         WSDisconnected(const REF_getter<HttpContext> & _rq, const route_t & r)
             :NoPacked(httpEventEnum::WSDisconnected,r),
-             req(_rq){}
+             req(_rq) {}
         const REF_getter<HttpContext> req;
 
     };
@@ -83,13 +86,14 @@ namespace httpEvent
         request is ready, sent by HTTP
         */
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
         }
         WSTextMessage(const REF_getter<HttpContext>& __R, const std::string& _msg, const route_t & r)
             :NoPacked(httpEventEnum::WSTextMessage,r),
-             req(__R), msg(_msg){}
+             req(__R), msg(_msg) {}
         const REF_getter<HttpContext> req;
         std::string msg;
 
@@ -100,6 +104,7 @@ namespace httpEvent
         request is ready, sent by HTTP
         */
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -121,6 +126,7 @@ namespace httpEvent
 
 
     public:
+
         static Base* construct(const route_t &r)
         {
             return new GetBindPortsREQ(r);
@@ -140,6 +146,7 @@ namespace httpEvent
 
 
     public:
+
         static Base* construct(const route_t &r)
         {
             return new GetBindPortsRSP(r);
@@ -169,6 +176,7 @@ namespace httpEvent
         line like "INADDR_ANY:8080:128" - ip:port:listenBacklog
         */
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -189,6 +197,7 @@ namespace httpEvent
         request is ready, sent by HTTP
         */
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -207,13 +216,14 @@ namespace httpEvent
         request is ready, sent by HTTP
         */
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
         }
         RequestChunkReceived(const REF_getter<HttpContext>& __R, const REF_getter<epoll_socket_info>& __esi, uint64_t _chunkId, const REF_getter<refbuffer>& _buf, const route_t & r)
             :NoPacked(httpEventEnum::RequestChunkReceived,r),
-             req(__R),esi(__esi),chunkId(_chunkId),buf(_buf){}
+             req(__R),esi(__esi),chunkId(_chunkId),buf(_buf) {}
         const REF_getter<HttpContext> req;
         const REF_getter<epoll_socket_info> esi;
         uint64_t chunkId=0;
@@ -227,6 +237,7 @@ namespace httpEvent
         request is ready, sent by HTTP
         */
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;

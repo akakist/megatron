@@ -41,9 +41,9 @@ struct HttpContext: public Refcountable
     size_t content_length=0;
     REF_getter<epoll_socket_info> esi;
 
-    private:
+private:
     REF_getter<Stream> reader=nullptr;
-    public:
+public:
     void setReader(const REF_getter<Stream>& r)
     {
         reader=r;
@@ -51,12 +51,13 @@ struct HttpContext: public Refcountable
     REF_getter<Stream> getReader()
     {
         return reader;
-    }   
+    }
     // std::string post_content;
 
 
     void clear() ;
-    HttpContext(void *_server, const REF_getter<epoll_socket_info>& _esi):server(_server),esi(_esi) {}
+    HttpContext(void *_server, const REF_getter<epoll_socket_info>& _esi):Refcountable("HttpContext"),
+        server(_server),esi(_esi) {}
 };
 
 
@@ -88,11 +89,12 @@ namespace HTTP
     {
 
     public:
+
         llhttp_t parser;
-        REF_getter< HttpContext>  ctx=nullptr; 
+        REF_getter< HttpContext>  ctx=nullptr;
 
 
-        
+
 
         Request(const REF_getter<epoll_socket_info>& _esi, llhttp_settings_t& settings, void* server);
 

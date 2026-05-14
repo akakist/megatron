@@ -31,6 +31,7 @@ namespace loggerEvent
 
 
     public:
+
         static Base* construct(const route_t &r)
         {
             return new LogMessage(r);

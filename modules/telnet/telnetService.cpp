@@ -893,7 +893,7 @@ bool Telnet::Service::on_StreamRead(const socketEvent::StreamRead* evt)
         std::map<std::string,REF_getter<Node> > _n=N->children();
         for(auto& i:_n)
         {
-            commands.push_back(i.second->name);
+            commands.push_back(i.second->_name);
         }
         std::string append=getAutoAppendString(commands,norm_cmdline);
 
@@ -1067,7 +1067,7 @@ void Telnet::Service::processCommand(const REF_getter<Telnet::Session>& W, const
             auto commands=W->defaultNode()->commands();
             for(auto& i:children)
             {
-                esi->write_(bright(i.second->name)+" - "+i.second->help+"\r\n");
+                esi->write_(bright(i.second->_name)+" - "+i.second->help+"\r\n");
             }
             for(auto& i:commands)
             {
@@ -1182,7 +1182,7 @@ std::map<SOCKET_id,REF_getter<Telnet::Session> > Telnet::Service::__telnet_stuff
 }
 
 Telnet::Session::Session(const REF_getter<Node> &N, const REF_getter<epoll_socket_info> &_esi)
-    :mx_defaultNode(N),curpos(0),command_history_pos(0), insertMode(1),width(80),height(25),esi(_esi)
+    :Refcountable("telnet session"), mx_defaultNode(N),curpos(0),command_history_pos(0), insertMode(1),width(80),height(25),esi(_esi)
 {
 }
 bool Telnet::Service::on_RegisterCommand(const telnetEvent::RegisterCommand* e)
@@ -1278,10 +1278,10 @@ std::string Telnet::Node::path()
 {
     std::deque<std::string> d;
     Node *n=this;
-    d.push_back(this->name);
+    d.push_back(this->_name);
     while(n->parent)
     {
-        d.push_back(n->parent->name);
+        d.push_back(n->parent->_name);
         n=n->parent;
     }
     if(d.empty()) return "/";

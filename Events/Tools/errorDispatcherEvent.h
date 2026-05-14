@@ -32,6 +32,7 @@ namespace errorDispatcherEvent
 
 
     public:
+
         static Base* construct(const route_t &r)
         {
             return new Unsubscribe(r);
@@ -53,6 +54,7 @@ namespace errorDispatcherEvent
 
 
     public:
+
         static Base* construct(const route_t &r)
         {
             return new Subscribe(r);
@@ -73,6 +75,7 @@ namespace errorDispatcherEvent
 
 
     public:
+
         static Base* construct(const route_t &r)
         {
             return new SendMessage(r);
@@ -100,6 +103,7 @@ namespace errorDispatcherEvent
 
 
     public:
+
         static Base* construct(const route_t &r)
         {
             return new NotifySubscriber(r);

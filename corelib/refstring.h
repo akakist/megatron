@@ -12,6 +12,7 @@ struct refbuffer: public Refcountable
 {
 private:
 public:
+    refbuffer():Refcountable("refbuffer") {}
     std::string container;
 
     // std::string asString();

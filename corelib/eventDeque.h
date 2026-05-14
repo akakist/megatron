@@ -14,7 +14,7 @@ public:
 private:
     bool m_isTerminating;
 public:
-    EventDeque():
+    EventDeque():Refcountable("EventDeque"),
         m_cond(m_mutex),
         m_isTerminating(false) {}
     void push(const REF_getter<Event::Base> & e);

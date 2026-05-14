@@ -34,6 +34,7 @@ namespace telnetEvent
     class Reply: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -48,6 +49,7 @@ namespace telnetEvent
     class DoListen: public Event::NoPacked
     {
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -70,6 +72,7 @@ namespace telnetEvent
         *   Направление - от клиента
         */
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;
@@ -95,6 +98,7 @@ namespace telnetEvent
         *   \param tokens массив принятых слов
         */
     public:
+
         static Base* construct(const route_t &)
         {
             return NULL;

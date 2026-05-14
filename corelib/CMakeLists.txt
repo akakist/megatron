@@ -33,6 +33,7 @@ add_library(megatron-core STATIC
             unknown.cpp
             webDumpable.cpp
             neighbours.cpp
+            REF.cpp
 CONTAINER.h
 CapsId.h
 DBH.cpp

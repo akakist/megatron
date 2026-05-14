@@ -151,11 +151,12 @@ HTTP::Request::Request(const REF_getter<epoll_socket_info>& _esi, llhttp_setting
     // m_last_io_time(time(NULL)),
     // fileresponse(NULL),
     // sendRequestIncomingIsSent(false),
+    Refcountable("HTTP::Request::Request"),
     esi(_esi)
 {
     // memset(& parse_data,0,sizeof(parse_data));
     // parse_data.last_char=' ';
-    llhttp_init(&parser, HTTP_REQUEST, &settings); 
+    llhttp_init(&parser, HTTP_REQUEST, &settings);
     parser.data = this;
     ctx = new HttpContext(server, _esi);
     // ctx-.server=server;
@@ -252,7 +253,7 @@ HTTP::Request::_fileresponse::~_fileresponse()
     }
 }
 #endif
-void HttpContext::clear() 
+void HttpContext::clear()
 {
     method.clear();
     url.clear();
