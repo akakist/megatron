@@ -6,11 +6,10 @@
 #include <atomic>
 #include <stdio.h>
 /// base class and template of smart pointer with refcount, which can catch pointer many times.
-// #ifdef DEBUG
+#ifdef MEMLEACK_CHECK
 void inc_ptr(const char* s);
 void dec_ptr(const char* s);
-
-// #endif
+#endif
 
 template < class T > class REF_getter;
 class Refcountable
@@ -24,7 +23,9 @@ public:
     std::atomic<int> __Ref_Count;
     Refcountable (const char* nm): __Ref_Count(0),___nm(nm)
     {
+#ifdef MEMLEACK_CHECK
         inc_ptr(___nm);
+#endif
     }
     int get_ref_count () const
     {
@@ -32,7 +33,9 @@ public:
     };
     virtual ~ Refcountable ()
     {
+#ifdef MEMLEACK_CHECK
         dec_ptr(___nm);
+#endif
         if(__Ref_Count!=0)
         {
             printf("destructor with __Ref_Count!=0\n");
