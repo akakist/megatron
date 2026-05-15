@@ -132,10 +132,8 @@ void Timer::Service::worker()
                             {
                                 XTRY;
                                 if(m_isTerminating) return;
-                                //if(iInstance->isTerminating()) return;
                                 n->m_condition.wait();
                                 if(m_isTerminating) return;
-                                //if(iInstance->isTerminating()) return;
                                 XPASS;
                             }
                         }
@@ -220,13 +218,11 @@ void Timer::Service::worker()
                                     REF_getter<Event::Base> e=new timerEvent::TickAlarm(t->tid,t->data, t->cookie, poppedFrontRoute(t->route));
                                     passEvent(e);
                                     REF_getter<task> t=itSecondCopy[i];
-                                    // a->remove_t_only(t);
                                     t->erased=true;
                                 }
                             }
                             else
                             {
-                                // a->remove_t_only(t);
                             }
                         }
                     }
@@ -252,12 +248,7 @@ bool Timer::Service::on_SetTimer(const timerEvent::SetTimer* ev)
     // auto a=all;
     if(!n.valid())
         return true;
-    // if(!a.valid())
-    //     return true;
-    // route_t r=ev->route;
-    // r.pop_back();
     REF_getter<task> t=new task(task::TYPE_TIMER,ev->tid,ev->data,ev->cookie,ev->route,ev->delay_secs);
-    // a->add(t);
 
     auto tb=getNow();
     real d=ev->delay_secs;
@@ -279,11 +270,6 @@ bool Timer::Service::on_SetAlarm(const timerEvent::SetAlarm* ev)
     // auto a=all;
     if(!n.valid())
         return true;
-    // if(!a.valid())
-    //     return true;
-
-    // route_t r=ev->route;
-    // r.pop_back();
     REF_getter<task> t=new task(task::TYPE_ALARM,ev->tid,ev->data,ev->cookie,ev->route,ev->delay_secs);
     // a->add(t);
     auto tb=getNow();
@@ -304,10 +290,6 @@ bool Timer::Service::on_StopTimer(const timerEvent::StopTimer* ev)
 {
     XTRY;
     if(m_isTerminating)return false;
-    // auto a=all;
-    // if(!a.valid())
-    //     return true;
-    
         {
             M_LOCKC(nexts->m_mutex);
             for(auto& z: nexts->mx_nexts)
@@ -321,11 +303,6 @@ bool Timer::Service::on_StopTimer(const timerEvent::StopTimer* ev)
                 }
             }
         }
-    // route_t r=ev->route;
-    // r.pop_back();
-    // REF_getter<task> t=new task(task::TYPE_TIMER,ev->tid,ev->data,new refbuffer,r,0);
-    // a->remove(t);
-    // XPASS;
     return true;
 }
 bool Timer::Service::on_ResetAlarm(const timerEvent::ResetAlarm* ev)
@@ -333,13 +310,8 @@ bool Timer::Service::on_ResetAlarm(const timerEvent::ResetAlarm* ev)
     XTRY;
     if(m_isTerminating)return false;
     auto n=nexts;
-    // auto a=all;
     if(!n.valid())
         return true;
-    // if(!a.valid())
-    //     return true;
-    // route_t r=ev->route;
-    // r.pop_back();
     {
             M_LOCKC(nexts->m_mutex);
             for(auto& z: nexts->mx_nexts)
@@ -355,7 +327,6 @@ bool Timer::Service::on_ResetAlarm(const timerEvent::ResetAlarm* ev)
 
     }
     REF_getter<task> t=new task(task::TYPE_ALARM,ev->tid,ev->data,ev->cookie,ev->route,ev->delay_secs);
-    // a->replace(t);
     auto tb=getNow();
     real d=ev->delay_secs;
     d*=1000000;
@@ -373,10 +344,6 @@ bool Timer::Service::on_StopAlarm(const timerEvent::StopAlarm* ev)
 {
     XTRY;
     if(m_isTerminating)return false;
-    // auto a=all;
-    // if(!a.valid())
-    //     return true;
-
     {
             M_LOCKC(nexts->m_mutex);
             for(auto& z: nexts->mx_nexts)
@@ -391,11 +358,6 @@ bool Timer::Service::on_StopAlarm(const timerEvent::StopAlarm* ev)
             }
 
     }
-
-    // route_t r=ev->route;
-    // r.pop_back();
-    // REF_getter<task> t=new task(task::TYPE_ALARM,ev->tid,ev->data,new refbuffer,r,0);
-    // a->remove(t);
     XPASS;
     return true;
 }
@@ -435,71 +397,3 @@ bool Timer::Service::handleEvent(const REF_getter<Event::Base>& e)
     return false;
 
 }
-
-
-
-// int Timer::_searchKey::operator < (const _searchKey& b) const
-// {
-//     const _searchKey& a=*this;
-//     if(a.t->tid != b.t->tid)
-//         return a.t->tid < b.t->tid;
-
-//     if(a.t->type != b.t->type)
-//         return a.t->type < b.t->type;
-
-//     if(!(a.t->route == b.t->route))
-//         return a.t->route < b.t->route;
-
-//     return a.t->data->container < b.t->data->container;
-//     return 0;
-// }
-// void Timer::_all::clear()
-// {
-//     M_LOCK(this);
-//     timers.clear();
-// }
-// void Timer::_all::replace(const REF_getter<task>& t)
-// {
-//     M_LOCK(this);
-//     std::set<REF_getter<task> > &s=timers[t];
-//     for(auto& i:s)
-//     {
-//         // REF_getter<task> task=i;
-//         i->erased=true;
-//     }
-//     timers.erase(t);
-//     timers[t].insert(t);
-// }
-// void Timer::_all::add(const REF_getter<task>& t)
-// {
-//     M_LOCK(this);
-//     timers[t].insert(t);
-// }
-// void Timer::_all::remove_t_only(const REF_getter<task>&t)
-// {
-//     M_LOCK(this);
-//     std::set<REF_getter<task> > &s=timers[t];
-//     if(s.count(t))
-//     {
-//         s.erase(t);
-//     }
-// }
-// void Timer::_all::remove(const REF_getter<task>& t)
-// {
-//     M_LOCK(this);
-//     std::set<REF_getter<task> > &s=timers[t];
-//     bool found=false;
-//     for(auto& i:s)
-//     {
-//         REF_getter<task> t=i;
-//         t->erased=true;
-//         found=true;
-//     }
-//     timers.erase(t);
-//     if(!found)
-//     {
-//     }
-//     else
-//     {
-//     }
-// }

@@ -39,22 +39,6 @@ namespace Timer
         {
         }
     };
-    // struct _searchKey
-    // {
-    //     REF_getter<task> t;
-    //     _searchKey(const REF_getter<task>& tt):t(tt) {}
-    //     int operator < (const _searchKey& b) const;
-    // };
-    // struct _all: public Refcountable,public Mutexable
-    // {
-    //     _all():Refcountable("_all") {}
-    //     std::map<_searchKey,std::set<REF_getter<task> > >   timers;
-    //     void clear();
-    //     void replace(const REF_getter<task>& t);
-    //     void add(const REF_getter<task>& t);
-    //     void remove_t_only(const REF_getter<task>&t);
-    //     void remove(const REF_getter<task>& t);
-    // };
     struct _nexts: public Refcountable
     {
         MutexC m_mutex;
@@ -80,7 +64,6 @@ namespace Timer
         public Broadcaster
     {
 
-        // REF_getter<_all> all;
 
         REF_getter<_nexts> nexts;
 
