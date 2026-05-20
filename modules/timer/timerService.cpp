@@ -289,7 +289,7 @@ bool Timer::Service::on_SetAlarm(const timerEvent::SetAlarm* ev)
 bool Timer::Service::on_StopTimer(const timerEvent::StopTimer* ev)
 {
     XTRY;
-    if(m_isTerminating)return false;
+        if(m_isTerminating)return false;
         {
             M_LOCKC(nexts->m_mutex);
             for(auto& z: nexts->mx_nexts)
@@ -303,6 +303,7 @@ bool Timer::Service::on_StopTimer(const timerEvent::StopTimer* ev)
                 }
             }
         }
+    XPASS;
     return true;
 }
 bool Timer::Service::on_ResetAlarm(const timerEvent::ResetAlarm* ev)
