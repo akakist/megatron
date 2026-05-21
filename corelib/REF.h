@@ -80,6 +80,9 @@ public:
     {
         return ___ptr!=NULL;
     }
+    REF_getter():___ptr (NULL)
+    {
+    }
     REF_getter (const T * p):___ptr ((T *) p)
     {
         increfcount ();
