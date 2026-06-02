@@ -3,6 +3,14 @@
 #include <cstdio>
 #include <map>
 #include <string>
+#include "commonError.h"
+#include "mutexInspector.h"
+
+
+void throw_deref_nullptr()
+{
+    throw CommonError("dereferencing null pointer %s", _DMI().c_str());
+}
 
 #ifdef MEMLEACK_CHECK
 

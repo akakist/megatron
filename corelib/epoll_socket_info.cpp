@@ -78,7 +78,7 @@ void epoll_socket_info::close(const char* reason)
 {
     MUTEX_INSPECTOR;
 
-    DBG(logErr2("epoll_socket_info::close %s",reason));
+    // DBG(logErr2("epoll_socket_info::close %s",reason));
     XTRY;
     std::string sType;
     if(CONTAINER(fd_)==-1)
@@ -98,7 +98,7 @@ void epoll_socket_info::close(const char* reason)
     {
         sType="_LISTENING";
     }
-    DBG(logErr2("close reason: %s remote name %s type %s fd %d",reason,remote_name().dump().c_str(),sType.c_str(),CONTAINER(fd_)));
+    // DBG(logErr2("close reason: %s remote name %s type %s fd %d",reason,remote_name().dump().c_str(),sType.c_str(),CONTAINER(fd_)));
     if(closed())
     {
         DBG(logErr2("socket already closed %s",_DMI().c_str()));

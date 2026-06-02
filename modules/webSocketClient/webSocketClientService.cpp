@@ -4,7 +4,7 @@
 #include "Events/System/Net/socketEvent.h"
 #include "events_webSocketClient.hpp"
 #include "url.hpp"
-#include <nlohmann/json.hpp>
+// #include <nlohmann/json.hpp>
 webSocketClient::Service::Service(const SERVICE_id& id, const std::string& nm, IInstance *ifa):
     UnknownBase(nm),
     ListenerBuffered1Thread(nm,id),Broadcaster(ifa)
@@ -52,11 +52,11 @@ bool webSocketClient::Service::Connect(const webSocketClientEvent::Connect* e)
     auto port=st->url.port();
     auto path=st->url.path();
 
-    nlohmann::json j;
-    j["host"]=host;
-    j["scheme"]=scheme;
-    j["port"]=port;
-    j["path"]=path;
+    // nlohmann::json j;
+    // j["host"]=host;
+    // j["scheme"]=scheme;
+    // j["port"]=port;
+    // j["path"]=path;
     SECURE s;
     std::string sc;
     if(!scheme.size())

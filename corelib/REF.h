@@ -5,12 +5,13 @@
 #endif
 #include <atomic>
 #include <stdio.h>
+// #include "mutexInspector.h"
 /// base class and template of smart pointer with refcount, which can catch pointer many times.
 #ifdef MEMLEACK_CHECK
 void inc_ptr(const char* s);
 void dec_ptr(const char* s);
 #endif
-
+void throw_deref_nullptr();
 template < class T > class REF_getter;
 class Refcountable
 {
@@ -124,10 +125,20 @@ public:
     }
     inline  T* operator -> () const
     {
+        // #ifdef DEBUG
+        if(!___ptr)
+        {
+            throw_deref_nullptr();
+        }
+        // #endif
         return ___ptr;
     };
     inline  T* get() const
     {
+        if(!___ptr)
+        {
+            throw_deref_nullptr();
+        }
         return ___ptr;
     };
 };

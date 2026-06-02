@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <string>
 #include <iostream>
+#include "mutexInspector.h"
 
 class BigInt {
 
@@ -25,11 +26,11 @@ public:
 
     explicit BigInt(const std::string& dec) : BigInt() {
         if (!BN_dec2bn(&bn, dec.c_str()))
-            throw std::runtime_error("BN_dec2bn failed");
+            throw std::runtime_error("BN_dec2bn failed  "+dec+" "+_DMI());
     }
     BigInt & from_string(const std::string& dec)  {
         if (!BN_dec2bn(&bn, dec.c_str()))
-            throw std::runtime_error("BN_dec2bn failed");
+            throw std::runtime_error("BN_dec2bn failed  "+dec+" "+_DMI());
 
         return *this;
     }
