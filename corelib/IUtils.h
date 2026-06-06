@@ -24,6 +24,7 @@ extern IUtils * iUtils;
 #include "ifacesEvent.h"
 #include "msockaddr_in.h"
 #include "refstring.h"
+#include <functional>
 class epoll_socket_info;
 struct Utils_local;
 
@@ -230,6 +231,9 @@ public:
     virtual void pushLogPrefix(const std::string& l)=0;
     virtual void popLogPrefix()=0;
     virtual std::deque<std::string> getLogPrefix()=0;
+
+    virtual void add_shutdown_cb(const std::function<void()> &f)=0;
+    virtual void execute_shutdown_cbs()=0;
 
 
 };

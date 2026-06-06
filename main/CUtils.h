@@ -10,6 +10,7 @@
 #include "utils_local.h"
 #include "Real.h"
 #include "IInstance.h"
+#include <functional>
 
 class CUtils: public IUtils
 {
@@ -97,8 +98,7 @@ public:
 
     IThreadNameController* getIThreadNameController();
 
-
-
+   
 
     Utils_local local;
     void registerIface(const SERVICE_id& id, Ifaces::Base* p);
@@ -153,6 +153,29 @@ public:
     };
     __sockIdGen sockIdGen;
 
+    struct global_shutdown
+    {
+        Mutex mx;
+        std::vector<std::function<void()>> container;
+    };
+    global_shutdown gs;
+    void add_shutdown_cb(const std::function<void()> &f)
+    {
+        M_LOCK(gs.mx);
+        gs.container.push_back(f);
+    }
+    void execute_shutdown_cbs()
+    {
+        std::vector<std::function<void()>> c;
+        {
+            M_LOCK(gs.mx);
+            c=gs.container;
+        }
+        for(auto &z: c)
+        {
+            z();
+        }
+    }
 
     void registerPlugingInfo(const char* pluginFileName, PluginType pt, const SERVICE_id &id, const char* name, const std::set<EVENT_id>& evts);
     void registerPluginDLL(const std::string& pn);
@@ -213,8 +236,8 @@ public:
     void unregisterInstance(IInstance *i);
     IInstance* createNewInstance(const std::string& name);
 
-    bool m_isTerminating=false;
-    int m_exit_code=0;
+    std::atomic<bool> m_isTerminating=false;
+    std::atomic<int> m_exit_code=0;
     void setTerminate(int exit_flag);
     bool isTerminating();
     int getExitFlag()
