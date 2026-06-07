@@ -7,7 +7,7 @@
 #include <stdio.h>
 // #include "mutexInspector.h"
 /// base class and template of smart pointer with refcount, which can catch pointer many times.
-#ifdef MEMLEACK_CHECK
+#ifdef MEMLEAK_CHECK
 void inc_ptr(const char* s);
 void dec_ptr(const char* s);
 #endif
@@ -24,7 +24,7 @@ public:
     std::atomic<int> __Ref_Count;
     Refcountable (const char* nm): __Ref_Count(0),___nm(nm)
     {
-#ifdef MEMLEACK_CHECK
+#ifdef MEMLEAK_CHECK
         inc_ptr(___nm);
 #endif
     }
@@ -34,7 +34,7 @@ public:
     };
     virtual ~ Refcountable ()
     {
-#ifdef MEMLEACK_CHECK
+#ifdef MEMLEAK_CHECK
         dec_ptr(___nm);
 #endif
         if(__Ref_Count!=0)

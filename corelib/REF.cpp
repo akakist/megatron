@@ -12,7 +12,7 @@ void throw_deref_nullptr()
     throw CommonError("dereferencing null pointer %s", _DMI().c_str());
 }
 
-#ifdef MEMLEACK_CHECK
+#ifdef MEMLEAK_CHECK
 
 static Mutex mx;
 static int n = 0;
