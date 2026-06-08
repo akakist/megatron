@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdexcept>
 // #include "commonError.h"
 #include "mtimespec.h"
 #include <pthread.h>
@@ -48,6 +49,7 @@ public:
 class Mutexable
 {
     friend class MutexLocker;
+    friend class MutexLockerDeferred;
     friend class MutexUnlocker;
 private:
     Mutex m_lock;
@@ -59,28 +61,93 @@ class MutexLocker
 {
 private:
     const  Mutex* m_mutex;
+    bool locked=false;
 public:
     explicit MutexLocker(const Mutex& m):m_mutex(&m)
     {
-        m_mutex->lock();
+        if(!locked)
+        {
+            m_mutex->lock();
+            locked=true;
+        }
     }
     explicit MutexLocker(const Mutex* m):m_mutex(m)
     {
-        m_mutex->lock();
+        if(!locked)
+        {
+            m_mutex->lock();
+            locked=true;
+        }
     }
     explicit MutexLocker(const Mutexable& m):m_mutex(&m.m_lock)
     {
-        m_mutex->lock();
+        if(!locked)
+        {
+            m_mutex->lock();
+            locked=true;
+        }
     }
     explicit MutexLocker(const Mutexable* m):m_mutex(&m->m_lock)
     {
-        m_mutex->lock();
+        if(!locked)
+        {
+            m_mutex->lock();
+            locked=true;
+        }
+    }
+    void lock()
+    {
+        if(!locked)
+        {
+            m_mutex->lock();
+            locked=true;
+        }
+    }
+    void unlock()
+    {
+        if(locked)
+        {
+            m_mutex->lock();
+            locked=false;
+        }
     }
     ~MutexLocker()
     {
-        m_mutex->unlock();
+        if(locked)
+            m_mutex->unlock();
     }
 };
+class MutexLockerDeferred
+{
+private:
+    const  Mutex* m_mutex;
+    bool locked=false;
+public:
+    explicit MutexLockerDeferred(const Mutex& m):m_mutex(&m)
+    {
+    }
+    explicit MutexLockerDeferred(const Mutex* m):m_mutex(m)
+    {
+    }
+    explicit MutexLockerDeferred(const Mutexable& m):m_mutex(&m.m_lock)
+    {
+    }
+    explicit MutexLockerDeferred(const Mutexable* m):m_mutex(&m->m_lock)
+    {
+    }
+    void lock();
+    void unlock();
+    ~MutexLockerDeferred()
+    {
+        if(locked)
+        {
+            m_mutex->unlock();
+            locked=false;
+        }
+    }
+};
+
+
 class MutexLockerC
 {
 private:

@@ -58,11 +58,11 @@ void logErr2(const char* fmt, ...)
         {
             {
 #ifdef WITH_SLOG
-                fprintf(stderr," %s ",s_prf.c_str());
+                fprintf(stdout," %s ",s_prf.c_str());
 #endif
             }
-            vfprintf(stderr,fmt, ap);
-            fprintf(stderr,"\n");
+            vfprintf(stdout,fmt, ap);
+            fprintf(stdout,"\n");
 #endif
         }
 
