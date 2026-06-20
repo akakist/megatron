@@ -211,6 +211,7 @@ inline inBuffer& operator>>(inBuffer &o,BigInt& z)
     z.bn=BN_bin2bn(buf, len, z.bn);
     return o;
 }
+
 #ifdef __TEST
 // Пример использования
 int main() {
