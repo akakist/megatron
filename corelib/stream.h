@@ -7,6 +7,7 @@ enum PKT_TYPE
  PKT_ERROR,
  PKT_META,
 };*/
+#include <string>
 
 struct Stream: public Refcountable
 {

@@ -65,9 +65,9 @@ public:
     std::string unescapeURL(const std::string&);
 
 
-    std::string get_param_string(std::deque<std::string> &tokens, const std::string& name);
-    int get_param_int(std::deque<std::string> &tokens, const std::string& name);
-    int64_t get_param_int64_t(std::deque<std::string> &tokens, const std::string& name);
+    std::string geb_params_string(std::deque<std::string> &tokens, const std::string& name);
+    int geb_params_int(std::deque<std::string> &tokens, const std::string& name);
+    int64_t geb_params_int64_t(std::deque<std::string> &tokens, const std::string& name);
 
     int64_t getNow();
     std::string getPercent(const real &numerator, const real &denumerator);

@@ -187,3 +187,24 @@ void RWLock::unlock() const
         throw CommonError("pthread_rwlock_unlock: %s",strerror((errno)));
 
 }
+
+    void MutexLockerDeferred::unlock()
+    {
+        MUTEX_INSPECTOR;
+        if(locked)
+        {
+            m_mutex->unlock();
+            locked=false;
+        }
+        // else throw std::runtime_error("unlock "+_DMI());
+    }
+    void MutexLockerDeferred::lock()
+    {
+        MUTEX_INSPECTOR;
+        if(!locked)
+        {
+            m_mutex->lock();
+            locked=true;
+        }
+        // else throw std::runtime_error("lock "+_DMI());
+    }

@@ -141,7 +141,7 @@ public:
         return params_.size();
     }
 
-    std::string_view get_param(std::string_view key, std::string_view default_val = "") const {
+    std::string_view geb_params(std::string_view key, std::string_view default_val = "") const {
         for (const auto& [k, v] : params_) {
             if (k == key) {
                 return v;

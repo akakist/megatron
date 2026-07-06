@@ -623,21 +623,21 @@ std::string CUtils::extractFileName(const std::string & f)
     return f;
 }
 
-std::string CUtils::get_param_string(std::deque<std::string> &tokens, const std::string& name)
+std::string CUtils::geb_params_string(std::deque<std::string> &tokens, const std::string& name)
 {
     if(tokens.size()==0) throw CommonError("%s skipped",name.c_str());
     std::string ret=tokens[0];
     tokens.pop_front();
     return ret;
 }
-int CUtils::get_param_int(std::deque<std::string> &tokens, const std::string& name)
+int CUtils::geb_params_int(std::deque<std::string> &tokens, const std::string& name)
 {
     if(tokens.size()==0) throw CommonError("%s skipped",name.c_str());
     std::string ret=tokens[0];
     tokens.pop_front();
     return atoi(ret.c_str());
 }
-int64_t CUtils::get_param_int64_t(std::deque<std::string> &tokens, const std::string& name)
+int64_t CUtils::geb_params_int64_t(std::deque<std::string> &tokens, const std::string& name)
 {
     if(tokens.size()==0) throw CommonError("%s skipped",name.c_str());
     std::string ret=tokens[0];

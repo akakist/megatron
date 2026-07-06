@@ -58,9 +58,9 @@ endif()
 find_package(Git)
 
 if(PROJECT_IS_TOP_LEVEL)
-CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/genum.hpp.in"
-                "${CMAKE_BINARY_DIR}/genum.hpp"
-                NEWLINE_STYLE UNIX )
+#CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/genum.hpp.in"
+#                "${CMAKE_BINARY_DIR}/genum.hpp"
+#                NEWLINE_STYLE UNIX )
 
 
 CONFIGURE_FILE( "${PROJECT_SOURCE_DIR}/version.h.in"

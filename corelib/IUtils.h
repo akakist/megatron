@@ -123,9 +123,9 @@ public:
     virtual std::string extractFileName(const std::string & f)=0;
 
 
-    virtual std::string get_param_string(std::deque<std::string> &tokens, const std::string& name)=0;
-    virtual int get_param_int(std::deque<std::string> &tokens, const std::string& name)=0;
-    virtual int64_t get_param_int64_t(std::deque<std::string> &tokens, const std::string& name)=0;
+    virtual std::string geb_params_string(std::deque<std::string> &tokens, const std::string& name)=0;
+    virtual int geb_params_int(std::deque<std::string> &tokens, const std::string& name)=0;
+    virtual int64_t geb_params_int64_t(std::deque<std::string> &tokens, const std::string& name)=0;
 
     /// get Time in microseconds (1/million part of second)
     virtual int64_t getNow()=0;
